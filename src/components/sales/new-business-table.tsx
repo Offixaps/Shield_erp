@@ -61,9 +61,11 @@ export default function NewBusinessTable() {
               </Badge>
             </TableCell>
              <TableCell className="text-right">
-              <Button variant="ghost" size="icon">
-                <FilePenLine className="h-4 w-4" />
-              </Button>
+              <Link href={`/business-development/sales/${business.id}/edit`} passHref>
+                <Button variant="ghost" size="icon" asChild>
+                  <a><FilePenLine className="h-4 w-4" /></a>
+                </Button>
+              </Link>
             </TableCell>
           </TableRow>
         ))}

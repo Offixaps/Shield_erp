@@ -33,6 +33,7 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { newBusinessData } from '@/lib/data';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -128,11 +129,45 @@ const formSchema = z
     }
   );
 
-export default function NewBusinessForm() {
+type NewBusinessFormProps = {
+    businessId?: string;
+}
+
+export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  
+  const isEditMode = !!businessId;
+  
+  const defaultValues = React.useMemo(() => {
+    if (isEditMode) {
+      const businessData = newBusinessData.find(b => b.id.toString() === businessId);
+      if (businessData) {
+        return {
+          applicantName: businessData.client,
+          lifeAssuredName: businessData.client,
+          policyNumber: businessData.policy,
+          contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
+          premiumAmount: businessData.premium,
+          commencementDate: new Date(businessData.commencementDate),
+          applicantDob: new Date('1985-05-20'),
+          lifeAssuredDob: new Date('1985-05-20'),
+          applicantEmail: 'j.doe@example.com',
+          applicantPhone: '024 123 4567',
+          applicantAddress: '123 Main St, Accra',
+          policyTerm: 10,
+          premiumTerm: 5,
+          sumAssured: 50000,
+          paymentFrequency: 'Monthly' as const,
+          increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
+          premiumPayerName: businessData.client,
+          premiumPayerOccupation: 'Accountant',
+          bankName: 'CalBank PLC',
+          bankBranch: 'Accra Main',
+          notes: '',
+        };
+      }
+    }
+    return {
       applicantName: '',
       applicantEmail: '',
       applicantPhone: '',
@@ -154,8 +189,18 @@ export default function NewBusinessForm() {
       paymentFrequency: undefined,
       applicantDob: undefined,
       lifeAssuredDob: undefined,
-    },
+    };
+  }, [isEditMode, businessId]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: defaultValues,
   });
+
+  React.useEffect(() => {
+    form.reset(defaultValues);
+  }, [defaultValues, form]);
+
 
   const commencementDate = form.watch('commencementDate');
   const lifeAssuredDob = form.watch('lifeAssuredDob');
@@ -184,8 +229,10 @@ export default function NewBusinessForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
-      title: 'Form Submitted',
-      description: 'New client and policy details have been captured.',
+      title: isEditMode ? 'Form Updated' : 'Form Submitted',
+      description: isEditMode
+        ? 'Policy details have been successfully updated.'
+        : 'New client and policy details have been captured.',
     });
   }
 
@@ -375,7 +422,7 @@ export default function NewBusinessForm() {
                 <FormLabel>Contract Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -506,7 +553,7 @@ export default function NewBusinessForm() {
                 <FormLabel>Payment Frequency</FormLabel>
                  <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -576,7 +623,7 @@ export default function NewBusinessForm() {
                 <FormLabel>Bank Name</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -630,7 +677,7 @@ export default function NewBusinessForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button type="submit">{isEditMode ? 'Update Policy' : 'Submit'}</Button>
       </form>
     </Form>
   );
