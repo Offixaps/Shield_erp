@@ -36,10 +36,12 @@ import { format } from 'date-fns';
 const formSchema = z
   .object({
     // Client Details
-    clientName: z.string().min(2, 'Client name must be at least 2 characters.'),
-    clientEmail: z.string().email('Invalid email address.'),
+    lifeAssuredName: z.string().min(2, 'Life Assured name must be at least 2 characters.'),
+    lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
+    applicantEmail: z.string().email('Invalid email address.'),
     clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
     clientAddress: z.string().min(5, 'Address is required.'),
+    lifeAssuredEmail: z.string().email('Invalid email address.').optional(),
 
     // Policy Details
     policyType: z.enum([
@@ -90,10 +92,11 @@ export default function NewBusinessForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      clientName: '',
-      clientEmail: '',
+      lifeAssuredName: '',
+      applicantEmail: '',
       clientPhone: '',
       clientAddress: '',
+      lifeAssuredEmail: '',
       policyNumber: '',
       premiumAmount: 0,
       notes: '',
@@ -115,7 +118,7 @@ export default function NewBusinessForm() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="clientName"
+            name="lifeAssuredName"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Life Assured Name</FormLabel>
@@ -126,14 +129,52 @@ export default function NewBusinessForm() {
               </FormItem>
             )}
           />
+           <FormField
+            control={form.control}
+            name="lifeAssuredDob"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Life Assured Date of Birth</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'PPP')
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
-            name="clientEmail"
+            name="applicantEmail"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel>Applicant Email Address</FormLabel>
                 <FormControl>
-                  <Input placeholder="john.doe@example.com" {...field} />
+                  <Input placeholder="applicant.email@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -161,6 +202,20 @@ export default function NewBusinessForm() {
                 <FormControl>
                   <Input placeholder="123 Main St, Accra" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="lifeAssuredEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Life Assured Email Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="life.assured@example.com" {...field} />
+                </FormControl>
+                <FormDescription>Optional: Email of the person whose life is assured.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
