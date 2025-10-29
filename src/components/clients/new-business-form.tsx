@@ -56,9 +56,15 @@ const formSchema = z
       ),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
     premiumTerm: z.coerce.number().positive('Premium term must be a positive number of years.'),
+    policyTerm: z.coerce.number().positive('Policy term must be a positive number of years.'),
     premiumAmount: z.coerce
       .number()
       .positive('Premium amount must be a positive number.'),
+    sumAssured: z.coerce
+      .number()
+      .positive('Sum assured must be a positive number.'),
+    paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
+    increaseMonth: z.string().min(1, 'Increase month is required.'),
     notes: z.string().optional(),
   })
   .refine(
@@ -99,10 +105,20 @@ export default function NewBusinessForm() {
       lifeAssuredEmail: '',
       policyNumber: '',
       premiumTerm: 0,
+      policyTerm: 0,
       premiumAmount: 0,
+      sumAssured: 0,
       notes: '',
     },
   });
+
+  const commencementDate = form.watch('commencementDate');
+
+  React.useEffect(() => {
+    if (commencementDate) {
+      form.setValue('increaseMonth', format(commencementDate, 'MMMM'));
+    }
+  }, [commencementDate, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -304,6 +320,19 @@ export default function NewBusinessForm() {
               </FormItem>
             )}
           />
+           <FormField
+            control={form.control}
+            name="policyTerm"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Policy Term (years)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="e.g., 5" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="premiumTerm"
@@ -312,6 +341,19 @@ export default function NewBusinessForm() {
                 <FormLabel>Premium Term (years)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="e.g., 10" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="sumAssured"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Main Life Cover (Sum Assured)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="10000.00" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -326,6 +368,46 @@ export default function NewBusinessForm() {
                 <FormControl>
                   <Input type="number" placeholder="500.00" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="paymentFrequency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Payment Frequency</FormLabel>
+                 <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a payment frequency" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Monthly">Monthly</SelectItem>
+                    <SelectItem value="Quarterly">Quarterly</SelectItem>
+                    <SelectItem value="Bi-Annually">Bi-Annually</SelectItem>
+                    <SelectItem value="Annually">Annually</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="increaseMonth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Increase Month</FormLabel>
+                <FormControl>
+                  <Input disabled {...field} />
+                </FormControl>
+                <FormDescription>This is automatically set from the commencement date.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
