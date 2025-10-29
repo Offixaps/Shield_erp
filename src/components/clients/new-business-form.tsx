@@ -175,23 +175,23 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       applicantPhone: '',
       applicantAddress: '',
       lifeAssuredName: '',
+      applicantDob: undefined,
+      lifeAssuredDob: undefined,
       ageNextBirthday: 0,
+      contractType: "Buy Term and Invest in Mutual Fund" as const,
       policyNumber: '',
+      commencementDate: undefined,
       premiumTerm: 0,
       policyTerm: 0,
       premiumAmount: 0,
       sumAssured: 0,
+      paymentFrequency: 'Monthly' as const,
       increaseMonth: '',
       notes: '',
       premiumPayerName: '',
       premiumPayerOccupation: '',
       bankName: '',
       bankBranch: '',
-      contractType: "Buy Term and Invest in Mutual Fund" as const,
-      paymentFrequency: 'Monthly' as const,
-      applicantDob: undefined,
-      lifeAssuredDob: undefined,
-      commencementDate: undefined,
     };
   }, [isEditMode, businessId]);
 
@@ -231,14 +231,40 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    toast({
-      title: isEditMode ? 'Form Updated' : 'Form Submitted',
-      description: isEditMode
-        ? 'Policy details have been successfully updated.'
-        : 'New client and policy details have been captured.',
-    });
+
     if (isEditMode && businessId) {
+      const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
+      if (businessIndex !== -1) {
+        // Create a new object to avoid direct mutation
+        const updatedBusinessData = { ...newBusinessData[businessIndex] };
+
+        // Update properties from the form
+        updatedBusinessData.client = values.lifeAssuredName;
+        updatedBusinessData.product = values.contractType;
+        updatedBusinessData.policy = values.policyNumber;
+        updatedBusinessData.premium = values.premiumAmount;
+        updatedBusinessData.commencementDate = format(values.commencementDate, 'yyyy-MM-dd');
+
+        // If the status was 'Declined', change it to 'Pending'
+        if (updatedBusinessData.status === 'Declined') {
+          updatedBusinessData.status = 'Pending';
+        }
+        
+        // Replace the old object with the updated one
+        newBusinessData[businessIndex] = updatedBusinessData;
+      }
+
+      toast({
+        title: 'Form Updated',
+        description: 'Policy details have been successfully updated.',
+      });
       router.push(`/business-development/clients/${businessId}`);
+    } else {
+        // This is where you would handle creating a new entry
+        toast({
+            title: 'Form Submitted',
+            description: 'New client and policy details have been captured.',
+        });
     }
   }
 
