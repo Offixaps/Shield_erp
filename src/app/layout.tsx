@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
-import AppSidebar from '@/components/app-sidebar';
-import AppHeader from '@/components/app-header';
 
 export const metadata: Metadata = {
   title: 'SHIELD ERP',
@@ -26,15 +23,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          <AppSidebar />
-          <SidebarInset>
-            <AppHeader />
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+        {children}
         <Toaster />
       </body>
     </html>

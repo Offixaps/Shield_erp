@@ -21,10 +21,11 @@ import {
   Shield,
   Settings,
   LogOut,
+  Home,
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/policies', label: 'Policies', icon: FileText },
   { href: '/claims', label: 'Claims', icon: ShieldAlert },
@@ -42,15 +43,19 @@ export default function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
+           <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home">
+                <Link href="/">
+                  <Home />
+                  <span>Home</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
           {navItems.map((item) => (
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={
-                  item.href === '/'
-                    ? pathname === item.href
-                    : pathname.startsWith(item.href)
-                }
+                isActive={pathname.startsWith(item.href)}
                 tooltip={item.label}
               >
                 <Link href={item.href}>
