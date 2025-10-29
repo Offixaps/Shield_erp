@@ -31,3 +31,12 @@ export const recentActivityData = [
     { id: 4, client: "Mike Johnson", policy: "E1274719", amount: 85.75, status: "Overdue" },
     { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
 ];
+
+export const newBusinessData = [
+  { id: 1, client: "John Doe", policy: "T1166017", product: "Buy Term and Invest in Mutual Fund", premium: 150.00, commencementDate: "2024-07-01", status: "Pending" },
+  { id: 2, client: "Jane Smith", policy: "E1274718", product: "The Education Policy", premium: 220.50, commencementDate: "2024-07-05", status: "Pending" },
+  { id: 3, client: "Acme Corp", policy: "T1166018", product: "Buy Term and Invest in Mutual Fund", premium: 1200.00, commencementDate: "2024-06-20", status: "Active" },
+  { id: 4, client: "Mike Johnson", policy: "E1274719", product: "The Education Policy", premium: 85.75, commencementDate: "2024-07-10", status: "Pending" },
+  { id: 5, client: "Emily White", policy: "T1166019", product: "Buy Term and Invest in Mutual Fund", premium: 300.00, commencementDate: "2024-06-15", status: "Active" },
+  { id: 6, client: "Chris Brown", policy: "E1274720", product: "The Education Policy", premium: 175.00, commencementDate: "2024-07-12", status: "Pending" },
+];
