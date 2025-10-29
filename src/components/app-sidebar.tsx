@@ -39,10 +39,10 @@ const navItems = {
     { href: '/business-development/policies', label: 'Policies', icon: FileText },
     { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
     { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
-    { href: '/business-development/collections', label: 'Premium Collection', icon: HandCoins },
   ],
   'Premium Administration': [
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
+    { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
   ]
 };
