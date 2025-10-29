@@ -1,6 +1,6 @@
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
-import NewBusinessTable from '@/components/premium-administration/new-business-table';
+import NewBusinessTable from '@/components/sales/new-business-table';
 
 export default function NewBusinessPage() {
   return (
