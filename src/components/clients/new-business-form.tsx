@@ -69,6 +69,7 @@ const formSchema = z
     clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
     clientAddress: z.string().min(5, 'Address is required.'),
     lifeAssuredEmail: z.string().email('Invalid email address.').optional().or(z.literal('')),
+    ageNextBirthday: z.coerce.number().optional(),
 
     // Policy Details
     contractType: z.enum([
@@ -136,6 +137,7 @@ export default function NewBusinessForm() {
       clientPhone: '',
       clientAddress: '',
       lifeAssuredEmail: '',
+      ageNextBirthday: 0,
       policyNumber: '',
       premiumTerm: 0,
       policyTerm: 0,
@@ -151,12 +153,28 @@ export default function NewBusinessForm() {
   });
 
   const commencementDate = form.watch('commencementDate');
+  const lifeAssuredDob = form.watch('lifeAssuredDob');
 
   React.useEffect(() => {
     if (commencementDate) {
       form.setValue('increaseMonth', format(commencementDate, 'MMMM'));
     }
   }, [commencementDate, form]);
+
+  React.useEffect(() => {
+    if (lifeAssuredDob) {
+      const today = new Date();
+      let age = today.getFullYear() - lifeAssuredDob.getFullYear();
+      const monthDiff = today.getMonth() - lifeAssuredDob.getMonth();
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < lifeAssuredDob.getDate())) {
+        // Birthday hasn't happened this year yet
+      } else {
+        // Birthday has already passed this year
+        age += 1;
+      }
+      form.setValue('ageNextBirthday', age);
+    }
+  }, [lifeAssuredDob, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -215,9 +233,25 @@ export default function NewBusinessForm() {
                       selected={field.value}
                       onSelect={field.onChange}
                       initialFocus
+                      disabled={(date) =>
+                        date > new Date() || date < new Date('1900-01-01')
+                      }
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="ageNextBirthday"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Age (Next Birthday)</FormLabel>
+                <FormControl>
+                  <Input type="number" disabled {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
