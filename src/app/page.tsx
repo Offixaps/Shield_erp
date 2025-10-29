@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { ArrowRight, Shield } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function HomePage() {
   return (
@@ -16,6 +17,9 @@ export default function HomePage() {
           <h1 className="text-xl font-bold tracking-tight text-foreground">
             SHIELD ERP
           </h1>
+        </div>
+        <div className="ml-auto">
+          <ThemeToggle />
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center p-4">
