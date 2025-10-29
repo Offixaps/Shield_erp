@@ -24,7 +24,7 @@ export default function NewBusinessTable() {
           <TableHead>Product</TableHead>
           <TableHead>Premium</TableHead>
           <TableHead>Commencement Date</TableHead>
-          <TableHead>Status</TableHead>
+          <TableHead>Approvals</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -51,11 +51,12 @@ export default function NewBusinessTable() {
             <TableCell>
               <Badge
                 className={cn(
-                  business.status === 'Active' && 'bg-green-500/80',
+                  business.status === 'Approved' && 'bg-green-500/80',
                   business.status === 'Pending' && 'bg-yellow-500/80',
+                  business.status === 'Declined' && 'bg-red-500/80',
                   'text-white'
                 )}
-                variant={business.status === 'Active' ? 'default' : 'secondary'}
+                variant={business.status === 'Approved' ? 'default' : 'secondary'}
               >
                 {business.status}
               </Badge>

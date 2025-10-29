@@ -131,15 +131,16 @@ export default function ClientDetailsPage({
               value={format(new Date(client.commencementDate), 'PPP')}
             />
             <DetailItem
-              label="Status"
+              label="Approval Status"
               value={
                 <Badge
                   className={cn(
-                    client.status === 'Active' && 'bg-green-500/80',
+                    client.status === 'Approved' && 'bg-green-500/80',
                     client.status === 'Pending' && 'bg-yellow-500/80',
+                    client.status === 'Declined' && 'bg-red-500/80',
                     'text-white'
                   )}
-                  variant={client.status === 'Active' ? 'default' : 'secondary'}
+                  variant={client.status === 'Approved' ? 'default' : 'secondary'}
                 >
                   {client.status}
                 </Badge>
