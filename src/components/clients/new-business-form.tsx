@@ -34,6 +34,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { newBusinessData } from '@/lib/data';
+import { useRouter } from 'next/navigation';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -135,6 +136,7 @@ type NewBusinessFormProps = {
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
+  const router = useRouter();
   
   const isEditMode = !!businessId;
   
@@ -187,9 +189,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       bankBranch: '',
       contractType: "Buy Term and Invest in Mutual Fund" as const,
       paymentFrequency: 'Monthly' as const,
-      applicantDob: new Date(),
-      lifeAssuredDob: new Date(),
-      commencementDate: new Date(),
+      applicantDob: undefined,
+      lifeAssuredDob: undefined,
+      commencementDate: undefined,
     };
   }, [isEditMode, businessId]);
 
@@ -235,6 +237,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         ? 'Policy details have been successfully updated.'
         : 'New client and policy details have been captured.',
     });
+    if (isEditMode && businessId) {
+      router.push(`/business-development/clients/${businessId}`);
+    }
   }
 
   return (
