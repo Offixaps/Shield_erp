@@ -25,6 +25,7 @@ import {
   Wallet,
   CheckCircle2,
   Contact,
+  PenSquare,
 } from 'lucide-react';
 import {
   Accordion,
@@ -47,12 +48,16 @@ const navItems = {
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
     { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
+  ],
+  'Underwriting': [
+    { href: '/underwriting', label: 'Dashboard', icon: PenSquare, exact: true },
   ]
 };
 
 const departmentIcons = {
     'Business Development': Briefcase,
     'Premium Administration': Building,
+    'Underwriting': PenSquare,
 }
 
 export default function AppSidebar() {
@@ -64,6 +69,9 @@ export default function AppSidebar() {
     }
     if (pathname.startsWith('/premium-administration')) {
       return 'Premium Administration';
+    }
+    if (pathname.startsWith('/underwriting')) {
+        return 'Underwriting';
     }
     return '';
   }

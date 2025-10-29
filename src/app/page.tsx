@@ -19,8 +19,8 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-2xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="w-full max-w-4xl">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Link href="/business-development" className="group">
                     <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
                     <CardHeader>
@@ -44,6 +44,19 @@ export default function HomePage() {
                         </CardTitle>
                         <CardDescription>
                         Manage premium collections, reconciliations, and reporting.
+                        </CardDescription>
+                    </CardHeader>
+                    </Card>
+                </Link>
+                <Link href="/underwriting" className="group">
+                    <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
+                    <CardHeader>
+                        <CardTitle className="flex items-center justify-between">
+                        <span>Underwriting</span>
+                        <ArrowRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                        </CardTitle>
+                        <CardDescription>
+                        Manage underwriting processes and risk assessment.
                         </CardDescription>
                     </CardHeader>
                     </Card>
