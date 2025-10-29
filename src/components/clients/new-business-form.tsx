@@ -352,19 +352,6 @@ export default function NewBusinessForm() {
               </FormItem>
             )}
           />
-          <FormField
-            control={form.control}
-            name="applicantAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Applicant postal address</FormLabel>
-                <FormControl>
-                  <Input placeholder="123 Main St, Accra" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
            <FormField
             control={form.control}
             name="lifeAssuredEmail"
@@ -375,6 +362,19 @@ export default function NewBusinessForm() {
                   <Input placeholder="life.assured@example.com" {...field} />
                 </FormControl>
                 <FormDescription>Optional: Email of the person whose life is assured.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="applicantAddress"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Applicant postal address</FormLabel>
+                <FormControl>
+                  <Input placeholder="123 Main St, Accra" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
@@ -651,5 +651,3 @@ export default function NewBusinessForm() {
     </Form>
   );
 }
-
-    
