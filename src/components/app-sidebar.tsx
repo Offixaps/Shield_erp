@@ -26,6 +26,9 @@ import {
   CheckCircle2,
   Contact,
   PenSquare,
+  HeartPulse,
+  Stethoscope,
+  Landmark,
 } from 'lucide-react';
 import {
   Accordion,
@@ -51,6 +54,12 @@ const navItems = {
   ],
   'Underwriting': [
     { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+    { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
+    { href: '/underwriting/occupational', label: 'Occupational', icon: Briefcase },
+    { href: '/underwriting/lifestyle', label: 'Lifestyle', icon: HeartPulse },
+    { href: '/underwriting/medicals', label: 'Medicals', icon: Stethoscope },
+    { href: '/underwriting/financial', label: 'Financial', icon: Landmark },
+    { href: '/underwriting/claims', label: 'Claims', icon: ShieldAlert },
   ]
 };
 
