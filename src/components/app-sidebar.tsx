@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/clients', label: 'Clients', icon: Users },
   { href: '/policies', label: 'Policies', icon: FileText },
   { href: '/claims', label: 'Claims', icon: ShieldAlert },

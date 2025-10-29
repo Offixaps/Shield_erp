@@ -15,7 +15,7 @@ export default function HomePage() {
         <h1 className="mb-8 text-center text-3xl font-bold tracking-tight text-foreground">
           SHIELD ERP
         </h1>
-        <Link href="/dashboard" className="group">
+        <Link href="/business-development" className="group">
           <Card className="hover:border-primary hover:shadow-lg transition-all">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
