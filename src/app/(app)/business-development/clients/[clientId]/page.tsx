@@ -19,6 +19,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, XCircle } from 'lucide-react';
 
 function DetailItem({
   label,
@@ -74,10 +76,24 @@ export default function ClientDetailsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={client.client}
-        description={`Policy #${client.policy}`}
-      />
+      <div className="flex items-start justify-between">
+        <PageHeader
+          title={client.client}
+          description={`Policy #${client.policy}`}
+        />
+        {client.status === 'Pending' && (
+          <div className="flex gap-2">
+            <Button>
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Approve Policy
+            </Button>
+            <Button variant="destructive">
+              <XCircle className="mr-2 h-4 w-4" />
+              Decline Policy
+            </Button>
+          </div>
+        )}
+      </div>
 
       <div className="space-y-6">
         <Card>
@@ -88,8 +104,14 @@ export default function ClientDetailsPage({
             <DetailItem label="Life Assured Name" value={client.client} />
             <DetailItem label="Life Assured Date of Birth" value="1985-05-20" />
             <DetailItem label="Applicant Email Address" value="j.doe@example.com" />
-            <DetailItem label="Applicant Telephone Number" value="024 123 4567" />
-            <DetailItem label="Applicant postal address" value="123 Main St, Accra" />
+            <DetailItem
+              label="Applicant Telephone Number"
+              value="024 123 4567"
+            />
+            <DetailItem
+              label="Applicant postal address"
+              value="123 Main St, Accra"
+            />
           </CardContent>
         </Card>
 
@@ -108,20 +130,37 @@ export default function ClientDetailsPage({
               label="Policy Commencement Date"
               value={format(new Date(client.commencementDate), 'PPP')}
             />
-            <DetailItem label="Status" value={client.status} />
+            <DetailItem
+              label="Status"
+              value={
+                <Badge
+                  className={cn(
+                    client.status === 'Active' && 'bg-green-500/80',
+                    client.status === 'Pending' && 'bg-yellow-500/80',
+                    'text-white'
+                  )}
+                  variant={client.status === 'Active' ? 'default' : 'secondary'}
+                >
+                  {client.status}
+                </Badge>
+              }
+            />
             <DetailItem label="Policy Term (years)" value="10 Years" />
             <DetailItem label="Premium Term (years)" value="5 Years" />
             <DetailItem label="Payment Frequency" value="Monthly" />
           </CardContent>
         </Card>
-        
+
         <Card>
-            <CardHeader>
-                <CardTitle>Underwriting</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">Underwriting details, including risk assessments and decisions, will be displayed here.</p>
-            </CardContent>
+          <CardHeader>
+            <CardTitle>Underwriting</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              Underwriting details, including risk assessments and decisions,
+              will be displayed here.
+            </p>
+          </CardContent>
         </Card>
 
         <Card>
