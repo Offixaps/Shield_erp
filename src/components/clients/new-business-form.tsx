@@ -33,34 +33,57 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
-const formSchema = z.object({
-  // Client Details
-  clientName: z.string().min(2, 'Client name must be at least 2 characters.'),
-  clientEmail: z.string().email('Invalid email address.'),
-  clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
-  clientAddress: z.string().min(5, 'Address is required.'),
+const formSchema = z
+  .object({
+    // Client Details
+    clientName: z.string().min(2, 'Client name must be at least 2 characters.'),
+    clientEmail: z.string().email('Invalid email address.'),
+    clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
+    clientAddress: z.string().min(5, 'Address is required.'),
 
-  // Policy Details
-  policyType: z.enum([
-    'Term Life Insurance',
-    'Education Policy',
-    'Auto Insurance',
-    'Health Insurance',
-    'Home Insurance',
-  ]),
-  policyNumber: z
-    .string()
-    .regex(
-      /^(T|E)\d{7}$/,
-      'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
-    ),
-  startDate: z.date({ required_error: 'A start date is required.' }),
-  endDate: z.date({ required_error: 'An end date is required.' }),
-  premiumAmount: z.coerce
-    .number()
-    .positive('Premium amount must be a positive number.'),
-  notes: z.string().optional(),
-});
+    // Policy Details
+    policyType: z.enum([
+      'Buy Term and Invest in Mutual Fund',
+      'The Education Policy',
+    ]),
+    policyNumber: z
+      .string()
+      .regex(
+        /^[TE]\d{7}$/,
+        'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
+      ),
+    startDate: z.date({ required_error: 'A start date is required.' }),
+    endDate: z.date({ required_error: 'An end date is required.' }),
+    premiumAmount: z.coerce
+      .number()
+      .positive('Premium amount must be a positive number.'),
+    notes: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.policyType === 'Buy Term and Invest in Mutual Fund') {
+        return data.policyNumber.startsWith('T');
+      }
+      return true;
+    },
+    {
+      message:
+        'Policy number must start with "T" for "Buy Term and Invest in Mutual Fund".',
+      path: ['policyNumber'],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.policyType === 'The Education Policy') {
+        return data.policyNumber.startsWith('E');
+      }
+      return true;
+    },
+    {
+      message: 'Policy number must start with "E" for "The Education Policy".',
+      path: ['policyNumber'],
+    }
+  );
 
 export default function NewBusinessForm() {
   const { toast } = useToast();
@@ -162,19 +185,12 @@ export default function NewBusinessForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="Term Life Insurance">
-                      Term Life (Buy Term and Invest in Mutual Fund)
+                    <SelectItem value="Buy Term and Invest in Mutual Fund">
+                      Buy Term and Invest in Mutual Fund
                     </SelectItem>
-                    <SelectItem value="Education Policy">
+                    <SelectItem value="The Education Policy">
                       The Education Policy
                     </SelectItem>
-                    <SelectItem value="Auto Insurance">
-                      Auto Insurance
-                    </SelectItem>
-                    <SelectItem value="Health Insurance">
-                      Health Insurance
-                    </SelectItem>
-                    <SelectItem value="Home Insurance">Home Insurance</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
