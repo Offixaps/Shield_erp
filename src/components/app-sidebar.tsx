@@ -50,7 +50,7 @@ const navItems = {
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
   ],
   'Underwriting': [
-    { href: '/underwriting', label: 'Dashboard', icon: PenSquare, exact: true },
+    { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   ]
 };
 
