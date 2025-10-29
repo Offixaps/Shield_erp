@@ -42,14 +42,18 @@ const formSchema = z.object({
 
   // Policy Details
   policyType: z.enum([
+    'Term Life Insurance',
+    'Education Policy',
     'Auto Insurance',
     'Health Insurance',
-    'Life Insurance',
     'Home Insurance',
   ]),
   policyNumber: z
     .string()
-    .min(5, 'Policy number must be at least 5 characters.'),
+    .regex(
+      /^(T|E)\d{7}$/,
+      'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
+    ),
   startDate: z.date({ required_error: 'A start date is required.' }),
   endDate: z.date({ required_error: 'An end date is required.' }),
   premiumAmount: z.coerce
@@ -158,13 +162,18 @@ export default function NewBusinessForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
+                    <SelectItem value="Term Life Insurance">
+                      Term Life (Buy Term and Invest in Mutual Fund)
+                    </SelectItem>
+                    <SelectItem value="Education Policy">
+                      The Education Policy
+                    </SelectItem>
                     <SelectItem value="Auto Insurance">
                       Auto Insurance
                     </SelectItem>
                     <SelectItem value="Health Insurance">
                       Health Insurance
                     </SelectItem>
-                    <SelectItem value="Life Insurance">Life Insurance</SelectItem>
                     <SelectItem value="Home Insurance">Home Insurance</SelectItem>
                   </SelectContent>
                 </Select>
@@ -179,7 +188,7 @@ export default function NewBusinessForm() {
               <FormItem>
                 <FormLabel>Policy Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="POL-XYZ-12345" {...field} />
+                  <Input placeholder="e.g., T1234567" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

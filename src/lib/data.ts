@@ -25,9 +25,9 @@ export const policyDistributionData = [
 ];
 
 export const recentActivityData = [
-    { id: 1, client: "John Doe", policy: "POL-00123", amount: 150.00, status: "Paid" },
-    { id: 2, client: "Jane Smith", policy: "POL-00456", amount: 220.50, status: "Pending" },
-    { id: 3, client: "Acme Corp", policy: "POL-00789", amount: 1200.00, status: "Paid" },
-    { id: 4, client: "Mike Johnson", policy: "POL-00112", amount: 85.75, status: "Overdue" },
-    { id: 5, client: "Emily White", policy: "POL-00334", amount: 300.00, status: "Paid" },
+    { id: 1, client: "John Doe", policy: "T1166017", amount: 150.00, status: "Paid" },
+    { id: 2, client: "Jane Smith", policy: "E1274718", amount: 220.50, status: "Pending" },
+    { id: 3, client: "Acme Corp", policy: "T1166018", amount: 1200.00, status: "Paid" },
+    { id: 4, client: "Mike Johnson", policy: "E1274719", amount: 85.75, status: "Overdue" },
+    { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
 ];
