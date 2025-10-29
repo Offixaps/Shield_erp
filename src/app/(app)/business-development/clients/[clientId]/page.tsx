@@ -32,7 +32,7 @@ function DetailItem({
   return (
     <div>
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="text-base font-medium">{value || 'N/A'}</p>
+      <div className="text-base font-medium">{value || 'N/A'}</div>
     </div>
   );
 }
