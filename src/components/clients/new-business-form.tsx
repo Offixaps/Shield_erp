@@ -70,7 +70,6 @@ const formSchema = z
     applicantEmail: z.string().email('Invalid email address.'),
     applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
     applicantAddress: z.string().min(5, 'Applicant postal address is required.'),
-    lifeAssuredEmail: z.string().email('Invalid email address.').optional().or(z.literal('')),
     ageNextBirthday: z.coerce.number().optional(),
 
     // Policy Details
@@ -139,7 +138,6 @@ export default function NewBusinessForm() {
       applicantPhone: '',
       applicantAddress: '',
       lifeAssuredName: '',
-      lifeAssuredEmail: '',
       ageNextBirthday: 0,
       policyNumber: '',
       premiumTerm: 0,
@@ -348,20 +346,6 @@ export default function NewBusinessForm() {
                 <FormControl>
                   <Input placeholder="024 123 4567" {...field} />
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="lifeAssuredEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Life Assured Email Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="life.assured@example.com" {...field} />
-                </FormControl>
-                <FormDescription>Optional: Email of the person whose life is assured.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
