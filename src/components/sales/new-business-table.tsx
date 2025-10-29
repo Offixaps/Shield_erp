@@ -10,6 +10,7 @@ import {
 import { newBusinessData } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 export default function NewBusinessTable() {
   return (
@@ -31,7 +32,9 @@ export default function NewBusinessTable() {
               <div className="font-medium">{business.client}</div>
             </TableCell>
             <TableCell>
-              {business.policy}
+              <Link href={`/business-development/clients/${business.id}`} className="text-primary hover:underline">
+                {business.policy}
+              </Link>
             </TableCell>
             <TableCell>
               {business.product}
