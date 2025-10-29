@@ -25,12 +25,12 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/clients', label: 'Clients', icon: Users },
-  { href: '/policies', label: 'Policies', icon: FileText },
-  { href: '/claims', label: 'Claims', icon: ShieldAlert },
-  { href: '/reports', label: 'Reports', icon: BarChart3 },
-  { href: '/collections', label: 'Premium Collection', icon: HandCoins },
+  { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+  { href: '/business-development/clients', label: 'Clients', icon: Users },
+  { href: '/business-development/policies', label: 'Policies', icon: FileText },
+  { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
+  { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
+  { href: '/business-development/collections', label: 'Premium Collection', icon: HandCoins },
 ];
 
 export default function AppSidebar() {
@@ -55,7 +55,7 @@ export default function AppSidebar() {
             <SidebarMenuItem key={item.href}>
               <SidebarMenuButton
                 asChild
-                isActive={pathname.startsWith(item.href)}
+                isActive={item.exact ? pathname === item.href : pathname.startsWith(item.href)}
                 tooltip={item.label}
               >
                 <Link href={item.href}>
