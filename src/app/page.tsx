@@ -38,19 +38,19 @@ export default function Home() {
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected',
-      value: `\$${(dashboardStats.premiumsCollected / 1000).toFixed(1)}k`,
+      value: `GHS${(dashboardStats.premiumsCollected / 1000).toFixed(1)}k`,
       change: '+10.2%',
     },
     {
       key: 'newBusiness',
       title: 'New Business',
-      value: `\$${(dashboardStats.newBusiness / 1000).toFixed(1)}k`,
+      value: `GHS${(dashboardStats.newBusiness / 1000).toFixed(1)}k`,
       change: '+5% this month',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `\$${(dashboardStats.outstandingPremiums / 1000).toFixed(1)}k`,
+      value: `GHS${(dashboardStats.outstandingPremiums / 1000).toFixed(1)}k`,
       change: '-3.1%',
     },
   ];

@@ -35,7 +35,7 @@ export default function PremiumsChart() {
           tickFormatter={(value) => value.slice(0, 3)}
         />
         <YAxis
-            tickFormatter={(value) => `$${Number(value) / 1000}k`}
+            tickFormatter={(value) => `GHS${Number(value) / 1000}k`}
         />
         <ChartTooltip content={<ChartTooltipContent />} />
         <ChartLegend content={<ChartLegendContent />} />

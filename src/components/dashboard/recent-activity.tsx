@@ -46,7 +46,7 @@ export default function RecentActivity() {
                   {activity.policy}
                 </TableCell>
                 <TableCell className="text-right">
-                  ${activity.amount.toFixed(2)}
+                  GHS{activity.amount.toFixed(2)}
                 </TableCell>
                 <TableCell className="text-right">
                   <Badge
