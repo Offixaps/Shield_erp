@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Pencil } from 'lucide-react';
+import { FilePenLine } from 'lucide-react';
 
 export default function NewBusinessTable() {
   return (
@@ -62,7 +62,7 @@ export default function NewBusinessTable() {
             </TableCell>
              <TableCell className="text-right">
               <Button variant="ghost" size="icon">
-                <Pencil className="h-4 w-4" />
+                <FilePenLine className="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
