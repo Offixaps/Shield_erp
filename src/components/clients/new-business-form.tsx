@@ -198,12 +198,12 @@ export default function NewBusinessForm() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="applicantName"
+            name="lifeAssuredName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Applicant Name</FormLabel>
+                <FormLabel>Life Assured Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Jane Smith" {...field} />
+                  <Input placeholder="John Doe" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -211,10 +211,10 @@ export default function NewBusinessForm() {
           />
            <FormField
             control={form.control}
-            name="applicantDob"
+            name="lifeAssuredDob"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Applicant Date of Birth</FormLabel>
+                <FormLabel>Life Assured Date of Birth</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -255,12 +255,12 @@ export default function NewBusinessForm() {
           />
           <FormField
             control={form.control}
-            name="lifeAssuredName"
+            name="applicantName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Life Assured Name</FormLabel>
+                <FormLabel>Applicant Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input placeholder="Jane Smith" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -268,10 +268,10 @@ export default function NewBusinessForm() {
           />
            <FormField
             control={form.control}
-            name="lifeAssuredDob"
+            name="applicantDob"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Life Assured Date of Birth</FormLabel>
+                <FormLabel>Applicant Date of Birth</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
