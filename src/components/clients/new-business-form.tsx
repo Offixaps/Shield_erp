@@ -63,6 +63,8 @@ const bankNames = [
 const formSchema = z
   .object({
     // Client Details
+    applicantName: z.string().min(2, 'Applicant name must be at least 2 characters.'),
+    applicantDob: z.date({ required_error: 'Applicant date of birth is required.' }),
     lifeAssuredName: z.string().min(2, 'Life Assured name must be at least 2 characters.'),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
     applicantEmail: z.string().email('Invalid email address.'),
@@ -132,10 +134,11 @@ export default function NewBusinessForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      lifeAssuredName: '',
+      applicantName: '',
       applicantEmail: '',
       applicantPhone: '',
       applicantAddress: '',
+      lifeAssuredName: '',
       lifeAssuredEmail: '',
       ageNextBirthday: 0,
       policyNumber: '',
@@ -151,6 +154,8 @@ export default function NewBusinessForm() {
       bankBranch: '',
       contractType: undefined,
       paymentFrequency: undefined,
+      applicantDob: undefined,
+      lifeAssuredDob: undefined,
     },
   });
 
@@ -191,6 +196,63 @@ export default function NewBusinessForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <h3 className="text-lg font-medium">Client Details</h3>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="applicantName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicant Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Jane Smith" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="applicantDob"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Applicant Date of Birth</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'PPP')
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      disabled={(date) =>
+                        date > new Date() || date < new Date('1900-01-01')
+                      }
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="lifeAssuredName"
@@ -257,6 +319,9 @@ export default function NewBusinessForm() {
                 <FormControl>
                   <Input type="number" disabled {...field} />
                 </FormControl>
+                <FormDescription>
+                  This is the age of the Life Assured.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
