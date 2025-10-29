@@ -44,7 +44,7 @@ const formSchema = z
     lifeAssuredEmail: z.string().email('Invalid email address.').optional(),
 
     // Policy Details
-    policyType: z.enum([
+    contractType: z.enum([
       'Buy Term and Invest in Mutual Fund',
       'The Education Policy',
     ]),
@@ -54,8 +54,8 @@ const formSchema = z
         /^[TE]\d{7}$/,
         'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
       ),
-    startDate: z.date({ required_error: 'A start date is required.' }),
-    endDate: z.date({ required_error: 'An end date is required.' }),
+    commencementDate: z.date({ required_error: 'A start date is required.' }),
+    premiumTerm: z.coerce.number().positive('Premium term must be a positive number of years.'),
     premiumAmount: z.coerce
       .number()
       .positive('Premium amount must be a positive number.'),
@@ -63,7 +63,7 @@ const formSchema = z
   })
   .refine(
     (data) => {
-      if (data.policyType === 'Buy Term and Invest in Mutual Fund') {
+      if (data.contractType === 'Buy Term and Invest in Mutual Fund') {
         return data.policyNumber.startsWith('T');
       }
       return true;
@@ -76,7 +76,7 @@ const formSchema = z
   )
   .refine(
     (data) => {
-      if (data.policyType === 'The Education Policy') {
+      if (data.contractType === 'The Education Policy') {
         return data.policyNumber.startsWith('E');
       }
       return true;
@@ -98,6 +98,7 @@ export default function NewBusinessForm() {
       clientAddress: '',
       lifeAssuredEmail: '',
       policyNumber: '',
+      premiumTerm: 0,
       premiumAmount: 0,
       notes: '',
     },
@@ -226,10 +227,10 @@ export default function NewBusinessForm() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
             control={form.control}
-            name="policyType"
+            name="contractType"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Policy Type</FormLabel>
+                <FormLabel>Contract Type</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
@@ -267,10 +268,10 @@ export default function NewBusinessForm() {
           />
           <FormField
             control={form.control}
-            name="startDate"
+            name="commencementDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Start Date</FormLabel>
+                <FormLabel>Policy Commencement Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -305,38 +306,13 @@ export default function NewBusinessForm() {
           />
           <FormField
             control={form.control}
-            name="endDate"
+            name="premiumTerm"
             render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>End Date</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'w-full pl-3 text-left font-normal',
-                          !field.value && 'text-muted-foreground'
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, 'PPP')
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                    />
-                  </PopoverContent>
-                </Popover>
+              <FormItem>
+                <FormLabel>Premium Term (years)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="e.g., 10" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
