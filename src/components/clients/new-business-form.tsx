@@ -354,7 +354,7 @@ export default function NewBusinessForm() {
             control={form.control}
             name="applicantAddress"
             render={({ field }) => (
-              <FormItem className="md:col-span-2">
+              <FormItem>
                 <FormLabel>Applicant postal address</FormLabel>
                 <FormControl>
                   <Input placeholder="123 Main St, Accra" {...field} />
