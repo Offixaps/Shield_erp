@@ -24,6 +24,7 @@ import {
   Briefcase,
   Wallet,
   CheckCircle2,
+  Contact,
 } from 'lucide-react';
 import {
   Accordion,
@@ -37,6 +38,7 @@ const navItems = {
     { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
     { href: '/business-development/clients', label: 'Clients', icon: Users },
+    { href: '/business-development/advisors', label: 'Advisors', icon: Contact },
     { href: '/business-development/policies', label: 'Policies', icon: FileText },
     { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
     { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
