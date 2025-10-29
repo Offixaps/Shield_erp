@@ -42,7 +42,7 @@ const formSchema = z
     applicantEmail: z.string().email('Invalid email address.'),
     clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
     clientAddress: z.string().min(5, 'Address is required.'),
-    lifeAssuredEmail: z.string().email('Invalid email address.').optional(),
+    lifeAssuredEmail: z.string().email('Invalid email address.').optional().or(z.literal('')),
 
     // Policy Details
     contractType: z.enum([
@@ -67,6 +67,12 @@ const formSchema = z
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
     increaseMonth: z.string().min(1, 'Increase month is required.'),
     notes: z.string().optional(),
+
+    // Payment Details
+    premiumPayerName: z.string().min(2, 'Premium Payer name is required.'),
+    premiumPayerOccupation: z.string().min(2, 'Premium Payer occupation is required.'),
+    bankName: z.string().min(2, 'Bank name is required.'),
+    bankBranch: z.string().min(2, 'Bank branch is required.'),
   })
   .refine(
     (data) => {
@@ -104,16 +110,17 @@ export default function NewBusinessForm() {
       clientPhone: '',
       clientAddress: '',
       lifeAssuredEmail: '',
-      contractType: undefined,
       policyNumber: '',
-      commencementDate: undefined,
       premiumTerm: 0,
       policyTerm: 0,
       premiumAmount: 0,
       sumAssured: 0,
-      paymentFrequency: undefined,
       increaseMonth: '',
       notes: '',
+      premiumPayerName: '',
+      premiumPayerOccupation: '',
+      bankName: '',
+      bankBranch: '',
     },
   });
 
@@ -418,6 +425,63 @@ export default function NewBusinessForm() {
             )}
           />
         </div>
+
+        <h3 className="mt-8 text-lg font-medium">Payment Details</h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          <FormField
+            control={form.control}
+            name="premiumPayerName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Premium Payer Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Jane Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="premiumPayerOccupation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Premium Payer Occupation</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Teacher" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bankName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., GCB Bank" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="bankBranch"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Bank Branch</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Accra Main" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
         <FormField
           control={form.control}
           name="notes"
