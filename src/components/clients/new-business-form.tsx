@@ -185,10 +185,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       premiumPayerOccupation: '',
       bankName: '',
       bankBranch: '',
-      contractType: undefined,
-      paymentFrequency: undefined,
-      applicantDob: undefined,
-      lifeAssuredDob: undefined,
+      contractType: "Buy Term and Invest in Mutual Fund" as const,
+      paymentFrequency: 'Monthly' as const,
+      applicantDob: new Date(),
+      lifeAssuredDob: new Date(),
+      commencementDate: new Date(),
     };
   }, [isEditMode, businessId]);
 
@@ -362,7 +363,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <FormItem>
                 <FormLabel>Age (Next Birthday)</FormLabel>
                 <FormControl>
-                  <Input type="number" disabled {...field} />
+                  <Input type="number" disabled {...field} value={field.value || 0} />
                 </FormControl>
                 <FormDescription>
                   This is the age of the Life Assured.
