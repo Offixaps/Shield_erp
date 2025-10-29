@@ -49,6 +49,7 @@ const navItems = {
   ],
   'Premium Administration': [
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
+    { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
     { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
   ],
