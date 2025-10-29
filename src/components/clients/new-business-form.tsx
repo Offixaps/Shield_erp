@@ -34,6 +34,32 @@ import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
+const bankNames = [
+  'Absa Bank Ghana Limited',
+  'Access Bank (Ghana) Plc',
+  'Agricultural Development Bank Plc',
+  'Bank of Africa Ghana Limited',
+  'CalBank PLC',
+  'Consolidated Bank Ghana Limited',
+  'Ecobank Ghana PLC',
+  'FBNBank (Ghana) Limited',
+  'Fidelity Bank Ghana Limited',
+  'First Atlantic Bank Limited',
+  'First National Bank (Ghana) Limited',
+  'GCB Bank PLC',
+  'Guaranty Trust Bank (Ghana) Limited',
+  'National Investment Bank Limited',
+  'OmniBSIC Bank Ghana Limited',
+  'Prudential Bank Limited',
+  'Republic Bank (Ghana) PLC',
+  'Societe Generale Ghana PLC',
+  'Stanbic Bank Ghana Limited',
+  'Standard Chartered Bank Ghana PLC',
+  'United Bank for Africa (Ghana) Limited',
+  'Universal Merchant Bank Limited',
+  'Zenith Bank (Ghana) Limited',
+];
+
 const formSchema = z
   .object({
     // Client Details
@@ -460,9 +486,23 @@ export default function NewBusinessForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Bank Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., GCB Bank" {...field} />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a bank" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {bankNames.map((bank) => (
+                      <SelectItem key={bank} value={bank}>
+                        {bank}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
