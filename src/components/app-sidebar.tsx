@@ -35,7 +35,7 @@ import {
 const navItems = {
   'Business Development': [
     { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-    { href: '/business-development/clients', label: 'Clients', icon: Users },
+    { href: '/business-development/sales', label: 'Sales', icon: Users },
     { href: '/business-development/policies', label: 'Policies', icon: FileText },
     { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
     { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
