@@ -66,8 +66,8 @@ const formSchema = z
     lifeAssuredName: z.string().min(2, 'Life Assured name must be at least 2 characters.'),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
     applicantEmail: z.string().email('Invalid email address.'),
-    clientPhone: z.string().min(10, 'Phone number must be at least 10 digits.'),
-    clientAddress: z.string().min(5, 'Address is required.'),
+    applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
+    applicantAddress: z.string().min(5, 'Applicant postal address is required.'),
     lifeAssuredEmail: z.string().email('Invalid email address.').optional().or(z.literal('')),
     ageNextBirthday: z.coerce.number().optional(),
 
@@ -134,8 +134,8 @@ export default function NewBusinessForm() {
     defaultValues: {
       lifeAssuredName: '',
       applicantEmail: '',
-      clientPhone: '',
-      clientAddress: '',
+      applicantPhone: '',
+      applicantAddress: '',
       lifeAssuredEmail: '',
       ageNextBirthday: 0,
       policyNumber: '',
@@ -149,6 +149,8 @@ export default function NewBusinessForm() {
       premiumPayerOccupation: '',
       bankName: '',
       bankBranch: '',
+      contractType: undefined,
+      paymentFrequency: undefined,
     },
   });
 
@@ -274,10 +276,10 @@ export default function NewBusinessForm() {
           />
           <FormField
             control={form.control}
-            name="clientPhone"
+            name="applicantPhone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel>Applicant Telephone Number</FormLabel>
                 <FormControl>
                   <Input placeholder="024 123 4567" {...field} />
                 </FormControl>
@@ -287,10 +289,10 @@ export default function NewBusinessForm() {
           />
           <FormField
             control={form.control}
-            name="clientAddress"
+            name="applicantAddress"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Address</FormLabel>
+                <FormLabel>Applicant postal address</FormLabel>
                 <FormControl>
                   <Input placeholder="123 Main St, Accra" {...field} />
                 </FormControl>
@@ -584,3 +586,5 @@ export default function NewBusinessForm() {
     </Form>
   );
 }
+
+    
