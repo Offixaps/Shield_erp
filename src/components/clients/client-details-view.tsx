@@ -94,9 +94,9 @@ export default function ClientDetailsView({
       { title: 'Commencement Date', value: format(new Date(client.commencementDate), 'PPP') },
       { title: 'Policy Term', value: '10 years' },
       { title: 'Premium Term', value: '5 years' },
-      { title: 'Status', value:  <Badge
+      { title: 'Onboarding Status', value:  <Badge
         className={cn(
-            client.status === 'Approved' && 'bg-green-500/80',
+            (client.status === 'Approved' || client.status === 'Accepted') && 'bg-green-500/80',
             client.status === 'Pending' && 'bg-yellow-500/80',
             client.status === 'Declined' && 'bg-red-500/80',
             'text-white'
@@ -105,7 +105,27 @@ export default function ClientDetailsView({
         >
         {client.status}
         </Badge> 
-    },
+      },
+      { title: 'Billing Status', value:  <Badge
+        className={cn(
+            'bg-green-500/80',
+            'text-white'
+        )}
+        variant='default'
+        >
+        Up to Date
+        </Badge> 
+      },
+      { title: 'Policy Status', value:  <Badge
+        className={cn(
+            'bg-green-500/80',
+            'text-white'
+        )}
+        variant='default'
+        >
+        In Force
+        </Badge> 
+      },
   ]
 
   return (
@@ -138,7 +158,6 @@ export default function ClientDetailsView({
         <Card>
             <CardHeader className="p-0">
                 <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Policy Summary</h3>
-                <Separator className="my-0" />
             </CardHeader>
             <CardContent className="pt-6">
                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
