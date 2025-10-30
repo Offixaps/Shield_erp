@@ -539,45 +539,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
           <FormField
             control={form.control}
-            name="applicantEmail"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Applicant Email Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="applicant.email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="applicantPhone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Applicant Telephone Number</FormLabel>
-                <FormControl>
-                  <Input placeholder="024 123 4567" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="applicantAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Applicant postal address</FormLabel>
-                <FormControl>
-                  <Input placeholder="123 Main St, Accra" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="gender"
             render={({ field }) => (
               <FormItem>
@@ -708,6 +669,52 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
         </div>
 
+        <div className="mt-8">
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Contact Details</h3>
+          <Separator className="my-0" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
+          <FormField
+            control={form.control}
+            name="applicantEmail"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicant Email Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="applicant.email@example.com" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="applicantPhone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicant Telephone Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="024 123 4567" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="applicantAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Applicant postal address</FormLabel>
+                <FormControl>
+                  <Input placeholder="123 Main St, Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+        
         <div className="mt-8">
           <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Identification</h3>
           <Separator className="my-0" />
