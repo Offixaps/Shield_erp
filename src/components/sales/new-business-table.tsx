@@ -1,3 +1,6 @@
+'use client';
+
+import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import {
   Table,
@@ -12,9 +15,15 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { FilePenLine } from 'lucide-react';
+import { FilePenLine, Trash2 } from 'lucide-react';
 
 export default function NewBusinessTable() {
+  const [data, setData] = React.useState(newBusinessData);
+
+  const handleDelete = (id: number) => {
+    setData(data.filter((item) => item.id !== id));
+  };
+
   return (
     <Table>
       <TableHeader>
@@ -30,23 +39,22 @@ export default function NewBusinessTable() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {newBusinessData.map((business, index) => (
+        {data.map((business, index) => (
           <TableRow key={business.id}>
             <TableCell>{index + 1}</TableCell>
             <TableCell>
               <div className="font-medium">{business.client}</div>
             </TableCell>
             <TableCell>
-              <Link href={`/business-development/clients/${business.id}`} className="text-primary hover:underline">
+              <Link
+                href={`/business-development/clients/${business.id}`}
+                className="text-primary hover:underline"
+              >
                 {business.policy}
               </Link>
             </TableCell>
-            <TableCell>
-              {business.product}
-            </TableCell>
-            <TableCell>
-              GHS{business.premium.toFixed(2)}
-            </TableCell>
+            <TableCell>{business.product}</TableCell>
+            <TableCell>GHS{business.premium.toFixed(2)}</TableCell>
             <TableCell>
               {format(new Date(business.commencementDate), 'PPP')}
             </TableCell>
@@ -58,17 +66,29 @@ export default function NewBusinessTable() {
                   business.status === 'Declined' && 'bg-red-500/80',
                   'text-white'
                 )}
-                variant={business.status === 'Approved' ? 'default' : 'secondary'}
+                variant={
+                  business.status === 'Approved' ? 'default' : 'secondary'
+                }
               >
                 {business.status}
               </Badge>
             </TableCell>
-             <TableCell className="text-right">
-              <Button variant="ghost" size="icon" asChild>
-                <Link href={`/business-development/sales/${business.id}/edit`}>
-                  <FilePenLine className="h-4 w-4" />
-                </Link>
-              </Button>
+            <TableCell className="text-right">
+              <div className="flex items-center justify-end gap-2">
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href={`/business-development/sales/${business.id}/edit`}>
+                    <FilePenLine className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-destructive hover:text-destructive"
+                  onClick={() => handleDelete(business.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}
