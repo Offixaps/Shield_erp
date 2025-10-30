@@ -103,7 +103,7 @@ export default function ClientDetailsView({
       <div className="space-y-6">
         <Card>
            <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Client Details</h3>
+            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Personal details of life insured</h3>
              <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">

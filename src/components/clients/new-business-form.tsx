@@ -384,7 +384,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Client Details</h3>
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Personal details of life insured</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
