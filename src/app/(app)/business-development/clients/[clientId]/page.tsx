@@ -92,7 +92,7 @@ export default function ClientDetailsPage({
             </Button>
             <Button variant="secondary">
               <ThumbsDown className="mr-2 h-4 w-4" />
-              Not-Taken-Up
+              NTU Policy
             </Button>
             <Button variant="destructive">
               <XCircle className="mr-2 h-4 w-4" />
