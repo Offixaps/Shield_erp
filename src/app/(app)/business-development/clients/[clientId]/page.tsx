@@ -20,7 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { XCircle, PauseCircle } from 'lucide-react';
+import { XCircle, PauseCircle, ThumbsDown } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 
@@ -89,6 +89,10 @@ export default function ClientDetailsPage({
             <Button variant="secondary">
               <PauseCircle className="mr-2 h-4 w-4" />
               Defer Policy
+            </Button>
+            <Button variant="secondary">
+              <ThumbsDown className="mr-2 h-4 w-4" />
+              Not-Taken-Up
             </Button>
             <Button variant="destructive">
               <XCircle className="mr-2 h-4 w-4" />
