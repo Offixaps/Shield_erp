@@ -86,11 +86,11 @@ export default function ClientDetailsPage({
         {client.status === 'Pending' && (
           <div className="flex gap-2">
             <AcceptPolicyDialog client={client} />
-            <Button variant="secondary">
+            <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
               <PauseCircle className="mr-2 h-4 w-4" />
               Defer Policy
             </Button>
-            <Button variant="secondary">
+            <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
               <ThumbsDown className="mr-2 h-4 w-4" />
               NTU Policy
             </Button>
