@@ -85,10 +85,12 @@ export default function ClientDetailsView({
   ];
   
   const summaryDetails = [
+      { title: 'Policy Number', value: client.policy },
       { title: 'Contract Type', value: client.product },
       { title: 'Premium', value: `GHS ${client.premium.toFixed(2)}` },
       { title: 'Sum Assured', value: 'GHS 50,000.00' },
       { title: 'Commencement Date', value: format(new Date(client.commencementDate), 'PPP') },
+      { title: 'Expiry Date', value: format(new Date('2034-07-01'), 'PPP') },
       { title: 'Policy Term', value: '10 years' },
       { title: 'Premium Term', value: '5 years' },
   ]
@@ -99,7 +101,6 @@ export default function ClientDetailsView({
         <div className="flex items-start justify-between">
           <PageHeader
               title={client.client}
-              description={`Policy #${client.policy}`}
           />
           {isFromUnderwriting && client.status === 'Pending' && (
             <div className="flex gap-2">
@@ -337,6 +338,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-
-
