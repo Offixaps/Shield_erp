@@ -99,10 +99,9 @@ export default function ClientDetailsView({
         <div className="flex-1 space-y-2">
             <PageHeader
             title={client.client}
+            description={`Policy #${client.policy}`}
             />
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span>Policy #{client.policy}</span>
-                <Separator orientation="vertical" className="h-4" />
                 <div className="flex items-center gap-2">
                     <span>Onboarding Status:</span>
                     <Badge
@@ -338,4 +337,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
 
