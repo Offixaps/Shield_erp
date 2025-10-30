@@ -42,6 +42,17 @@ function DetailItem({
   );
 }
 
+function SummaryCard({ title, value }: { title: string; value: React.ReactNode }) {
+  return (
+    <Card className="flex-1">
+      <CardHeader className="p-3">
+        <p className="text-xs text-muted-foreground">{title}</p>
+        <p className="text-sm font-semibold">{value}</p>
+      </CardHeader>
+    </Card>
+  );
+}
+
 export default function ClientDetailsView({
   client,
   from,
@@ -74,6 +85,28 @@ export default function ClientDetailsView({
       balance: 150.0,
     },
   ];
+  
+  const summaryDetails = [
+      { title: 'Policy Number', value: client.policy },
+      { title: 'Contract Type', value: client.product },
+      { title: 'Premium', value: `GHS ${client.premium.toFixed(2)}` },
+      { title: 'Sum Assured', value: 'GHS 50,000.00' },
+      { title: 'Commencement Date', value: format(new Date(client.commencementDate), 'PPP') },
+      { title: 'Policy Term', value: '10 years' },
+      { title: 'Premium Term', value: '5 years' },
+      { title: 'Status', value:  <Badge
+        className={cn(
+            client.status === 'Approved' && 'bg-green-500/80',
+            client.status === 'Pending' && 'bg-yellow-500/80',
+            client.status === 'Declined' && 'bg-red-500/80',
+            'text-white'
+        )}
+        variant={client.status === 'Approved' ? 'default' : 'secondary'}
+        >
+        {client.status}
+        </Badge> 
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6">
@@ -102,31 +135,15 @@ export default function ClientDetailsView({
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-summary">
-            <CardHeader>
-                <CardTitle>Policy Summary</CardTitle>
+        <Card>
+            <CardHeader className="p-0">
+                <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Policy Summary</h3>
+                <Separator className="my-0" />
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 pt-0">
-                 <DetailItem label="Policy Number" value={client.policy} />
-                 <DetailItem label="Contract Type" value={client.product} />
-                 <DetailItem label="Premium" value={`GHS ${client.premium.toFixed(2)}`} />
-                 <DetailItem label="Sum Assured" value="GHS 50,000.00" />
-                 <DetailItem label="Commencement Date" value={format(new Date(client.commencementDate), 'PPP')} />
-                 <DetailItem label="Policy Term" value="10 years" />
-                 <DetailItem label="Premium Term" value="5 years" />
-                 <DetailItem label="Status" value={
-                     <Badge
-                        className={cn(
-                            client.status === 'Approved' && 'bg-green-500/80',
-                            client.status === 'Pending' && 'bg-yellow-500/80',
-                            client.status === 'Declined' && 'bg-red-500/80',
-                            'text-white'
-                        )}
-                        variant={client.status === 'Approved' ? 'default' : 'secondary'}
-                        >
-                        {client.status}
-                        </Badge>
-                 } />
+            <CardContent className="pt-6">
+                 <div className="flex flex-wrap gap-2">
+                    {summaryDetails.map(detail => <SummaryCard key={detail.title} title={detail.title} value={detail.value} />)}
+                </div>
             </CardContent>
         </Card>
 
@@ -296,4 +313,5 @@ export default function ClientDetailsView({
     
 
     
+
 
