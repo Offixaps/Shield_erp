@@ -102,7 +102,7 @@ export default function ClientDetailsView({
       </div>
 
       <div className="space-y-6">
-        <Card className="bg-muted/50">
+        <Card className="bg-summary">
             <CardHeader>
                 <CardTitle>Policy Summary</CardTitle>
             </CardHeader>
@@ -296,3 +296,4 @@ export default function ClientDetailsView({
     
 
     
+
