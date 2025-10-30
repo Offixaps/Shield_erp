@@ -69,7 +69,9 @@ const formSchema = z
     // Client Details
     applicantName: z.string().min(2, 'Applicant name must be at least 2 characters.'),
     applicantDob: z.date({ required_error: 'Applicant date of birth is required.' }),
-    lifeAssuredName: z.string().min(2, 'Life Assured name must be at least 2 characters.'),
+    lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.'),
+    lifeAssuredMiddleName: z.string().optional(),
+    lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
     applicantEmail: z.string().email('Invalid email address.'),
     applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
@@ -181,9 +183,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     if (isEditMode) {
       const businessData = newBusinessData.find(b => b.id.toString() === businessId);
       if (businessData) {
+        const nameParts = businessData.client.split(' ');
+        const firstName = nameParts[0] || '';
+        const surname = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
+        const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+        
         return {
           applicantName: businessData.client,
-          lifeAssuredName: businessData.client,
+          lifeAssuredFirstName: firstName,
+          lifeAssuredMiddleName: middleName,
+          lifeAssuredSurname: surname,
           policyNumber: businessData.policy,
           contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
           premiumAmount: businessData.premium,
@@ -236,7 +245,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       applicantEmail: '',
       applicantPhone: '',
       applicantAddress: '',
-      lifeAssuredName: '',
+      lifeAssuredFirstName: '',
+      lifeAssuredMiddleName: '',
+      lifeAssuredSurname: '',
       applicantDob: undefined,
       lifeAssuredDob: undefined,
       ageNextBirthday: 0,
@@ -329,13 +340,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
 
+    const lifeAssuredName = [values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
+
     if (isEditMode && businessId) {
       const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
       if (businessIndex !== -1) {
         const currentStatus = newBusinessData[businessIndex].status;
         newBusinessData[businessIndex] = {
           ...newBusinessData[businessIndex],
-          client: values.lifeAssuredName,
+          client: lifeAssuredName,
           product: values.contractType,
           policy: values.policyNumber,
           premium: values.premiumAmount,
@@ -370,12 +383,38 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
-            name="lifeAssuredName"
+            name="lifeAssuredFirstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Life Assured Name</FormLabel>
+                <FormLabel>Life Assured First Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="John Doe" {...field} />
+                  <Input placeholder="John" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lifeAssuredMiddleName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Life Assured Middle Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Kofi" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="lifeAssuredSurname"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Life Assured Surname</FormLabel>
+                <FormControl>
+                  <Input placeholder="Doe" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
