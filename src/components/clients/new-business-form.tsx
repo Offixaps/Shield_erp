@@ -125,6 +125,11 @@ const formSchema = z
     premiumPayerOccupation: z.string().min(2, 'Premium Payer occupation is required.'),
     bankName: z.string().min(2, 'Bank name is required.'),
     bankBranch: z.string().min(2, 'Bank branch is required.'),
+    amountInWords: z.string().min(3, 'Amount in words is required.'),
+    sortCode: z.string().min(6, 'Sort code must be at least 6 characters.'),
+    accountType: z.enum(['Current', 'Savings', 'Other']),
+    bankAccountName: z.string().min(2, 'Bank account name is required.'),
+    bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
   })
   .refine(
     (data) => {
@@ -200,6 +205,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           religion: 'Christian' as const,
           nationality: 'Ghana',
           languages: 'English, Twi',
+          amountInWords: '',
+          sortCode: '123456',
+          accountType: 'Current' as const,
+          bankAccountName: businessData.client,
+          bankAccountNumber: '00112233445566',
         };
       }
     }
@@ -238,6 +248,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       religion: 'Christian' as const,
       nationality: 'Ghana',
       languages: '',
+      amountInWords: '',
+      sortCode: '',
+      accountType: 'Current' as const,
+      bankAccountName: '',
+      bankAccountNumber: '',
     };
   }, [isEditMode, businessId]);
 
@@ -253,6 +268,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const commencementDate = form.watch('commencementDate');
   const lifeAssuredDob = form.watch('lifeAssuredDob');
+  const premiumAmount = form.watch('premiumAmount');
+  const paymentFrequency = form.watch('paymentFrequency');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -944,72 +961,174 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           <Separator className="my-4" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <FormField
-            control={form.control}
-            name="premiumPayerName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Premium Payer Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Jane Doe" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="premiumPayerOccupation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Premium Payer Occupation</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Teacher" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bankName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bank Name</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value}
-                >
+           <FormField
+              control={form.control}
+              name="premiumAmount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Premium Amount (GHS)</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a bank" />
-                    </SelectTrigger>
+                    <Input type="number" disabled value={premiumAmount} />
                   </FormControl>
-                  <SelectContent>
-                    {bankNames.map((bank) => (
-                      <SelectItem key={bank} value={bank}>
-                        {bank}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bankBranch"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Bank Branch</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Accra Main" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                  <FormDescription>From Policy Details section.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="amountInWords"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Amount in Words</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Five Hundred Ghana Cedis" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+                control={form.control}
+                name="paymentFrequency"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Premium Deduction Frequency</FormLabel>
+                    <FormControl>
+                        <Input disabled value={paymentFrequency} />
+                    </FormControl>
+                    <FormDescription>From Policy Details section.</FormDescription>
+                    <FormMessage />
+                    </FormItem>
+                )}
+                />
+            <FormField
+              control={form.control}
+              name="premiumPayerName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Premium Payer Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Jane Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="premiumPayerOccupation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Premium Payer Occupation</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Teacher" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bankName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank Name</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a bank" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {bankNames.map((bank) => (
+                        <SelectItem key={bank} value={bank}>
+                          {bank}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bankBranch"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank Branch</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Accra Main" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="sortCode"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Sort Code</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 123456" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="accountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type of Account</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select account type" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="Current">Current</SelectItem>
+                      <SelectItem value="Savings">Savings</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="bankAccountName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank Account Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., John K. Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="bankAccountNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Bank Account Number</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 001122334455" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
         </div>
 
         <FormField
