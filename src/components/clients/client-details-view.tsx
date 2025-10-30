@@ -47,7 +47,7 @@ function SummaryCard({ title, value }: { title: string; value: React.ReactNode }
     <Card className="flex-1">
       <CardHeader className="p-3">
         <p className="text-xs text-muted-foreground">{title}</p>
-        <p className="text-sm font-semibold">{value}</p>
+        <div className="text-sm font-semibold">{value}</div>
       </CardHeader>
     </Card>
   );
@@ -315,3 +315,6 @@ export default function ClientDetailsView({
     
 
 
+
+
+    
