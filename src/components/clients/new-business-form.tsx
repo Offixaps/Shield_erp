@@ -154,7 +154,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           applicantDob: new Date('1985-05-20'),
           lifeAssuredDob: new Date('1985-05-20'),
           applicantEmail: 'j.doe@example.com',
-          applicantPhone: '024 123 4567',
+          applicantPhone: businessData.phone,
           applicantAddress: '123 Main St, Accra',
           policyTerm: 10,
           premiumTerm: 5,
@@ -244,6 +244,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         updatedBusinessData.policy = values.policyNumber;
         updatedBusinessData.premium = values.premiumAmount;
         updatedBusinessData.commencementDate = format(values.commencementDate, 'yyyy-MM-dd');
+        updatedBusinessData.phone = values.applicantPhone;
 
         // If the status was 'Declined', change it to 'Pending'
         if (updatedBusinessData.status === 'Declined') {
