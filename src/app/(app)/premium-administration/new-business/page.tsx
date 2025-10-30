@@ -31,7 +31,7 @@ export default function NewBusinessPage() {
               <TableRow>
                 <TableHead>#</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead>Policy #</TableHead>
+                <TableHead>Serial #</TableHead>
                 <TableHead>Telephone #</TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead>Premium</TableHead>
@@ -45,12 +45,12 @@ export default function NewBusinessPage() {
                 <TableRow key={business.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
-                    <div className="font-medium">{business.client}</div>
+                    <Link href={`/business-development/clients/${business.id}`} className="font-medium text-primary hover:underline">
+                      {business.client}
+                    </Link>
                   </TableCell>
                   <TableCell>
-                    <Link href={`/business-development/clients/${business.id}`} className="text-primary hover:underline">
-                      {business.policy}
-                    </Link>
+                    {business.serial}
                   </TableCell>
                   <TableCell>{business.phone}</TableCell>
                   <TableCell>

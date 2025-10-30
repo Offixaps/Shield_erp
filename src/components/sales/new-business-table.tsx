@@ -30,7 +30,7 @@ export default function NewBusinessTable() {
         <TableRow>
           <TableHead>#</TableHead>
           <TableHead>Client</TableHead>
-          <TableHead>Policy #</TableHead>
+          <TableHead>Serial #</TableHead>
           <TableHead>Telephone #</TableHead>
           <TableHead>Product</TableHead>
           <TableHead>Premium</TableHead>
@@ -44,16 +44,14 @@ export default function NewBusinessTable() {
           <TableRow key={business.id}>
             <TableCell>{index + 1}</TableCell>
             <TableCell>
-              <div className="font-medium">{business.client}</div>
-            </TableCell>
-            <TableCell>
               <Link
                 href={`/business-development/clients/${business.id}`}
-                className="text-primary hover:underline"
+                className="font-medium text-primary hover:underline"
               >
-                {business.policy}
+                {business.client}
               </Link>
             </TableCell>
+            <TableCell>{business.serial}</TableCell>
             <TableCell>{business.phone}</TableCell>
             <TableCell>{business.product}</TableCell>
             <TableCell>GHS{business.premium.toFixed(2)}</TableCell>
