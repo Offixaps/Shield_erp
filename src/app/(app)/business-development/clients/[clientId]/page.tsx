@@ -20,7 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, XCircle, PauseCircle } from 'lucide-react';
 
 function DetailItem({
   label,
@@ -86,6 +86,10 @@ export default function ClientDetailsPage({
             <Button>
               <CheckCircle className="mr-2 h-4 w-4" />
               Approve Policy
+            </Button>
+            <Button variant="secondary">
+              <PauseCircle className="mr-2 h-4 w-4" />
+              Deferred
             </Button>
             <Button variant="destructive">
               <XCircle className="mr-2 h-4 w-4" />
