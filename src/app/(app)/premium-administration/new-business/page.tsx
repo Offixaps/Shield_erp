@@ -80,10 +80,6 @@ export default function NewBusinessPage() {
                           <CheckCircle className="mr-2 h-4 w-4" />
                           Mandate
                         </Button>
-                        <Button size="sm" variant="destructive">
-                          <XCircle className="mr-2 h-4 w-4" />
-                          Decline
-                        </Button>
                       </div>
                     )}
                   </TableCell>
