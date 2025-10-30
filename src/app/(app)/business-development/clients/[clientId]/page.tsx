@@ -1,3 +1,6 @@
+
+'use client';
+
 import PageHeader from '@/components/page-header';
 import {
   Card,
@@ -8,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { newBusinessData } from '@/lib/data';
 import { format } from 'date-fns';
-import { notFound } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import {
   Table,
   TableBody,
@@ -44,6 +47,9 @@ export default function ClientDetailsPage({
 }: {
   params: { clientId: string };
 }) {
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+  
   const client = newBusinessData.find(
     (item) => item.id.toString() === params.clientId
   );
@@ -51,6 +57,8 @@ export default function ClientDetailsPage({
   if (!client) {
     notFound();
   }
+  
+  const isFromUnderwriting = from === 'underwriting';
 
   const statementData = [
     {
@@ -83,7 +91,7 @@ export default function ClientDetailsPage({
           title={client.client}
           description={`Policy #${client.policy}`}
         />
-        {client.status === 'Pending' && (
+        {isFromUnderwriting && client.status === 'Pending' && (
           <div className="flex gap-2">
             <AcceptPolicyDialog client={client} />
             <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">

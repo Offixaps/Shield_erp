@@ -1,3 +1,4 @@
+
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import NewBusinessTable from '@/components/sales/new-business-table';
@@ -45,7 +46,7 @@ export default function NewBusinessPage() {
                 <TableRow key={business.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
-                    <Link href={`/business-development/clients/${business.id}`} className="font-medium text-primary hover:underline">
+                    <Link href={`/business-development/clients/${business.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
                       {business.client}
                     </Link>
                   </TableCell>

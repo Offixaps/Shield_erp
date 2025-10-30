@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -16,9 +17,13 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { FilePenLine, Trash2 } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function NewBusinessTable() {
   const [data, setData] = React.useState(newBusinessData);
+  const pathname = usePathname();
+
+  const from = pathname.includes('/underwriting') ? 'underwriting' : 'business-development';
 
   const handleDelete = (id: number) => {
     setData(data.filter((item) => item.id !== id));
@@ -45,7 +50,7 @@ export default function NewBusinessTable() {
             <TableCell>{index + 1}</TableCell>
             <TableCell>
               <Link
-                href={`/business-development/clients/${business.id}`}
+                href={`/business-development/clients/${business.id}?from=${from}`}
                 className="font-medium text-primary hover:underline"
               >
                 {business.client}
