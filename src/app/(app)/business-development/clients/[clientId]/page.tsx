@@ -21,6 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, PauseCircle } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 function DetailItem({
   label,
@@ -101,34 +102,65 @@ export default function ClientDetailsPage({
 
       <div className="space-y-6">
         <Card>
-          <CardHeader>
-            <CardTitle>Client Personal Details</CardTitle>
+           <CardHeader>
+            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Client Details</h3>
+             <Separator className="my-0" />
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Life Assured Name" value={client.client} />
             <DetailItem label="Life Assured Date of Birth" value="1985-05-20" />
+            <DetailItem label="Applicant Name" value={client.client} />
+            <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
+            <DetailItem label="Age (Next Birthday)" value="40" />
             <DetailItem label="Applicant Email Address" value="j.doe@example.com" />
             <DetailItem
               label="Applicant Telephone Number"
-              value="024 123 4567"
+              value={client.phone}
             />
             <DetailItem
-              label="Applicant postal address"
+              label="Applicant Postal Address"
               value="123 Main St, Accra"
             />
+            <DetailItem label="Gender" value="Male" />
+            <DetailItem label="Marital Status" value="Married" />
+            <DetailItem label="Number of Dependents" value="2" />
+            <DetailItem label="Nationality" value="Ghana" />
+            <DetailItem label="Country" value="Ghana" />
+            <DetailItem label="Religion" value="Christian" />
+            <DetailItem label="Languages Spoken" value="English, Twi" />
           </CardContent>
+        </Card>
+        
+        <Card>
+            <CardHeader>
+                <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Identification</h3>
+                <Separator className="my-0" />
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="National ID Type" value="Passport" />
+                <DetailItem label="ID Number" value="G1234567" />
+                <DetailItem label="Place of Issue" value="Accra" />
+                <DetailItem label="Issue Date" value={format(new Date('2020-01-01'), 'PPP')} />
+                <DetailItem label="Expiry Date" value={format(new Date('2030-01-01'), 'PPP')} />
+            </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Policy Details</CardTitle>
+            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Policy Details</h3>
+            <Separator className="my-0" />
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+            <DetailItem label="Serial Number" value={client.serial} />
             <DetailItem label="Policy Number" value={client.policy} />
             <DetailItem label="Contract Type" value={client.product} />
             <DetailItem
               label="Premium Amount (GHS)"
               value={`GHS ${client.premium.toFixed(2)}`}
+            />
+             <DetailItem
+              label="Sum Assured (GHS)"
+              value={`GHS 50,000.00`}
             />
             <DetailItem
               label="Policy Commencement Date"
@@ -150,12 +182,49 @@ export default function ClientDetailsPage({
                 </Badge>
               }
             />
-            <DetailItem label="Policy Term (years)" value="10 Years" />
-            <DetailItem label="Premium Term (years)" value="5 Years" />
+            <DetailItem label="Policy Term (years)" value="10" />
+            <DetailItem label="Premium Term (years)" value="5" />
             <DetailItem label="Payment Frequency" value="Monthly" />
+            <DetailItem label="Increase Month" value={format(new Date(client.commencementDate), 'MMMM')} />
           </CardContent>
         </Card>
+        
+        <Card>
+            <CardHeader>
+                <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Employment Details</h3>
+                <Separator className="my-0" />
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Occupation" value="Software Engineer" />
+                <DetailItem label="Nature of Business/Work" value="Technology" />
+                <DetailItem label="Employer" value="Google" />
+                <DetailItem label="Employer Address" value="1600 Amphitheatre Parkway, Mountain View, CA" />
+                <DetailItem label="Monthly Basic Income (GHS)" value="10,000.00" />
+                <DetailItem label="Other Income (GHS)" value="2,000.00" />
+                <DetailItem label="Total Monthly Income (GHS)" value="12,000.00" />
+            </CardContent>
+        </Card>
 
+        <Card>
+          <CardHeader>
+             <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Payment Details</h3>
+             <Separator className="my-0" />
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+            <DetailItem label="Premium Payer Name" value={client.client} />
+            <DetailItem label="Premium Payer Occupation" value="Accountant" />
+            <DetailItem label="Bank Name" value="CalBank PLC" />
+            <DetailItem label="Bank Branch" value="Accra Main" />
+            <DetailItem label="Sort Code" value="123456" />
+            <DetailItem label="Account Type" value="Current" />
+            <DetailItem label="Bank Account Name" value={client.client} />
+            <DetailItem label="Bank Account Number" value="00112233445566" />
+            <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toFixed(2)}`} />
+            <DetailItem label="Amount in Words" value="One Hundred and Fifty Ghana Cedis" />
+            <DetailItem label="Premium Deduction Frequency" value="Monthly" />
+          </CardContent>
+        </Card>
+        
         <Card>
           <CardHeader>
             <CardTitle>Underwriting</CardTitle>
@@ -167,18 +236,7 @@ export default function ClientDetailsPage({
             </p>
           </CardContent>
         </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Payment Details</CardTitle>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <DetailItem label="Payment Method" value="Direct Debit" />
-            <DetailItem label="Bank Name" value="CalBank PLC" />
-            <DetailItem label="Bank Branch" value="Accra Main" />
-          </CardContent>
-        </Card>
-
+        
         <Card>
           <CardHeader>
             <CardTitle>Statement</CardTitle>
