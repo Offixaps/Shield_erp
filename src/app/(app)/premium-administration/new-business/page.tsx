@@ -29,6 +29,7 @@ export default function NewBusinessPage() {
            <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>#</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Policy #</TableHead>
                 <TableHead>Product</TableHead>
@@ -39,8 +40,9 @@ export default function NewBusinessPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {newBusinessData.map((business) => (
+              {newBusinessData.map((business, index) => (
                 <TableRow key={business.id}>
+                  <TableCell>{index + 1}</TableCell>
                   <TableCell>
                     <div className="font-medium">{business.client}</div>
                   </TableCell>
