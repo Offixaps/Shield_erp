@@ -111,6 +111,9 @@ export default function ClientDetailsView({
                  <DetailItem label="Contract Type" value={client.product} />
                  <DetailItem label="Premium" value={`GHS ${client.premium.toFixed(2)}`} />
                  <DetailItem label="Sum Assured" value="GHS 50,000.00" />
+                 <DetailItem label="Commencement Date" value={format(new Date(client.commencementDate), 'PPP')} />
+                 <DetailItem label="Policy Term" value="10 years" />
+                 <DetailItem label="Premium Term" value="5 years" />
                  <DetailItem label="Status" value={
                      <Badge
                         className={cn(
@@ -178,20 +181,6 @@ export default function ClientDetailsView({
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Serial Number" value={client.serial} />
-            <DetailItem label="Policy Number" value={client.policy} />
-            <DetailItem label="Contract Type" value={client.product} />
-            <DetailItem
-              label="Premium Amount (GHS)"
-              value={`GHS ${client.premium.toFixed(2)}`}
-            />
-             <DetailItem
-              label="Sum Assured (GHS)"
-              value={`GHS 50,000.00`}
-            />
-            <DetailItem
-              label="Policy Commencement Date"
-              value={format(new Date(client.commencementDate), 'PPP')}
-            />
             <DetailItem
               label="Approval Status"
               value={
@@ -208,8 +197,6 @@ export default function ClientDetailsView({
                 </Badge>
               }
             />
-            <DetailItem label="Policy Term (years)" value="10" />
-            <DetailItem label="Premium Term (years)" value="5" />
             <DetailItem label="Payment Frequency" value="Monthly" />
             <DetailItem label="Increase Month" value={format(new Date(client.commencementDate), 'MMMM')} />
           </CardContent>
