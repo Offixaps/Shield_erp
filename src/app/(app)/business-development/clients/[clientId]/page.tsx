@@ -86,7 +86,7 @@ export default function ClientDetailsPage({
           <div className="flex gap-2">
             <Button>
               <CheckCircle className="mr-2 h-4 w-4" />
-              Approve Policy
+              Accept Policy
             </Button>
             <Button variant="secondary">
               <PauseCircle className="mr-2 h-4 w-4" />
