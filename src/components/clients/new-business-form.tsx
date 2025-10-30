@@ -393,7 +393,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="lifeAssuredFirstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Life Assured First Name</FormLabel>
+                <FormLabel>First Name</FormLabel>
                 <FormControl>
                   <Input placeholder="John" {...field} />
                 </FormControl>
@@ -406,7 +406,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="lifeAssuredMiddleName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Life Assured Middle Name</FormLabel>
+                <FormLabel>Middle Name</FormLabel>
                 <FormControl>
                   <Input placeholder="Kofi" {...field} />
                 </FormControl>
@@ -419,7 +419,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="lifeAssuredSurname"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Life Assured Surname</FormLabel>
+                <FormLabel>Surname</FormLabel>
                 <FormControl>
                   <Input placeholder="Doe" {...field} />
                 </FormControl>
@@ -432,7 +432,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="lifeAssuredDob"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Life Assured Date of Birth</FormLabel>
+                <FormLabel>Date of Birth</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
