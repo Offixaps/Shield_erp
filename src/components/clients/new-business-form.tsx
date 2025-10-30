@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -79,6 +80,7 @@ const formSchema = z
     workTelephone: z.string().optional(),
     homeTelephone: z.string().optional(),
     residentialAddress: z.string().optional(),
+    gpsAddress: z.string().optional(),
     ageNextBirthday: z.coerce.number().optional(),
     maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
     dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.'),
@@ -208,6 +210,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           workTelephone: '030 123 4567',
           homeTelephone: '030 765 4321',
           residentialAddress: '456 Oak Avenue, Accra',
+          gpsAddress: 'GA-123-4567',
           policyTerm: 10,
           premiumTerm: 5,
           sumAssured: 50000,
@@ -299,6 +302,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       workTelephone: '',
       homeTelephone: '',
       residentialAddress: '',
+      gpsAddress: '',
     };
   }, [isEditMode, businessId]);
 
@@ -756,6 +760,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <FormLabel>Residential Address</FormLabel>
                 <FormControl>
                   <Input placeholder="456 Oak Avenue, Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="gpsAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>GPS Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., GA-123-4567" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1396,3 +1413,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
