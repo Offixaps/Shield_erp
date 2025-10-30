@@ -120,6 +120,15 @@ const formSchema = z
     increaseMonth: z.string().min(1, 'Increase month is required.'),
     notes: z.string().optional(),
 
+    // Employment Details
+    occupation: z.string().min(2, 'Occupation is required.'),
+    natureOfBusiness: z.string().min(2, 'Nature of business/work is required.'),
+    employer: z.string().min(2, 'Employer is required.'),
+    employerAddress: z.string().min(5, 'Employer address is required.'),
+    monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.'),
+    otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.'),
+    totalMonthlyIncome: z.coerce.number().optional(),
+
     // Payment Details
     premiumPayerName: z.string().min(2, 'Premium Payer name is required.'),
     premiumPayerOccupation: z.string().min(2, 'Premium Payer occupation is required.'),
@@ -210,6 +219,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           accountType: 'Current' as const,
           bankAccountName: businessData.client,
           bankAccountNumber: '00112233445566',
+          occupation: 'Software Engineer',
+          natureOfBusiness: 'Technology',
+          employer: 'Google',
+          employerAddress: '1600 Amphitheatre Parkway, Mountain View, CA',
+          monthlyBasicIncome: 10000,
+          otherIncome: 2000,
+          totalMonthlyIncome: 12000,
         };
       }
     }
@@ -253,6 +269,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       accountType: 'Current' as const,
       bankAccountName: '',
       bankAccountNumber: '',
+      occupation: '',
+      natureOfBusiness: '',
+      employer: '',
+      employerAddress: '',
+      monthlyBasicIncome: 0,
+      otherIncome: 0,
+      totalMonthlyIncome: 0,
     };
   }, [isEditMode, businessId]);
 
@@ -270,6 +293,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const lifeAssuredDob = form.watch('lifeAssuredDob');
   const premiumAmount = form.watch('premiumAmount');
   const paymentFrequency = form.watch('paymentFrequency');
+  const monthlyBasicIncome = form.watch('monthlyBasicIncome');
+  const otherIncome = form.watch('otherIncome');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -291,6 +316,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       form.setValue('ageNextBirthday', age);
     }
   }, [lifeAssuredDob, form]);
+
+  React.useEffect(() => {
+    const basic = Number(monthlyBasicIncome) || 0;
+    const other = Number(otherIncome) || 0;
+    form.setValue('totalMonthlyIncome', basic + other);
+  }, [monthlyBasicIncome, otherIncome, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -957,6 +988,105 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
+          <h3 className="text-lg font-medium">Employment Details</h3>
+          <Separator className="my-4" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <FormField
+            control={form.control}
+            name="occupation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Occupation</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Software Engineer" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="natureOfBusiness"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nature of Business/Work</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Technology" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="employer"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Employer</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Acme Inc." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="employerAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Employer Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="123 Business Rd, Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="monthlyBasicIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Monthly Basic Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="3000.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="otherIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="500.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="totalMonthlyIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total Monthly Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" disabled {...field} />
+                </FormControl>
+                <FormDescription>This is calculated automatically.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="mt-8">
           <h3 className="text-lg font-medium">Payment Details</h3>
           <Separator className="my-4" />
         </div>
@@ -1139,7 +1269,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <FormLabel>Notes</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Any additional notes..."
+                  placeholder="Any additional notes about the client or policy."
                   className="resize-none"
                   {...field}
                 />
@@ -1156,3 +1286,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
