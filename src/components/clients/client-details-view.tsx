@@ -102,6 +102,31 @@ export default function ClientDetailsView({
       </div>
 
       <div className="space-y-6">
+        <Card className="bg-muted/50">
+            <CardHeader>
+                <CardTitle>Policy Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 pt-0">
+                 <DetailItem label="Policy Number" value={client.policy} />
+                 <DetailItem label="Contract Type" value={client.product} />
+                 <DetailItem label="Premium" value={`GHS ${client.premium.toFixed(2)}`} />
+                 <DetailItem label="Sum Assured" value="GHS 50,000.00" />
+                 <DetailItem label="Status" value={
+                     <Badge
+                        className={cn(
+                            client.status === 'Approved' && 'bg-green-500/80',
+                            client.status === 'Pending' && 'bg-yellow-500/80',
+                            client.status === 'Declined' && 'bg-red-500/80',
+                            'text-white'
+                        )}
+                        variant={client.status === 'Approved' ? 'default' : 'secondary'}
+                        >
+                        {client.status}
+                        </Badge>
+                 } />
+            </CardContent>
+        </Card>
+
         <Card>
            <CardHeader>
             <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Personal details of life insured</h3>
@@ -280,5 +305,7 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    
 
     
