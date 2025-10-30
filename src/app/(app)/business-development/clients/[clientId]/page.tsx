@@ -87,7 +87,7 @@ export default function ClientDetailsPage({
               <CheckCircle className="mr-2 h-4 w-4" />
               Approve Policy
             </Button>
-            <Button variant="outline">
+            <Button variant="secondary">
               <PauseCircle className="mr-2 h-4 w-4" />
               Defer Policy
             </Button>
