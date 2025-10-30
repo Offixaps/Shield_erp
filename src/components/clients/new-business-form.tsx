@@ -91,9 +91,9 @@ const formSchema = z
     lifeAssuredMiddleName: z.string().optional(),
     lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
-    applicantEmail: z.string().email('Invalid email address.'),
-    applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
-    applicantAddress: z.string().min(5, 'Applicant postal address is required.'),
+    email: z.string().email('Invalid email address.'),
+    phone: z.string().min(10, 'Telephone Number must be at least 10 digits.'),
+    postalAddress: z.string().min(5, 'Postal address is required.'),
     workTelephone: z.string().optional(),
     homeTelephone: z.string().optional(),
     residentialAddress: z.string().optional(),
@@ -220,9 +220,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
           lifeAssuredDob: new Date('1985-05-20'),
-          applicantEmail: 'j.doe@example.com',
-          applicantPhone: businessData.phone,
-          applicantAddress: '123 Main St, Accra',
+          email: 'j.doe@example.com',
+          phone: businessData.phone,
+          postalAddress: '123 Main St, Accra',
           workTelephone: '030 123 4567',
           homeTelephone: '030 765 4321',
           residentialAddress: '456 Oak Avenue, Accra',
@@ -267,9 +267,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       }
     }
     return {
-      applicantEmail: '',
-      applicantPhone: '',
-      applicantAddress: '',
+      email: '',
+      phone: '',
+      postalAddress: '',
       lifeAssuredFirstName: '',
       lifeAssuredMiddleName: '',
       lifeAssuredSurname: '',
@@ -382,7 +382,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           policy: values.policyNumber,
           premium: values.premiumAmount,
           commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
-          phone: values.applicantPhone,
+          phone: values.phone,
           status: currentStatus === 'Declined' ? 'Pending' : currentStatus,
         };
       }
@@ -815,10 +815,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
-            name="applicantEmail"
+            name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Applicant Email Address</FormLabel>
+                <FormLabel>Email Address</FormLabel>
                 <FormControl>
                   <Input placeholder="applicant.email@example.com" {...field} />
                 </FormControl>
@@ -828,10 +828,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
           <FormField
             control={form.control}
-            name="applicantPhone"
+            name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Applicant Telephone Number</FormLabel>
+                <FormLabel>Telephone Number</FormLabel>
                 <FormControl>
                   <Input placeholder="024 123 4567" {...field} />
                 </FormControl>
@@ -867,10 +867,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
           <FormField
             control={form.control}
-            name="applicantAddress"
+            name="postalAddress"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Applicant postal address</FormLabel>
+                <FormLabel>Postal Address</FormLabel>
                 <FormControl>
                   <Input placeholder="123 Main St, Accra" {...field} />
                 </FormControl>
@@ -1401,3 +1401,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
     
 
+
+
+    

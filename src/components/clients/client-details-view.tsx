@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import PageHeader from '@/components/page-header';
@@ -112,13 +113,13 @@ export default function ClientDetailsView({
             <DetailItem label="Applicant Name" value={client.client} />
             <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
             <DetailItem label="Age (Next Birthday)" value="40" />
-            <DetailItem label="Applicant Email Address" value="j.doe@example.com" />
+            <DetailItem label="Email Address" value="j.doe@example.com" />
             <DetailItem
-              label="Applicant Telephone Number"
+              label="Telephone Number"
               value={client.phone}
             />
             <DetailItem
-              label="Applicant Postal Address"
+              label="Postal Address"
               value="123 Main St, Accra"
             />
             <DetailItem label="Gender" value="Male" />
@@ -279,3 +280,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    
