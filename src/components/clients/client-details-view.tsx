@@ -141,7 +141,7 @@ export default function ClientDetailsView({
                 <Separator className="my-0" />
             </CardHeader>
             <CardContent className="pt-6">
-                 <div className="flex flex-wrap gap-2">
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                     {summaryDetails.map(detail => <SummaryCard key={detail.title} title={detail.title} value={detail.value} />)}
                 </div>
             </CardContent>
@@ -309,12 +309,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-    
-
-    
-
-
-
-
-    
