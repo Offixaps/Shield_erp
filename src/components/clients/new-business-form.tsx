@@ -76,6 +76,9 @@ const formSchema = z
     applicantEmail: z.string().email('Invalid email address.'),
     applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
     applicantAddress: z.string().min(5, 'Applicant postal address is required.'),
+    workTelephone: z.string().optional(),
+    homeTelephone: z.string().optional(),
+    residentialAddress: z.string().optional(),
     ageNextBirthday: z.coerce.number().optional(),
     maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
     dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.'),
@@ -202,6 +205,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           applicantEmail: 'j.doe@example.com',
           applicantPhone: businessData.phone,
           applicantAddress: '123 Main St, Accra',
+          workTelephone: '030 123 4567',
+          homeTelephone: '030 765 4321',
+          residentialAddress: '456 Oak Avenue, Accra',
           policyTerm: 10,
           premiumTerm: 5,
           sumAssured: 50000,
@@ -290,6 +296,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       monthlyBasicIncome: 0,
       otherIncome: 0,
       totalMonthlyIncome: 0,
+      workTelephone: '',
+      homeTelephone: '',
+      residentialAddress: '',
     };
   }, [isEditMode, businessId]);
 
@@ -702,12 +711,51 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
           <FormField
             control={form.control}
+            name="workTelephone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Work Telephone</FormLabel>
+                <FormControl>
+                  <Input placeholder="030 123 4567" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="homeTelephone"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Home Telephone</FormLabel>
+                <FormControl>
+                  <Input placeholder="030 765 4321" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="applicantAddress"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Applicant postal address</FormLabel>
                 <FormControl>
                   <Input placeholder="123 Main St, Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="residentialAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Residential Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="456 Oak Avenue, Accra" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
