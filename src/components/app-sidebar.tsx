@@ -56,6 +56,7 @@ const navItems = {
   'Underwriting': [
     { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
+    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
     { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
     { href: '/underwriting/occupational', label: 'Occupational', icon: Briefcase },
     { href: '/underwriting/lifestyle', label: 'Lifestyle', icon: HeartPulse },
