@@ -68,8 +68,6 @@ const bankNames = [
 const formSchema = z
   .object({
     // Client Details
-    applicantName: z.string().min(2, 'Applicant name must be at least 2 characters.'),
-    applicantDob: z.date({ required_error: 'Applicant date of birth is required.' }),
     lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.'),
     lifeAssuredMiddleName: z.string().optional(),
     lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
@@ -194,7 +192,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
         
         return {
-          applicantName: businessData.client,
           lifeAssuredFirstName: firstName,
           lifeAssuredMiddleName: middleName,
           lifeAssuredSurname: surname,
@@ -202,7 +199,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
-          applicantDob: new Date('1985-05-20'),
           lifeAssuredDob: new Date('1985-05-20'),
           applicantEmail: 'j.doe@example.com',
           applicantPhone: businessData.phone,
@@ -250,14 +246,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       }
     }
     return {
-      applicantName: '',
       applicantEmail: '',
       applicantPhone: '',
       applicantAddress: '',
       lifeAssuredFirstName: '',
       lifeAssuredMiddleName: '',
       lifeAssuredSurname: '',
-      applicantDob: undefined,
       lifeAssuredDob: undefined,
       ageNextBirthday: 0,
       contractType: "Buy Term and Invest in Mutual Fund" as const,
@@ -439,63 +433,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Life Assured Date of Birth</FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant={'outline'}
-                        className={cn(
-                          'w-full pl-3 text-left font-normal',
-                          !field.value && 'text-muted-foreground'
-                        )}
-                      >
-                        {field.value ? (
-                          format(field.value, 'PPP')
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={field.value}
-                      onSelect={field.onChange}
-                      initialFocus
-                      disabled={(date) =>
-                        date > new Date() || date < new Date('1900-01-01')
-                      }
-                      captionLayout="dropdown-buttons"
-                      fromYear={1900}
-                      toYear={new Date().getFullYear()}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="applicantName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Applicant Name</FormLabel>
-                <FormControl>
-                  <Input placeholder="Jane Smith" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-           <FormField
-            control={form.control}
-            name="applicantDob"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Applicant Date of Birth</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -1413,5 +1350,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
 
     
