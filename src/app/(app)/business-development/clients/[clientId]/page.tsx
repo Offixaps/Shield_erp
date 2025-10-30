@@ -20,8 +20,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle, PauseCircle } from 'lucide-react';
+import { XCircle, PauseCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 
 function DetailItem({
   label,
@@ -84,10 +85,7 @@ export default function ClientDetailsPage({
         />
         {client.status === 'Pending' && (
           <div className="flex gap-2">
-            <Button>
-              <CheckCircle className="mr-2 h-4 w-4" />
-              Accept Policy
-            </Button>
+            <AcceptPolicyDialog client={client} />
             <Button variant="secondary">
               <PauseCircle className="mr-2 h-4 w-4" />
               Defer Policy
