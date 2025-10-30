@@ -35,6 +35,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
+import { countries } from '@/lib/countries';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -196,7 +197,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           placeOfIssue: 'Accra',
           country: 'Ghana',
           religion: 'Christian' as const,
-          nationality: 'Ghanaian',
+          nationality: 'Ghana',
           languages: 'English, Twi',
         };
       }
@@ -234,7 +235,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       placeOfIssue: '',
       country: '',
       religion: 'Christian' as const,
-      nationality: '',
+      nationality: 'Ghana',
       languages: '',
     };
   }, [isEditMode, businessId]);
@@ -279,6 +280,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     if (isEditMode && businessId) {
       const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
       if (businessIndex !== -1) {
+        const currentStatus = newBusinessData[businessIndex].status;
         newBusinessData[businessIndex] = {
           ...newBusinessData[businessIndex],
           client: values.lifeAssuredName,
@@ -287,7 +289,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premium: values.premiumAmount,
           commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
           phone: values.applicantPhone,
-          status: 'Pending',
+          status: currentStatus === 'Declined' ? 'Pending' : currentStatus,
         };
       }
 
@@ -543,9 +545,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Nationality</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Ghanaian" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select nationality" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.name}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
