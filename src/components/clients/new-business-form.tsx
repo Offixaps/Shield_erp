@@ -361,10 +361,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium">Client Details</h3>
-          <Separator className="my-4" />
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Client Details</h3>
+          <Separator className="my-0" />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
             name="lifeAssuredName"
@@ -667,10 +667,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium">Identification</h3>
-          <Separator className="my-4" />
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Identification</h3>
+          <Separator className="my-0" />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
             name="nationalIdType"
@@ -810,10 +810,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium">Policy Details</h3>
-          <Separator className="my-4" />
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Policy Details</h3>
+          <Separator className="my-0" />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
             name="contractType"
@@ -988,10 +988,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium">Employment Details</h3>
-          <Separator className="my-4" />
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Employment Details</h3>
+          <Separator className="my-0" />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
           <FormField
             control={form.control}
             name="occupation"
@@ -1087,10 +1087,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium">Payment Details</h3>
-          <Separator className="my-4" />
+          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md">Payment Details</h3>
+          <Separator className="my-0" />
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
            <FormField
               control={form.control}
               name="premiumAmount"
@@ -1286,5 +1286,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
 
     
