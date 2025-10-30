@@ -6,9 +6,7 @@ import PageHeader from '@/components/page-header';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
-  CardTitle,
 } from '@/components/ui/card';
 import { format } from 'date-fns';
 import {
@@ -87,54 +85,66 @@ export default function ClientDetailsView({
   ];
   
   const summaryDetails = [
-      { title: 'Policy Number', value: client.policy },
       { title: 'Contract Type', value: client.product },
       { title: 'Premium', value: `GHS ${client.premium.toFixed(2)}` },
       { title: 'Sum Assured', value: 'GHS 50,000.00' },
       { title: 'Commencement Date', value: format(new Date(client.commencementDate), 'PPP') },
       { title: 'Policy Term', value: '10 years' },
       { title: 'Premium Term', value: '5 years' },
-      { title: 'Onboarding Status', value:  <Badge
-        className={cn(
-            (client.status === 'Approved' || client.status === 'Accepted') && 'bg-green-500/80',
-            client.status === 'Pending' && 'bg-yellow-500/80',
-            client.status === 'Declined' && 'bg-red-500/80',
-            'text-white'
-        )}
-        variant={client.status === 'Approved' ? 'default' : 'secondary'}
-        >
-        {client.status}
-        </Badge> 
-      },
-      { title: 'Billing Status', value:  <Badge
-        className={cn(
-            'bg-green-500/80',
-            'text-white'
-        )}
-        variant='default'
-        >
-        Up to Date
-        </Badge> 
-      },
-      { title: 'Policy Status', value:  <Badge
-        className={cn(
-            'bg-green-500/80',
-            'text-white'
-        )}
-        variant='default'
-        >
-        In Force
-        </Badge> 
-      },
   ]
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between">
-        <PageHeader
-          title={client.client}
-          description={`Policy #${client.policy}`}
-        />
+        <div className="flex-1 space-y-2">
+            <PageHeader
+            title={client.client}
+            />
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>Policy #{client.policy}</span>
+                <Separator orientation="vertical" className="h-4" />
+                <div className="flex items-center gap-2">
+                    <span>Onboarding Status:</span>
+                    <Badge
+                        className={cn(
+                            (client.status === 'Approved' || client.status === 'Accepted') && 'bg-green-500/80',
+                            client.status === 'Pending' && 'bg-yellow-500/80',
+                            client.status === 'Declined' && 'bg-red-500/80',
+                            'text-white'
+                        )}
+                        variant={client.status === 'Approved' ? 'default' : 'secondary'}
+                        >
+                        {client.status}
+                    </Badge>
+                </div>
+                 <Separator orientation="vertical" className="h-4" />
+                 <div className="flex items-center gap-2">
+                    <span>Billing Status:</span>
+                     <Badge
+                        className={cn(
+                            'bg-green-500/80',
+                            'text-white'
+                        )}
+                        variant='default'
+                        >
+                        Up to Date
+                    </Badge> 
+                 </div>
+                 <Separator orientation="vertical" className="h-4" />
+                 <div className="flex items-center gap-2">
+                    <span>Policy Status:</span>
+                     <Badge
+                        className={cn(
+                            'bg-green-500/80',
+                            'text-white'
+                        )}
+                        variant='default'
+                        >
+                        In Force
+                    </Badge> 
+                 </div>
+            </div>
+        </div>
         {isFromUnderwriting && client.status === 'Pending' && (
           <div className="flex gap-2">
             <AcceptPolicyDialog client={client} />
@@ -276,7 +286,7 @@ export default function ClientDetailsView({
         
         <Card>
           <CardHeader>
-            <CardTitle>Underwriting</CardTitle>
+            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Underwriting</h3>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground">
@@ -288,10 +298,10 @@ export default function ClientDetailsView({
         
         <Card>
           <CardHeader>
-            <CardTitle>Statement</CardTitle>
-            <CardDescription>
+            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Statement</h3>
+            <p className="text-sm text-muted-foreground pt-1">
               Billing and payment information for this policy.
-            </CardDescription>
+            </p>
           </CardHeader>
           <CardContent>
             <Table>
@@ -328,3 +338,4 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
