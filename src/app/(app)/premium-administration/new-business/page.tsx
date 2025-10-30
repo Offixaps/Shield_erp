@@ -78,7 +78,7 @@ export default function NewBusinessPage() {
                       <div className="flex gap-2 justify-end">
                         <Button size="sm">
                           <CheckCircle className="mr-2 h-4 w-4" />
-                          Approve
+                          Mandate
                         </Button>
                         <Button size="sm" variant="destructive">
                           <XCircle className="mr-2 h-4 w-4" />
