@@ -101,6 +101,7 @@ const formSchema = z
       'Buy Term and Invest in Mutual Fund',
       'The Education Policy',
     ]),
+    serialNumber: z.string().regex(/^\d{4}$/, 'Serial number must be a 4-digit number.'),
     policyNumber: z
       .string()
       .regex(
@@ -226,6 +227,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           monthlyBasicIncome: 10000,
           otherIncome: 2000,
           totalMonthlyIncome: 12000,
+          serialNumber: '1234',
         };
       }
     }
@@ -239,6 +241,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       lifeAssuredDob: undefined,
       ageNextBirthday: 0,
       contractType: "Buy Term and Invest in Mutual Fund" as const,
+      serialNumber: '',
       policyNumber: '',
       commencementDate: undefined,
       premiumTerm: 0,
@@ -844,6 +847,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
           <FormField
             control={form.control}
+            name="serialNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Serial Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., 1234" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
             name="policyNumber"
             render={({ field }) => (
               <FormItem>
@@ -1286,7 +1302,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
-
-    
