@@ -32,6 +32,7 @@ export default function NewBusinessPage() {
                 <TableHead>#</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Policy #</TableHead>
+                <TableHead>Telephone #</TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead>Premium</TableHead>
                 <TableHead>Commencement Date</TableHead>
@@ -51,6 +52,7 @@ export default function NewBusinessPage() {
                       {business.policy}
                     </Link>
                   </TableCell>
+                  <TableCell>{business.phone}</TableCell>
                   <TableCell>
                     {business.product}
                   </TableCell>
