@@ -95,72 +95,72 @@ export default function ClientDetailsView({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-start justify-between">
-        <div className="flex-1 space-y-2">
-            <PageHeader
-            title={client.client}
-            description={`Policy #${client.policy}`}
-            />
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                    <span>Onboarding Status:</span>
-                    <Badge
-                        className={cn(
-                            (client.status === 'Approved' || client.status === 'Accepted') && 'bg-green-500/80',
-                            client.status === 'Pending' && 'bg-yellow-500/80',
-                            client.status === 'Declined' && 'bg-red-500/80',
-                            'text-white'
-                        )}
-                        variant={client.status === 'Approved' ? 'default' : 'secondary'}
-                        >
-                        {client.status}
-                    </Badge>
-                </div>
-                 <Separator orientation="vertical" className="h-4" />
-                 <div className="flex items-center gap-2">
-                    <span>Billing Status:</span>
-                     <Badge
-                        className={cn(
-                            'bg-green-500/80',
-                            'text-white'
-                        )}
-                        variant='default'
-                        >
-                        Up to Date
-                    </Badge> 
-                 </div>
-                 <Separator orientation="vertical" className="h-4" />
-                 <div className="flex items-center gap-2">
-                    <span>Policy Status:</span>
-                     <Badge
-                        className={cn(
-                            'bg-green-500/80',
-                            'text-white'
-                        )}
-                        variant='default'
-                        >
-                        In Force
-                    </Badge> 
-                 </div>
+      <div className="flex flex-col gap-4">
+        <div className="flex items-start justify-between">
+          <PageHeader
+              title={client.client}
+              description={`Policy #${client.policy}`}
+          />
+          {isFromUnderwriting && client.status === 'Pending' && (
+            <div className="flex gap-2">
+              <AcceptPolicyDialog client={client} />
+              <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                <PauseCircle className="mr-2 h-4 w-4" />
+                Defer Policy
+              </Button>
+              <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                <ThumbsDown className="mr-2 h-4 w-4" />
+                NTU Policy
+              </Button>
+              <Button variant="destructive">
+                <XCircle className="mr-2 h-4 w-4" />
+                Decline Policy
+              </Button>
             </div>
+          )}
         </div>
-        {isFromUnderwriting && client.status === 'Pending' && (
-          <div className="flex gap-2">
-            <AcceptPolicyDialog client={client} />
-            <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-              <PauseCircle className="mr-2 h-4 w-4" />
-              Defer Policy
-            </Button>
-            <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-              <ThumbsDown className="mr-2 h-4 w-4" />
-              NTU Policy
-            </Button>
-            <Button variant="destructive">
-              <XCircle className="mr-2 h-4 w-4" />
-              Decline Policy
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+                <span>Onboarding Status:</span>
+                <Badge
+                    className={cn(
+                        (client.status === 'Approved' || client.status === 'Accepted') && 'bg-green-500/80',
+                        client.status === 'Pending' && 'bg-yellow-500/80',
+                        client.status === 'Declined' && 'bg-red-500/80',
+                        'text-white'
+                    )}
+                    variant={client.status === 'Approved' ? 'default' : 'secondary'}
+                    >
+                    {client.status}
+                </Badge>
+            </div>
+             <Separator orientation="vertical" className="h-4" />
+             <div className="flex items-center gap-2">
+                <span>Billing Status:</span>
+                 <Badge
+                    className={cn(
+                        'bg-green-500/80',
+                        'text-white'
+                    )}
+                    variant='default'
+                    >
+                    Up to Date
+                </Badge> 
+             </div>
+             <Separator orientation="vertical" className="h-4" />
+             <div className="flex items-center gap-2">
+                <span>Policy Status:</span>
+                 <Badge
+                    className={cn(
+                        'bg-green-500/80',
+                        'text-white'
+                    )}
+                    variant='default'
+                    >
+                    In Force
+                </Badge> 
+             </div>
+        </div>
       </div>
 
       <div className="space-y-6">
@@ -337,5 +337,6 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
 
 
