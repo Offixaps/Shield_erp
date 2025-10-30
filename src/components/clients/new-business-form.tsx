@@ -73,6 +73,26 @@ const formSchema = z
     applicantPhone: z.string().min(10, 'Applicant Telephone Number must be at least 10 digits.'),
     applicantAddress: z.string().min(5, 'Applicant postal address is required.'),
     ageNextBirthday: z.coerce.number().optional(),
+    maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
+    dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.'),
+    gender: z.enum(['Male', 'Female']),
+    nationalIdType: z.enum([
+      "Driver's License",
+      'Passport',
+      'Voter ID',
+      'National ID',
+      'SSNIT',
+      'NHIS',
+      'TIN',
+    ]),
+    idNumber: z.string().min(2, 'ID Number is required.'),
+    issueDate: z.date({ required_error: 'Issue date is required.' }),
+    expiryDate: z.date({ required_error: 'Expiry date is required.' }),
+    placeOfIssue: z.string().min(2, 'Place of issue is required.'),
+    country: z.string().min(2, 'Country is required.'),
+    religion: z.enum(['Christian', 'Muslim', 'Traditional', 'Other']),
+    nationality: z.string().min(2, 'Nationality is required.'),
+    languages: z.string().min(2, 'Languages spoken is required.'),
 
     // Policy Details
     contractType: z.enum([
@@ -166,6 +186,18 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           bankName: 'CalBank PLC',
           bankBranch: 'Accra Main',
           notes: '',
+          maritalStatus: 'Married' as const,
+          dependents: 2,
+          gender: 'Male' as const,
+          nationalIdType: 'Passport' as const,
+          idNumber: 'G1234567',
+          issueDate: new Date('2020-01-01'),
+          expiryDate: new Date('2030-01-01'),
+          placeOfIssue: 'Accra',
+          country: 'Ghana',
+          religion: 'Christian' as const,
+          nationality: 'Ghanaian',
+          languages: 'English, Twi',
         };
       }
     }
@@ -192,6 +224,18 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       premiumPayerOccupation: '',
       bankName: '',
       bankBranch: '',
+      maritalStatus: 'Single' as const,
+      dependents: 0,
+      gender: 'Male' as const,
+      nationalIdType: 'National ID' as const,
+      idNumber: '',
+      issueDate: undefined,
+      expiryDate: undefined,
+      placeOfIssue: '',
+      country: '',
+      religion: 'Christian' as const,
+      nationality: '',
+      languages: '',
     };
   }, [isEditMode, businessId]);
 
@@ -235,24 +279,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     if (isEditMode && businessId) {
       const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
       if (businessIndex !== -1) {
-        // Create a new object to avoid direct mutation
-        const updatedBusinessData = { ...newBusinessData[businessIndex] };
-
-        // Update properties from the form
-        updatedBusinessData.client = values.lifeAssuredName;
-        updatedBusinessData.product = values.contractType;
-        updatedBusinessData.policy = values.policyNumber;
-        updatedBusinessData.premium = values.premiumAmount;
-        updatedBusinessData.commencementDate = format(values.commencementDate, 'yyyy-MM-dd');
-        updatedBusinessData.phone = values.applicantPhone;
-
-        // If the status was 'Declined', change it to 'Pending'
-        if (updatedBusinessData.status === 'Declined') {
-          updatedBusinessData.status = 'Pending';
-        }
-        
-        // Replace the old object with the updated one
-        newBusinessData[businessIndex] = updatedBusinessData;
+        newBusinessData[businessIndex] = {
+          ...newBusinessData[businessIndex],
+          client: values.lifeAssuredName,
+          product: values.contractType,
+          policy: values.policyNumber,
+          premium: values.premiumAmount,
+          commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+          phone: values.applicantPhone,
+          status: 'Pending',
+        };
       }
 
       toast({
@@ -266,6 +302,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             title: 'Form Submitted',
             description: 'New client and policy details have been captured.',
         });
+        router.push('/business-development/sales');
     }
   }
 
@@ -273,7 +310,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <h3 className="text-lg font-medium">Client Details</h3>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
             name="lifeAssuredName"
@@ -443,10 +480,269 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="gender"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Gender</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select gender" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Male">Male</SelectItem>
+                    <SelectItem value="Female">Female</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="maritalStatus"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Marital Status</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select marital status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Single">Single</SelectItem>
+                    <SelectItem value="Married">Married</SelectItem>
+                    <SelectItem value="Divorced">Divorced</SelectItem>
+                    <SelectItem value="Widowed">Widowed</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="dependents"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Number of Dependents</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="e.g., 2" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nationality"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nationality</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Ghanaian" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="country"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Country</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Ghana" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="religion"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Religion</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select religion" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Christian">Christian</SelectItem>
+                    <SelectItem value="Muslim">Muslim</SelectItem>
+                    <SelectItem value="Traditional">Traditional</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="languages"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Languages Spoken</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., English, Twi" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <h3 className="mt-8 text-lg font-medium">Identification</h3>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <FormField
+            control={form.control}
+            name="nationalIdType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>National ID</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ID type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Driver's License">Driver's License</SelectItem>
+                    <SelectItem value="Passport">Passport</SelectItem>
+                    <SelectItem value="Voter ID">Voter ID</SelectItem>
+                    <SelectItem value="National ID">National ID</SelectItem>
+                    <SelectItem value="SSNIT">SSNIT</SelectItem>
+                    <SelectItem value="NHIS">NHIS</SelectItem>
+                    <SelectItem value="TIN">TIN</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="idNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>ID Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., GHA-123456789-0" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="placeOfIssue"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Place of Issue</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="issueDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Issue Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'PPP')
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      disabled={(date) => date > new Date()}
+                      captionLayout="dropdown-buttons"
+                      fromYear={1980}
+                      toYear={new Date().getFullYear()}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="expiryDate"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>Expiry Date</FormLabel>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <FormControl>
+                      <Button
+                        variant={'outline'}
+                        className={cn(
+                          'w-full pl-3 text-left font-normal',
+                          !field.value && 'text-muted-foreground'
+                        )}
+                      >
+                        {field.value ? (
+                          format(field.value, 'PPP')
+                        ) : (
+                          <span>Pick a date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </FormControl>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={field.value}
+                      onSelect={field.onChange}
+                      initialFocus
+                      disabled={(date) => date < new Date()}
+                      captionLayout="dropdown-buttons"
+                       fromYear={new Date().getFullYear()}
+                       toYear={new Date().getFullYear() + 20}
+                    />
+                  </PopoverContent>
+                </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <h3 className="mt-8 text-lg font-medium">Policy Details</h3>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
             name="contractType"
@@ -621,7 +917,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <h3 className="mt-8 text-lg font-medium">Payment Details</h3>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
             name="premiumPayerName"
