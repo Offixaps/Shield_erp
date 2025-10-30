@@ -36,6 +36,7 @@ import { format } from 'date-fns';
 import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { countries } from '@/lib/countries';
+import { Separator } from '@/components/ui/separator';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -233,7 +234,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       issueDate: undefined,
       expiryDate: undefined,
       placeOfIssue: '',
-      country: '',
+      country: 'Ghana',
       religion: 'Christian' as const,
       nationality: 'Ghana',
       languages: '',
@@ -311,7 +312,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <h3 className="text-lg font-medium">Client Details</h3>
+        <div>
+          <h3 className="text-lg font-medium">Client Details</h3>
+          <Separator className="my-4" />
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
@@ -614,7 +618,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
         </div>
 
-        <h3 className="mt-8 text-lg font-medium">Identification</h3>
+        <div className="mt-8">
+          <h3 className="text-lg font-medium">Identification</h3>
+          <Separator className="my-4" />
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
@@ -754,7 +761,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
         </div>
 
-        <h3 className="mt-8 text-lg font-medium">Policy Details</h3>
+        <div className="mt-8">
+          <h3 className="text-lg font-medium">Policy Details</h3>
+          <Separator className="my-4" />
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
@@ -929,7 +939,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           />
         </div>
 
-        <h3 className="mt-8 text-lg font-medium">Payment Details</h3>
+        <div className="mt-8">
+          <h3 className="text-lg font-medium">Payment Details</h3>
+          <Separator className="my-4" />
+        </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <FormField
             control={form.control}
