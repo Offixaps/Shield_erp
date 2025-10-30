@@ -65,6 +65,25 @@ const bankNames = [
   'Zenith Bank (Ghana) Limited',
 ];
 
+const ghanaRegions = [
+  'Ahafo',
+  'Ashanti',
+  'Bono',
+  'Bono East',
+  'Central',
+  'Eastern',
+  'Greater Accra',
+  'North East',
+  'Northern',
+  'Oti',
+  'Savannah',
+  'Upper East',
+  'Upper West',
+  'Volta',
+  'Western',
+  'Western North',
+] as const;
+
 const formSchema = z
   .object({
     // Client Details
@@ -97,6 +116,7 @@ const formSchema = z
     expiryDate: z.date({ required_error: 'Expiry date is required.' }),
     placeOfIssue: z.string().min(2, 'Place of issue is required.'),
     country: z.string().min(2, 'Country is required.'),
+    region: z.enum(ghanaRegions, { required_error: 'Region is required.' }),
     religion: z.enum(['Christian', 'Muslim', 'Traditional', 'Other']),
     nationality: z.string().min(2, 'Nationality is required.'),
     languages: z.string().min(2, 'Languages spoken is required.'),
@@ -226,6 +246,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           expiryDate: new Date('2030-01-01'),
           placeOfIssue: 'Accra',
           country: 'Ghana',
+          region: 'Greater Accra' as const,
           religion: 'Christian' as const,
           nationality: 'Ghana',
           languages: 'English, Twi',
@@ -278,6 +299,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       expiryDate: undefined,
       placeOfIssue: '',
       country: 'Ghana',
+      region: 'Greater Accra' as const,
       religion: 'Christian' as const,
       nationality: 'Ghana',
       languages: '',
@@ -577,6 +599,30 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <FormControl>
                   <Input placeholder="e.g., Ghana" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="region"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Region</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a region" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {ghanaRegions.map((region) => (
+                      <SelectItem key={region} value={region}>
+                        {region}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -1354,3 +1400,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
