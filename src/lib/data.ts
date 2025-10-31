@@ -2,6 +2,8 @@
 
 
 
+
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -134,7 +136,7 @@ export const newBusinessData: NewBusiness[] = [
     payments: []
   },
   { 
-    id: 2, 
+    id: 2,
     client: "Mrs Jane Smith", 
     policy: "E1274718", 
     product: "The Education Policy", 
@@ -162,7 +164,7 @@ export const newBusinessData: NewBusiness[] = [
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 1200.00, 
     sumAssured: 1000000,
-    commencementDate: "2024-06-20", 
+    commencementDate: "2024-06-20",
     expiryDate: "2054-06-20",
     policyTerm: 30,
     premiumTerm: 20,
@@ -235,15 +237,19 @@ export const newBusinessData: NewBusiness[] = [
     onboardingStatus: "First Premium Confirmed", 
     billingStatus: 'First Premium Paid',
     policyStatus: 'Inactive',
-    mandateVerified: true,
+    mandateVerified: false,
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4572", 
     serial: "1239",
-    bills: [],
-    payments: []
+    bills: [
+      { id: 1, policyId: 6, amount: 175.00, dueDate: "2024-07-12", status: 'Paid', paymentId: 1, description: 'First Premium' }
+    ],
+    payments: [
+      { id: 1, policyId: 6, billId: 1, amount: 175.00, paymentDate: '2024-07-13', method: 'Mobile Money', transactionId: 'MM12345' }
+    ]
   },
-    { 
+  { 
     id: 7, 
     client: "Prof Sarah Connor", 
     policy: "T1166021", 
@@ -257,12 +263,14 @@ export const newBusinessData: NewBusiness[] = [
     onboardingStatus: "NTU", 
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
-    mandateVerified: true,
+    mandateVerified: false,
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, startDate: "2024-07-20", completed: false },
     phone: "024 123 4573", 
     serial: "1240",
     bills: [],
     payments: []
-  },
+  }
 ];
+
+    

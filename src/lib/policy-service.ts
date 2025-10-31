@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment } from './data';
@@ -14,7 +15,14 @@ function getPoliciesFromStorage(): NewBusiness[] {
   }
   const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
   if (storedData) {
-    return JSON.parse(storedData);
+    try {
+      const parsedData = JSON.parse(storedData);
+      // Basic validation to ensure it's an array
+      return Array.isArray(parsedData) ? parsedData : newBusinessData;
+    } catch (e) {
+      console.error("Failed to parse policies from localStorage", e);
+      return newBusinessData; // Fallback to initial data
+    }
   } else {
     // Seed localStorage with initial data if it's not there
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newBusinessData));
@@ -145,3 +153,5 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     savePoliciesToStorage(policies);
     return policy;
 }
+
+    
