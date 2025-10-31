@@ -121,7 +121,7 @@ export default function NewBusinessTable() {
             </TableCell>
             <TableCell className="text-right">
               {isUnderwritingNewBusiness ? (
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
                    <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
                     Process
                   </Link>
