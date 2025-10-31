@@ -10,6 +10,9 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
+  SidebarHeader,
+  SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -37,6 +40,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Button } from '../ui/button';
 
 const navItems = {
   'Business Development': [
@@ -75,8 +79,35 @@ const departmentIcons = {
     'Underwriting': PenSquare,
 }
 
+function AppSidebarHeader() {
+    const { state } = useSidebar();
+    const pathname = usePathname();
+
+    return (
+        <SidebarHeader className="flex items-center justify-between p-2">
+            {state === 'expanded' && (
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home" className="w-full justify-start">
+                            <Link href="/">
+                                <Home />
+                                <span>Home</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            )}
+
+            <SidebarTrigger asChild className="ml-auto">
+                 <Button variant="ghost" size="icon" className="text-sidebar-foreground" />
+            </SidebarTrigger>
+        </SidebarHeader>
+    )
+}
+
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { state } = useSidebar();
 
   const getActiveDepartment = () => {
     if (pathname.startsWith('/business-development')) {
@@ -95,18 +126,21 @@ export default function AppSidebar() {
 
   return (
     <Sidebar>
+      <AppSidebarHeader />
       <SidebarContent>
-        <SidebarMenu>
-           <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home">
-                <Link href="/">
-                  <Home />
-                  <span>Home</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-        </SidebarMenu>
-        <Accordion type="single" collapsible defaultValue={activeDepartment} className="w-full">
+        {state === 'collapsed' && (
+             <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home">
+                        <Link href="/">
+                            <Home />
+                            <span className="sr-only">Home</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        )}
+        <Accordion type="single" collapsible defaultValue={activeDepartment || Object.keys(navItems)[0]} className="w-full">
             {Object.entries(navItems).map(([department, items]) => {
                 const DepartmentIcon = departmentIcons[department as keyof typeof departmentIcons];
                 return (
