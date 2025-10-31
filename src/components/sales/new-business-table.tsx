@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -30,7 +31,6 @@ export default function NewBusinessTable() {
   const [data, setData] = React.useState(() => {
     if (isAllPoliciesPage) {
       return newBusinessData.filter(item => 
-        ['Accepted', 'Declined', 'NTU'].includes(item.onboardingStatus) || 
         ['Active', 'Lapsed', 'Cancelled'].includes(item.policyStatus)
       );
     }
@@ -97,7 +97,7 @@ export default function NewBusinessTable() {
             </TableCell>
             <TableCell>
               {isAllPoliciesPage
-                ? business.onboardingStatus === 'Accepted' || business.policyStatus === 'Active'
+                ? business.onboardingStatus === 'Accepted' || ['Active', 'Lapsed', 'Cancelled'].includes(business.policyStatus)
                   ? business.policy
                   : business.serial
                 : business.serial}
