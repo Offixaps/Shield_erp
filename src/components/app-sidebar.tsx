@@ -1,3 +1,4 @@
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -46,12 +47,14 @@ const navItems = {
     { href: '/business-development/policies', label: 'Policies', icon: FileText },
     { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
     { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
+    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
   ],
   'Premium Administration': [
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
     { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
     { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
+    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
   ],
   'Underwriting': [
     { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
