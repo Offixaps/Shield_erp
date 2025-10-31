@@ -117,7 +117,7 @@ export default function ClientDetailsView({
           title: 'Status Updated',
           description: `Policy status changed to ${newStatus}.`,
         });
-        router.refresh();
+        // We don't need router.refresh() here because we are updating local state with setClient
       } else {
         throw new Error('Could not find policy to update.');
       }
