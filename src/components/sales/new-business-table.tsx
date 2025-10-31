@@ -37,12 +37,14 @@ export default function NewBusinessTable() {
   React.useEffect(() => {
     let policies = getPolicies();
     if (isAllPoliciesPage) {
+      // Keep policies that are considered active or finalized.
+      // This will include your new Absa policies which have 'Active' status.
       policies = policies.filter(item => 
-        ['Active', 'Lapsed', 'Cancelled', 'Accepted'].includes(item.policyStatus) || item.onboardingStatus === 'Accepted'
+        ['Active', 'Lapsed', 'Cancelled'].includes(item.policyStatus) || item.onboardingStatus === 'Accepted'
       );
     }
     setData(policies);
-  }, [isAllPoliciesPage]);
+  }, [pathname, isAllPoliciesPage]);
 
 
   const handleDelete = (id: number) => {
