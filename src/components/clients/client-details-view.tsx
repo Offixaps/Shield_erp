@@ -277,12 +277,12 @@ export default function ClientDetailsView({
       <Tabs defaultValue="overview" className="w-full">
         <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="personal-info">Personal Info Update</TabsTrigger>
-          <TabsTrigger value="policy-info">Policy Info Update</TabsTrigger>
-          <TabsTrigger value="beneficiary">Beneficiary Updates</TabsTrigger>
+          <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
+          <TabsTrigger value="policy-info">Policy Info</TabsTrigger>
+          <TabsTrigger value="beneficiary">Beneficiaries</TabsTrigger>
           <TabsTrigger value="claims">Claims History</TabsTrigger>
           <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
-          <TabsTrigger value="enquiries">Enquiries/Request</TabsTrigger>
+          <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
           <TabsTrigger value="payment-history">Payment History</TabsTrigger>
           <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
         </TabsList>
