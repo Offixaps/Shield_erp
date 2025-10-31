@@ -27,44 +27,45 @@ export default function NewBusinessPage() {
     const [businessList, setBusinessList] = React.useState(newBusinessData);
 
     const handleVerifyMandate = (id: number) => {
+        let updatedItemName = '';
         setBusinessList(prevList => {
             const newList = prevList.map(item => {
                 if (item.id === id) {
+                    updatedItemName = item.client;
                     return { ...item, onboardingStatus: 'Pending First Premium', mandateVerified: true };
                 }
                 return item;
             });
-            
-            const updatedItem = newList.find(item => item.id === id);
-            if (updatedItem) {
-                 toast({
-                    title: "Mandate Verified",
-                    description: `Mandate for ${updatedItem.client} has been verified.`
-                });
-            }
             return newList;
         });
+
+        if (updatedItemName) {
+            toast({
+                title: "Mandate Verified",
+                description: `Mandate for ${updatedItemName} has been verified.`
+            });
+        }
     };
     
     const handleConfirmFirstPremium = (id: number) => {
+        let updatedItemName = '';
         setBusinessList(prevList => {
             const newList = prevList.map(item => {
                 if (item.id === id) {
+                    updatedItemName = item.client;
                     return { ...item, onboardingStatus: 'First Premium Confirmed', billingStatus: 'First Premium Paid', firstPremiumPaid: true };
                 }
                 return item;
             });
-
-            const updatedItem = newList.find(item => item.id === id);
-            if (updatedItem) {
-                toast({
-                    title: "First Premium Confirmed",
-                    description: `First premium for ${updatedItem.client} has been confirmed.`
-                });
-            }
-
             return newList;
         });
+
+        if (updatedItemName) {
+            toast({
+                title: "First Premium Confirmed",
+                description: `First premium for ${updatedItemName} has been confirmed.`
+            });
+        }
     };
 
     const getStatusBadgeColor = (status: string) => {
