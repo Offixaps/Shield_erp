@@ -137,7 +137,7 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     firstBill.status = 'Paid';
     firstBill.paymentId = newPaymentId;
 
-    policy.onboardingStatus = 'First Premium Confirmed';
+    policy.onboardingStatus = 'Pending Vetting';
     policy.billingStatus = 'First Premium Paid';
     policy.firstPremiumPaid = true;
 
