@@ -19,6 +19,7 @@ import {
   FileCheck,
   ShieldCheck,
   FilePenLine,
+  Banknote,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness } from '@/lib/data';
@@ -102,6 +103,7 @@ export default function ClientDetailsView({
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
   const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
   const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
+  const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
 
 
   const updateOnboardingStatus = (
@@ -234,6 +236,12 @@ export default function ClientDetailsView({
                  <Button onClick={() => updateOnboardingStatus('Pending Mandate')}>
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Request Mandate Verification
+                </Button>
+            )}
+            {canRequestFirstPremium && (
+                 <Button onClick={() => updateOnboardingStatus('Pending First Premium')}>
+                    <Banknote className="mr-2 h-4 w-4" />
+                    Request First Premium
                 </Button>
             )}
             {canStartMedicals && (
