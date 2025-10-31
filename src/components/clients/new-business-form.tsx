@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -410,7 +411,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     title: 'Form Updated',
                     description: 'Policy details have been successfully updated.',
                 });
-                router.push(`/business-development/clients/${businessId}?from=underwriting`);
+                router.push(`/business-development/clients/${businessId}?from=business-development`);
 
             } else {
                 throw new Error("Policy not found for updating.");
@@ -1474,3 +1475,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    

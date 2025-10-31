@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -80,7 +81,6 @@ export default function ClientDetailsView({
   const [client, setClient] = React.useState(initialClient);
 
   React.useEffect(() => {
-    // Find the latest version of the client from the "source of truth"
     const currentClientData = newBusinessData.find(b => b.id === initialClient.id);
     if (currentClientData) {
       setClient(currentClientData);
@@ -619,3 +619,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    

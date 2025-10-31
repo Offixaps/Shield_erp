@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -66,6 +67,7 @@ export default function NewBusinessTable() {
         case 'lapsed':
         case 'cancelled':
         case 'rework required':
+        case 'mandate rework required':
             return 'bg-red-500/80';
         default:
             return 'bg-gray-500/80';
@@ -146,3 +148,5 @@ export default function NewBusinessTable() {
     </Table>
   );
 }
+
+    
