@@ -18,14 +18,15 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { NewBusiness, OnboardingStatus } from '@/lib/data';
+import type { NewBusiness } from '@/lib/data';
+import { updatePolicy } from '@/lib/policy-service';
 
 type VerifyMandateDialogProps = {
   client: NewBusiness;
-  onConfirm: (id: number, newStatus: OnboardingStatus, notes?: string) => void;
+  onUpdate: (updatedPolicy: NewBusiness) => void;
 };
 
-export default function VerifyMandateDialog({ client, onConfirm }: VerifyMandateDialogProps) {
+export default function VerifyMandateDialog({ client, onUpdate }: VerifyMandateDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
   const [verificationStatus, setVerificationStatus] = React.useState<'Successful' | 'Unsuccessful'>('Successful');
@@ -42,12 +43,31 @@ export default function VerifyMandateDialog({ client, onConfirm }: VerifyMandate
     }
 
     try {
+      let updatedPolicy;
       if (verificationStatus === 'Successful') {
-        onConfirm(client.id, 'Mandate Verified');
+        updatedPolicy = updatePolicy(client.id, { onboardingStatus: 'Mandate Verified', mandateReworkNotes: undefined });
       } else {
-        onConfirm(client.id, 'Mandate Rework Required', remarks);
+        updatedPolicy = updatePolicy(client.id, { onboardingStatus: 'Mandate Rework Required', mandateReworkNotes: remarks });
       }
+
+      if (updatedPolicy) {
+        onUpdate(updatedPolicy);
+      }
+
       setOpen(false);
+
+      if (updatedPolicy?.onboardingStatus === 'Mandate Verified') {
+        toast({
+            title: "Mandate Verified",
+            description: `Mandate for ${client.client} has been verified.`
+        });
+      } else {
+          toast({
+            title: "Mandate Rework Required",
+            description: `Mandate for ${client.client} sent back for rework.`
+        });
+      }
+
     } catch (error) {
         toast({
             variant: "destructive",

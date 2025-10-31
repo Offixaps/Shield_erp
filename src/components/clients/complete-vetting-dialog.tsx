@@ -18,11 +18,11 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Textarea } from '@/components/ui/textarea';
 import { FileCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { NewBusiness } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus } from '@/lib/data';
 
 type CompleteVettingDialogProps = {
   client: NewBusiness;
-  onUpdate: (newStatus: NewBusiness['onboardingStatus'], updates?: Partial<NewBusiness>) => void;
+  onUpdate: (newStatus: OnboardingStatus, updates?: Partial<NewBusiness>) => void;
 };
 
 export default function CompleteVettingDialog({ client, onUpdate }: CompleteVettingDialogProps) {

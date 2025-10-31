@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -17,18 +18,17 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
-
-type Client = (typeof newBusinessData)[0];
+import type { NewBusiness } from '@/lib/data';
+import { updatePolicy } from '@/lib/policy-service';
 
 type AcceptPolicyDialogProps = {
-  client: Client;
+  client: NewBusiness;
+  onUpdate: (updatedPolicy: NewBusiness) => void;
 };
 
-export default function AcceptPolicyDialog({ client }: AcceptPolicyDialogProps) {
+export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDialogProps) {
   const { toast } = useToast();
-  const router = useRouter();
   const [open, setOpen] = React.useState(false);
 
   const [policyNumber, setPolicyNumber] = React.useState(client.policy);
@@ -39,28 +39,22 @@ export default function AcceptPolicyDialog({ client }: AcceptPolicyDialogProps) 
 
   const handleAccept = () => {
     try {
-        const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
-
-        if (businessIndex !== -1) {
-        newBusinessData[businessIndex] = {
-            ...newBusinessData[businessIndex],
+        const updatedPolicy = updatePolicy(client.id, {
             policy: policyNumber,
             premium: parseFloat(finalPremium),
             sumAssured: parseFloat(finalSumAssured),
             onboardingStatus: 'Accepted',
             policyStatus: 'Active',
             commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
-        };
-        
-        console.log('Updated data:', newBusinessData[businessIndex]);
-
-        toast({
-            title: 'Policy Accepted',
-            description: `Policy for ${client.client} has been accepted and updated.`,
         });
         
-        setOpen(false);
-        router.refresh();
+        if (updatedPolicy) {
+            onUpdate(updatedPolicy);
+            toast({
+                title: 'Policy Accepted',
+                description: `Policy for ${client.client} has been accepted and updated.`,
+            });
+            setOpen(false);
         } else {
             throw new Error('Could not find the policy to update.');
         }

@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { newBusinessData } from '@/lib/data';
+import { type NewBusiness } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { FilePenLine } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import DeletePolicyDialog from './delete-policy-dialog';
+import { getPolicies, deletePolicy as deletePolicyFromService } from '@/lib/policy-service';
 
 export default function NewBusinessTable() {
   const pathname = usePathname();
@@ -31,18 +32,23 @@ export default function NewBusinessTable() {
   const isAllPoliciesPage = pathname.includes('/all-policies');
   const isUnderwritingNewBusiness = pathname.includes('/underwriting/new-business');
   
-  const [data, setData] = React.useState(() => {
+  const [data, setData] = React.useState<NewBusiness[]>([]);
+
+  React.useEffect(() => {
+    let policies = getPolicies();
     if (isAllPoliciesPage) {
-      return newBusinessData.filter(item => 
-        ['Active', 'Lapsed', 'Cancelled'].includes(item.policyStatus)
+      policies = policies.filter(item => 
+        ['Active', 'Lapsed', 'Cancelled', 'Accepted'].includes(item.policyStatus) || item.onboardingStatus === 'Accepted'
       );
     }
-    return newBusinessData;
-  });
+    setData(policies);
+  }, [isAllPoliciesPage]);
 
 
   const handleDelete = (id: number) => {
-    setData(data.filter((item) => item.id !== id));
+    if (deletePolicyFromService(id)) {
+      setData(data.filter((item) => item.id !== id));
+    }
   };
   
   const getStatusBadgeColor = (status: string) => {

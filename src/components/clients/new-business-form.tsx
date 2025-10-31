@@ -35,10 +35,10 @@ import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { countries } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
+import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -205,8 +205,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const isEditMode = !!businessId;
   
   const defaultValues = React.useMemo(() => {
-    if (isEditMode) {
-      const businessData = newBusinessData.find(b => b.id.toString() === businessId);
+    if (isEditMode && businessId) {
+      const businessData = getPolicyById(parseInt(businessId, 10));
       if (businessData) {
         const nameParts = businessData.client.split(' ');
         const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
@@ -376,23 +376,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-        const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
-
         if (isEditMode && businessId) {
-            const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
-            if (businessIndex !== -1) {
-                const currentStatus = newBusinessData[businessIndex].onboardingStatus;
-                
-                let newStatus = currentStatus;
-                if (currentStatus === 'Rework Required') {
+            const policyId = parseInt(businessId, 10);
+            const currentPolicy = getPolicyById(policyId);
+            if (currentPolicy) {
+                let newStatus = currentPolicy.onboardingStatus;
+                if (currentPolicy.onboardingStatus === 'Rework Required') {
                     newStatus = 'Pending Vetting';
-                } else if (currentStatus === 'Mandate Rework Required') {
+                } else if (currentPolicy.onboardingStatus === 'Mandate Rework Required') {
                     newStatus = 'Pending Mandate';
                 }
 
+                const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
-                newBusinessData[businessIndex] = {
-                    ...newBusinessData[businessIndex],
+                updatePolicy(policyId, {
                     client: lifeAssuredName,
                     product: values.contractType,
                     policy: values.policyNumber,
@@ -403,43 +400,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     onboardingStatus: newStatus,
                     policyTerm: values.policyTerm,
                     premiumTerm: values.premiumTerm,
-                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : newBusinessData[businessIndex].vettingNotes,
-                    mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : newBusinessData[businessIndex].mandateReworkNotes,
-                };
+                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
+                    mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
+                });
                 
                 toast({
                     title: 'Form Updated',
                     description: 'Policy details have been successfully updated.',
                 });
                 router.push(`/business-development/clients/${businessId}?from=business-development`);
-
             } else {
                 throw new Error("Policy not found for updating.");
             }
         } else {
-            console.log("Creating new business entry with values:", values);
-            const newId = Math.max(...newBusinessData.map(b => b.id)) + 1;
-            newBusinessData.push({
-                id: newId,
-                client: lifeAssuredName,
-                product: values.contractType,
-                policy: values.policyNumber,
-                premium: values.premiumAmount,
-                sumAssured: values.sumAssured,
-                commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
-                phone: values.phone,
-                serial: values.serialNumber,
-                onboardingStatus: 'Pending Vetting',
-                billingStatus: 'Outstanding',
-                policyStatus: 'Inactive',
-                expiryDate: new Date(new Date(values.commencementDate).setFullYear(new Date(values.commencementDate).getFullYear() + values.policyTerm)).toISOString().split('T')[0],
-                policyTerm: values.policyTerm,
-                premiumTerm: values.premiumTerm,
-                mandateVerified: false,
-                firstPremiumPaid: false,
-                medicalUnderwritingState: { started: false, completed: false },
-            });
-
+            createPolicy(values);
             toast({
                 title: 'Form Submitted',
                 description: 'New client and policy details have been captured.',

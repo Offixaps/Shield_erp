@@ -12,70 +12,24 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { newBusinessData, type NewBusiness, type OnboardingStatus } from '@/lib/data';
+import { type NewBusiness } from '@/lib/data';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { useToast } from '@/hooks/use-toast';
 import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
 import VerifyMandateDialog from '@/components/premium-administration/verify-mandate-dialog';
-import { useRouter } from 'next/navigation';
+import { getPolicies } from '@/lib/policy-service';
 
 export default function NewBusinessPage() {
-    const { toast } = useToast();
-    const router = useRouter();
-    const [businessList, setBusinessList] = React.useState(newBusinessData);
+    const [businessList, setBusinessList] = React.useState<NewBusiness[]>([]);
 
-    const handleVerifyMandate = (id: number, newStatus: OnboardingStatus, notes?: string) => {
-        const businessIndex = newBusinessData.findIndex(item => item.id === id);
-        if (businessIndex !== -1) {
-            const clientName = newBusinessData[businessIndex].client;
-            
-            newBusinessData[businessIndex] = {
-                ...newBusinessData[businessIndex],
-                onboardingStatus: newStatus,
-                mandateVerified: newStatus === 'Mandate Verified',
-                mandateReworkNotes: notes
-            };
+    React.useEffect(() => {
+        setBusinessList(getPolicies());
+    }, []);
 
-            setBusinessList([...newBusinessData]); // Trigger re-render
-            router.refresh(); // Force refresh for other components if needed, though direct mutation should be picked up
-
-            if (newStatus === 'Mandate Verified') {
-                toast({
-                    title: "Mandate Verified",
-                    description: `Mandate for ${clientName} has been verified.`
-                });
-            } else {
-                 toast({
-                    title: "Mandate Rework Required",
-                    description: `Mandate for ${clientName} sent back for rework.`
-                });
-            }
-        }
-    };
-    
-    const handleConfirmFirstPremium = (id: number) => {
-        const businessIndex = newBusinessData.findIndex(item => item.id === id);
-        if (businessIndex !== -1) {
-            const clientName = newBusinessData[businessIndex].client;
-            
-            newBusinessData[businessIndex] = {
-                ...newBusinessData[businessIndex],
-                onboardingStatus: 'First Premium Confirmed',
-                billingStatus: 'First Premium Paid',
-                firstPremiumPaid: true
-            };
-
-            setBusinessList([...newBusinessData]); // Trigger re-render
-            router.refresh();
-            
-            toast({
-                title: "First Premium Confirmed",
-                description: `First premium for ${clientName} has been confirmed.`
-            });
-        }
+    const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
+        setBusinessList(list => list.map(p => p.id === updatedPolicy.id ? updatedPolicy : p));
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -160,12 +114,12 @@ export default function NewBusinessPage() {
                   <TableCell className="text-right">
                     {business.onboardingStatus === 'Pending Mandate' && (
                       <div className="flex gap-2 justify-end">
-                        <VerifyMandateDialog client={business} onConfirm={handleVerifyMandate} />
+                        <VerifyMandateDialog client={business} onUpdate={handlePolicyUpdate} />
                       </div>
                     )}
                     {business.onboardingStatus === 'Pending First Premium' && (
                         <div className="flex gap-2 justify-end">
-                            <ConfirmFirstPremiumDialog client={business} onConfirm={handleConfirmFirstPremium} />
+                            <ConfirmFirstPremiumDialog client={business} onUpdate={handlePolicyUpdate} />
                         </div>
                     )}
                   </TableCell>
@@ -178,5 +132,3 @@ export default function NewBusinessPage() {
     </div>
   );
 }
-
-    

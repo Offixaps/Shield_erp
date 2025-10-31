@@ -33,15 +33,16 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import type { NewBusiness } from '@/lib/data';
+import { updatePolicy } from '@/lib/policy-service';
 
 type ConfirmFirstPremiumDialogProps = {
   client: NewBusiness;
-  onConfirm: (id: number) => void;
+  onUpdate: (updatedPolicy: NewBusiness) => void;
 };
 
 export default function ConfirmFirstPremiumDialog({
   client,
-  onConfirm,
+  onUpdate,
 }: ConfirmFirstPremiumDialogProps) {
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
@@ -65,16 +66,22 @@ export default function ConfirmFirstPremiumDialog({
     }
     
     try {
-      console.log({
-        clientId: client.id,
-        paymentMethod,
-        transactionId,
-        amountPaid,
-        paymentDate,
+      const updatedPolicy = updatePolicy(client.id, {
+        onboardingStatus: 'First Premium Confirmed',
+        billingStatus: 'First Premium Paid',
+        firstPremiumPaid: true,
       });
 
-      onConfirm(client.id);
-      setOpen(false);
+      if (updatedPolicy) {
+        onUpdate(updatedPolicy);
+        toast({
+          title: "First Premium Confirmed",
+          description: `First premium for ${client.client} has been confirmed.`
+        });
+        setOpen(false);
+      } else {
+        throw new Error('Policy not found');
+      }
 
     } catch (error) {
         console.error("Failed to confirm first premium:", error);

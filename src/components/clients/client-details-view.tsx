@@ -22,9 +22,7 @@ import {
   Banknote,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { NewBusiness } from '@/lib/data';
-import { newBusinessData } from '@/lib/data';
-import { useRouter } from 'next/navigation';
+import type { NewBusiness, OnboardingStatus } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   Tabs,
@@ -36,6 +34,7 @@ import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
 import CompleteVettingDialog from './complete-vetting-dialog';
+import { updatePolicy } from '@/lib/policy-service';
 
 
 function DetailItem({
@@ -77,16 +76,12 @@ export default function ClientDetailsView({
   client: NewBusiness;
   from: string;
 }) {
-  const router = useRouter();
   const { toast } = useToast();
   const [client, setClient] = React.useState(initialClient);
 
-  React.useEffect(() => {
-    const currentClientData = newBusinessData.find(b => b.id === initialClient.id);
-    if (currentClientData) {
-      setClient(currentClientData);
-    }
-  }, [initialClient.id, initialClient]);
+  const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
+    setClient(updatedPolicy);
+  };
 
   const isFromUnderwriting = from === 'underwriting';
   const isFromBusinessDevelopment = from === 'business-development';
@@ -106,21 +101,18 @@ export default function ClientDetailsView({
   const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
 
 
-  const updateOnboardingStatus = (
+  const handleStatusUpdate = (
     newStatus: NewBusiness['onboardingStatus'],
     updates?: Partial<NewBusiness>
   ) => {
     try {
-      const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
-      if (businessIndex !== -1) {
-        const updatedClient = {
-          ...newBusinessData[businessIndex],
-          onboardingStatus: newStatus,
-          ...updates
-        };
-        newBusinessData[businessIndex] = updatedClient;
-        setClient(updatedClient); 
+      const updatedPolicy = updatePolicy(client.id, {
+        onboardingStatus: newStatus,
+        ...updates
+      });
 
+      if(updatedPolicy) {
+        setClient(updatedPolicy); 
         toast({
           title: 'Status Updated',
           description: `Policy status changed to ${newStatus}.`,
@@ -138,7 +130,7 @@ export default function ClientDetailsView({
   };
 
   const handleStartMedicals = () => {
-    updateOnboardingStatus('Pending Medicals', {
+    handleStatusUpdate('Pending Medicals', {
       medicalUnderwritingState: {
         started: true,
         startDate: new Date().toISOString(),
@@ -148,7 +140,7 @@ export default function ClientDetailsView({
   };
 
   const handleMedicalsCompleted = () => {
-    updateOnboardingStatus('Medicals Completed', {
+    handleStatusUpdate('Medicals Completed', {
        medicalUnderwritingState: {
         ...client.medicalUnderwritingState,
         completed: true,
@@ -157,7 +149,7 @@ export default function ClientDetailsView({
   };
   
   const handleRevertNTU = () => {
-    updateOnboardingStatus('Pending Medicals');
+    handleStatusUpdate('Pending Medicals');
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -223,7 +215,7 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={updateOnboardingStatus} />}
+            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={handleStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
                     <Link href={`/business-development/sales/${client.id}/edit`}>
@@ -233,13 +225,13 @@ export default function ClientDetailsView({
                 </Button>
             )}
             {isVettingCompleted && isFromUnderwriting && (
-                 <Button onClick={() => updateOnboardingStatus('Pending Mandate')}>
+                 <Button onClick={() => handleStatusUpdate('Pending Mandate')}>
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Request Mandate Verification
                 </Button>
             )}
-            {canRequestFirstPremium && (
-                 <Button onClick={() => updateOnboardingStatus('Pending First Premium')}>
+            {canRequestFirstPremium && isFromUnderwriting && (
+                 <Button onClick={() => handleStatusUpdate('Pending First Premium')}>
                     <Banknote className="mr-2 h-4 w-4" />
                     Request First Premium
                 </Button>
@@ -264,7 +256,7 @@ export default function ClientDetailsView({
             )}
             {canMakeDecision && (
               <>
-                <AcceptPolicyDialog client={client} />
+                <AcceptPolicyDialog client={client} onUpdate={handlePolicyUpdate}/>
                 <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
                   <PauseCircle className="mr-2 h-4 w-4" />
                   Defer Policy
