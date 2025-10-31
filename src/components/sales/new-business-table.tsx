@@ -16,8 +16,9 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { FilePenLine, Trash2 } from 'lucide-react';
+import { FilePenLine } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import DeletePolicyDialog from './delete-policy-dialog';
 
 export default function NewBusinessTable() {
   const pathname = usePathname();
@@ -135,14 +136,7 @@ export default function NewBusinessTable() {
                       <FilePenLine className="h-4 w-4" />
                     </Link>
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    onClick={() => handleDelete(business.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
                 </div>
               )}
             </TableCell>
