@@ -59,22 +59,31 @@ export default function ConfirmFirstPremiumDialog({
       toast({
         variant: 'destructive',
         title: 'Missing Information',
-        description: 'Please fill out all payment details.',
+        description: 'Please fill out all required payment details before confirming.',
       });
       return;
     }
     
-    // Here you would typically send this data to your backend
-    console.log({
-      clientId: client.id,
-      paymentMethod,
-      transactionId,
-      amountPaid,
-      paymentDate,
-    });
+    try {
+      console.log({
+        clientId: client.id,
+        paymentMethod,
+        transactionId,
+        amountPaid,
+        paymentDate,
+      });
 
-    onConfirm(client.id);
-    setOpen(false);
+      onConfirm(client.id);
+      setOpen(false);
+
+    } catch (error) {
+        console.error("Failed to confirm first premium:", error);
+        toast({
+            variant: "destructive",
+            title: "Confirmation Failed",
+            description: "An unexpected error occurred while confirming the premium."
+        })
+    }
   };
 
   return (

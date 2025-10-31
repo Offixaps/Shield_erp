@@ -367,45 +367,56 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   }, [monthlyBasicIncome, otherIncome, form]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    try {
+        const lifeAssuredName = [values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
-    const lifeAssuredName = [values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
+        if (isEditMode && businessId) {
+            const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
+            if (businessIndex !== -1) {
+                const currentStatus = newBusinessData[businessIndex].onboardingStatus;
+                const newStatus = ['NTU', 'Declined'].includes(currentStatus)
+                ? 'Pending Mandate'
+                : currentStatus;
 
-    if (isEditMode && businessId) {
-      const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
-      if (businessIndex !== -1) {
-        const currentStatus = newBusinessData[businessIndex].onboardingStatus;
-        const newStatus = ['NTU', 'Declined'].includes(currentStatus)
-          ? 'Pending Mandate'
-          : currentStatus;
+                newBusinessData[businessIndex] = {
+                    ...newBusinessData[businessIndex],
+                    client: lifeAssuredName,
+                    product: values.contractType,
+                    policy: values.policyNumber,
+                    premium: values.premiumAmount,
+                    sumAssured: values.sumAssured,
+                    commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+                    phone: values.phone,
+                    onboardingStatus: newStatus,
+                    policyTerm: values.policyTerm,
+                    premiumTerm: values.premiumTerm,
+                };
+                
+                toast({
+                    title: 'Form Updated',
+                    description: 'Policy details have been successfully updated.',
+                });
+                router.push(`/business-development/clients/${businessId}?from=underwriting`);
 
-        newBusinessData[businessIndex] = {
-          ...newBusinessData[businessIndex],
-          client: lifeAssuredName,
-          product: values.contractType,
-          policy: values.policyNumber,
-          premium: values.premiumAmount,
-          sumAssured: values.sumAssured,
-          commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
-          phone: values.phone,
-          onboardingStatus: newStatus,
-          policyTerm: values.policyTerm,
-          premiumTerm: values.premiumTerm,
-        };
-      }
-
-      toast({
-        title: 'Form Updated',
-        description: 'Policy details have been successfully updated.',
-      });
-      router.push(`/business-development/clients/${businessId}?from=underwriting`);
-    } else {
-        // This is where you would handle creating a new entry
+            } else {
+                throw new Error("Policy not found for updating.");
+            }
+        } else {
+            // This is where you would handle creating a new entry
+            console.log("Creating new business entry with values:", values);
+            toast({
+                title: 'Form Submitted',
+                description: 'New client and policy details have been captured.',
+            });
+            router.push('/business-development/sales');
+        }
+    } catch (error) {
+        console.error("Form submission error:", error);
         toast({
-            title: 'Form Submitted',
-            description: 'New client and policy details have been captured.',
+            variant: "destructive",
+            title: "Submission Failed",
+            description: error instanceof Error ? error.message : "An unknown error occurred while submitting the form.",
         });
-        router.push('/business-development/sales');
     }
   }
 

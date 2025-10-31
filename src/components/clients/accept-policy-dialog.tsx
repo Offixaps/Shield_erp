@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -37,37 +38,40 @@ export default function AcceptPolicyDialog({ client }: AcceptPolicyDialogProps) 
   const [finalSumAssured, setFinalSumAssured] = React.useState(client.sumAssured.toString());
 
   const handleAccept = () => {
-    const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
+    try {
+        const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
 
-    if (businessIndex !== -1) {
-      newBusinessData[businessIndex] = {
-        ...newBusinessData[businessIndex],
-        policy: policyNumber,
-        premium: parseFloat(finalPremium),
-        sumAssured: parseFloat(finalSumAssured),
-        onboardingStatus: 'Accepted',
-        policyStatus: 'Active',
-        commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
-      };
-      
-      console.log('Updated data:', newBusinessData[businessIndex]);
+        if (businessIndex !== -1) {
+        newBusinessData[businessIndex] = {
+            ...newBusinessData[businessIndex],
+            policy: policyNumber,
+            premium: parseFloat(finalPremium),
+            sumAssured: parseFloat(finalSumAssured),
+            onboardingStatus: 'Accepted',
+            policyStatus: 'Active',
+            commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
+        };
+        
+        console.log('Updated data:', newBusinessData[businessIndex]);
 
-      toast({
-        title: 'Policy Accepted',
-        description: `Policy for ${client.client} has been accepted and updated.`,
-      });
-      
-      setOpen(false);
-      // Force a re-render by navigating to the same page
-      router.refresh();
-    } else {
+        toast({
+            title: 'Policy Accepted',
+            description: `Policy for ${client.client} has been accepted and updated.`,
+        });
+        
+        setOpen(false);
+        router.refresh();
+        } else {
+            throw new Error('Could not find the policy to update.');
+        }
+    } catch (error) {
+        console.error("Failed to accept policy:", error);
         toast({
             variant: 'destructive',
-            title: 'Error',
-            description: 'Could not find the policy to update.',
+            title: 'Update Failed',
+            description: error instanceof Error ? error.message : 'An unknown error occurred.',
         });
     }
-
   };
 
   return (
