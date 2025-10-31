@@ -28,11 +28,11 @@ export default function NewBusinessPage() {
     const handleVerifyMandate = (id: number) => {
         setBusinessList(prevList => prevList.map(item => {
             if (item.id === id) {
-                toast({
+                 toast({
                     title: "Mandate Verified",
                     description: `Mandate for ${item.client} has been verified.`
                 })
-                return { ...item, onboardingStatus: 'Mandate Verified', mandateVerified: true };
+                return { ...item, onboardingStatus: 'Pending First Premium', mandateVerified: true };
             }
             return item;
         }));
@@ -154,5 +154,3 @@ export default function NewBusinessPage() {
     </div>
   );
 }
-
-    
