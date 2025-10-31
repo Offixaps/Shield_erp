@@ -80,7 +80,11 @@ export default function ClientDetailsView({
   const [client, setClient] = React.useState(initialClient);
 
   React.useEffect(() => {
-    setClient(initialClient);
+    // Find the latest version of the client from the "source of truth"
+    const currentClientData = newBusinessData.find(b => b.id === initialClient.id);
+    if (currentClientData) {
+      setClient(currentClientData);
+    }
   }, [initialClient]);
 
   const isFromUnderwriting = from === 'underwriting';
@@ -117,7 +121,6 @@ export default function ClientDetailsView({
           title: 'Status Updated',
           description: `Policy status changed to ${newStatus}.`,
         });
-        // We don't need router.refresh() here because we are updating local state with setClient
       } else {
         throw new Error('Could not find policy to update.');
       }
@@ -323,7 +326,7 @@ export default function ClientDetailsView({
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
           <TabsTrigger value="policy-info">Policy Info</TabsTrigger>
-          <TabsTrigger value="beneficiary">Beneficiaries</TabsTrigger>
+          <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
           <TabsTrigger value="claims">Claims History</TabsTrigger>
           <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
@@ -528,7 +531,7 @@ export default function ClientDetailsView({
           </Card>
         </TabsContent>
 
-        <TabsContent value="beneficiary" className="mt-6">
+        <TabsContent value="beneficiaries" className="mt-6">
           <Card>
             <CardHeader>
               <h3 className="text-lg font-medium">Beneficiary Updates</h3>
