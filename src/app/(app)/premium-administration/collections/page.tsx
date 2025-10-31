@@ -19,6 +19,14 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import Image from 'next/image';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
+import { Handshake, Smartphone, CircleStop } from 'lucide-react';
+
 
 // TODO: Replace placeholder logos and colors with actual brand assets.
 // Logos should be placed in the /public/logos/banks/ directory.
@@ -48,9 +56,15 @@ const bankBrandData = [
     { name: 'Zenith Bank (Ghana) Limited', logo: '/logos/banks/zenith.svg', color: '#E30613', textColor: '#FFFFFF' },
 ];
 
+const nonBankCollectionData = [
+  { name: 'Controller', icon: Handshake, filter: 'controller' },
+  { name: 'Mobile Money', icon: Smartphone, filter: 'mobile-money' },
+  { name: 'Stop Order', icon: CircleStop, filter: 'stop-order' },
+];
+
 
 export default function CollectionsPage() {
-  const [selectedBank, setSelectedBank] = React.useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = React.useState<string | null>(null);
   const [policies, setPolicies] = React.useState<NewBusiness[]>([]);
   const [filteredPolicies, setFilteredPolicies] = React.useState<NewBusiness[]>([]);
 
@@ -60,15 +74,26 @@ export default function CollectionsPage() {
   }, []);
 
   React.useEffect(() => {
-    if (selectedBank) {
-      const activePoliciesForBank = policies.filter(
-        (p) => p.policyStatus === 'Active' && p.bankName === selectedBank
+    if (selectedFilter) {
+      const activePoliciesForFilter = policies.filter(
+        (p) => {
+          // This logic needs to be adapted based on how non-bank payments are stored.
+          // For now, we assume bankName covers all cases for simplicity.
+          // In a real scenario, you might have a different field like 'paymentMethod'
+          const isBank = bankBrandData.some(b => b.name === selectedFilter);
+          if (isBank) {
+            return p.policyStatus === 'Active' && p.bankName === selectedFilter
+          }
+          // Placeholder for non-bank filtering. 
+          // You'd need to have a field on the policy to filter by, e.g. p.collectionMethod === selectedFilter
+          return false;
+        }
       );
-      setFilteredPolicies(activePoliciesForBank);
+      setFilteredPolicies(activePoliciesForFilter);
     } else {
       setFilteredPolicies([]);
     }
-  }, [selectedBank, policies]);
+  }, [selectedFilter, policies]);
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -84,45 +109,75 @@ export default function CollectionsPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Premium Collection by Bank"
-        description="Select a bank to view all active policies for collection."
+        title="Premium Collection"
+        description="Select a collection method to view all active policies."
       />
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        {bankBrandData.map((bank) => (
-          <Card
-            key={bank.name}
-            className={cn(
-              'cursor-pointer transition-all hover:shadow-md',
-              selectedBank === bank.name ? 'ring-2 ring-offset-2 ring-primary border-primary' : 'border-transparent'
-            )}
-            onClick={() => setSelectedBank(bank.name)}
-            style={{ 
-                backgroundColor: bank.color, 
-                color: bank.textColor
-            }}
-          >
-            <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-32">
-                <div className="relative w-full h-12">
-                     <Image
-                        src={bank.logo}
-                        alt={`${bank.name} logo`}
-                        fill
-                        className="object-contain"
-                        onError={(e) => { e.currentTarget.src = `https://placehold.co/120x40/FFFFFF/${bank.color.substring(1)}/png?text=${bank.name.split(' ')[0]}` }}
-                    />
-                </div>
-              <p className="text-xs font-medium leading-tight line-clamp-2">
-                {bank.name.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}
-              </p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      <Tabs defaultValue="bank" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="bank">Bank Premium Collection</TabsTrigger>
+          <TabsTrigger value="non-bank">Non-Bank Premium Collection</TabsTrigger>
+        </TabsList>
+        <TabsContent value="bank" className="mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {bankBrandData.map((bank) => (
+              <Card
+                key={bank.name}
+                className={cn(
+                  'cursor-pointer transition-all hover:shadow-md',
+                  selectedFilter === bank.name ? 'ring-2 ring-offset-2 ring-primary border-primary' : 'border-transparent'
+                )}
+                onClick={() => setSelectedFilter(bank.name)}
+                style={{ 
+                    backgroundColor: bank.color, 
+                    color: bank.textColor
+                }}
+              >
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-32">
+                    <div className="relative w-full h-12">
+                        <Image
+                            src={bank.logo}
+                            alt={`${bank.name} logo`}
+                            fill
+                            className="object-contain"
+                            onError={(e) => { e.currentTarget.src = `https://placehold.co/120x40/FFFFFF/${bank.color.substring(1)}/png?text=${bank.name.split(' ')[0]}` }}
+                        />
+                    </div>
+                  <p className="text-xs font-medium leading-tight line-clamp-2">
+                    {bank.name.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}
+                  </p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value="non-bank" className="mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {nonBankCollectionData.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                    <Card
+                        key={item.name}
+                        className={cn(
+                        'cursor-pointer transition-all hover:shadow-md',
+                        selectedFilter === item.filter ? 'ring-2 ring-offset-2 ring-primary' : ''
+                        )}
+                        onClick={() => setSelectedFilter(item.filter)}
+                    >
+                        <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-32">
+                        <Icon className="h-10 w-10 text-primary" />
+                        <p className="text-sm font-medium leading-tight">{item.name}</p>
+                        </CardContent>
+                    </Card>
+                    );
+                })}
+            </div>
+        </TabsContent>
+      </Tabs>
 
-      {selectedBank && (
+      {selectedFilter && (
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Active Policies for {selectedBank}</CardTitle>
+            <CardTitle>Active Policies for {selectedFilter.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}</CardTitle>
           </CardHeader>
           <CardContent>
             {filteredPolicies.length > 0 ? (
@@ -166,7 +221,7 @@ export default function CollectionsPage() {
               </Table>
             ) : (
               <p className="text-muted-foreground">
-                No active policies found for {selectedBank}.
+                No active policies found for {selectedFilter.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}.
               </p>
             )}
           </CardContent>
