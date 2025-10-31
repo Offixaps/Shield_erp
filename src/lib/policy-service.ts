@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment } from './data';
@@ -112,6 +113,13 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     if (policyIndex === -1) return undefined;
 
     const policy = policies[policyIndex];
+    if (!policy.bills) { // Defensive check
+        policy.bills = [];
+    }
+    if (!policy.payments) { // Defensive check
+        policy.payments = [];
+    }
+    
     const firstBill = policy.bills.find(b => b.description === 'First Premium');
 
     if (!firstBill || firstBill.status === 'Paid') return undefined;
