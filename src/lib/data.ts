@@ -6,6 +6,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -118,6 +119,10 @@ export type NewBusiness = {
   payments: Payment[];
   activityLog: ActivityLog[];
   bankName: string;
+  payerName: string;
+  bankAccountNumber: string;
+  sortCode: string;
+  narration: string;
 };
 
 
@@ -150,6 +155,10 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-01T09:00:00Z", user: "System", action: "Onboarding status changed to Pending First Premium." }
     ],
     bankName: 'GCB Bank PLC',
+    payerName: 'Mr John K. Doe',
+    bankAccountNumber: '1234567890123',
+    sortCode: '123456',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 2,
@@ -183,6 +192,10 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-09T16:20:00Z", user: "System", action: "Onboarding status changed to Pending Mandate." }
     ],
     bankName: 'Absa Bank Ghana Limited',
+    payerName: 'Mrs Jane Smith',
+    bankAccountNumber: '0987654321098',
+    sortCode: '654321',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 3, 
@@ -210,6 +223,10 @@ export const newBusinessData: NewBusiness[] = [
        { date: "2024-06-21T09:00:01Z", user: "System", action: "Policy status changed to Active." }
     ],
     bankName: 'Stanbic Bank Ghana Limited',
+    payerName: 'Acme Corp',
+    bankAccountNumber: '1122334455667',
+    sortCode: '112233',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 4, 
@@ -236,6 +253,10 @@ export const newBusinessData: NewBusiness[] = [
        { date: "2024-07-11T15:00:00Z", user: "Underwriting", action: "Onboarding status changed to Declined.", details: "Risk profile too high." }
     ],
     bankName: 'Fidelity Bank Ghana Limited',
+    payerName: 'Mr Mike Johnson',
+    bankAccountNumber: '2233445566778',
+    sortCode: '223344',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 5, 
@@ -263,6 +284,10 @@ export const newBusinessData: NewBusiness[] = [
        { date: "2024-06-16T09:00:01Z", user: "System", action: "Policy status changed to Active." }
     ],
     bankName: 'Ecobank Ghana PLC',
+    payerName: 'Miss Emily White',
+    bankAccountNumber: '3344556677889',
+    sortCode: '334455',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 6, 
@@ -294,6 +319,10 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-13T10:00:01Z", user: "System", action: "Status changed to Pending Vetting." }
     ],
     bankName: 'CalBank PLC',
+    payerName: 'Dr Chris Brown',
+    bankAccountNumber: '4455667788990',
+    sortCode: '445566',
+    narration: 'JULY 2024 PREMIUM',
   },
   { 
     id: 7, 
@@ -320,6 +349,10 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-22T12:00:00Z", user: "Underwriting", action: "Onboarding status changed to NTU.", details: "Not taken up by client." }
     ],
     bankName: 'United Bank for Africa (Ghana) Limited',
+    payerName: 'Prof Sarah Connor',
+    bankAccountNumber: '5566778899001',
+    sortCode: '556677',
+    narration: 'JULY 2024 PREMIUM',
   }
 ];
 

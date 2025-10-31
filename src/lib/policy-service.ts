@@ -1,6 +1,7 @@
 
 
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -127,6 +128,10 @@ export function createPolicy(values: any): NewBusiness {
             }
         ],
         bankName: values.bankName,
+        payerName: values.premiumPayerName,
+        bankAccountNumber: values.bankAccountNumber,
+        sortCode: values.sortCode,
+        narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
     };
     
     const firstBill: Bill = {
@@ -210,5 +215,6 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     savePoliciesToStorage(policies);
     return policy;
 }
+
 
 

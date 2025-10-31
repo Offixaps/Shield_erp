@@ -46,25 +46,14 @@ export default function BankPoliciesPage() {
     }
   }, [bankName]);
 
-  const getStatusBadgeColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'up to date':
-        return 'bg-green-500/80';
-      case 'outstanding':
-        return 'bg-orange-500/80';
-      default:
-        return 'bg-gray-500/80';
-    }
-  };
-
   const handlePostToBank = () => {
     const dataToExport = policies.map(p => ({
-        'Client Name': p.client,
         'Policy Number': p.policy,
-        'Premium': p.premium,
-        'Commencement Date': format(new Date(p.commencementDate), 'yyyy-MM-dd'),
-        'Billing Status': p.billingStatus,
-        'Bank Name': p.bankName,
+        'Payer Name': p.payerName,
+        'Premium Amount': p.premium,
+        'Bank Account Number': p.bankAccountNumber,
+        'Sort Code': p.sortCode,
+        'Narration': p.narration,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(dataToExport);
@@ -156,37 +145,27 @@ export default function BankPoliciesPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>Policy #</TableHead>
-                  <TableHead>Premium</TableHead>
-                  <TableHead>Commencement</TableHead>
-                  <TableHead>Billing Status</TableHead>
+                  <TableHead>Policy number</TableHead>
+                  <TableHead>Payer Name</TableHead>
+                  <TableHead>Premium Amount</TableHead>
+                  <TableHead>Bank Account Number</TableHead>
+                  <TableHead>Sort Code</TableHead>
+                  <TableHead>Narration</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {policies.map((policy) => (
                   <TableRow key={policy.id}>
                     <TableCell>
-                      <Link href={`/business-development/clients/${policy.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
-                          {policy.client}
-                      </Link>
+                         <Link href={`/business-development/clients/${policy.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
+                            {policy.policy}
+                         </Link>
                     </TableCell>
-                    <TableCell>{policy.policy}</TableCell>
+                    <TableCell>{policy.payerName}</TableCell>
                     <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
-                    <TableCell>
-                      {format(new Date(policy.commencementDate), 'PPP')}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        className={cn(
-                          'w-28 justify-center',
-                          getStatusBadgeColor(policy.billingStatus),
-                          'text-white'
-                        )}
-                      >
-                        {policy.billingStatus}
-                      </Badge>
-                    </TableCell>
+                    <TableCell>{policy.bankAccountNumber}</TableCell>
+                    <TableCell>{policy.sortCode}</TableCell>
+                    <TableCell>{policy.narration}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
