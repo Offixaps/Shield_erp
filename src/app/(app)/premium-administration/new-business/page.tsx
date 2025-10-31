@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -118,6 +119,7 @@ export default function NewBusinessPage() {
                   <TableCell>
                     <Badge
                       className={cn(
+                        'w-44 justify-center truncate',
                         getStatusBadgeColor(business.onboardingStatus),
                         'text-white'
                       )}
@@ -152,3 +154,5 @@ export default function NewBusinessPage() {
     </div>
   );
 }
+
+    

@@ -1,3 +1,4 @@
+
 import { Badge } from '@/components/ui/badge';
 import {
   Card,
@@ -51,6 +52,7 @@ export default function RecentActivity() {
                 <TableCell className="text-right">
                   <Badge
                     className={cn(
+                      'w-24 justify-center',
                       activity.status === 'Paid' && 'bg-green-500/80',
                       activity.status === 'Pending' && 'bg-yellow-500/80',
                       activity.status === 'Overdue' && 'bg-red-500/80',
@@ -69,3 +71,5 @@ export default function RecentActivity() {
     </Card>
   );
 }
+
+    

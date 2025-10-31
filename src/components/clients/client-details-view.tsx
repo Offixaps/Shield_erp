@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -222,6 +223,7 @@ export default function ClientDetailsView({
             <span>Onboarding Status:</span>
             <Badge
               className={cn(
+                'w-44 justify-center truncate',
                 getStatusBadgeColor(client.onboardingStatus),
                 'text-white'
               )}
@@ -233,6 +235,7 @@ export default function ClientDetailsView({
             <span>Billing Status:</span>
             <Badge
               className={cn(
+                'w-44 justify-center truncate',
                 getStatusBadgeColor(client.billingStatus),
                 'text-white'
               )}
@@ -244,6 +247,7 @@ export default function ClientDetailsView({
             <span>Policy Status:</span>
             <Badge
               className={cn(
+                'w-44 justify-center truncate',
                 getStatusBadgeColor(client.policyStatus),
                 'text-white'
               )}
@@ -409,3 +413,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    

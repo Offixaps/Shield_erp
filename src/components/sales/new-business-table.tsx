@@ -110,7 +110,7 @@ export default function NewBusinessTable() {
             </TableCell>
             <TableCell>
               <Badge
-                className={cn(getStatusBadgeColor(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus), 'text-white')}
+                className={cn('w-44 justify-center truncate', getStatusBadgeColor(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus), 'text-white')}
               >
                 {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
               </Badge>
@@ -140,3 +140,5 @@ export default function NewBusinessTable() {
     </Table>
   );
 }
+
+    
