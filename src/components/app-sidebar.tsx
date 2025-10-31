@@ -99,9 +99,7 @@ function AppSidebarHeader() {
                 </SidebarMenu>
             )}
 
-            <SidebarTrigger asChild className="ml-auto">
-                 <Button variant="ghost" size="icon" className="text-sidebar-foreground" />
-            </SidebarTrigger>
+            <SidebarTrigger className="ml-auto" />
         </SidebarHeader>
     )
 }
