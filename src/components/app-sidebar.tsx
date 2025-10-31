@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -40,7 +41,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
 const navItems = {
   'Business Development': [
