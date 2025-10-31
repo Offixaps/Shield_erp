@@ -315,16 +315,14 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-                <DetailItem label="Life Assured Name" value={client.client} />
-                <DetailItem label="Life Assured Date of Birth" value="1985-05-20" />
-                <DetailItem label="Applicant Name" value={client.client} />
-                <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
+                <DetailItem label="Full Name" value={client.client} />
+                <DetailItem label="Date of Birth" value="1985-05-20" />
                 <DetailItem label="Age (Next Birthday)" value="40" />
                 <DetailItem label="Gender" value="Male" />
                 <DetailItem label="Marital Status" value="Married" />
                 <DetailItem label="Number of Dependents" value="2" />
                 <DetailItem label="Nationality" value="Ghana" />
-                <DetailItem label="Country" value="Ghana" />
+                <DetailItem label="Country of Residence" value="Ghana" />
                 <DetailItem label="Religion" value="Christian" />
                 <DetailItem label="Languages Spoken" value="English, Twi" />
               </CardContent>
