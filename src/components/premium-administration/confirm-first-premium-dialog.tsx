@@ -120,9 +120,12 @@ export default function ConfirmFirstPremiumDialog({
                 <SelectValue placeholder="Select a method" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="debit-order">Debit Order</SelectItem>
+                <SelectItem value="standing-order">Standing Order</SelectItem>
                 <SelectItem value="mobile-money">Mobile Money</SelectItem>
-                <SelectItem value="bank-transfer">Bank Transfer</SelectItem>
-                <SelectItem value="payment-slip">Payment Slip</SelectItem>
+                <SelectItem value="stop-order">Stop Order</SelectItem>
+                <SelectItem value="controller">Controller</SelectItem>
+                <SelectItem value="payment-slip">Pay-In-Slip</SelectItem>
               </SelectContent>
             </Select>
           </div>

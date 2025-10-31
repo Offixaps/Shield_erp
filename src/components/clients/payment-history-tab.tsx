@@ -23,6 +23,7 @@ type PaymentHistoryTabProps = {
 type Transaction = {
   date: Date;
   description: string;
+  method?: string;
   debit: number;
   credit: number;
   balance: number;
@@ -51,6 +52,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
         return {
           date: new Date(item.data.dueDate),
           description: item.data.description,
+          method: 'N/A',
           debit: item.data.amount,
           credit: 0,
           balance: runningBalance,
@@ -59,7 +61,8 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
         runningBalance += item.data.amount;
         return {
           date: new Date(item.data.paymentDate),
-          description: `Payment - ${item.data.method} (${item.data.transactionId})`,
+          description: `Payment Received (ID: ${item.data.transactionId})`,
+          method: item.data.method,
           debit: 0,
           credit: item.data.amount,
           balance: runningBalance,
@@ -74,6 +77,19 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
     return 'text-foreground';
   };
 
+  const getMethodDisplayName = (method: string) => {
+    const map: Record<string, string> = {
+      'mobile-money': 'Mobile Money',
+      'bank-transfer': 'Bank Transfer',
+      'payment-slip': 'Pay-In-Slip',
+      'debit-order': 'Debit Order',
+      'standing-order': 'Standing Order',
+      'stop-order': 'Stop Order',
+      'controller': 'Controller',
+    };
+    return map[method] || method;
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -87,6 +103,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
                 <TableHead>Date</TableHead>
                 <TableHead>Month</TableHead>
                 <TableHead>Description</TableHead>
+                <TableHead>Method</TableHead>
                 <TableHead className="text-right">Debit (GHS)</TableHead>
                 <TableHead className="text-right">Credit (GHS)</TableHead>
                 <TableHead className="text-right">Balance (GHS)</TableHead>
@@ -98,6 +115,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
                   <TableCell>{format(transaction.date, 'PPP')}</TableCell>
                   <TableCell>{format(transaction.date, 'MMM yyyy')}</TableCell>
                   <TableCell>{transaction.description}</TableCell>
+                  <TableCell>{transaction.method && transaction.method !== 'N/A' ? getMethodDisplayName(transaction.method) : 'N/A'}</TableCell>
                   <TableCell className="text-right font-mono">
                     {transaction.debit > 0 ? transaction.debit.toFixed(2) : '-'}
                   </TableCell>
