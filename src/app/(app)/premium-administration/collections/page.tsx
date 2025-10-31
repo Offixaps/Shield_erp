@@ -118,12 +118,12 @@ export default function CollectionsPage() {
           <TabsTrigger value="non-bank">Non-Bank Premium Collection</TabsTrigger>
         </TabsList>
         <TabsContent value="bank" className="mt-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
             {bankBrandData.map((bank) => (
               <Card
                 key={bank.name}
                 className={cn(
-                  'cursor-pointer transition-all hover:shadow-md',
+                  'cursor-pointer transition-all hover:shadow-md h-40 w-40',
                   selectedFilter === bank.name ? 'ring-2 ring-offset-2 ring-primary border-primary' : 'border-transparent'
                 )}
                 onClick={() => setSelectedFilter(bank.name)}
@@ -132,7 +132,7 @@ export default function CollectionsPage() {
                     color: bank.textColor
                 }}
               >
-                <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-32">
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-full">
                     <div className="relative w-full h-12">
                         <Image
                             src={bank.logo}
@@ -151,19 +151,19 @@ export default function CollectionsPage() {
           </div>
         </TabsContent>
         <TabsContent value="non-bank" className="mt-6">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(10rem,1fr))] gap-4">
                 {nonBankCollectionData.map((item) => {
                     const Icon = item.icon;
                     return (
                     <Card
                         key={item.name}
                         className={cn(
-                        'cursor-pointer transition-all hover:shadow-md',
+                        'cursor-pointer transition-all hover:shadow-md h-40 w-40',
                         selectedFilter === item.filter ? 'ring-2 ring-offset-2 ring-primary' : ''
                         )}
                         onClick={() => setSelectedFilter(item.filter)}
                     >
-                        <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-32">
+                        <CardContent className="flex flex-col items-center justify-center p-4 gap-3 text-center h-full">
                         <Icon className="h-10 w-10 text-primary" />
                         <p className="text-sm font-medium leading-tight">{item.name}</p>
                         </CardContent>
