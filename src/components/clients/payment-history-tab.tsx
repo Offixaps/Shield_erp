@@ -85,6 +85,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
             <TableHeader>
               <TableRow>
                 <TableHead>Date</TableHead>
+                <TableHead>Month</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead className="text-right">Debit (GHS)</TableHead>
                 <TableHead className="text-right">Credit (GHS)</TableHead>
@@ -95,6 +96,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
               {transactions.map((transaction, index) => (
                 <TableRow key={index}>
                   <TableCell>{format(transaction.date, 'PPP')}</TableCell>
+                  <TableCell>{format(transaction.date, 'MMM yyyy')}</TableCell>
                   <TableCell>{transaction.description}</TableCell>
                   <TableCell className="text-right font-mono">
                     {transaction.debit > 0 ? transaction.debit.toFixed(2) : '-'}
