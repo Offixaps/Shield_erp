@@ -14,7 +14,8 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { Handshake, Smartphone, CircleStop } from 'lucide-react';
+import { Handshake, Smartphone, CircleStop, Banknote } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const bankBrandData = [
     { name: 'Absa Bank Ghana Limited', logo: '/logos/banks/absa.svg', color: '#E60000', textColor: '#FFFFFF' },
@@ -53,10 +54,16 @@ export default function CollectionsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title="Premium Collection"
-        description="Select a collection method to view active policies."
-      />
+      <div className="flex items-center justify-between">
+        <PageHeader
+          title="Premium Collection"
+          description="Select a collection method to view active policies."
+        />
+        <Button>
+            <Banknote className="mr-2 h-4 w-4" />
+            Bill All Active Policies
+        </Button>
+      </div>
       <Tabs defaultValue="bank" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="bank">Bank Premium Collection</TabsTrigger>
