@@ -20,32 +20,28 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
 import VerifyMandateDialog from '@/components/premium-administration/verify-mandate-dialog';
+import { useRouter } from 'next/navigation';
 
 export default function NewBusinessPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const [businessList, setBusinessList] = React.useState(newBusinessData);
 
-    const updateBusinessItem = (id: number, newStatus: OnboardingStatus, updates?: Partial<NewBusiness>) => {
-      let updatedItemName = '';
-      const newList = businessList.map(item => {
-        if (item.id === id) {
-          updatedItemName = item.client;
-          return { ...item, onboardingStatus: newStatus, ...updates };
-        }
-        return item;
-      });
-      setBusinessList(newList);
-      return updatedItemName;
-    }
-
-
     const handleVerifyMandate = (id: number, newStatus: OnboardingStatus, notes?: string) => {
-        const clientName = updateBusinessItem(id, newStatus, { 
-            mandateVerified: newStatus === 'Mandate Verified',
-            mandateReworkNotes: notes
-        });
+        const businessIndex = newBusinessData.findIndex(item => item.id === id);
+        if (businessIndex !== -1) {
+            const clientName = newBusinessData[businessIndex].client;
+            
+            newBusinessData[businessIndex] = {
+                ...newBusinessData[businessIndex],
+                onboardingStatus: newStatus,
+                mandateVerified: newStatus === 'Mandate Verified',
+                mandateReworkNotes: notes
+            };
 
-        if (clientName) {
+            setBusinessList([...newBusinessData]); // Trigger re-render
+            router.refresh(); // Force refresh for other components if needed, though direct mutation should be picked up
+
             if (newStatus === 'Mandate Verified') {
                 toast({
                     title: "Mandate Verified",
@@ -61,12 +57,20 @@ export default function NewBusinessPage() {
     };
     
     const handleConfirmFirstPremium = (id: number) => {
-        const clientName = updateBusinessItem(id, 'First Premium Confirmed', {
-            billingStatus: 'First Premium Paid',
-            firstPremiumPaid: true
-        });
+        const businessIndex = newBusinessData.findIndex(item => item.id === id);
+        if (businessIndex !== -1) {
+            const clientName = newBusinessData[businessIndex].client;
+            
+            newBusinessData[businessIndex] = {
+                ...newBusinessData[businessIndex],
+                onboardingStatus: 'First Premium Confirmed',
+                billingStatus: 'First Premium Paid',
+                firstPremiumPaid: true
+            };
 
-        if (clientName) {
+            setBusinessList([...newBusinessData]); // Trigger re-render
+            router.refresh();
+            
             toast({
                 title: "First Premium Confirmed",
                 description: `First premium for ${clientName} has been confirmed.`
