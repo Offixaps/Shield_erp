@@ -381,7 +381,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
             if (businessIndex !== -1) {
                 const currentStatus = newBusinessData[businessIndex].onboardingStatus;
-                const newStatus = ['NTU', 'Declined'].includes(currentStatus)
+                
+                const newStatus = currentStatus === 'Rework Required'
                 ? 'Pending Vetting'
                 : currentStatus;
 
@@ -397,6 +398,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     onboardingStatus: newStatus,
                     policyTerm: values.policyTerm,
                     premiumTerm: values.premiumTerm,
+                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : newBusinessData[businessIndex].vettingNotes
                 };
                 
                 toast({

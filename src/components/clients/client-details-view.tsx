@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import PageHeader from '@/components/page-header';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import {
   Undo2,
   FileCheck,
   ShieldCheck,
+  FilePenLine,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness } from '@/lib/data';
@@ -29,6 +30,11 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
+import { Separator } from '../ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import Link from 'next/link';
+import CompleteVettingDialog from './complete-vetting-dialog';
+
 
 function DetailItem({
   label,
@@ -78,6 +84,8 @@ export default function ClientDetailsView({
   }, [initialClient]);
 
   const isFromUnderwriting = from === 'underwriting';
+  const isFromBusinessDevelopment = from === 'business-development';
+  
   const canMakeDecision =
     isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
   const canStartMedicals =
@@ -85,13 +93,14 @@ export default function ClientDetailsView({
   const isPendingMedicals =
     isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
-  const isPendingVetting = isFromUnderwriting && client.onboardingStatus === 'Pending Vetting';
+  const isPendingVetting = isFromUnderwriting && (client.onboardingStatus === 'Pending Vetting' || client.onboardingStatus === 'Rework Required');
+  const isReworkRequired = client.onboardingStatus === 'Rework Required';
   const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
 
 
   const updateOnboardingStatus = (
     newStatus: NewBusiness['onboardingStatus'],
-    medicalUnderwritingState?: NewBusiness['medicalUnderwritingState']
+    updates?: Partial<NewBusiness>
   ) => {
     try {
       const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
@@ -99,7 +108,7 @@ export default function ClientDetailsView({
         const updatedClient = {
           ...newBusinessData[businessIndex],
           onboardingStatus: newStatus,
-          ...(medicalUnderwritingState && { medicalUnderwritingState }),
+          ...updates
         };
         newBusinessData[businessIndex] = updatedClient;
         setClient(updatedClient); 
@@ -123,16 +132,20 @@ export default function ClientDetailsView({
 
   const handleStartMedicals = () => {
     updateOnboardingStatus('Pending Medicals', {
-      started: true,
-      startDate: new Date().toISOString(),
-      completed: false,
+      medicalUnderwritingState: {
+        started: true,
+        startDate: new Date().toISOString(),
+        completed: false,
+      }
     });
   };
 
   const handleMedicalsCompleted = () => {
     updateOnboardingStatus('Medicals Completed', {
-      ...client.medicalUnderwritingState,
-      completed: true,
+       medicalUnderwritingState: {
+        ...client.medicalUnderwritingState,
+        completed: true,
+      }
     });
   };
   
@@ -165,6 +178,7 @@ export default function ClientDetailsView({
         return 'bg-gray-500/80';
       case 'declined':
       case 'cancelled':
+      case 'rework required':
         return 'bg-red-500/80';
       case 'lapsed':
       case 'outstanding':
@@ -201,11 +215,14 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-            {isPendingVetting && (
-              <Button onClick={() => updateOnboardingStatus('Vetting Completed')}>
-                <FileCheck className="mr-2 h-4 w-4" />
-                Complete Vetting
-              </Button>
+            {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={updateOnboardingStatus} />}
+            {isReworkRequired && isFromBusinessDevelopment && (
+                <Button asChild>
+                    <Link href={`/business-development/sales/${client.id}/edit`}>
+                        <FilePenLine className="mr-2 h-4 w-4" />
+                        Rework Form
+                    </Link>
+                </Button>
             )}
             {isVettingCompleted && (
                  <Button onClick={() => updateOnboardingStatus('Pending Mandate')}>
@@ -289,6 +306,16 @@ export default function ClientDetailsView({
             </Badge>
           </div>
         </div>
+         {isReworkRequired && client.vettingNotes && (
+            <Alert variant="destructive">
+                <FilePenLine className="h-4 w-4" />
+                <AlertTitle>Rework Required</AlertTitle>
+                <AlertDescription>
+                    <p className="font-semibold">Underwriting Remarks:</p>
+                    <p>{client.vettingNotes}</p>
+                </AlertDescription>
+            </Alert>
+        )}
       </div>
       
       <Tabs defaultValue="overview" className="w-full">
@@ -306,12 +333,13 @@ export default function ClientDetailsView({
 
         <TabsContent value="overview" className="mt-6">
            <div className="space-y-6">
-            <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-summary p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+             <Card>
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-summary rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Policy Summary
                 </h3>
               </CardHeader>
+              <Separator />
               <CardContent className="pt-6">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                   {summaryDetails.map((detail) => (
@@ -326,11 +354,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Personal details of life insured
                 </h3>
               </CardHeader>
+              <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
                 <DetailItem label="Date of Birth" value="1985-05-20" />
@@ -346,11 +375,12 @@ export default function ClientDetailsView({
             </Card>
 
              <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Contact Details
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Email Address" value="j.doe@example.com" />
                 <DetailItem label="Telephone Number" value={client.phone} />
@@ -363,11 +393,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Identification
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="National ID Type" value="Passport" />
                 <DetailItem label="ID Number" value="G1234567" />
@@ -384,11 +415,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Policy Details
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Serial Number" value={client.serial} />
                 <DetailItem label="Payment Frequency" value="Monthly" />
@@ -400,11 +432,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Employment Details
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Occupation" value="Software Engineer" />
                 <DetailItem label="Nature of Business/Work" value="Technology" />
@@ -420,11 +453,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Payment Details
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Premium Payer Name" value={client.client} />
                 <DetailItem
@@ -456,11 +490,12 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-              <CardHeader className="p-0">
-                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                 <h3 className="font-medium uppercase text-sidebar-foreground">
                   Underwriting
                 </h3>
               </CardHeader>
+               <Separator />
               <CardContent className="pt-6">
                 <p className="text-muted-foreground">
                   Underwriting details, including risk assessments and decisions,

@@ -36,6 +36,7 @@ export const recentActivityData = [
 export type OnboardingStatus = 
   | 'Pending Vetting'
   | 'Vetting Completed'
+  | 'Rework Required'
   | 'Pending Mandate'
   | 'Mandate Verified'
   | 'Pending First Premium'
@@ -76,6 +77,7 @@ export type NewBusiness = {
   medicalUnderwritingState: MedicalUnderwritingState;
   phone: string;
   serial: string;
+  vettingNotes?: string;
 };
 
 
