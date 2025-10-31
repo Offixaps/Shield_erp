@@ -12,54 +12,64 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { newBusinessData, type NewBusiness } from '@/lib/data';
+import { newBusinessData, type NewBusiness, type OnboardingStatus } from '@/lib/data';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
+import VerifyMandateDialog from '@/components/premium-administration/verify-mandate-dialog';
 
 export default function NewBusinessPage() {
     const { toast } = useToast();
     const [businessList, setBusinessList] = React.useState(newBusinessData);
 
-    const handleVerifyMandate = (id: number) => {
-        let updatedItemName = '';
-        const newList = businessList.map(item => {
-            if (item.id === id) {
-                updatedItemName = item.client;
-                return { ...item, onboardingStatus: 'Pending First Premium' as const, mandateVerified: true };
-            }
-            return item;
-        });
-        setBusinessList(newList);
+    const updateBusinessItem = (id: number, newStatus: OnboardingStatus, updates?: Partial<NewBusiness>) => {
+      let updatedItemName = '';
+      const newList = businessList.map(item => {
+        if (item.id === id) {
+          updatedItemName = item.client;
+          return { ...item, onboardingStatus: newStatus, ...updates };
+        }
+        return item;
+      });
+      setBusinessList(newList);
+      return updatedItemName;
+    }
 
-        if (updatedItemName) {
-            toast({
-                title: "Mandate Verified",
-                description: `Mandate for ${updatedItemName} has been verified.`
-            });
+
+    const handleVerifyMandate = (id: number, newStatus: OnboardingStatus, notes?: string) => {
+        const clientName = updateBusinessItem(id, newStatus, { 
+            mandateVerified: newStatus === 'Mandate Verified',
+            mandateReworkNotes: notes
+        });
+
+        if (clientName) {
+            if (newStatus === 'Mandate Verified') {
+                toast({
+                    title: "Mandate Verified",
+                    description: `Mandate for ${clientName} has been verified.`
+                });
+            } else {
+                 toast({
+                    title: "Mandate Rework Required",
+                    description: `Mandate for ${clientName} sent back for rework.`
+                });
+            }
         }
     };
     
     const handleConfirmFirstPremium = (id: number) => {
-        let updatedItemName = '';
-        const newList = businessList.map(item => {
-            if (item.id === id) {
-                updatedItemName = item.client;
-                return { ...item, onboardingStatus: 'First Premium Confirmed' as const, billingStatus: 'First Premium Paid' as const, firstPremiumPaid: true };
-            }
-            return item;
+        const clientName = updateBusinessItem(id, 'First Premium Confirmed', {
+            billingStatus: 'First Premium Paid',
+            firstPremiumPaid: true
         });
-        setBusinessList(newList);
 
-        if (updatedItemName) {
+        if (clientName) {
             toast({
                 title: "First Premium Confirmed",
-                description: `First premium for ${updatedItemName} has been confirmed.`
+                description: `First premium for ${clientName} has been confirmed.`
             });
         }
     };
@@ -73,6 +83,7 @@ export default function NewBusinessPage() {
         case 'mandate verified':
         case 'first premium confirmed':
         case 'medicals completed':
+        case 'vetting completed':
             return 'bg-blue-500/80';
         case 'accepted':
             return 'bg-green-500/80';
@@ -80,6 +91,8 @@ export default function NewBusinessPage() {
         case 'deferred':
             return 'bg-gray-500/80';
         case 'declined':
+        case 'rework required':
+        case 'mandate rework required':
             return 'bg-red-500/80';
         default:
             return 'bg-gray-500/80';
@@ -143,10 +156,7 @@ export default function NewBusinessPage() {
                   <TableCell className="text-right">
                     {business.onboardingStatus === 'Pending Mandate' && (
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm" onClick={() => handleVerifyMandate(business.id)}>
-                          <ShieldCheck className="mr-2 h-4 w-4" />
-                          Verify Mandate
-                        </Button>
+                        <VerifyMandateDialog client={business} onConfirm={handleVerifyMandate} />
                       </div>
                     )}
                     {business.onboardingStatus === 'Pending First Premium' && (

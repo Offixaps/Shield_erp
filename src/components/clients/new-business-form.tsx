@@ -382,9 +382,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             if (businessIndex !== -1) {
                 const currentStatus = newBusinessData[businessIndex].onboardingStatus;
                 
-                const newStatus = currentStatus === 'Rework Required'
-                ? 'Pending Vetting'
-                : currentStatus;
+                let newStatus = currentStatus;
+                if (currentStatus === 'Rework Required') {
+                    newStatus = 'Pending Vetting';
+                } else if (currentStatus === 'Mandate Rework Required') {
+                    newStatus = 'Pending Mandate';
+                }
+
 
                 newBusinessData[businessIndex] = {
                     ...newBusinessData[businessIndex],
@@ -398,7 +402,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     onboardingStatus: newStatus,
                     policyTerm: values.policyTerm,
                     premiumTerm: values.premiumTerm,
-                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : newBusinessData[businessIndex].vettingNotes
+                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : newBusinessData[businessIndex].vettingNotes,
+                    mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : newBusinessData[businessIndex].mandateReworkNotes,
                 };
                 
                 toast({

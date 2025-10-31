@@ -85,10 +85,11 @@ export default function ClientDetailsView({
     if (currentClientData) {
       setClient(currentClientData);
     }
-  }, [initialClient]);
+  }, [initialClient.id, initialClient]);
 
   const isFromUnderwriting = from === 'underwriting';
   const isFromBusinessDevelopment = from === 'business-development';
+  const isFromPremiumAdmin = from === 'premium-admin';
   
   const canMakeDecision =
     isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
@@ -99,6 +100,7 @@ export default function ClientDetailsView({
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
   const isPendingVetting = isFromUnderwriting && (client.onboardingStatus === 'Pending Vetting' || client.onboardingStatus === 'Rework Required');
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
+  const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
   const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
 
 
@@ -182,6 +184,7 @@ export default function ClientDetailsView({
       case 'declined':
       case 'cancelled':
       case 'rework required':
+      case 'mandate rework required':
         return 'bg-red-500/80';
       case 'lapsed':
       case 'outstanding':
@@ -218,8 +221,8 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-            {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={updateOnboardingStatus} />}
-            {isReworkRequired && isFromBusinessDevelopment && (
+            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={updateOnboardingStatus} />}
+            {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
                     <Link href={`/business-development/sales/${client.id}/edit`}>
                         <FilePenLine className="mr-2 h-4 w-4" />
@@ -227,7 +230,7 @@ export default function ClientDetailsView({
                     </Link>
                 </Button>
             )}
-            {isVettingCompleted && (
+            {isVettingCompleted && isFromUnderwriting && (
                  <Button onClick={() => updateOnboardingStatus('Pending Mandate')}>
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Request Mandate Verification
@@ -312,10 +315,20 @@ export default function ClientDetailsView({
          {isReworkRequired && client.vettingNotes && (
             <Alert variant="destructive">
                 <FilePenLine className="h-4 w-4" />
-                <AlertTitle>Rework Required</AlertTitle>
+                <AlertTitle>Rework Required (Vetting)</AlertTitle>
                 <AlertDescription>
                     <p className="font-semibold">Underwriting Remarks:</p>
                     <p>{client.vettingNotes}</p>
+                </AlertDescription>
+            </Alert>
+        )}
+         {isMandateReworkRequired && client.mandateReworkNotes && (
+            <Alert variant="destructive">
+                <FilePenLine className="h-4 w-4" />
+                <AlertTitle>Rework Required (Mandate)</AlertTitle>
+                <AlertDescription>
+                    <p className="font-semibold">Premium Admin Remarks:</p>
+                    <p>{client.mandateReworkNotes}</p>
                 </AlertDescription>
             </Alert>
         )}
@@ -441,7 +454,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
                 <DetailItem label="Occupation" value="Software Engineer" />
                 <DetailItem label="Nature of Business/Work" value="Technology" />
                 <DetailItem label="Employer" value="Google" />

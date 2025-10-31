@@ -39,6 +39,7 @@ export type OnboardingStatus =
   | 'Rework Required'
   | 'Pending Mandate'
   | 'Mandate Verified'
+  | 'Mandate Rework Required'
   | 'Pending First Premium'
   | 'First Premium Confirmed'
   | 'Pending Medicals'
@@ -78,6 +79,7 @@ export type NewBusiness = {
   phone: string;
   serial: string;
   vettingNotes?: string;
+  mandateReworkNotes?: string;
 };
 
 
