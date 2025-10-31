@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { CheckCircle } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { NewBusiness } from '@/lib/data';
@@ -43,8 +43,7 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
             policy: policyNumber,
             premium: parseFloat(finalPremium),
             sumAssured: parseFloat(finalSumAssured),
-            onboardingStatus: 'Accepted',
-            policyStatus: 'Active',
+            onboardingStatus: 'Pending Mandate', // New workflow: Move to Pending Mandate
             commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
         });
         
@@ -52,7 +51,7 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
             onUpdate(updatedPolicy);
             toast({
                 title: 'Policy Accepted',
-                description: `Policy for ${client.client} has been accepted and updated.`,
+                description: `Policy for ${client.client} accepted. Now pending mandate verification.`,
             });
             setOpen(false);
         } else {
@@ -72,15 +71,15 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <CheckCircle className="mr-2 h-4 w-4" />
+          <ShieldCheck className="mr-2 h-4 w-4" />
           Accept Policy
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Accept Policy</DialogTitle>
+          <DialogTitle>Accept & Finalize Policy</DialogTitle>
           <DialogDescription>
-            Enter the final details for this policy before acceptance.
+            Enter the final details for this policy before moving to mandate verification.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -124,7 +123,7 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
           </DialogClose>
-          <Button onClick={handleAccept}>Accept</Button>
+          <Button onClick={handleAccept}>Accept & Request Mandate</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

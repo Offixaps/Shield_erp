@@ -35,6 +35,7 @@ import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
 import CompleteVettingDialog from './complete-vetting-dialog';
 import { updatePolicy } from '@/lib/policy-service';
+import VerifyMandateDialog from '../premium-administration/verify-mandate-dialog';
 
 
 function DetailItem({
@@ -86,19 +87,22 @@ export default function ClientDetailsView({
   const isFromUnderwriting = from === 'underwriting';
   const isFromBusinessDevelopment = from === 'business-development';
   const isFromPremiumAdmin = from === 'premium-admin';
+
+  // New Workflow State Checks
+  const isPendingVetting = isFromUnderwriting && client.onboardingStatus === 'Pending Vetting';
+  const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
+  const canStartMedicals = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
+  const isPendingMedicals = isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
+  const canMakeDecision = isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
   
-  const canMakeDecision =
-    isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
-  const canStartMedicals =
-    isFromUnderwriting && client.onboardingStatus === 'First Premium Confirmed';
-  const isPendingMedicals =
-    isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
-  const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
-  const isPendingVetting = isFromUnderwriting && (client.onboardingStatus === 'Pending Vetting' || client.onboardingStatus === 'Rework Required');
+  // Rework and older state checks
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
   const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
-  const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
-  const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
+  const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
+  
+  // New checks for post-acceptance
+  const isAccepted = client.onboardingStatus === 'Accepted';
+  const canVerifyMandate = isFromPremiumAdmin && client.onboardingStatus === 'Pending Mandate';
 
 
   const handleOnboardingStatusUpdate = (
@@ -215,25 +219,13 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
+            {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
                     <Link href={`/business-development/sales/${client.id}/edit`}>
                         <FilePenLine className="mr-2 h-4 w-4" />
                         Rework Form
                     </Link>
-                </Button>
-            )}
-            {isVettingCompleted && isFromUnderwriting && (
-                 <Button onClick={() => handleOnboardingStatusUpdate('Pending Mandate')}>
-                    <ShieldCheck className="mr-2 h-4 w-4" />
-                    Request Mandate Verification
-                </Button>
-            )}
-            {canRequestFirstPremium && isFromUnderwriting && (
-                 <Button onClick={() => handleOnboardingStatusUpdate('Pending First Premium')}>
-                    <Banknote className="mr-2 h-4 w-4" />
-                    Request First Premium
                 </Button>
             )}
             {canStartMedicals && (
@@ -248,15 +240,12 @@ export default function ClientDetailsView({
                 Medicals Completed
               </Button>
             )}
-            {isNTU && (
-                 <Button onClick={handleRevertNTU} variant="outline">
-                    <Undo2 className="mr-2 h-4 w-4" />
-                    Revert to Pending Medicals
-                </Button>
-            )}
             {canMakeDecision && (
               <>
-                <AcceptPolicyDialog client={client} onUpdate={handlePolicyUpdate}/>
+                <Button onClick={() => handleOnboardingStatusUpdate('Accepted')}>
+                  <Check className="mr-2 h-4 w-4" />
+                  Accept Policy
+                </Button>
                 <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
                   <PauseCircle className="mr-2 h-4 w-4" />
                   Defer Policy
@@ -270,6 +259,16 @@ export default function ClientDetailsView({
                   Decline Policy
                 </Button>
               </>
+            )}
+            {isAccepted && isFromUnderwriting && (
+                <AcceptPolicyDialog client={client} onUpdate={handlePolicyUpdate}/>
+            )}
+            {canVerifyMandate && <VerifyMandateDialog client={client} onUpdate={handlePolicyUpdate} />}
+             {isNTU && (
+                 <Button onClick={handleRevertNTU} variant="outline">
+                    <Undo2 className="mr-2 h-4 w-4" />
+                    Revert to Pending Medicals
+                </Button>
             )}
           </div>
         </div>
@@ -619,7 +618,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-    
-
-    

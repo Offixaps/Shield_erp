@@ -45,7 +45,11 @@ export default function VerifyMandateDialog({ client, onUpdate }: VerifyMandateD
     try {
       let updatedPolicy;
       if (verificationStatus === 'Successful') {
-        updatedPolicy = updatePolicy(client.id, { onboardingStatus: 'Mandate Verified', mandateReworkNotes: undefined });
+        updatedPolicy = updatePolicy(client.id, { 
+            onboardingStatus: 'Mandate Verified',
+            policyStatus: 'Active', 
+            mandateReworkNotes: undefined 
+        });
       } else {
         updatedPolicy = updatePolicy(client.id, { onboardingStatus: 'Mandate Rework Required', mandateReworkNotes: remarks });
       }
@@ -59,7 +63,7 @@ export default function VerifyMandateDialog({ client, onUpdate }: VerifyMandateD
       if (updatedPolicy?.onboardingStatus === 'Mandate Verified') {
         toast({
             title: "Mandate Verified",
-            description: `Mandate for ${client.client} has been verified.`
+            description: `Mandate for ${client.client} has been verified and the policy is now Active.`
         });
       } else {
           toast({
@@ -99,7 +103,7 @@ export default function VerifyMandateDialog({ client, onUpdate }: VerifyMandateD
               <Label htmlFor="r1">Mandate Successfully Verified</Label>
             </div>
              <p className="text-sm text-muted-foreground pl-6">
-                The mandate was submitted to the bank and was successfully verified.
+                The mandate was submitted to the bank and was successfully verified. The policy will become active.
             </p>
             <div className="flex items-center space-x-2 pt-4">
               <RadioGroupItem value="Unsuccessful" id="r2" />

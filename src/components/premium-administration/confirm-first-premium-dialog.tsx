@@ -66,8 +66,9 @@ export default function ConfirmFirstPremiumDialog({
     }
     
     try {
+      // New workflow: After premium is confirmed, status moves to 'Pending Vetting'
       const updatedPolicy = updatePolicy(client.id, {
-        onboardingStatus: 'First Premium Confirmed',
+        onboardingStatus: 'Pending Vetting',
         billingStatus: 'First Premium Paid',
         firstPremiumPaid: true,
       });
@@ -76,7 +77,7 @@ export default function ConfirmFirstPremiumDialog({
         onUpdate(updatedPolicy);
         toast({
           title: "First Premium Confirmed",
-          description: `First premium for ${client.client} has been confirmed.`
+          description: `Policy for ${client.client} sent for vetting.`
         });
         setOpen(false);
       } else {

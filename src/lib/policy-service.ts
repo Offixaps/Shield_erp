@@ -66,7 +66,7 @@ export function createPolicy(values: any): NewBusiness {
         commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
         phone: values.phone,
         serial: values.serialNumber,
-        onboardingStatus: 'Pending Vetting',
+        onboardingStatus: 'Pending First Premium',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
         expiryDate: new Date(new Date(values.commencementDate).setFullYear(new Date(values.commencementDate).getFullYear() + values.policyTerm)).toISOString().split('T')[0],

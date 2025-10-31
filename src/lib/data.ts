@@ -1,4 +1,5 @@
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -33,19 +34,19 @@ export const recentActivityData = [
     { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
 ];
 
-export type OnboardingStatus = 
+export type OnboardingStatus =
+  | 'Pending First Premium'
+  | 'First Premium Confirmed'
   | 'Pending Vetting'
   | 'Vetting Completed'
   | 'Rework Required'
-  | 'Pending Mandate'
-  | 'Mandate Verified'
-  | 'Mandate Rework Required'
-  | 'Pending First Premium'
-  | 'First Premium Confirmed'
   | 'Pending Medicals'
   | 'Medicals Completed'
   | 'Pending Decision'
   | 'Accepted'
+  | 'Pending Mandate'
+  | 'Mandate Verified'
+  | 'Mandate Rework Required'
   | 'Declined'
   | 'NTU'
   | 'Deferred';
@@ -95,7 +96,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: "2034-07-01",
     policyTerm: 10,
     premiumTerm: 5,
-    onboardingStatus: "Pending Vetting",
+    onboardingStatus: "Pending First Premium",
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
     mandateVerified: false,
@@ -135,7 +136,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: "2054-06-20",
     policyTerm: 30,
     premiumTerm: 20,
-    onboardingStatus: "Accepted",
+    onboardingStatus: "Mandate Verified",
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -175,7 +176,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: "2034-06-15",
     policyTerm: 10,
     premiumTerm: 10,
-    onboardingStatus: "Accepted",
+    onboardingStatus: "Mandate Verified",
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
