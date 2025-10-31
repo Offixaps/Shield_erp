@@ -87,6 +87,7 @@ const ghanaRegions = [
 const formSchema = z
   .object({
     // Client Details
+    title: z.enum(['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon']),
     lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.'),
     lifeAssuredMiddleName: z.string().optional(),
     lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
@@ -207,11 +208,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       const businessData = newBusinessData.find(b => b.id.toString() === businessId);
       if (businessData) {
         const nameParts = businessData.client.split(' ');
-        const firstName = nameParts[0] || '';
-        const surname = nameParts.length > 1 ? nameParts[nameParts.length - 1] : '';
-        const middleName = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : '';
+        const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
+        const nameWithoutTitle = nameParts[0] === title ? nameParts.slice(1).join(' ') : businessData.client;
+        const nameOnlyParts = nameWithoutTitle.split(' ');
+
+        const firstName = nameOnlyParts[0] || '';
+        const surname = nameOnlyParts.length > 1 ? nameOnlyParts[nameOnlyParts.length - 1] : '';
+        const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
         
         return {
+          title: title,
           lifeAssuredFirstName: firstName,
           lifeAssuredMiddleName: middleName,
           lifeAssuredSurname: surname,
@@ -267,6 +273,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       }
     }
     return {
+      title: 'Mr' as const,
       email: '',
       phone: '',
       postalAddress: '',
@@ -368,7 +375,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-        const lifeAssuredName = [values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
+        const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
         if (isEditMode && businessId) {
             const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
@@ -428,6 +435,31 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
+           <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Title</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a title" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Mr">Mr</SelectItem>
+                    <SelectItem value="Mrs">Mrs</SelectItem>
+                    <SelectItem value="Miss">Miss</SelectItem>
+                    <SelectItem value="Dr">Dr</SelectItem>
+                    <SelectItem value="Prof">Prof</SelectItem>
+                    <SelectItem value="Hon">Hon</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="lifeAssuredFirstName"
