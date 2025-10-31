@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -12,8 +11,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarHeader,
-  SidebarTrigger,
-  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -80,44 +77,22 @@ const departmentIcons = {
 }
 
 function AppSidebarHeader() {
-    const { state, toggleSidebar } = useSidebar();
-    const pathname = usePathname();
+  const pathname = usePathname();
 
-    if (state === 'collapsed') {
-        return (
-            <SidebarHeader className="flex items-center justify-between p-2">
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton 
-                            onClick={toggleSidebar} 
-                            isActive={pathname === '/'} 
-                            tooltip="Home" 
-                            className="w-full justify-center"
-                        >
-                            <Home />
-                            <span className="sr-only">Home</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                </SidebarMenu>
-            </SidebarHeader>
-        )
-    }
-
-    return (
-        <SidebarHeader className="flex items-center justify-between p-2">
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home" className="w-full justify-start">
-                        <Link href="/">
-                            <Home />
-                            <span>Home</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-            <SidebarTrigger className="ml-auto" />
-        </SidebarHeader>
-    )
+  return (
+    <SidebarHeader>
+      <SidebarMenu>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home">
+            <Link href="/">
+              <Home />
+              <span>Home</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      </SidebarMenu>
+    </SidebarHeader>
+  );
 }
 
 export default function AppSidebar() {

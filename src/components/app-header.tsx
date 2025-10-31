@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -24,8 +25,11 @@ export default function AppHeader() {
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden" />
-        <Shield className="h-6 w-6 text-primary hidden md:block" />
-        <h1 className="text-lg font-semibold hidden md:block">SHIELD ERP</h1>
+        <div className="hidden md:flex items-center gap-2">
+          <SidebarTrigger />
+          <Shield className="h-6 w-6 text-primary" />
+          <h1 className="text-lg font-semibold">SHIELD ERP</h1>
+        </div>
       </div>
 
       <div className="ml-auto flex items-center gap-4">
