@@ -4,7 +4,7 @@
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import PageHeader from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { getPolicies } from '@/lib/policy-service';
 import type { NewBusiness } from '@/lib/data';
 import { cn } from '@/lib/utils';
@@ -21,9 +21,14 @@ import Link from 'next/link';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Upload, Download } from 'lucide-react';
+import * as XLSX from 'xlsx';
+import { useToast } from '@/hooks/use-toast';
 
 export default function BankPoliciesPage() {
   const params = useParams();
+  const { toast } = useToast();
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
   const bankName = React.useMemo(() => {
     const bank = params.bank;
     return typeof bank === 'string' ? decodeURIComponent(bank) : '';
@@ -52,6 +57,73 @@ export default function BankPoliciesPage() {
     }
   };
 
+  const handlePostToBank = () => {
+    const dataToExport = policies.map(p => ({
+        'Client Name': p.client,
+        'Policy Number': p.policy,
+        'Premium': p.premium,
+        'Commencement Date': format(new Date(p.commencementDate), 'yyyy-MM-dd'),
+        'Billing Status': p.billingStatus,
+        'Bank Name': p.bankName,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Bank Policies");
+    XLSX.writeFile(workbook, `${bankName.replace(/ /g, '_')}_Policies.xlsx`);
+
+    toast({
+      title: 'Export Successful',
+      description: 'The list of policies has been exported to an Excel file.',
+    });
+  };
+
+  const handleUploadBankReport = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(worksheet);
+        
+        console.log('Uploaded Bank Report Data:', json);
+        
+        toast({
+          title: 'File Uploaded',
+          description: `${file.name} has been successfully processed. Check the console for the data.`,
+        });
+        
+        // TODO: Implement logic to update policies based on the uploaded report
+      
+      } catch (error) {
+        console.error('Error processing uploaded file:', error);
+        toast({
+          variant: 'destructive',
+          title: 'Upload Failed',
+          description: 'There was an error processing the uploaded file.',
+        });
+      }
+    };
+    reader.readAsBinaryString(file);
+
+    // Reset file input
+    if(fileInputRef.current) {
+        fileInputRef.current.value = '';
+    }
+  };
+
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -60,14 +132,21 @@ export default function BankPoliciesPage() {
           description="A list of all active policies for this bank."
         />
         <div className="flex items-center gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={handlePostToBank}>
                 <Download className="mr-2 h-4 w-4" />
                 Post to Bank
             </Button>
-            <Button>
+            <Button onClick={handleUploadBankReport}>
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Bank Report
             </Button>
+             <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              accept=".xlsx, .xls, .csv"
+            />
         </div>
       </div>
       
