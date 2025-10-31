@@ -317,8 +317,7 @@ export default function ClientDetailsView({
                 <FilePenLine className="h-4 w-4" />
                 <AlertTitle>Rework Required (Vetting)</AlertTitle>
                 <AlertDescription>
-                    <p className="font-semibold">Underwriting Remarks:</p>
-                    <p>{client.vettingNotes}</p>
+                    The underwriting department requires changes. Please see the Underwriting tab for remarks.
                 </AlertDescription>
             </Alert>
         )}
@@ -572,7 +571,14 @@ export default function ClientDetailsView({
               <h3 className="text-lg font-medium">Underwriting Log</h3>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">A log of all underwriting activities, comments, and decisions will be shown here.</p>
+              {isReworkRequired && client.vettingNotes ? (
+                <div>
+                    <h4 className="font-semibold">Vetting Rework Remarks</h4>
+                    <p className="text-muted-foreground p-2 border rounded-md bg-destructive/10">{client.vettingNotes}</p>
+                </div>
+              ) : (
+                 <p className="text-muted-foreground">A log of all underwriting activities, comments, and decisions will be shown here.</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
