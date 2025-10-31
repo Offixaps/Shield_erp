@@ -156,12 +156,12 @@ export default function ClientDetailsView({
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'pending vetting':
-      case 'vetting completed':
       case 'pending mandate':
       case 'pending first premium':
       case 'pending medicals':
       case 'pending decision':
         return 'bg-yellow-500/80';
+      case 'vetting completed':
       case 'mandate verified':
       case 'first premium confirmed':
       case 'medicals completed':
