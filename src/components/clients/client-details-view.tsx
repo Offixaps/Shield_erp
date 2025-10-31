@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { format } from 'date-fns';
