@@ -36,6 +36,7 @@ import CompleteVettingDialog from './complete-vetting-dialog';
 import { updatePolicy } from '@/lib/policy-service';
 import VerifyMandateDialog from '../premium-administration/verify-mandate-dialog';
 import PaymentHistoryTab from './payment-history-tab';
+import ActivityLogTab from './activity-log-tab';
 
 
 function DetailItem({
@@ -605,14 +606,7 @@ export default function ClientDetailsView({
         </TabsContent>
         
         <TabsContent value="activity-log" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Activity Log</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">A chronological log of all actions and status changes related to the policy will be available here.</p>
-            </CardContent>
-          </Card>
+          <ActivityLogTab client={client} />
         </TabsContent>
       </Tabs>
     </div>

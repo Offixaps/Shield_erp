@@ -4,6 +4,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -84,6 +85,13 @@ export type Payment = {
   transactionId: string;
 };
 
+export type ActivityLog = {
+  date: string;
+  user: string;
+  action: string;
+  details?: string;
+};
+
 export type NewBusiness = {
   id: number;
   client: string;
@@ -107,6 +115,7 @@ export type NewBusiness = {
   mandateReworkNotes?: string;
   bills: Bill[];
   payments: Payment[];
+  activityLog: ActivityLog[];
 };
 
 
@@ -133,7 +142,11 @@ export const newBusinessData: NewBusiness[] = [
     bills: [
       { id: 1, policyId: 1, amount: 150.00, dueDate: "2024-07-01", status: "Unpaid", description: "First Premium" }
     ],
-    payments: []
+    payments: [],
+    activityLog: [
+      { date: "2024-06-28T10:00:00Z", user: "Sales Agent", action: "Policy Created", details: "Initial policy creation for John K. Doe." },
+      { date: "2024-07-01T09:00:00Z", user: "System", action: "Onboarding status changed to Pending First Premium." }
+    ]
   },
   { 
     id: 2,
@@ -155,7 +168,17 @@ export const newBusinessData: NewBusiness[] = [
     phone: "024 123 4568", 
     serial: "1235",
     bills: [],
-    payments: []
+    payments: [],
+    activityLog: [
+      { date: "2024-07-02T11:30:00Z", user: "Sales Agent", action: "Policy Created", details: "Initial policy creation for Jane Smith." },
+      { date: "2024-07-05T09:00:00Z", user: "System", action: "Onboarding status changed to Pending First Premium." },
+      { date: "2024-07-06T14:00:00Z", user: "Premium Admin", action: "First Premium Confirmed." },
+      { date: "2024-07-06T14:00:00Z", user: "System", action: "Onboarding status changed to Pending Vetting." },
+      { date: "2024-07-08T10:00:00Z", user: "Underwriting", action: "Vetting Completed." },
+      { date: "2024-07-08T10:00:00Z", user: "System", action: "Onboarding status changed to Accepted." },
+      { date: "2024-07-09T16:20:00Z", user: "Underwriting", action: "Policy Finalized", details: "Policy number T1166017 assigned." },
+      { date: "2024-07-09T16:20:00Z", user: "System", action: "Onboarding status changed to Pending Mandate." }
+    ]
   },
   { 
     id: 3, 
@@ -177,7 +200,11 @@ export const newBusinessData: NewBusiness[] = [
     phone: "024 123 4569", 
     serial: "1236",
     bills: [],
-    payments: []
+    payments: [],
+    activityLog: [
+       { date: "2024-06-21T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
+       { date: "2024-06-21T09:00:01Z", user: "System", action: "Policy status changed to Active." }
+    ]
   },
   { 
     id: 4, 
@@ -199,7 +226,10 @@ export const newBusinessData: NewBusiness[] = [
     phone: "024 123 4570", 
     serial: "1237",
     bills: [],
-    payments: []
+    payments: [],
+    activityLog: [
+       { date: "2024-07-11T15:00:00Z", user: "Underwriting", action: "Onboarding status changed to Declined.", details: "Risk profile too high." }
+    ]
   },
   { 
     id: 5, 
@@ -221,7 +251,11 @@ export const newBusinessData: NewBusiness[] = [
     phone: "024 123 4571", 
     serial: "1238",
     bills: [],
-    payments: []
+    payments: [],
+    activityLog: [
+       { date: "2024-06-16T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
+       { date: "2024-06-16T09:00:01Z", user: "System", action: "Policy status changed to Active." }
+    ]
   },
   { 
     id: 6, 
@@ -247,6 +281,10 @@ export const newBusinessData: NewBusiness[] = [
     ],
     payments: [
       { id: 1, policyId: 6, billId: 1, amount: 175.00, paymentDate: '2024-07-13', method: 'Mobile Money', transactionId: 'MM12345' }
+    ],
+    activityLog: [
+      { date: "2024-07-13T10:00:00Z", user: "Premium Admin", action: "First Premium Confirmed.", details: "Payment of GHS 175.00 received via Mobile Money." },
+      { date: "2024-07-13T10:00:01Z", user: "System", action: "Onboarding status changed to Pending Vetting." }
     ]
   },
   { 
@@ -269,7 +307,10 @@ export const newBusinessData: NewBusiness[] = [
     phone: "024 123 4573", 
     serial: "1240",
     bills: [],
-    payments: []
+    payments: [],
+    activityLog: [
+      { date: "2024-07-22T12:00:00Z", user: "Underwriting", action: "Onboarding status changed to NTU.", details: "Not taken up by client." }
+    ]
   }
 ];
 
