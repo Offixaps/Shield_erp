@@ -382,7 +382,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             if (businessIndex !== -1) {
                 const currentStatus = newBusinessData[businessIndex].onboardingStatus;
                 const newStatus = ['NTU', 'Declined'].includes(currentStatus)
-                ? 'Pending Mandate'
+                ? 'Pending Vetting'
                 : currentStatus;
 
                 newBusinessData[businessIndex] = {
@@ -409,8 +409,29 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 throw new Error("Policy not found for updating.");
             }
         } else {
-            // This is where you would handle creating a new entry
             console.log("Creating new business entry with values:", values);
+            const newId = Math.max(...newBusinessData.map(b => b.id)) + 1;
+            newBusinessData.push({
+                id: newId,
+                client: lifeAssuredName,
+                product: values.contractType,
+                policy: values.policyNumber,
+                premium: values.premiumAmount,
+                sumAssured: values.sumAssured,
+                commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+                phone: values.phone,
+                serial: values.serialNumber,
+                onboardingStatus: 'Pending Vetting',
+                billingStatus: 'Outstanding',
+                policyStatus: 'Inactive',
+                expiryDate: new Date(new Date(values.commencementDate).setFullYear(new Date(values.commencementDate).getFullYear() + values.policyTerm)).toISOString().split('T')[0],
+                policyTerm: values.policyTerm,
+                premiumTerm: values.premiumTerm,
+                mandateVerified: false,
+                firstPremiumPaid: false,
+                medicalUnderwritingState: { started: false, completed: false },
+            });
+
             toast({
                 title: 'Form Submitted',
                 description: 'New client and policy details have been captured.',
@@ -1084,7 +1105,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="sumAssured"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provisional Face Amount</FormLabel>
+                <FormLabel>Sum Assured</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="10000.00" {...field} />
                 </FormControl>
@@ -1097,7 +1118,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="premiumAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Provisional Premium (GHS)</FormLabel>
+                <FormLabel>Premium (GHS)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="500.00" {...field} />
                 </FormControl>

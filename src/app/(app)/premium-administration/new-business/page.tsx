@@ -28,16 +28,14 @@ export default function NewBusinessPage() {
 
     const handleVerifyMandate = (id: number) => {
         let updatedItemName = '';
-        setBusinessList(prevList => {
-            const newList = prevList.map(item => {
-                if (item.id === id) {
-                    updatedItemName = item.client;
-                    return { ...item, onboardingStatus: 'Pending First Premium', mandateVerified: true };
-                }
-                return item;
-            });
-            return newList;
+        const newList = businessList.map(item => {
+            if (item.id === id) {
+                updatedItemName = item.client;
+                return { ...item, onboardingStatus: 'Pending First Premium' as const, mandateVerified: true };
+            }
+            return item;
         });
+        setBusinessList(newList);
 
         if (updatedItemName) {
             toast({
@@ -49,16 +47,14 @@ export default function NewBusinessPage() {
     
     const handleConfirmFirstPremium = (id: number) => {
         let updatedItemName = '';
-        setBusinessList(prevList => {
-            const newList = prevList.map(item => {
-                if (item.id === id) {
-                    updatedItemName = item.client;
-                    return { ...item, onboardingStatus: 'First Premium Confirmed', billingStatus: 'First Premium Paid', firstPremiumPaid: true };
-                }
-                return item;
-            });
-            return newList;
+        const newList = businessList.map(item => {
+            if (item.id === id) {
+                updatedItemName = item.client;
+                return { ...item, onboardingStatus: 'First Premium Confirmed' as const, billingStatus: 'First Premium Paid' as const, firstPremiumPaid: true };
+            }
+            return item;
         });
+        setBusinessList(newList);
 
         if (updatedItemName) {
             toast({

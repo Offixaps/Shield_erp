@@ -1,3 +1,4 @@
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -33,6 +34,8 @@ export const recentActivityData = [
 ];
 
 export type OnboardingStatus = 
+  | 'Pending Vetting'
+  | 'Vetting Completed'
   | 'Pending Mandate'
   | 'Mandate Verified'
   | 'Pending First Premium'
@@ -79,7 +82,7 @@ export type NewBusiness = {
 export const newBusinessData: NewBusiness[] = [
   { 
     id: 1, 
-    client: "John Doe", 
+    client: "Mr John K. Doe", 
     policy: "T1166017", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 150.00, 
@@ -88,7 +91,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: "2034-07-01",
     policyTerm: 10,
     premiumTerm: 5,
-    onboardingStatus: "Pending Mandate",
+    onboardingStatus: "Pending Vetting",
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
     mandateVerified: false,
@@ -99,7 +102,7 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 2, 
-    client: "Jane Smith", 
+    client: "Mrs Jane Smith", 
     policy: "E1274718", 
     product: "The Education Policy", 
     premium: 220.50, 
@@ -108,10 +111,10 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: "2044-07-05",
     policyTerm: 20,
     premiumTerm: 10,
-    onboardingStatus: "Mandate Verified", 
+    onboardingStatus: "Pending Mandate", 
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
-    mandateVerified: true,
+    mandateVerified: false,
     firstPremiumPaid: false,
     medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4568", 
@@ -139,7 +142,7 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 4, 
-    client: "Mike Johnson", 
+    client: "Mr Mike Johnson", 
     policy: "E1274719", 
     product: "The Education Policy", 
     premium: 85.75, 
@@ -159,7 +162,7 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 5, 
-    client: "Emily White", 
+    client: "Miss Emily White", 
     policy: "T1166019", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 300.00, 
@@ -179,7 +182,7 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 6, 
-    client: "Chris Brown", 
+    client: "Dr Chris Brown", 
     policy: "E1274720", 
     product: "The Education Policy", 
     premium: 175.00, 
@@ -199,7 +202,7 @@ export const newBusinessData: NewBusiness[] = [
   },
     { 
     id: 7, 
-    client: "Sarah Connor", 
+    client: "Prof Sarah Connor", 
     policy: "T1166021", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 250.00, 

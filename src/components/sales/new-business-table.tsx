@@ -44,10 +44,12 @@ export default function NewBusinessTable() {
   
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
+        case 'pending vetting':
         case 'pending mandate':
         case 'pending first premium':
         case 'pending medicals':
             return 'bg-yellow-500/80';
+        case 'vetting completed':
         case 'mandate verified':
         case 'first premium confirmed':
         case 'medicals completed':
@@ -140,5 +142,3 @@ export default function NewBusinessTable() {
     </Table>
   );
 }
-
-    

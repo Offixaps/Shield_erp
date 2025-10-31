@@ -15,6 +15,8 @@ import {
   FileClock,
   Check,
   Undo2,
+  FileCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness } from '@/lib/data';
@@ -69,7 +71,6 @@ export default function ClientDetailsView({
 }) {
   const router = useRouter();
   const { toast } = useToast();
-  // We use state to manage client data to reflect updates without a full page reload
   const [client, setClient] = React.useState(initialClient);
 
   React.useEffect(() => {
@@ -84,6 +85,9 @@ export default function ClientDetailsView({
   const isPendingMedicals =
     isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
+  const isPendingVetting = isFromUnderwriting && client.onboardingStatus === 'Pending Vetting';
+  const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
+
 
   const updateOnboardingStatus = (
     newStatus: NewBusiness['onboardingStatus'],
@@ -98,13 +102,13 @@ export default function ClientDetailsView({
           ...(medicalUnderwritingState && { medicalUnderwritingState }),
         };
         newBusinessData[businessIndex] = updatedClient;
-        setClient(updatedClient); // Update local state to re-render component
+        setClient(updatedClient); 
 
         toast({
           title: 'Status Updated',
           description: `Policy status changed to ${newStatus}.`,
         });
-        router.refresh(); // Soft refresh to ensure data is in sync if needed elsewhere
+        router.refresh();
       } else {
         throw new Error('Could not find policy to update.');
       }
@@ -138,7 +142,8 @@ export default function ClientDetailsView({
 
   const getStatusBadgeColor = (status: string) => {
     switch (status.toLowerCase()) {
-      // Onboarding
+      case 'pending vetting':
+      case 'vetting completed':
       case 'pending mandate':
       case 'pending first premium':
       case 'pending medicals':
@@ -196,6 +201,18 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
+            {isPendingVetting && (
+              <Button onClick={() => updateOnboardingStatus('Vetting Completed')}>
+                <FileCheck className="mr-2 h-4 w-4" />
+                Complete Vetting
+              </Button>
+            )}
+            {isVettingCompleted && (
+                 <Button onClick={() => updateOnboardingStatus('Pending Mandate')}>
+                    <ShieldCheck className="mr-2 h-4 w-4" />
+                    Request Mandate Verification
+                </Button>
+            )}
             {canStartMedicals && (
               <Button onClick={handleStartMedicals}>
                 <FileClock className="mr-2 h-4 w-4" />
