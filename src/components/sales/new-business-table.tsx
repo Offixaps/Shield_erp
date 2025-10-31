@@ -25,6 +25,8 @@ export default function NewBusinessTable() {
   const from = pathname.includes('/underwriting')
     ? 'underwriting'
     : 'business-development';
+    
+  const isAllPoliciesPage = pathname.includes('/all-policies');
 
   const handleDelete = (id: number) => {
     setData(data.filter((item) => item.id !== id));
@@ -59,7 +61,7 @@ export default function NewBusinessTable() {
         <TableRow>
           <TableHead>#</TableHead>
           <TableHead>Client</TableHead>
-          <TableHead>Serial #</TableHead>
+          <TableHead>{isAllPoliciesPage ? 'Policy #' : 'Serial #'}</TableHead>
           <TableHead>Telephone #</TableHead>
           <TableHead>Product</TableHead>
           <TableHead>Premium</TableHead>
@@ -80,7 +82,13 @@ export default function NewBusinessTable() {
                 {business.client}
               </Link>
             </TableCell>
-            <TableCell>{business.serial}</TableCell>
+            <TableCell>
+              {isAllPoliciesPage
+                ? business.onboardingStatus === 'Accepted' || business.policyStatus === 'Active'
+                  ? business.policy
+                  : business.serial
+                : business.serial}
+            </TableCell>
             <TableCell>{business.phone}</TableCell>
             <TableCell>{business.product}</TableCell>
             <TableCell>GHS{business.premium.toFixed(2)}</TableCell>
