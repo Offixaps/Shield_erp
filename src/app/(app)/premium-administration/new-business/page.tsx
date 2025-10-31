@@ -31,7 +31,7 @@ export default function NewBusinessPage() {
                  toast({
                     title: "Mandate Verified",
                     description: `Mandate for ${item.client} has been verified.`
-                })
+                });
                 return { ...item, onboardingStatus: 'Pending First Premium', mandateVerified: true };
             }
             return item;
@@ -44,7 +44,7 @@ export default function NewBusinessPage() {
                 toast({
                     title: "First Premium Confirmed",
                     description: `First premium for ${item.client} has been confirmed.`
-                })
+                });
                 return { ...item, onboardingStatus: 'First Premium Confirmed', billingStatus: 'First Premium Paid', firstPremiumPaid: true };
             }
             return item;
