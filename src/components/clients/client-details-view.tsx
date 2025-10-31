@@ -101,7 +101,7 @@ export default function ClientDetailsView({
   const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
 
 
-  const handleStatusUpdate = (
+  const handleOnboardingStatusUpdate = (
     newStatus: NewBusiness['onboardingStatus'],
     updates?: Partial<NewBusiness>
   ) => {
@@ -130,7 +130,7 @@ export default function ClientDetailsView({
   };
 
   const handleStartMedicals = () => {
-    handleStatusUpdate('Pending Medicals', {
+    handleOnboardingStatusUpdate('Pending Medicals', {
       medicalUnderwritingState: {
         started: true,
         startDate: new Date().toISOString(),
@@ -140,7 +140,7 @@ export default function ClientDetailsView({
   };
 
   const handleMedicalsCompleted = () => {
-    handleStatusUpdate('Medicals Completed', {
+    handleOnboardingStatusUpdate('Medicals Completed', {
        medicalUnderwritingState: {
         ...client.medicalUnderwritingState,
         completed: true,
@@ -149,7 +149,7 @@ export default function ClientDetailsView({
   };
   
   const handleRevertNTU = () => {
-    handleStatusUpdate('Pending Medicals');
+    handleOnboardingStatusUpdate('Pending Medicals');
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -215,7 +215,7 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={handleStatusUpdate} />}
+            {isPendingVetting && isFromUnderwriting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
                     <Link href={`/business-development/sales/${client.id}/edit`}>
@@ -225,13 +225,13 @@ export default function ClientDetailsView({
                 </Button>
             )}
             {isVettingCompleted && isFromUnderwriting && (
-                 <Button onClick={() => handleStatusUpdate('Pending Mandate')}>
+                 <Button onClick={() => handleOnboardingStatusUpdate('Pending Mandate')}>
                     <ShieldCheck className="mr-2 h-4 w-4" />
                     Request Mandate Verification
                 </Button>
             )}
             {canRequestFirstPremium && isFromUnderwriting && (
-                 <Button onClick={() => handleStatusUpdate('Pending First Premium')}>
+                 <Button onClick={() => handleOnboardingStatusUpdate('Pending First Premium')}>
                     <Banknote className="mr-2 h-4 w-4" />
                     Request First Premium
                 </Button>
@@ -312,7 +312,7 @@ export default function ClientDetailsView({
             </Badge>
           </div>
         </div>
-         {isReworkRequired && client.vettingNotes && (
+         {isReworkRequired && (
             <Alert variant="destructive">
                 <FilePenLine className="h-4 w-4" />
                 <AlertTitle>Rework Required (Vetting)</AlertTitle>
@@ -321,7 +321,7 @@ export default function ClientDetailsView({
                 </AlertDescription>
             </Alert>
         )}
-         {isMandateReworkRequired && client.mandateReworkNotes && (
+         {isMandateReworkRequired && (
             <Alert variant="destructive">
                 <FilePenLine className="h-4 w-4" />
                 <AlertTitle>Rework Required (Mandate)</AlertTitle>
@@ -619,5 +619,7 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    
 
     
