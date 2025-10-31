@@ -21,6 +21,12 @@ import type { NewBusiness } from '@/lib/data';
 import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/components/ui/tabs';
 
 function DetailItem({
   label,
@@ -83,21 +89,31 @@ export default function ClientDetailsView({
     newStatus: NewBusiness['onboardingStatus'],
     medicalUnderwritingState?: NewBusiness['medicalUnderwritingState']
   ) => {
-    const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
-    if (businessIndex !== -1) {
-      const updatedClient = {
-        ...newBusinessData[businessIndex],
-        onboardingStatus: newStatus,
-        ...(medicalUnderwritingState && { medicalUnderwritingState }),
-      };
-      newBusinessData[businessIndex] = updatedClient;
-      setClient(updatedClient); // Update local state to re-render component
+    try {
+      const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
+      if (businessIndex !== -1) {
+        const updatedClient = {
+          ...newBusinessData[businessIndex],
+          onboardingStatus: newStatus,
+          ...(medicalUnderwritingState && { medicalUnderwritingState }),
+        };
+        newBusinessData[businessIndex] = updatedClient;
+        setClient(updatedClient); // Update local state to re-render component
 
-      toast({
-        title: 'Status Updated',
-        description: `Policy status changed to ${newStatus}.`,
+        toast({
+          title: 'Status Updated',
+          description: `Policy status changed to ${newStatus}.`,
+        });
+        router.refresh(); // Soft refresh to ensure data is in sync if needed elsewhere
+      } else {
+        throw new Error('Could not find policy to update.');
+      }
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: error instanceof Error ? error.message : 'An unknown error occurred.',
       });
-      router.refresh(); // Soft refresh to ensure data is in sync if needed elsewhere
     }
   };
 
@@ -257,161 +273,263 @@ export default function ClientDetailsView({
           </div>
         </div>
       </div>
+      
+      <Tabs defaultValue="overview" className="w-full">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="personal-info">Personal Info Update</TabsTrigger>
+          <TabsTrigger value="policy-info">Policy Info Update</TabsTrigger>
+          <TabsTrigger value="beneficiary">Beneficiary Updates</TabsTrigger>
+          <TabsTrigger value="claims">Claims History</TabsTrigger>
+          <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
+          <TabsTrigger value="enquiries">Enquiries/Request</TabsTrigger>
+          <TabsTrigger value="payment-history">Payment History</TabsTrigger>
+          <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-6">
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-summary p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Policy Summary
-            </h3>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              {summaryDetails.map((detail) => (
-                <SummaryCard
-                  key={detail.title}
-                  title={detail.title}
-                  value={detail.value}
+        <TabsContent value="overview" className="mt-6">
+           <div className="space-y-6">
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-summary p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Policy Summary
+                </h3>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {summaryDetails.map((detail) => (
+                    <SummaryCard
+                      key={detail.title}
+                      title={detail.title}
+                      value={detail.value}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Personal details of life insured
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Life Assured Name" value={client.client} />
+                <DetailItem label="Life Assured Date of Birth" value="1985-05-20" />
+                <DetailItem label="Applicant Name" value={client.client} />
+                <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
+                <DetailItem label="Age (Next Birthday)" value="40" />
+                <DetailItem label="Email Address" value="j.doe@example.com" />
+                <DetailItem label="Telephone Number" value={client.phone} />
+                <DetailItem label="Postal Address" value="123 Main St, Accra" />
+                <DetailItem label="Gender" value="Male" />
+                <DetailItem label="Marital Status" value="Married" />
+                <DetailItem label="Number of Dependents" value="2" />
+                <DetailItem label="Nationality" value="Ghana" />
+                <DetailItem label="Country" value="Ghana" />
+                <DetailItem label="Religion" value="Christian" />
+                <DetailItem label="Languages Spoken" value="English, Twi" />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Identification
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="National ID Type" value="Passport" />
+                <DetailItem label="ID Number" value="G1234567" />
+                <DetailItem label="Place of Issue" value="Accra" />
+                <DetailItem
+                  label="Issue Date"
+                  value={format(new Date('2020-01-01'), 'PPP')}
                 />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                <DetailItem
+                  label="Expiry Date"
+                  value={format(new Date('2030-01-01'), 'PPP')}
+                />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Personal details of life insured
-            </h3>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <DetailItem label="Life Assured Name" value={client.client} />
-            <DetailItem label="Life Assured Date of Birth" value="1985-05-20" />
-            <DetailItem label="Applicant Name" value={client.client} />
-            <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
-            <DetailItem label="Age (Next Birthday)" value="40" />
-            <DetailItem label="Email Address" value="j.doe@example.com" />
-            <DetailItem label="Telephone Number" value={client.phone} />
-            <DetailItem label="Postal Address" value="123 Main St, Accra" />
-            <DetailItem label="Gender" value="Male" />
-            <DetailItem label="Marital Status" value="Married" />
-            <DetailItem label="Number of Dependents" value="2" />
-            <DetailItem label="Nationality" value="Ghana" />
-            <DetailItem label="Country" value="Ghana" />
-            <DetailItem label="Religion" value="Christian" />
-            <DetailItem label="Languages Spoken" value="English, Twi" />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Policy Details
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Serial Number" value={client.serial} />
+                <DetailItem label="Payment Frequency" value="Monthly" />
+                <DetailItem
+                  label="Increase Month"
+                  value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
+                />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Identification
-            </h3>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <DetailItem label="National ID Type" value="Passport" />
-            <DetailItem label="ID Number" value="G1234567" />
-            <DetailItem label="Place of Issue" value="Accra" />
-            <DetailItem
-              label="Issue Date"
-              value={format(new Date('2020-01-01'), 'PPP')}
-            />
-            <DetailItem
-              label="Expiry Date"
-              value={format(new Date('2030-01-01'), 'PPP')}
-            />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Employment Details
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Occupation" value="Software Engineer" />
+                <DetailItem label="Nature of Business/Work" value="Technology" />
+                <DetailItem label="Employer" value="Google" />
+                <DetailItem
+                  label="Employer Address"
+                  value="1600 Amphitheatre Parkway, Mountain View, CA"
+                />
+                <DetailItem label="Monthly Basic Income (GHS)" value="10,000.00" />
+                <DetailItem label="Other Income (GHS)" value="2,000.00" />
+                <DetailItem label="Total Monthly Income (GHS)" value="12,000.00" />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Policy Details
-            </h3>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <DetailItem label="Serial Number" value={client.serial} />
-            <DetailItem label="Payment Frequency" value="Monthly" />
-            <DetailItem
-              label="Increase Month"
-              value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
-            />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Payment Details
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Premium Payer Name" value={client.client} />
+                <DetailItem
+                  label="Premium Payer Occupation"
+                  value="Accountant"
+                />
+                <DetailItem label="Bank Name" value="CalBank PLC" />
+                <DetailItem label="Bank Branch" value="Accra Main" />
+                <DetailItem label="Sort Code" value="123456" />
+                <DetailItem label="Account Type" value="Current" />
+                <DetailItem label="Bank Account Name" value={client.client} />
+                <DetailItem
+                  label="Bank Account Number"
+                  value="00112233445566"
+                />
+                <DetailItem
+                  label="Premium Amount (GHS)"
+                  value={`GHS ${client.premium.toFixed(2)}`}
+                />
+                <DetailItem
+                  label="Amount in Words"
+                  value="One Hundred and Fifty Ghana Cedis"
+                />
+                <DetailItem
+                  label="Premium Deduction Frequency"
+                  value="Monthly"
+                />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Employment Details
-            </h3>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <DetailItem label="Occupation" value="Software Engineer" />
-            <DetailItem label="Nature of Business/Work" value="Technology" />
-            <DetailItem label="Employer" value="Google" />
-            <DetailItem
-              label="Employer Address"
-              value="1600 Amphitheatre Parkway, Mountain View, CA"
-            />
-            <DetailItem label="Monthly Basic Income (GHS)" value="10,000.00" />
-            <DetailItem label="Other Income (GHS)" value="2,000.00" />
-            <DetailItem label="Total Monthly Income (GHS)" value="12,000.00" />
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Underwriting
+                </h3>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-muted-foreground">
+                  Underwriting details, including risk assessments and decisions,
+                  will be displayed here.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Payment Details
-            </h3>
-          </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
-            <DetailItem label="Premium Payer Name" value={client.client} />
-            <DetailItem
-              label="Premium Payer Occupation"
-              value="Accountant"
-            />
-            <DetailItem label="Bank Name" value="CalBank PLC" />
-            <DetailItem label="Bank Branch" value="Accra Main" />
-            <DetailItem label="Sort Code" value="123456" />
-            <DetailItem label="Account Type" value="Current" />
-            <DetailItem label="Bank Account Name" value={client.client} />
-            <DetailItem
-              label="Bank Account Number"
-              value="00112233445566"
-            />
-            <DetailItem
-              label="Premium Amount (GHS)"
-              value={`GHS ${client.premium.toFixed(2)}`}
-            />
-            <DetailItem
-              label="Amount in Words"
-              value="One Hundred and Fifty Ghana Cedis"
-            />
-            <DetailItem
-              label="Premium Deduction Frequency"
-              value="Monthly"
-            />
-          </CardContent>
-        </Card>
+        <TabsContent value="personal-info" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Personal Information Updates</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Features for updating and viewing the history of personal information changes will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        <Card>
-          <CardHeader className="p-0">
-            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
-              Underwriting
-            </h3>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground">
-              Underwriting details, including risk assessments and decisions,
-              will be displayed here.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="policy-info" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Policy Information Updates</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Features for updating and viewing the history of policy detail changes will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="beneficiary" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Beneficiary Updates</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Features for updating and viewing the history of beneficiary changes will be implemented here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="claims" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Claims History</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">A detailed history of all claims filed against this policy will be displayed here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="underwriting-log" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Underwriting Log</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">A log of all underwriting activities, comments, and decisions will be shown here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="enquiries" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Enquiries & Requests</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">A log of all client enquiries and service requests will be available here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="payment-history" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Payment History</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">A detailed history of all premium payments for this policy will be displayed here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="activity-log" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Activity Log</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">A chronological log of all actions and status changes related to the policy will be available here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
-
-    
