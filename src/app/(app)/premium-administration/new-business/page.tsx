@@ -12,14 +12,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { newBusinessData } from '@/lib/data';
+import { newBusinessData, type NewBusiness } from '@/lib/data';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, ShieldCheck } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
 
 export default function NewBusinessPage() {
     const { toast } = useToast();
@@ -138,10 +139,7 @@ export default function NewBusinessPage() {
                     )}
                     {business.onboardingStatus === 'Pending First Premium' && (
                         <div className="flex gap-2 justify-end">
-                            <Button size="sm" onClick={() => handleConfirmFirstPremium(business.id)}>
-                                <CheckCircle className="mr-2 h-4 w-4" />
-                                Confirm First Premium
-                            </Button>
+                            <ConfirmFirstPremiumDialog client={business} onConfirm={handleConfirmFirstPremium} />
                         </div>
                     )}
                   </TableCell>
