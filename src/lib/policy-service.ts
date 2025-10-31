@@ -1,7 +1,7 @@
 
 'use client';
 
-import { newBusinessData, type NewBusiness } from './data';
+import { newBusinessData, type NewBusiness, type Bill, type Payment } from './data';
 import { format } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
@@ -75,7 +75,20 @@ export function createPolicy(values: any): NewBusiness {
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
+        bills: [],
+        payments: [],
     };
+    
+    const firstBill: Bill = {
+        id: 1, // Simple ID for now
+        policyId: newId,
+        amount: newPolicy.premium,
+        dueDate: newPolicy.commencementDate,
+        status: 'Unpaid',
+        description: 'First Premium'
+    };
+    newPolicy.bills.push(firstBill);
+
 
     const updatedPolicies = [...policies, newPolicy];
     savePoliciesToStorage(updatedPolicies);
@@ -91,4 +104,36 @@ export function deletePolicy(id: number): boolean {
         return true;
     }
     return false;
+}
+
+export function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
+    const policies = getPoliciesFromStorage();
+    const policyIndex = policies.findIndex(p => p.id === policyId);
+    if (policyIndex === -1) return undefined;
+
+    const policy = policies[policyIndex];
+    const firstBill = policy.bills.find(b => b.description === 'First Premium');
+
+    if (!firstBill || firstBill.status === 'Paid') return undefined;
+
+    const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
+    
+    const newPayment: Payment = {
+        id: newPaymentId,
+        policyId: policyId,
+        billId: firstBill.id,
+        ...paymentDetails
+    };
+
+    policy.payments.push(newPayment);
+    firstBill.status = 'Paid';
+    firstBill.paymentId = newPaymentId;
+
+    policy.onboardingStatus = 'First Premium Confirmed';
+    policy.billingStatus = 'First Premium Paid';
+    policy.firstPremiumPaid = true;
+
+    policies[policyIndex] = policy;
+    savePoliciesToStorage(policies);
+    return policy;
 }

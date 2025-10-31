@@ -33,7 +33,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import type { NewBusiness } from '@/lib/data';
-import { updatePolicy } from '@/lib/policy-service';
+import { recordFirstPayment } from '@/lib/policy-service';
 
 type ConfirmFirstPremiumDialogProps = {
   client: NewBusiness;
@@ -66,12 +66,13 @@ export default function ConfirmFirstPremiumDialog({
     }
     
     try {
-      // New workflow: After premium is confirmed, status moves to 'Pending Vetting'
-      const updatedPolicy = updatePolicy(client.id, {
-        onboardingStatus: 'Pending Vetting',
-        billingStatus: 'First Premium Paid',
-        firstPremiumPaid: true,
+      const updatedPolicy = recordFirstPayment(client.id, {
+        amount: parseFloat(amountPaid),
+        paymentDate: format(paymentDate, 'yyyy-MM-dd'),
+        method: paymentMethod,
+        transactionId: transactionId,
       });
+
 
       if (updatedPolicy) {
         onUpdate(updatedPolicy);
@@ -81,7 +82,7 @@ export default function ConfirmFirstPremiumDialog({
         });
         setOpen(false);
       } else {
-        throw new Error('Policy not found');
+        throw new Error('Policy not found or first premium already paid.');
       }
 
     } catch (error) {
@@ -89,7 +90,7 @@ export default function ConfirmFirstPremiumDialog({
         toast({
             variant: "destructive",
             title: "Confirmation Failed",
-            description: "An unexpected error occurred while confirming the premium."
+            description: error instanceof Error ? error.message : "An unexpected error occurred while confirming the premium."
         })
     }
   };

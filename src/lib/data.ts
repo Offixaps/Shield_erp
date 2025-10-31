@@ -1,5 +1,6 @@
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -60,6 +61,26 @@ export type MedicalUnderwritingState = {
     completed: boolean;
 };
 
+export type Bill = {
+  id: number;
+  policyId: number;
+  amount: number;
+  dueDate: string;
+  status: 'Paid' | 'Unpaid';
+  paymentId?: number;
+  description: string;
+};
+
+export type Payment = {
+  id: number;
+  policyId: number;
+  billId: number;
+  amount: number;
+  paymentDate: string;
+  method: string;
+  transactionId: string;
+};
+
 export type NewBusiness = {
   id: number;
   client: string;
@@ -81,6 +102,8 @@ export type NewBusiness = {
   serial: string;
   vettingNotes?: string;
   mandateReworkNotes?: string;
+  bills: Bill[];
+  payments: Payment[];
 };
 
 
@@ -103,7 +126,11 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: false,
     medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4567", 
-    serial: "1234" 
+    serial: "1234",
+    bills: [
+      { id: 1, policyId: 1, amount: 150.00, dueDate: "2024-07-01", status: "Unpaid", description: "First Premium" }
+    ],
+    payments: []
   },
   { 
     id: 2, 
@@ -123,7 +150,9 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: false,
     medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4568", 
-    serial: "1235" 
+    serial: "1235",
+    bills: [],
+    payments: []
   },
   { 
     id: 3, 
@@ -143,7 +172,9 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4569", 
-    serial: "1236" 
+    serial: "1236",
+    bills: [],
+    payments: []
   },
   { 
     id: 4, 
@@ -163,7 +194,9 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4570", 
-    serial: "1237" 
+    serial: "1237",
+    bills: [],
+    payments: []
   },
   { 
     id: 5, 
@@ -183,7 +216,9 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4571", 
-    serial: "1238" 
+    serial: "1238",
+    bills: [],
+    payments: []
   },
   { 
     id: 6, 
@@ -203,7 +238,9 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4572", 
-    serial: "1239" 
+    serial: "1239",
+    bills: [],
+    payments: []
   },
     { 
     id: 7, 
@@ -223,6 +260,8 @@ export const newBusinessData: NewBusiness[] = [
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, startDate: "2024-07-20", completed: false },
     phone: "024 123 4573", 
-    serial: "1240" 
+    serial: "1240",
+    bills: [],
+    payments: []
   },
 ];

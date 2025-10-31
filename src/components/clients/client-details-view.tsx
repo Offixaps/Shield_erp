@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -36,6 +35,7 @@ import Link from 'next/link';
 import CompleteVettingDialog from './complete-vetting-dialog';
 import { updatePolicy } from '@/lib/policy-service';
 import VerifyMandateDialog from '../premium-administration/verify-mandate-dialog';
+import PaymentHistoryTab from './payment-history-tab';
 
 
 function DetailItem({
@@ -94,6 +94,7 @@ export default function ClientDetailsView({
   const canStartMedicals = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
   const isPendingMedicals = isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
   const canMakeDecision = isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
+  const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
   
   // Rework and older state checks
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
@@ -219,6 +220,12 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
+             {canRequestFirstPremium && (
+                <Button onClick={() => handleOnboardingStatusUpdate('Pending First Premium')}>
+                    <Banknote className="mr-2 h-4 w-4" />
+                    Request First Premium
+                </Button>
+            )}
             {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
@@ -594,14 +601,7 @@ export default function ClientDetailsView({
         </TabsContent>
 
         <TabsContent value="payment-history" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Payment History</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">A detailed history of all premium payments for this policy will be displayed here.</p>
-            </CardContent>
-          </Card>
+          <PaymentHistoryTab client={client} />
         </TabsContent>
         
         <TabsContent value="activity-log" className="mt-6">
