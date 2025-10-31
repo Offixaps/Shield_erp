@@ -268,7 +268,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           monthlyBasicIncome: 10000,
           otherIncome: 2000,
           totalMonthlyIncome: 12000,
-          serialNumber: '1234',
+          serialNumber: businessData.serial,
         };
       }
     }
