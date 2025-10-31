@@ -37,11 +37,7 @@ export default function NewBusinessTable() {
   React.useEffect(() => {
     let policies = getPolicies();
     if (isAllPoliciesPage) {
-      // Keep policies that are considered active or finalized.
-      // This will include your new Absa policies which have 'Active' status.
-      policies = policies.filter(item => 
-        ['Active', 'Lapsed', 'Cancelled'].includes(item.policyStatus) || item.onboardingStatus === 'Accepted'
-      );
+      policies = policies.filter(item => item.onboardingStatus !== 'Pending First Premium');
     }
     setData(policies);
   }, [pathname, isAllPoliciesPage]);
