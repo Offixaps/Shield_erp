@@ -34,6 +34,7 @@ export default function NewBusinessPage() {
                 }
                 return item;
             });
+            
             const updatedItem = newList.find(item => item.id === id);
             if (updatedItem) {
                  toast({
