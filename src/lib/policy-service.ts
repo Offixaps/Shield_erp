@@ -1,5 +1,6 @@
 
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -124,7 +125,8 @@ export function createPolicy(values: any): NewBusiness {
                 user: 'System',
                 action: 'Status changed to Pending First Premium'
             }
-        ]
+        ],
+        bankName: values.bankName,
     };
     
     const firstBill: Bill = {
@@ -208,4 +210,5 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     savePoliciesToStorage(policies);
     return policy;
 }
+
 

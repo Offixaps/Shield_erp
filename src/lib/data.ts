@@ -5,6 +5,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -116,6 +117,7 @@ export type NewBusiness = {
   bills: Bill[];
   payments: Payment[];
   activityLog: ActivityLog[];
+  bankName: string;
 };
 
 
@@ -146,7 +148,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
       { date: "2024-06-28T10:00:00Z", user: "Sales Agent", action: "Policy Created", details: "Initial policy creation for John K. Doe." },
       { date: "2024-07-01T09:00:00Z", user: "System", action: "Onboarding status changed to Pending First Premium." }
-    ]
+    ],
+    bankName: 'GCB Bank PLC',
   },
   { 
     id: 2,
@@ -178,7 +181,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-08T10:00:00Z", user: "System", action: "Onboarding status changed to Accepted." },
       { date: "2024-07-09T16:20:00Z", user: "Underwriting", action: "Policy Finalized", details: "Policy number T1166017 assigned." },
       { date: "2024-07-09T16:20:00Z", user: "System", action: "Onboarding status changed to Pending Mandate." }
-    ]
+    ],
+    bankName: 'Absa Bank Ghana Limited',
   },
   { 
     id: 3, 
@@ -204,7 +208,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
        { date: "2024-06-21T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
        { date: "2024-06-21T09:00:01Z", user: "System", action: "Policy status changed to Active." }
-    ]
+    ],
+    bankName: 'Stanbic Bank Ghana Limited',
   },
   { 
     id: 4, 
@@ -229,7 +234,8 @@ export const newBusinessData: NewBusiness[] = [
     payments: [],
     activityLog: [
        { date: "2024-07-11T15:00:00Z", user: "Underwriting", action: "Onboarding status changed to Declined.", details: "Risk profile too high." }
-    ]
+    ],
+    bankName: 'Fidelity Bank Ghana Limited',
   },
   { 
     id: 5, 
@@ -255,7 +261,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
        { date: "2024-06-16T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
        { date: "2024-06-16T09:00:01Z", user: "System", action: "Policy status changed to Active." }
-    ]
+    ],
+    bankName: 'Ecobank Ghana PLC',
   },
   { 
     id: 6, 
@@ -283,9 +290,10 @@ export const newBusinessData: NewBusiness[] = [
       { id: 1, policyId: 6, billId: 1, amount: 175.00, paymentDate: '2024-07-13', method: 'Mobile Money', transactionId: 'MM12345' }
     ],
     activityLog: [
-      { date: "2024-07-13T10:00:00Z", user: "Premium Admin", action: "First Premium Confirmed.", details: "Payment of GHS 175.00 received via Mobile Money." },
-      { date: "2024-07-13T10:00:01Z", user: "System", action: "Onboarding status changed to Pending Vetting." }
-    ]
+      { date: "2024-07-13T10:00:00Z", user: "Premium Admin", action: "First Premium Confirmed", details: "Payment of GHS 175.00 received via Mobile Money." },
+      { date: "2024-07-13T10:00:01Z", user: "System", action: "Status changed to Pending Vetting." }
+    ],
+    bankName: 'CalBank PLC',
   },
   { 
     id: 7, 
@@ -310,7 +318,8 @@ export const newBusinessData: NewBusiness[] = [
     payments: [],
     activityLog: [
       { date: "2024-07-22T12:00:00Z", user: "Underwriting", action: "Onboarding status changed to NTU.", details: "Not taken up by client." }
-    ]
+    ],
+    bankName: 'United Bank for Africa (Ghana) Limited',
   }
 ];
 
