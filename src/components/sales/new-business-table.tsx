@@ -27,6 +27,7 @@ export default function NewBusinessTable() {
     : 'business-development';
     
   const isAllPoliciesPage = pathname.includes('/all-policies');
+  const isUnderwritingNewBusiness = pathname.includes('/underwriting/new-business');
   
   const [data, setData] = React.useState(() => {
     if (isAllPoliciesPage) {
@@ -63,6 +64,7 @@ export default function NewBusinessTable() {
         case 'declined':
         case 'lapsed':
         case 'cancelled':
+        case 'rework required':
             return 'bg-red-500/80';
         default:
             return 'bg-gray-500/80';
@@ -118,23 +120,31 @@ export default function NewBusinessTable() {
               </Badge>
             </TableCell>
             <TableCell className="text-right">
-              <div className="flex items-center justify-end gap-2">
-                <Button variant="ghost" size="icon" asChild>
-                  <Link
-                    href={`/business-development/sales/${business.id}/edit`}
-                  >
-                    <FilePenLine className="h-4 w-4" />
+              {isUnderwritingNewBusiness ? (
+                <Button asChild size="sm">
+                   <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
+                    Process
                   </Link>
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive"
-                  onClick={() => handleDelete(business.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+              ) : (
+                <div className="flex items-center justify-end gap-2">
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link
+                      href={`/business-development/sales/${business.id}/edit`}
+                    >
+                      <FilePenLine className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(business.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
             </TableCell>
           </TableRow>
         ))}
