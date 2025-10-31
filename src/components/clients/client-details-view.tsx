@@ -320,9 +320,6 @@ export default function ClientDetailsView({
                 <DetailItem label="Applicant Name" value={client.client} />
                 <DetailItem label="Applicant Date of Birth" value="1985-05-20" />
                 <DetailItem label="Age (Next Birthday)" value="40" />
-                <DetailItem label="Email Address" value="j.doe@example.com" />
-                <DetailItem label="Telephone Number" value={client.phone} />
-                <DetailItem label="Postal Address" value="123 Main St, Accra" />
                 <DetailItem label="Gender" value="Male" />
                 <DetailItem label="Marital Status" value="Married" />
                 <DetailItem label="Number of Dependents" value="2" />
@@ -330,6 +327,23 @@ export default function ClientDetailsView({
                 <DetailItem label="Country" value="Ghana" />
                 <DetailItem label="Religion" value="Christian" />
                 <DetailItem label="Languages Spoken" value="English, Twi" />
+              </CardContent>
+            </Card>
+
+             <Card>
+              <CardHeader className="p-0">
+                <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
+                  Contact Details
+                </h3>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+                <DetailItem label="Email Address" value="j.doe@example.com" />
+                <DetailItem label="Telephone Number" value={client.phone} />
+                 <DetailItem label="Work Telephone" value="030 123 4567" />
+                <DetailItem label="Home Telephone" value="030 765 4321" />
+                <DetailItem label="Postal Address" value="123 Main St, Accra" />
+                <DetailItem label="Residential Address" value="456 Oak Avenue, Accra" />
+                <DetailItem label="GPS Address" value="GA-123-4567" />
               </CardContent>
             </Card>
 
