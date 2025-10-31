@@ -32,7 +32,51 @@ export const recentActivityData = [
     { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
 ];
 
-export const newBusinessData = [
+export type OnboardingStatus = 
+  | 'Pending Mandate'
+  | 'Mandate Verified'
+  | 'Pending First Premium'
+  | 'First Premium Confirmed'
+  | 'Pending Medicals'
+  | 'Medicals Completed'
+  | 'Pending Decision'
+  | 'Accepted'
+  | 'Declined'
+  | 'NTU'
+  | 'Deferred';
+
+export type BillingStatus = 'Outstanding' | 'Up to Date' | 'First Premium Paid';
+export type PolicyStatus = 'Active' | 'Inactive' | 'In Force' | 'Lapsed' | 'Cancelled';
+
+export type MedicalUnderwritingState = {
+    started: boolean;
+    startDate?: string;
+    completed: boolean;
+};
+
+export type NewBusiness = {
+  id: number;
+  client: string;
+  policy: string;
+  product: string;
+  premium: number;
+  sumAssured: number;
+  commencementDate: string;
+  expiryDate: string;
+  policyTerm: number;
+  premiumTerm: number;
+  onboardingStatus: OnboardingStatus;
+  billingStatus: BillingStatus;
+  policyStatus: PolicyStatus;
+  mandateVerified: boolean;
+  firstPremiumPaid: boolean;
+  medicalUnderwritingState: MedicalUnderwritingState;
+  phone: string;
+  serial: string;
+};
+
+
+export const newBusinessData: NewBusiness[] = [
   { 
     id: 1, 
     client: "John Doe", 
@@ -41,12 +85,15 @@ export const newBusinessData = [
     premium: 150.00, 
     sumAssured: 50000,
     commencementDate: "2024-07-01", 
+    expiryDate: "2034-07-01",
+    policyTerm: 10,
+    premiumTerm: 5,
     onboardingStatus: "Pending Mandate",
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
     mandateVerified: false,
     firstPremiumPaid: false,
-    medicalsCompleted: false,
+    medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4567", 
     serial: "1234" 
   },
@@ -58,12 +105,15 @@ export const newBusinessData = [
     premium: 220.50, 
     sumAssured: 75000,
     commencementDate: "2024-07-05", 
+    expiryDate: "2044-07-05",
+    policyTerm: 20,
+    premiumTerm: 10,
     onboardingStatus: "Mandate Verified", 
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
     mandateVerified: true,
     firstPremiumPaid: false,
-    medicalsCompleted: false,
+    medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4568", 
     serial: "1235" 
   },
@@ -75,12 +125,15 @@ export const newBusinessData = [
     premium: 1200.00, 
     sumAssured: 1000000,
     commencementDate: "2024-06-20", 
+    expiryDate: "2054-06-20",
+    policyTerm: 30,
+    premiumTerm: 20,
     onboardingStatus: "Accepted",
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
     firstPremiumPaid: true,
-    medicalsCompleted: true,
+    medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4569", 
     serial: "1236" 
   },
@@ -92,12 +145,15 @@ export const newBusinessData = [
     premium: 85.75, 
     sumAssured: 30000,
     commencementDate: "2024-07-10", 
+    expiryDate: "2039-07-10",
+    policyTerm: 15,
+    premiumTerm: 15,
     onboardingStatus: "Declined",
     billingStatus: 'Outstanding',
     policyStatus: 'Inactive',
     mandateVerified: true,
     firstPremiumPaid: true,
-    medicalsCompleted: true,
+    medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4570", 
     serial: "1237" 
   },
@@ -109,12 +165,15 @@ export const newBusinessData = [
     premium: 300.00, 
     sumAssured: 150000,
     commencementDate: "2024-06-15", 
+    expiryDate: "2034-06-15",
+    policyTerm: 10,
+    premiumTerm: 10,
     onboardingStatus: "Accepted",
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
     firstPremiumPaid: true,
-    medicalsCompleted: true,
+    medicalUnderwritingState: { started: true, completed: true },
     phone: "024 123 4571", 
     serial: "1238" 
   },
@@ -126,13 +185,36 @@ export const newBusinessData = [
     premium: 175.00, 
     sumAssured: 60000,
     commencementDate: "2024-07-12", 
+    expiryDate: "2044-07-12",
+    policyTerm: 20,
+    premiumTerm: 10,
     onboardingStatus: "First Premium Confirmed", 
     billingStatus: 'First Premium Paid',
     policyStatus: 'Inactive',
     mandateVerified: true,
     firstPremiumPaid: true,
-    medicalsCompleted: false,
+    medicalUnderwritingState: { started: false, completed: false },
     phone: "024 123 4572", 
     serial: "1239" 
+  },
+    { 
+    id: 7, 
+    client: "Sarah Connor", 
+    policy: "T1166021", 
+    product: "Buy Term and Invest in Mutual Fund", 
+    premium: 250.00, 
+    sumAssured: 100000,
+    commencementDate: "2024-07-18", 
+    expiryDate: "2044-07-18",
+    policyTerm: 20,
+    premiumTerm: 15,
+    onboardingStatus: "NTU", 
+    billingStatus: 'Outstanding',
+    policyStatus: 'Inactive',
+    mandateVerified: true,
+    firstPremiumPaid: true,
+    medicalUnderwritingState: { started: true, startDate: "2024-07-20", completed: false },
+    phone: "024 123 4573", 
+    serial: "1240" 
   },
 ];

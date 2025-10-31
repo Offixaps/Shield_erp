@@ -3,21 +3,22 @@
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { format } from 'date-fns';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { XCircle, PauseCircle, ThumbsDown } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import {
+  XCircle,
+  PauseCircle,
+  ThumbsDown,
+  FileClock,
+  Check,
+  Undo2,
+} from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { newBusinessData } from '@/lib/data';
+import type { NewBusiness } from '@/lib/data';
+import { newBusinessData } from '@/lib/data';
+import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 function DetailItem({
   label,
@@ -42,7 +43,7 @@ function SummaryCard({
   value: React.ReactNode;
 }) {
   return (
-    <Card className="flex-1">
+    <Card className="flex-1 bg-card">
       <CardHeader className="p-3">
         <p className="text-xs text-muted-foreground">{title}</p>
         <div className="text-sm font-semibold">{value}</div>
@@ -52,39 +53,103 @@ function SummaryCard({
 }
 
 export default function ClientDetailsView({
-  client,
+  client: initialClient,
   from,
 }: {
-  client: (typeof newBusinessData)[0];
+  client: NewBusiness;
   from: string;
 }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  // We use state to manage client data to reflect updates without a full page reload
+  const [client, setClient] = React.useState(initialClient);
+
+  React.useEffect(() => {
+    setClient(initialClient);
+  }, [initialClient]);
+
   const isFromUnderwriting = from === 'underwriting';
-  const canMakeDecision = isFromUnderwriting && (client.onboardingStatus === 'First Premium Confirmed' || client.onboardingStatus === 'Medicals Completed');
+  const canMakeDecision =
+    isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
+  const canStartMedicals =
+    isFromUnderwriting && client.onboardingStatus === 'First Premium Confirmed';
+  const isPendingMedicals =
+    isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
+  const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
 
+  const updateOnboardingStatus = (
+    newStatus: NewBusiness['onboardingStatus'],
+    medicalUnderwritingState?: NewBusiness['medicalUnderwritingState']
+  ) => {
+    const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
+    if (businessIndex !== -1) {
+      const updatedClient = {
+        ...newBusinessData[businessIndex],
+        onboardingStatus: newStatus,
+        ...(medicalUnderwritingState && { medicalUnderwritingState }),
+      };
+      newBusinessData[businessIndex] = updatedClient;
+      setClient(updatedClient); // Update local state to re-render component
 
-  const statementData = [
-    {
-      date: '2024-07-01',
-      description: 'Premium Due',
-      debit: 150.0,
-      credit: 0,
-      balance: 150.0,
-    },
-    {
-      date: '2024-07-05',
-      description: 'Payment Received',
-      debit: 0,
-      credit: 150.0,
-      balance: 0.0,
-    },
-    {
-      date: '2024-08-01',
-      description: 'Premium Due',
-      debit: 150.0,
-      credit: 0,
-      balance: 150.0,
-    },
-  ];
+      toast({
+        title: 'Status Updated',
+        description: `Policy status changed to ${newStatus}.`,
+      });
+      router.refresh(); // Soft refresh to ensure data is in sync if needed elsewhere
+    }
+  };
+
+  const handleStartMedicals = () => {
+    updateOnboardingStatus('Pending Medicals', {
+      started: true,
+      startDate: new Date().toISOString(),
+      completed: false,
+    });
+  };
+
+  const handleMedicalsCompleted = () => {
+    updateOnboardingStatus('Medicals Completed', {
+      ...client.medicalUnderwritingState,
+      completed: true,
+    });
+  };
+  
+  const handleRevertNTU = () => {
+    updateOnboardingStatus('Pending Medicals');
+  };
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      // Onboarding
+      case 'pending mandate':
+      case 'pending first premium':
+      case 'pending medicals':
+      case 'pending decision':
+        return 'bg-yellow-500/80';
+      case 'mandate verified':
+      case 'first premium confirmed':
+      case 'medicals completed':
+        return 'bg-blue-500/80';
+      case 'accepted':
+      case 'active':
+      case 'in force':
+      case 'up to date':
+      case 'first premium paid':
+        return 'bg-green-500/80';
+      case 'ntu':
+      case 'deferred':
+      case 'inactive':
+        return 'bg-gray-500/80';
+      case 'declined':
+      case 'cancelled':
+        return 'bg-red-500/80';
+      case 'lapsed':
+      case 'outstanding':
+        return 'bg-orange-500/80';
+      default:
+        return 'bg-gray-500/80';
+    }
+  };
 
   const summaryDetails = [
     { title: 'Policy Number', value: client.policy || 'N/A' },
@@ -93,100 +158,95 @@ export default function ClientDetailsView({
     { title: 'Sum Assured', value: `GHS ${client.sumAssured.toFixed(2)}` },
     {
       title: 'Commencement Date',
-      value: format(new Date(client.commencementDate), 'PPP'),
+      value: client.commencementDate
+        ? format(new Date(client.commencementDate), 'PPP')
+        : 'N/A',
     },
-    { title: 'Expiry Date', value: format(new Date('2034-07-01'), 'PPP') },
-    { title: 'Policy Term', value: '10 years' },
-    { title: 'Premium Term', value: '5 years' },
+    {
+      title: 'Expiry Date',
+      value: client.expiryDate
+        ? format(new Date(client.expiryDate), 'PPP')
+        : 'N/A',
+    },
+    { title: 'Policy Term', value: `${client.policyTerm} years` },
+    { title: 'Premium Term', value: `${client.premiumTerm} years` },
   ];
-
-  const getStatusBadgeColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        // Onboarding
-        case 'pending mandate':
-        case 'pending first premium':
-        case 'pending medicals':
-        case 'pending decision':
-            return 'bg-yellow-500/80';
-        case 'mandate verified':
-        case 'first premium confirmed':
-        case 'medicals completed':
-            return 'bg-blue-500/80';
-        case 'accepted':
-            return 'bg-green-500/80';
-        case 'ntu':
-        case 'deferred':
-            return 'bg-gray-500/80';
-        case 'declined':
-            return 'bg-red-500/80';
-        
-        // Billing
-        case 'up to date':
-        case 'first premium paid':
-            return 'bg-green-500/80';
-        case 'outstanding':
-            return 'bg-yellow-500/80';
-
-        // Policy
-        case 'active':
-        case 'in force':
-            return 'bg-green-500/80';
-        case 'inactive':
-            return 'bg-gray-500/80';
-        case 'lapsed':
-            return 'bg-orange-500/80';
-        case 'cancelled':
-            return 'bg-red-500/80';
-            
-        default:
-            return 'bg-gray-500/80';
-    }
-  }
-
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-4">
-        <div className="flex items-start justify-between">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
-          {canMakeDecision && (
-            <div className="flex gap-2">
-              <AcceptPolicyDialog client={client} />
-              <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-                <PauseCircle className="mr-2 h-4 w-4" />
-                Defer Policy
+          <div className="flex flex-wrap gap-2">
+            {canStartMedicals && (
+              <Button onClick={handleStartMedicals}>
+                <FileClock className="mr-2 h-4 w-4" />
+                Start Medicals
               </Button>
-              <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-                <ThumbsDown className="mr-2 h-4 w-4" />
-                NTU Policy
+            )}
+            {isPendingMedicals && (
+               <Button onClick={handleMedicalsCompleted}>
+                <Check className="mr-2 h-4 w-4" />
+                Medicals Completed
               </Button>
-              <Button variant="destructive">
-                <XCircle className="mr-2 h-4 w-4" />
-                Decline Policy
-              </Button>
-            </div>
-          )}
+            )}
+            {isNTU && (
+                 <Button onClick={handleRevertNTU} variant="outline">
+                    <Undo2 className="mr-2 h-4 w-4" />
+                    Revert to Pending Medicals
+                </Button>
+            )}
+            {canMakeDecision && (
+              <>
+                <AcceptPolicyDialog client={client} />
+                <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                  <PauseCircle className="mr-2 h-4 w-4" />
+                  Defer Policy
+                </Button>
+                <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                  <ThumbsDown className="mr-2 h-4 w-4" />
+                  NTU Policy
+                </Button>
+                <Button variant="destructive">
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Decline Policy
+                </Button>
+              </>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+
+        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span>Onboarding Status:</span>
             <Badge
-              className={cn(getStatusBadgeColor(client.onboardingStatus), 'text-white')}
+              className={cn(
+                getStatusBadgeColor(client.onboardingStatus),
+                'text-white'
+              )}
             >
               {client.onboardingStatus}
             </Badge>
           </div>
-          <Separator orientation="vertical" className="h-4" />
           <div className="flex items-center gap-2">
             <span>Billing Status:</span>
-            <Badge className={cn(getStatusBadgeColor(client.billingStatus), 'text-white')}>
+            <Badge
+              className={cn(
+                getStatusBadgeColor(client.billingStatus),
+                'text-white'
+              )}
+            >
               {client.billingStatus}
             </Badge>
           </div>
-          <Separator orientation="vertical" className="h-4" />
           <div className="flex items-center gap-2">
             <span>Policy Status:</span>
-            <Badge className={cn(getStatusBadgeColor(client.policyStatus), 'text-white')}>
+            <Badge
+              className={cn(
+                getStatusBadgeColor(client.policyStatus),
+                'text-white'
+              )}
+            >
               {client.policyStatus}
             </Badge>
           </div>
@@ -196,12 +256,12 @@ export default function ClientDetailsView({
       <div className="space-y-6">
         <Card>
           <CardHeader className="p-0">
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+            <h3 className="bg-summary p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Policy Summary
             </h3>
           </CardHeader>
           <CardContent className="pt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {summaryDetails.map((detail) => (
                 <SummaryCard
                   key={detail.title}
@@ -214,11 +274,10 @@ export default function ClientDetailsView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Personal details of life insured
             </h3>
-            <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Life Assured Name" value={client.client} />
@@ -240,11 +299,10 @@ export default function ClientDetailsView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Identification
             </h3>
-            <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="National ID Type" value="Passport" />
@@ -262,28 +320,26 @@ export default function ClientDetailsView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Policy Details
             </h3>
-            <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Serial Number" value={client.serial} />
             <DetailItem label="Payment Frequency" value="Monthly" />
             <DetailItem
               label="Increase Month"
-              value={format(new Date(client.commencementDate), 'MMMM')}
+              value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
             />
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Employment Details
             </h3>
-            <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Occupation" value="Software Engineer" />
@@ -300,11 +356,10 @@ export default function ClientDetailsView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Payment Details
             </h3>
-            <Separator className="my-0" />
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
             <DetailItem label="Premium Payer Name" value={client.client} />
@@ -337,57 +392,16 @@ export default function ClientDetailsView({
         </Card>
 
         <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
+          <CardHeader className="p-0">
+            <h3 className="bg-sidebar p-2 font-medium uppercase text-sidebar-foreground rounded-t-md">
               Underwriting
             </h3>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <p className="text-muted-foreground">
               Underwriting details, including risk assessments and decisions,
               will be displayed here.
             </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">
-              Statement
-            </h3>
-            <p className="text-sm text-muted-foreground pt-1">
-              Billing and payment information for this policy.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Debit (GHS)</TableHead>
-                  <TableHead className="text-right">Credit (GHS)</TableHead>
-                  <TableHead className="text-right">Balance (GHS)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {statementData.map((row, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{format(new Date(row.date), 'PPP')}</TableCell>
-                    <TableCell>{row.description}</TableCell>
-                    <TableCell className="text-right">
-                      {row.debit > 0 ? row.debit.toFixed(2) : '-'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {row.credit > 0 ? row.credit.toFixed(2) : '-'}
-                    </TableCell>
-                    <TableCell className="text-right font-medium">
-                      {row.balance.toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
           </CardContent>
         </Card>
       </div>

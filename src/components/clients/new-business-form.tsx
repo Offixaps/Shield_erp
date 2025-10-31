@@ -227,8 +227,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           homeTelephone: '030 765 4321',
           residentialAddress: '456 Oak Avenue, Accra',
           gpsAddress: 'GA-123-4567',
-          policyTerm: 10,
-          premiumTerm: 5,
+          policyTerm: businessData.policyTerm,
+          premiumTerm: businessData.premiumTerm,
           sumAssured: businessData.sumAssured,
           paymentFrequency: 'Monthly' as const,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
@@ -374,6 +374,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     if (isEditMode && businessId) {
       const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
       if (businessIndex !== -1) {
+        const currentStatus = newBusinessData[businessIndex].onboardingStatus;
+        const newStatus = ['NTU', 'Declined'].includes(currentStatus)
+          ? 'Pending Mandate'
+          : currentStatus;
+
         newBusinessData[businessIndex] = {
           ...newBusinessData[businessIndex],
           client: lifeAssuredName,
@@ -383,7 +388,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           sumAssured: values.sumAssured,
           commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
           phone: values.phone,
-          onboardingStatus: newBusinessData[businessIndex].onboardingStatus === 'Declined' ? 'Pending Mandate' : newBusinessData[businessIndex].onboardingStatus,
+          onboardingStatus: newStatus,
+          policyTerm: values.policyTerm,
+          premiumTerm: values.premiumTerm,
         };
       }
 
@@ -391,7 +398,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         title: 'Form Updated',
         description: 'Policy details have been successfully updated.',
       });
-      router.push(`/business-development/clients/${businessId}`);
+      router.push(`/business-development/clients/${businessId}?from=underwriting`);
     } else {
         // This is where you would handle creating a new entry
         toast({
