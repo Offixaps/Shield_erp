@@ -52,7 +52,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
         return {
           date: new Date(item.data.dueDate),
           description: item.data.description,
-          method: 'N/A',
+          method: 'Billed',
           debit: item.data.amount,
           credit: 0,
           balance: runningBalance,
@@ -86,6 +86,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
       'standing-order': 'Standing Order',
       'stop-order': 'Stop Order',
       'controller': 'Controller',
+      'Billed': 'Billed'
     };
     return map[method] || method;
   }
@@ -115,7 +116,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
                   <TableCell>{format(transaction.date, 'PPP')}</TableCell>
                   <TableCell>{format(transaction.date, 'MMM yyyy')}</TableCell>
                   <TableCell>{transaction.description}</TableCell>
-                  <TableCell>{transaction.method && transaction.method !== 'N/A' ? getMethodDisplayName(transaction.method) : 'N/A'}</TableCell>
+                  <TableCell>{transaction.method ? getMethodDisplayName(transaction.method) : 'N/A'}</TableCell>
                   <TableCell className="text-right font-mono">
                     {transaction.debit > 0 ? transaction.debit.toFixed(2) : '-'}
                   </TableCell>
