@@ -19,17 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { newBusinessData } from '@/lib/data';
 import { useRouter } from 'next/navigation';
 
-type Client = {
-  id: number;
-  client: string;
-  policy: string;
-  product: string;
-  premium: number;
-  commencementDate: string;
-  status: string;
-  phone: string;
-  serial: string;
-};
+type Client = (typeof newBusinessData)[0];
 
 type AcceptPolicyDialogProps = {
   client: Client;
@@ -44,7 +34,7 @@ export default function AcceptPolicyDialog({ client }: AcceptPolicyDialogProps) 
   const [finalPremium, setFinalPremium] = React.useState(
     client.premium.toString()
   );
-  const [finalSumAssured, setFinalSumAssured] = React.useState('50000');
+  const [finalSumAssured, setFinalSumAssured] = React.useState(client.sumAssured.toString());
 
   const handleAccept = () => {
     const businessIndex = newBusinessData.findIndex((b) => b.id === client.id);
@@ -54,7 +44,10 @@ export default function AcceptPolicyDialog({ client }: AcceptPolicyDialogProps) 
         ...newBusinessData[businessIndex],
         policy: policyNumber,
         premium: parseFloat(finalPremium),
-        status: 'Approved',
+        sumAssured: parseFloat(finalSumAssured),
+        onboardingStatus: 'Accepted',
+        policyStatus: 'Active',
+        commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
       };
       
       console.log('Updated data:', newBusinessData[businessIndex]);

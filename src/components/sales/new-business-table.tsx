@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -23,11 +22,36 @@ export default function NewBusinessTable() {
   const [data, setData] = React.useState(newBusinessData);
   const pathname = usePathname();
 
-  const from = pathname.includes('/underwriting') ? 'underwriting' : 'business-development';
+  const from = pathname.includes('/underwriting')
+    ? 'underwriting'
+    : 'business-development';
 
   const handleDelete = (id: number) => {
     setData(data.filter((item) => item.id !== id));
   };
+  
+  const getStatusBadgeColor = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'pending mandate':
+        case 'pending first premium':
+        case 'pending medicals':
+            return 'bg-yellow-500/80';
+        case 'mandate verified':
+        case 'first premium confirmed':
+        case 'medicals completed':
+            return 'bg-blue-500/80';
+        case 'accepted':
+            return 'bg-green-500/80';
+        case 'ntu':
+        case 'deferred':
+            return 'bg-gray-500/80';
+        case 'declined':
+            return 'bg-red-500/80';
+        default:
+            return 'bg-gray-500/80';
+    }
+  }
+
 
   return (
     <Table>
@@ -40,7 +64,7 @@ export default function NewBusinessTable() {
           <TableHead>Product</TableHead>
           <TableHead>Premium</TableHead>
           <TableHead>Commencement Date</TableHead>
-          <TableHead>Approvals</TableHead>
+          <TableHead>Onboarding Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -65,23 +89,17 @@ export default function NewBusinessTable() {
             </TableCell>
             <TableCell>
               <Badge
-                className={cn(
-                  business.status === 'Approved' && 'bg-green-500/80',
-                  business.status === 'Pending' && 'bg-yellow-500/80',
-                  business.status === 'Declined' && 'bg-red-500/80',
-                  'text-white'
-                )}
-                variant={
-                  business.status === 'Approved' ? 'default' : 'secondary'
-                }
+                className={cn(getStatusBadgeColor(business.onboardingStatus), 'text-white')}
               >
-                {business.status}
+                {business.onboardingStatus}
               </Badge>
             </TableCell>
             <TableCell className="text-right">
               <div className="flex items-center justify-end gap-2">
                 <Button variant="ghost" size="icon" asChild>
-                  <Link href={`/business-development/sales/${business.id}/edit`}>
+                  <Link
+                    href={`/business-development/sales/${business.id}/edit`}
+                  >
                     <FilePenLine className="h-4 w-4" />
                   </Link>
                 </Button>

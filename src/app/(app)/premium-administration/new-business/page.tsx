@@ -1,7 +1,8 @@
+'use client';
 
+import * as React from 'react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
-import NewBusinessTable from '@/components/sales/new-business-table';
 import {
   Table,
   TableBody,
@@ -16,9 +17,62 @@ import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, XCircle } from 'lucide-react';
+import { CheckCircle, ShieldCheck } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function NewBusinessPage() {
+    const { toast } = useToast();
+    const [businessList, setBusinessList] = React.useState(newBusinessData);
+
+    const handleVerifyMandate = (id: number) => {
+        setBusinessList(prevList => prevList.map(item => {
+            if (item.id === id) {
+                toast({
+                    title: "Mandate Verified",
+                    description: `Mandate for ${item.client} has been verified.`
+                })
+                return { ...item, onboardingStatus: 'Mandate Verified', mandateVerified: true };
+            }
+            return item;
+        }));
+    };
+    
+    const handleConfirmFirstPremium = (id: number) => {
+        setBusinessList(prevList => prevList.map(item => {
+            if (item.id === id) {
+                toast({
+                    title: "First Premium Confirmed",
+                    description: `First premium for ${item.client} has been confirmed.`
+                })
+                return { ...item, onboardingStatus: 'First Premium Confirmed', billingStatus: 'First Premium Paid', firstPremiumPaid: true };
+            }
+            return item;
+        }));
+    };
+
+    const getStatusBadgeColor = (status: string) => {
+    switch (status.toLowerCase()) {
+        case 'pending mandate':
+        case 'pending first premium':
+        case 'pending medicals':
+            return 'bg-yellow-500/80';
+        case 'mandate verified':
+        case 'first premium confirmed':
+        case 'medicals completed':
+            return 'bg-blue-500/80';
+        case 'accepted':
+            return 'bg-green-500/80';
+        case 'ntu':
+        case 'deferred':
+            return 'bg-gray-500/80';
+        case 'declined':
+            return 'bg-red-500/80';
+        default:
+            return 'bg-gray-500/80';
+    }
+  }
+
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
@@ -33,16 +87,15 @@ export default function NewBusinessPage() {
                 <TableHead>#</TableHead>
                 <TableHead>Client</TableHead>
                 <TableHead>Serial #</TableHead>
-                <TableHead>Telephone #</TableHead>
                 <TableHead>Product</TableHead>
                 <TableHead>Premium</TableHead>
                 <TableHead>Commencement Date</TableHead>
-                <TableHead>Approval Status</TableHead>
+                <TableHead>Onboarding Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {newBusinessData.map((business, index) => (
+              {businessList.map((business, index) => (
                 <TableRow key={business.id}>
                   <TableCell>{index + 1}</TableCell>
                   <TableCell>
@@ -53,7 +106,6 @@ export default function NewBusinessPage() {
                   <TableCell>
                     {business.serial}
                   </TableCell>
-                  <TableCell>{business.phone}</TableCell>
                   <TableCell>
                     {business.product}
                   </TableCell>
@@ -66,24 +118,29 @@ export default function NewBusinessPage() {
                   <TableCell>
                     <Badge
                       className={cn(
-                        business.status === 'Approved' && 'bg-green-500/80',
-                        business.status === 'Pending' && 'bg-yellow-500/80',
-                        business.status === 'Declined' && 'bg-red-500/80',
+                        getStatusBadgeColor(business.onboardingStatus),
                         'text-white'
                       )}
-                      variant={business.status === 'Approved' ? 'default' : 'secondary'}
                     >
-                      {business.status}
+                      {business.onboardingStatus}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    {business.status === 'Pending' && (
+                    {business.onboardingStatus === 'Pending Mandate' && (
                       <div className="flex gap-2 justify-end">
-                        <Button size="sm">
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          Mandate
+                        <Button size="sm" onClick={() => handleVerifyMandate(business.id)}>
+                          <ShieldCheck className="mr-2 h-4 w-4" />
+                          Verify Mandate
                         </Button>
                       </div>
+                    )}
+                    {business.onboardingStatus === 'Pending First Premium' && (
+                        <div className="flex gap-2 justify-end">
+                            <Button size="sm" onClick={() => handleConfirmFirstPremium(business.id)}>
+                                <CheckCircle className="mr-2 h-4 w-4" />
+                                Confirm First Premium
+                            </Button>
+                        </div>
                     )}
                   </TableCell>
                 </TableRow>

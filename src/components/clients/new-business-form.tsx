@@ -134,8 +134,8 @@ const formSchema = z
         'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
       ),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
-    premiumTerm: z.coerce.number().positive('Premium term must be a positive number of years.'),
-    policyTerm: z.coerce.number().positive('Policy term must be a positive number of years.'),
+    premiumTerm: z.coerce.number().positive('Premium term must be a positive number.'),
+    policyTerm: z.coerce.number().positive('Policy term must be a positive number.'),
     premiumAmount: z.coerce
       .number()
       .positive('Premium amount must be a positive number.'),
@@ -229,7 +229,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           gpsAddress: 'GA-123-4567',
           policyTerm: 10,
           premiumTerm: 5,
-          sumAssured: 50000,
+          sumAssured: businessData.sumAssured,
           paymentFrequency: 'Monthly' as const,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
           premiumPayerName: businessData.client,
@@ -374,16 +374,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     if (isEditMode && businessId) {
       const businessIndex = newBusinessData.findIndex(b => b.id.toString() === businessId);
       if (businessIndex !== -1) {
-        const currentStatus = newBusinessData[businessIndex].status;
         newBusinessData[businessIndex] = {
           ...newBusinessData[businessIndex],
           client: lifeAssuredName,
           product: values.contractType,
           policy: values.policyNumber,
           premium: values.premiumAmount,
+          sumAssured: values.sumAssured,
           commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
           phone: values.phone,
-          status: currentStatus === 'Declined' ? 'Pending' : currentStatus,
+          onboardingStatus: newBusinessData[businessIndex].onboardingStatus === 'Declined' ? 'Pending Mandate' : newBusinessData[businessIndex].onboardingStatus,
         };
       }
 
