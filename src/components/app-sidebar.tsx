@@ -41,7 +41,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Button } from '@/components/ui/button';
 
 const navItems = {
   'Business Development': [
@@ -81,8 +80,28 @@ const departmentIcons = {
 }
 
 function AppSidebarHeader() {
-    const { state } = useSidebar();
+    const { state, toggleSidebar } = useSidebar();
     const pathname = usePathname();
+
+    if (state === 'collapsed') {
+        return (
+            <SidebarHeader className="flex items-center justify-between p-2">
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton 
+                            onClick={toggleSidebar} 
+                            isActive={pathname === '/'} 
+                            tooltip="Home" 
+                            className="w-full justify-center"
+                        >
+                            <Home />
+                            <span className="sr-only">Home</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarHeader>
+        )
+    }
 
     return (
         <SidebarHeader className="flex items-center justify-between p-2">
@@ -96,10 +115,7 @@ function AppSidebarHeader() {
                     </SidebarMenuButton>
                 </SidebarMenuItem>
             </SidebarMenu>
-            
-            {state === 'expanded' && (
-                <SidebarTrigger className="ml-auto" />
-            )}
+            <SidebarTrigger className="ml-auto" />
         </SidebarHeader>
     )
 }
