@@ -1,6 +1,4 @@
 
-'use client';
-
 import { newBusinessData, type NewBusiness, type OnboardingStatus } from './data';
 import { format } from 'date-fns';
 
