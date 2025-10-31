@@ -36,11 +36,8 @@ export default function NewBusinessTable() {
 
   React.useEffect(() => {
     let policies = getPolicies();
-    if (isAllPoliciesPage) {
-      policies = policies.filter(item => item.onboardingStatus !== 'Pending First Premium');
-    }
     setData(policies);
-  }, [pathname, isAllPoliciesPage]);
+  }, [pathname]);
 
 
   const handleDelete = (id: number) => {

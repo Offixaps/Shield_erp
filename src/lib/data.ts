@@ -8,6 +8,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -366,7 +367,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2034-05-01',
     policyTerm: 10,
     premiumTerm: 10,
-    onboardingStatus: 'Mandate Verified',
+    onboardingStatus: 'Accepted',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -397,7 +398,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2044-04-15',
     policyTerm: 20,
     premiumTerm: 15,
-    onboardingStatus: 'Mandate Verified',
+    onboardingStatus: 'Accepted',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -428,7 +429,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2044-03-01',
     policyTerm: 20,
     premiumTerm: 20,
-    onboardingStatus: 'Mandate Verified',
+    onboardingStatus: 'Accepted',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -459,7 +460,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2039-02-10',
     policyTerm: 15,
     premiumTerm: 10,
-    onboardingStatus: 'Mandate Verified',
+    onboardingStatus: 'Accepted',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
