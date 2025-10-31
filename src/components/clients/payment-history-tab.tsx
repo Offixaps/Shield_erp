@@ -7,6 +7,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -30,7 +31,7 @@ type Transaction = {
 };
 
 export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
-  const transactions = React.useMemo(() => {
+  const { transactions, totalDebit, totalCredit, finalBalance } = React.useMemo(() => {
     const combined: (
       | { type: 'bill'; data: Bill }
       | { type: 'payment'; data: Payment }
@@ -46,9 +47,13 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
     });
 
     let runningBalance = 0;
-    return combined.map((item) => {
+    let totalDebit = 0;
+    let totalCredit = 0;
+
+    const processedTransactions = combined.map((item) => {
       if (item.type === 'bill') {
         runningBalance -= item.data.amount;
+        totalDebit += item.data.amount;
         return {
           date: new Date(item.data.dueDate),
           description: item.data.description,
@@ -59,6 +64,7 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
         };
       } else {
         runningBalance += item.data.amount;
+        totalCredit += item.data.amount;
         return {
           date: new Date(item.data.paymentDate),
           description: `Payment Received (ID: ${item.data.transactionId})`,
@@ -69,6 +75,14 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
         };
       }
     });
+
+    return {
+        transactions: processedTransactions,
+        totalDebit,
+        totalCredit,
+        finalBalance: runningBalance
+    }
+
   }, [client.bills, client.payments]);
 
   const getBalanceColor = (balance: number) => {
@@ -129,6 +143,14 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
                 </TableRow>
               ))}
             </TableBody>
+            <TableFooter>
+                <TableRow>
+                    <TableCell colSpan={4} className="font-bold">Totals</TableCell>
+                    <TableCell className="text-right font-bold font-mono">{totalDebit.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-bold font-mono text-green-600">{totalCredit.toFixed(2)}</TableCell>
+                    <TableCell className={cn("text-right font-extrabold font-mono", getBalanceColor(finalBalance))}>{finalBalance.toFixed(2)}</TableCell>
+                </TableRow>
+            </TableFooter>
           </Table>
         ) : (
           <p className="text-muted-foreground">
