@@ -1,34 +1,37 @@
 
 
-
-
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { format } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
+const DATA_VERSION_KEY = 'shield-erp-data-version';
+const CURRENT_DATA_VERSION = 2; // Increment this version to force a data refresh
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
   if (typeof window === 'undefined') {
     return newBusinessData; // Return initial data during server-side rendering
   }
+
+  const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
   const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (storedData) {
+
+  if (storedData && storedVersion && parseInt(storedVersion, 10) === CURRENT_DATA_VERSION) {
     try {
       const parsedData = JSON.parse(storedData);
-      // Basic validation to ensure it's an array
       return Array.isArray(parsedData) ? parsedData : newBusinessData;
     } catch (e) {
       console.error("Failed to parse policies from localStorage", e);
-      return newBusinessData; // Fallback to initial data
+      // If parsing fails, fall back to seeding with initial data
     }
-  } else {
-    // Seed localStorage with initial data if it's not there
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newBusinessData));
-    return newBusinessData;
   }
+  
+  // If no data, version mismatch, or parsing error, re-seed localStorage
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newBusinessData));
+  localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION.toString());
+  return newBusinessData;
 }
 
 // Helper function to save policies to localStorage
@@ -215,6 +218,3 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     savePoliciesToStorage(policies);
     return policy;
 }
-
-
-
