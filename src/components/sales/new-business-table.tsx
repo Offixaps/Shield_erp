@@ -19,7 +19,6 @@ import { FilePenLine, Trash2 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
 export default function NewBusinessTable() {
-  const [data, setData] = React.useState(newBusinessData);
   const pathname = usePathname();
 
   const from = pathname.includes('/underwriting')
@@ -27,6 +26,17 @@ export default function NewBusinessTable() {
     : 'business-development';
     
   const isAllPoliciesPage = pathname.includes('/all-policies');
+  
+  const [data, setData] = React.useState(() => {
+    if (isAllPoliciesPage) {
+      return newBusinessData.filter(item => 
+        ['Accepted', 'Declined', 'NTU'].includes(item.onboardingStatus) || 
+        ['Active', 'Lapsed', 'Cancelled'].includes(item.policyStatus)
+      );
+    }
+    return newBusinessData;
+  });
+
 
   const handleDelete = (id: number) => {
     setData(data.filter((item) => item.id !== id));
@@ -43,11 +53,14 @@ export default function NewBusinessTable() {
         case 'medicals completed':
             return 'bg-blue-500/80';
         case 'accepted':
+        case 'active':
             return 'bg-green-500/80';
         case 'ntu':
         case 'deferred':
             return 'bg-gray-500/80';
         case 'declined':
+        case 'lapsed':
+        case 'cancelled':
             return 'bg-red-500/80';
         default:
             return 'bg-gray-500/80';
@@ -66,7 +79,7 @@ export default function NewBusinessTable() {
           <TableHead>Product</TableHead>
           <TableHead>Premium</TableHead>
           <TableHead>Commencement Date</TableHead>
-          <TableHead>Onboarding Status</TableHead>
+          <TableHead>Status</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
@@ -97,9 +110,9 @@ export default function NewBusinessTable() {
             </TableCell>
             <TableCell>
               <Badge
-                className={cn(getStatusBadgeColor(business.onboardingStatus), 'text-white')}
+                className={cn(getStatusBadgeColor(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus), 'text-white')}
               >
-                {business.onboardingStatus}
+                {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
               </Badge>
             </TableCell>
             <TableCell className="text-right">
