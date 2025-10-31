@@ -39,6 +39,7 @@ import { useRouter } from 'next/navigation';
 import { countries } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
 import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
+import type { ActivityLog } from '@/lib/data';
 
 const bankNames = [
   'Absa Bank Ghana Limited',

@@ -1,9 +1,8 @@
 
 
-
 'use client';
 
-import { newBusinessData, type NewBusiness, type Bill, type Payment } from './data';
+import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { format } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
@@ -46,13 +45,40 @@ export function getPolicyById(id: number): NewBusiness | undefined {
   return policies.find((policy) => policy.id === id);
 }
 
-type UpdatePayload = Partial<Omit<NewBusiness, 'id'>>;
+type UpdatePayload = Partial<Omit<NewBusiness, 'id' | 'activityLog'>> & { activityLog?: ActivityLog[] };
+
 
 export function updatePolicy(id: number, updates: UpdatePayload): NewBusiness | undefined {
     const policies = getPoliciesFromStorage();
     const policyIndex = policies.findIndex(p => p.id === id);
     if (policyIndex !== -1) {
-        policies[policyIndex] = { ...policies[policyIndex], ...updates };
+        const originalPolicy = policies[policyIndex];
+        const updatedPolicy = { ...originalPolicy, ...updates };
+
+        // Ensure activityLog is an array
+        if (!Array.isArray(updatedPolicy.activityLog)) {
+            updatedPolicy.activityLog = [];
+        }
+
+        // Check if onboardingStatus has changed and add a log entry
+        if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
+            let user = 'System';
+            if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
+                user = 'Underwriting';
+            } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed'].includes(updates.onboardingStatus)) {
+                user = 'Premium Admin';
+            }
+
+            const newLogEntry: ActivityLog = {
+                date: new Date().toISOString(),
+                user: user,
+                action: `Status changed to ${updates.onboardingStatus}`,
+                details: updates.vettingNotes || updates.mandateReworkNotes || undefined
+            };
+            updatedPolicy.activityLog.push(newLogEntry);
+        }
+        
+        policies[policyIndex] = updatedPolicy;
         savePoliciesToStorage(policies);
         return policies[policyIndex];
     }
@@ -86,6 +112,19 @@ export function createPolicy(values: any): NewBusiness {
         medicalUnderwritingState: { started: false, completed: false },
         bills: [],
         payments: [],
+        activityLog: [
+            {
+                date: new Date().toISOString(),
+                user: 'Sales Agent',
+                action: 'Policy Created',
+                details: 'Initial policy creation.'
+            },
+            {
+                date: new Date().toISOString(),
+                user: 'System',
+                action: 'Status changed to Pending First Premium'
+            }
+        ]
     };
     
     const firstBill: Bill = {
@@ -127,6 +166,9 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     if (!policy.payments) { // Defensive check
         policy.payments = [];
     }
+     if (!policy.activityLog) { // Defensive check
+        policy.activityLog = [];
+    }
     
     const firstBill = policy.bills.find(b => b.description === 'First Premium');
 
@@ -149,9 +191,21 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     policy.billingStatus = 'First Premium Paid';
     policy.firstPremiumPaid = true;
 
+    policy.activityLog.push({
+        date: new Date().toISOString(),
+        user: 'Premium Admin',
+        action: 'First Premium Confirmed',
+        details: `Payment of GHS ${paymentDetails.amount.toFixed(2)} received via ${paymentDetails.method}.`
+    });
+
+    policy.activityLog.push({
+        date: new Date().toISOString(),
+        user: 'System',
+        action: 'Status changed to Pending Vetting'
+    });
+
     policies[policyIndex] = policy;
     savePoliciesToStorage(policies);
     return policy;
 }
 
-    
