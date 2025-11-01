@@ -978,6 +978,105 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Employment Details</h3>
+          <Separator className="my-0" />
+        </div>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
+          <FormField
+            control={form.control}
+            name="occupation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Occupation</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Software Engineer" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="natureOfBusiness"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Nature of Business/Work</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Technology" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="employer"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Employer</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Acme Inc." {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="employerAddress"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Employer Address</FormLabel>
+                <FormControl>
+                  <Input placeholder="123 Business Rd, Accra" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="monthlyBasicIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Monthly Basic Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="3000.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="otherIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Other Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" placeholder="500.00" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="totalMonthlyIncome"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Total Monthly Income (GHS)</FormLabel>
+                <FormControl>
+                  <Input type="number" disabled {...field} />
+                </FormControl>
+                <FormDescription>This is calculated automatically.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="mt-8">
           <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Policy Details</h3>
           <Separator className="my-0" />
         </div>
@@ -1162,105 +1261,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                   <Input disabled {...field} />
                 </FormControl>
                 <FormDescription>This is automatically set from the commencement date.</FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="mt-8">
-          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Employment Details</h3>
-          <Separator className="my-0" />
-        </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
-          <FormField
-            control={form.control}
-            name="occupation"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Occupation</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Software Engineer" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="natureOfBusiness"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Nature of Business/Work</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Technology" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="employer"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employer</FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., Acme Inc." {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="employerAddress"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Employer Address</FormLabel>
-                <FormControl>
-                  <Input placeholder="123 Business Rd, Accra" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="monthlyBasicIncome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Monthly Basic Income (GHS)</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="3000.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="otherIncome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Other Income (GHS)</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="500.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="totalMonthlyIncome"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Total Monthly Income (GHS)</FormLabel>
-                <FormControl>
-                  <Input type="number" disabled {...field} />
-                </FormControl>
-                <FormDescription>This is calculated automatically.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
