@@ -74,9 +74,11 @@ function SummaryCard({
 export default function ClientDetailsView({
   client: initialClient,
   from,
+  defaultTab = 'overview',
 }: {
   client: NewBusiness;
   from: string;
+  defaultTab?: string;
 }) {
   const { toast } = useToast();
   const [client, setClient] = React.useState(initialClient);
@@ -340,7 +342,7 @@ export default function ClientDetailsView({
         )}
       </div>
       
-      <Tabs defaultValue="overview" className="w-full">
+      <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="personal-info">Personal Info</TabsTrigger>

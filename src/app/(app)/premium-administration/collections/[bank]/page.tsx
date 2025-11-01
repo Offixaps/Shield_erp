@@ -157,7 +157,7 @@ export default function BankPoliciesPage() {
                 {policies.map((policy) => (
                   <TableRow key={policy.id}>
                     <TableCell>
-                         <Link href={`/business-development/clients/${policy.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
+                         <Link href={`/business-development/clients/${policy.id}?from=premium-admin&tab=payment-history`} className="font-medium text-primary hover:underline">
                             {policy.policy}
                          </Link>
                     </TableCell>

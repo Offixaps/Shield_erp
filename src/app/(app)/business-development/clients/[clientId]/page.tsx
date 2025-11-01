@@ -45,6 +45,7 @@ export default function ClientDetailsPage() {
   }
 
   const from = searchParams.get('from') || '';
+  const tab = searchParams.get('tab') || 'overview';
 
-  return <ClientDetailsView client={client} from={from} />;
+  return <ClientDetailsView client={client} from={from} defaultTab={tab} />;
 }
