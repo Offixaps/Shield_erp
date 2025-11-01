@@ -9,6 +9,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -99,6 +100,7 @@ export type ActivityLog = {
 export type NewBusiness = {
   id: number;
   client: string;
+  placeOfBirth: string;
   policy: string;
   product: string;
   premium: number;
@@ -131,7 +133,8 @@ export type NewBusiness = {
 export const newBusinessData: NewBusiness[] = [
   { 
     id: 1, 
-    client: "Mr John K. Doe", 
+    client: "Mr John K. Doe",
+    placeOfBirth: "Accra", 
     policy: "T1166017", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 150.00, 
@@ -164,7 +167,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 2,
-    client: "Mrs Jane Smith", 
+    client: "Mrs Jane Smith",
+    placeOfBirth: "Kumasi", 
     policy: "E1274718", 
     product: "The Education Policy", 
     premium: 220.50, 
@@ -201,7 +205,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 3, 
-    client: "Acme Corp", 
+    client: "Acme Corp",
+    placeOfBirth: "Tema", 
     policy: "T1166018", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 1200.00, 
@@ -232,7 +237,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 4, 
-    client: "Mr Mike Johnson", 
+    client: "Mr Mike Johnson",
+    placeOfBirth: "Takoradi", 
     policy: "E1274719", 
     product: "The Education Policy", 
     premium: 85.75, 
@@ -262,7 +268,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 5, 
-    client: "Miss Emily White", 
+    client: "Miss Emily White",
+    placeOfBirth: "Cape Coast", 
     policy: "T1166019", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 300.00, 
@@ -293,7 +300,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 6, 
-    client: "Dr Chris Brown", 
+    client: "Dr Chris Brown",
+    placeOfBirth: "Ho", 
     policy: "E1274720", 
     product: "The Education Policy", 
     premium: 175.00, 
@@ -328,7 +336,8 @@ export const newBusinessData: NewBusiness[] = [
   },
   { 
     id: 7, 
-    client: "Prof Sarah Connor", 
+    client: "Prof Sarah Connor",
+    placeOfBirth: "Sunyani", 
     policy: "T1166021", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 250.00, 
@@ -359,6 +368,7 @@ export const newBusinessData: NewBusiness[] = [
   {
     id: 8,
     client: 'Mr Kwabena A. Darko',
+    placeOfBirth: "Accra",
     policy: 'T1166022',
     product: 'Buy Term and Invest in Mutual Fund',
     premium: 500.00,
@@ -390,6 +400,7 @@ export const newBusinessData: NewBusiness[] = [
   {
     id: 9,
     client: 'Ms. Adwoa P. Williams',
+    placeOfBirth: "Accra",
     policy: 'E1274721',
     product: 'The Education Policy',
     premium: 350.00,
@@ -421,6 +432,7 @@ export const newBusinessData: NewBusiness[] = [
   {
     id: 10,
     client: 'Alhaji Musa Ibrahim',
+    placeOfBirth: "Accra",
     policy: 'T1166023',
     product: 'Buy Term and Invest in Mutual Fund',
     premium: 1000.00,
@@ -452,6 +464,7 @@ export const newBusinessData: NewBusiness[] = [
   {
     id: 11,
     client: 'Mrs. Grace Ofori-Atta',
+    placeOfBirth: "Accra",
     policy: 'E1274722',
     product: 'The Education Policy',
     premium: 450.50,

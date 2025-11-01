@@ -94,6 +94,7 @@ const formSchema = z
     lifeAssuredMiddleName: z.string().optional(),
     lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
+    placeOfBirth: z.string().min(2, 'Place of birth is required.'),
     email: z.string().email('Invalid email address.'),
     phone: z.string().min(10, 'Telephone Number must be at least 10 digits.'),
     postalAddress: z.string().min(5, 'Postal address is required.'),
@@ -228,6 +229,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
           lifeAssuredDob: new Date('1985-05-20'),
+          placeOfBirth: businessData.placeOfBirth,
           email: 'j.doe@example.com',
           phone: businessData.phone,
           postalAddress: '123 Main St, Accra',
@@ -283,6 +285,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       lifeAssuredMiddleName: '',
       lifeAssuredSurname: '',
       lifeAssuredDob: undefined,
+      placeOfBirth: '',
       ageNextBirthday: 0,
       contractType: "Buy Term and Invest in Mutual Fund" as const,
       serialNumber: '',
@@ -401,6 +404,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     onboardingStatus: newStatus,
                     policyTerm: values.policyTerm,
                     premiumTerm: values.premiumTerm,
+                    placeOfBirth: values.placeOfBirth,
                     vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
                     mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
                 });
@@ -543,6 +547,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     />
                   </PopoverContent>
                 </Popover>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="placeOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Place of Birth (City/Town)</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Accra" {...field} />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}

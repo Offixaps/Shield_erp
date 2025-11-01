@@ -7,7 +7,7 @@ import { format, startOfMonth } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 2; // Increment this version to force a data refresh
+const CURRENT_DATA_VERSION = 3; // Increment this version to force a data refresh
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
@@ -106,6 +106,7 @@ export function createPolicy(values: any): NewBusiness {
         commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
         phone: values.phone,
         serial: values.serialNumber,
+        placeOfBirth: values.placeOfBirth,
         onboardingStatus: 'Pending First Premium',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',

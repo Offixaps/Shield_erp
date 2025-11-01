@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -387,6 +388,7 @@ export default function ClientDetailsView({
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
                 <DetailItem label="Date of Birth" value="1985-05-20" />
+                <DetailItem label="Place of Birth" value={client.placeOfBirth} />
                 <DetailItem label="Age (Next Birthday)" value="40" />
                 <DetailItem label="Gender" value="Male" />
                 <DetailItem label="Marital Status" value="Married" />
