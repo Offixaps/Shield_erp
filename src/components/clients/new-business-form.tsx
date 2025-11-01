@@ -439,7 +439,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div>
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Personal details of life insured</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Personal details of life insured</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -737,7 +737,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
         
         <div className="mt-8">
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Identification</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Identification</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -880,7 +880,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Contact Details</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Contact Details</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -978,7 +978,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Policy Details</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Policy Details</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -1169,7 +1169,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Employment Details</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Employment Details</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -1268,7 +1268,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-lg font-medium bg-sidebar text-sidebar-foreground p-2 rounded-t-md uppercase">Payment Details</h3>
+          <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Payment Details</h3>
           <Separator className="my-0" />
         </div>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
