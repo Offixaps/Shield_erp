@@ -3,6 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import * as React from 'react';
 import {
   Sidebar,
   SidebarContent,
@@ -11,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarHeader,
+  SidebarMenuSkeleton,
 } from '@/components/ui/sidebar';
 import {
   LayoutDashboard,
@@ -80,6 +82,21 @@ const departmentIcons = {
 
 function AppSidebarHeader() {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return (
+        <SidebarHeader>
+            <SidebarMenu>
+                <SidebarMenuSkeleton showIcon />
+            </SidebarMenu>
+        </SidebarHeader>
+    )
+  }
 
   return (
     <SidebarHeader>
@@ -99,6 +116,12 @@ function AppSidebarHeader() {
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = React.useState(false);
+
+   React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
 
   const getActiveDepartment = () => {
     if (pathname.startsWith('/business-development')) {
@@ -114,11 +137,19 @@ export default function AppSidebar() {
   }
 
   const activeDepartment = getActiveDepartment();
+  
+  const renderContent = () => {
+    if (!isMounted) {
+        return (
+             <div className="p-2 space-y-4">
+                <SidebarMenuSkeleton showIcon />
+                <SidebarMenuSkeleton showIcon />
+                <SidebarMenuSkeleton showIcon />
+            </div>
+        )
+    }
 
-  return (
-    <Sidebar>
-      <AppSidebarHeader />
-      <SidebarContent>
+    return (
         <Accordion type="single" collapsible defaultValue={activeDepartment || Object.keys(navItems)[0]} className="w-full">
             {Object.entries(navItems).map(([department, items]) => {
                 const DepartmentIcon = departmentIcons[department as keyof typeof departmentIcons];
@@ -153,6 +184,14 @@ export default function AppSidebar() {
                 )
             })}
         </Accordion>
+    )
+  }
+
+  return (
+    <Sidebar>
+      <AppSidebarHeader />
+      <SidebarContent>
+        {renderContent()}
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
