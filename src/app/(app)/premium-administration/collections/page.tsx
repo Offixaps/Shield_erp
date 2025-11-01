@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -16,6 +17,8 @@ import {
 } from '@/components/ui/tabs';
 import { Handshake, Smartphone, CircleStop, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { billAllActivePolicies } from '@/lib/policy-service';
 
 const bankBrandData = [
     { name: 'Absa Bank Ghana Limited', logo: '/logos/banks/absa.svg', color: '#E60000', textColor: '#FFFFFF' },
@@ -51,6 +54,24 @@ const nonBankCollectionData = [
 
 export default function CollectionsPage() {
     const [selectedNonBankFilter, setSelectedNonBankFilter] = React.useState<string | null>(null);
+    const { toast } = useToast();
+
+    const handleBillAll = () => {
+        try {
+            const count = billAllActivePolicies();
+            toast({
+                title: 'Billing Process Complete',
+                description: `${count} active policies have been billed for the current month.`,
+            });
+        } catch (error) {
+            console.error("Failed to bill active policies:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Billing Failed',
+                description: error instanceof Error ? error.message : 'An unexpected error occurred.',
+            });
+        }
+    };
 
   return (
     <div className="flex flex-col gap-6">
@@ -59,7 +80,7 @@ export default function CollectionsPage() {
           title="Premium Collection"
           description="Select a collection method to view active policies."
         />
-        <Button>
+        <Button onClick={handleBillAll}>
             <Banknote className="mr-2 h-4 w-4" />
             Bill All Active Policies
         </Button>

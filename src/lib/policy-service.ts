@@ -3,7 +3,7 @@
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
-import { format } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
@@ -217,4 +217,48 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     policies[policyIndex] = policy;
     savePoliciesToStorage(policies);
     return policy;
+}
+
+export function billAllActivePolicies(): number {
+    const policies = getPoliciesFromStorage();
+    let billedCount = 0;
+    const today = new Date();
+    const currentMonthBillingDate = startOfMonth(today);
+
+    policies.forEach(policy => {
+        if (policy.policyStatus === 'Active') {
+            const hasBeenBilledThisMonth = policy.bills.some(bill => {
+                const billDate = new Date(bill.dueDate);
+                return billDate.getFullYear() === currentMonthBillingDate.getFullYear() &&
+                       billDate.getMonth() === currentMonthBillingDate.getMonth();
+            });
+
+            if (!hasBeenBilledThisMonth) {
+                const newBillId = (policy.bills.length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
+                const newBill: Bill = {
+                    id: newBillId,
+                    policyId: policy.id,
+                    amount: policy.premium,
+                    dueDate: format(currentMonthBillingDate, 'yyyy-MM-dd'),
+                    status: 'Unpaid',
+                    description: `${format(currentMonthBillingDate, 'MMMM yyyy')} Premium`,
+                };
+                
+                policy.bills.push(newBill);
+                policy.billingStatus = 'Outstanding';
+                
+                policy.activityLog.push({
+                    date: new Date().toISOString(),
+                    user: 'System',
+                    action: 'Policy Billed',
+                    details: `Billed GHS ${policy.premium.toFixed(2)} for ${format(currentMonthBillingDate, 'MMMM yyyy')}.`
+                });
+
+                billedCount++;
+            }
+        }
+    });
+
+    savePoliciesToStorage(policies);
+    return billedCount;
 }
