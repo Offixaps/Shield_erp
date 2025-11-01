@@ -17,8 +17,17 @@ import {
 } from '@/components/ui/tabs';
 import { Handshake, Smartphone, CircleStop, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
 import { billAllActivePolicies } from '@/lib/policy-service';
+import { format } from 'date-fns';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from '@/components/ui/alert-dialog';
 
 const bankBrandData = [
     { name: 'Absa Bank Ghana Limited', logo: '/logos/banks/absa.svg', color: '#E60000', textColor: '#FFFFFF' },
@@ -54,22 +63,26 @@ const nonBankCollectionData = [
 
 export default function CollectionsPage() {
     const [selectedNonBankFilter, setSelectedNonBankFilter] = React.useState<string | null>(null);
-    const { toast } = useToast();
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [dialogContent, setDialogContent] = React.useState({ title: '', description: '' });
 
     const handleBillAll = () => {
         try {
             const count = billAllActivePolicies();
-            toast({
+            const currentMonth = format(new Date(), 'MMMM yyyy');
+            setDialogContent({
                 title: 'Billing Process Complete',
-                description: `${count} active policies have been billed for the current month.`,
+                description: `${count} active policies have been billed for ${currentMonth}.`,
             });
+            setDialogOpen(true);
         } catch (error) {
             console.error("Failed to bill active policies:", error);
-            toast({
-                variant: 'destructive',
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
+            setDialogContent({
                 title: 'Billing Failed',
-                description: error instanceof Error ? error.message : 'An unexpected error occurred.',
+                description: errorMessage,
             });
+            setDialogOpen(true);
         }
     };
 
@@ -144,6 +157,19 @@ export default function CollectionsPage() {
         </TabsContent>
       </Tabs>
       {/* Policy table for non-bank methods can be implemented here */}
+      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{dialogContent.title}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {dialogContent.description}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setDialogOpen(false)}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
