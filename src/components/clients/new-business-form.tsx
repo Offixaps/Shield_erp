@@ -1204,7 +1204,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="sumAssured"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sum Assured</FormLabel>
+                <FormLabel>Provisional Sum Assured</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="10000.00" {...field} />
                 </FormControl>
@@ -1217,7 +1217,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             name="premiumAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Premium (GHS)</FormLabel>
+                <FormLabel>Provisional Premium Amount (GHS)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="500.00" {...field} />
                 </FormControl>
@@ -1467,3 +1467,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
