@@ -142,9 +142,21 @@ export default function AppSidebar() {
     if (!isMounted) {
         return (
              <div className="p-2 space-y-4">
-                <SidebarMenuSkeleton showIcon />
-                <SidebarMenuSkeleton showIcon />
-                <SidebarMenuSkeleton showIcon />
+                <div className="space-y-1">
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                </div>
+                <div className="space-y-1">
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                </div>
+                 <div className="space-y-1">
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                    <SidebarMenuSkeleton showIcon />
+                </div>
             </div>
         )
     }
