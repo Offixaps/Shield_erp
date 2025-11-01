@@ -53,6 +53,7 @@ const navItems = {
   'Premium Administration': [
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
     { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
+    { href: '/business-development/clients', label: 'Clients', icon: Users },
     { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
     { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
@@ -60,6 +61,7 @@ const navItems = {
   'Underwriting': [
     { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
+    { href: '/business-development/clients', label: 'Clients', icon: Users },
     { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
     { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
     { href: '/underwriting/occupational', label: 'Occupational', icon: Briefcase },
