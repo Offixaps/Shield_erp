@@ -1,0 +1,199 @@
+
+'use client';
+
+import * as React from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, RefreshCw } from 'lucide-react';
+
+const formSchema = z.object({
+  firstName: z.string().min(2, 'First name must be at least 2 characters.'),
+  lastName: z.string().min(2, 'Last name must be at least 2 characters.'),
+  email: z.string().email('Invalid email address.'),
+  phone: z.string().min(10, 'Telephone number must be at least 10 digits.'),
+  profileImage: z.any().optional(),
+  sendWelcomeEmail: z.boolean().default(false),
+  password: z.string().min(8, 'Password must be at least 8 characters.'),
+});
+
+export default function NewStaffForm() {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [showPassword, setShowPassword] = React.useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      sendWelcomeEmail: true,
+      password: '',
+    },
+  });
+
+  const generatePassword = () => {
+    const length = 12;
+    const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+~`|}{[]:;?><,./-=";
+    let retVal = "";
+    for (let i = 0, n = charset.length; i < length; ++i) {
+        retVal += charset.charAt(Math.floor(Math.random() * n));
+    }
+    form.setValue('password', retVal);
+    toast({
+        title: "Password Generated",
+        description: "A new secure password has been generated and filled in."
+    })
+  };
+  
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+    toast({
+      title: 'Staff Member Added',
+      description: `${values.firstName} ${values.lastName} has been added to the system.`,
+    });
+    router.push('/staff');
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>First Name</FormLabel>
+                    <FormControl>
+                    <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Last Name</FormLabel>
+                    <FormControl>
+                    <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                    <Input placeholder="john.doe@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Telephone Number</FormLabel>
+                    <FormControl>
+                    <Input placeholder="024 123 4567" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+        </div>
+
+        <FormField
+            control={form.control}
+            name="profileImage"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Profile Image</FormLabel>
+                <FormControl>
+                    <Input type="file" accept="image/*" onChange={(e) => field.onChange(e.target.files ? e.target.files[0] : null)} />
+                </FormControl>
+                <FormDescription>Upload an image for the staff member's profile.</FormDescription>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+        
+        <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <div className="flex items-center gap-2">
+                        <FormControl>
+                            <Input type={showPassword ? 'text' : 'password'} placeholder="Enter a strong password" {...field} />
+                        </FormControl>
+                        <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)}>
+                           {showPassword ? <EyeOff /> : <Eye />}
+                           <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                        </Button>
+                        <Button type="button" variant="outline" onClick={generatePassword}>
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            Generate
+                        </Button>
+                    </div>
+                     <FormDescription>The user will use this password to log in.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+
+        <FormField
+          control={form.control}
+          name="sendWelcomeEmail"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+              <FormControl>
+                <Checkbox
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+              <div className="space-y-1 leading-none">
+                <FormLabel>
+                  Send Welcome Email
+                </FormLabel>
+                <FormDescription>
+                  If checked, the new staff member will receive an email with their login credentials.
+                </FormDescription>
+              </div>
+            </FormItem>
+          )}
+        />
+        
+        <Button type="submit">Add Staff Member</Button>
+      </form>
+    </Form>
+  );
+}

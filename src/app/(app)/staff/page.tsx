@@ -11,9 +11,11 @@ export default function StaffPage() {
       <div className="flex items-center justify-between">
         <PageHeader title="Staff Management" description="An overview of all staff members." />
         <div className="flex items-center gap-2">
-          <Button>
-            <Plus className="mr-2 h-4 w-4" />
-            Add Staff Member
+          <Button asChild>
+            <Link href="/staff/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Staff Member
+            </Link>
           </Button>
         </div>
       </div>
