@@ -14,6 +14,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -198,7 +199,7 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-06T14:00:00Z", user: "System", action: "Onboarding status changed to Pending Vetting." },
       { date: "2024-07-08T10:00:00Z", user: "Underwriting", action: "Vetting Completed." },
       { date: "2024-07-08T10:00:00Z", user: "System", action: "Onboarding status changed to Accepted." },
-      { date: "2024-07-09T16:20:00Z", user: "Underwriting", action: "Policy Finalized", details: "Policy number T1166017 assigned." },
+      { date: "2024-07-09T16:20:00Z", user: "Underwriting", action: "Policy Finalized", details: "Policy number assigned." },
       { date: "2024-07-09T16:20:00Z", user: "System", action: "Onboarding status changed to Pending Mandate." }
     ],
     bankName: 'Absa Bank Ghana Limited',
@@ -501,3 +502,4 @@ export const newBusinessData: NewBusiness[] = [
     
 
     
+
