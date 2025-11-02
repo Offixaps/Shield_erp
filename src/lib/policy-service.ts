@@ -210,7 +210,7 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     });
 
     policy.activityLog.push({
-        date: new Date().toISOString(),
+        date: new date().toISOString(),
         user: 'System',
         action: 'Status changed to Pending Vetting'
     });
