@@ -33,6 +33,7 @@ import {
   HeartPulse,
   Stethoscope,
   Landmark,
+  ShieldCheck,
 } from 'lucide-react';
 import {
   Accordion,
@@ -52,6 +53,7 @@ const navItems = {
     { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
     { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
     { href: '/staff', label: 'Staff Members', icon: Users },
+    { href: '/roles', label: 'Roles', icon: ShieldCheck },
   ],
   'Premium Administration': [
     { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
@@ -61,6 +63,7 @@ const navItems = {
     { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
     { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
     { href: '/staff', label: 'Staff Members', icon: Users },
+    { href: '/roles', label: 'Roles', icon: ShieldCheck },
   ],
   'Underwriting': [
     { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -74,6 +77,7 @@ const navItems = {
     { href: '/underwriting/financial', label: 'Financial', icon: Landmark },
     { href: '/underwriting/claims', label: 'Claims', icon: ShieldAlert },
     { href: '/staff', label: 'Staff Members', icon: Users },
+    { href: '/roles', label: 'Roles', icon: ShieldCheck },
   ]
 };
 
