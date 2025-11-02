@@ -12,6 +12,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -496,5 +497,7 @@ export const newBusinessData: NewBusiness[] = [
     narration: 'JULY 2024 PREMIUM',
   }
 ];
+
+    
 
     

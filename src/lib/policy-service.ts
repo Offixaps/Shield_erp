@@ -210,7 +210,7 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     });
 
     policy.activityLog.push({
-        date: new date().toISOString(),
+        date: new Date().toISOString(),
         user: 'System',
         action: 'Status changed to Pending Vetting'
     });
@@ -263,3 +263,5 @@ export function billAllActivePolicies(): number {
     savePoliciesToStorage(policies);
     return billedCount;
 }
+
+    
