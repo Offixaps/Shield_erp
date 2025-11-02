@@ -15,9 +15,9 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { Handshake, Smartphone, CircleStop, Banknote } from 'lucide-react';
+import { Handshake, Smartphone, CircleStop, Banknote, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { billAllActivePolicies } from '@/lib/policy-service';
+import { billAllActivePolicies, applyAnnualIncreases } from '@/lib/policy-service';
 import { format } from 'date-fns';
 import {
   AlertDialog,
@@ -85,18 +85,50 @@ export default function CollectionsPage() {
             setDialogOpen(true);
         }
     };
+    
+    const handleApplyIncreases = () => {
+        try {
+            const count = applyAnnualIncreases();
+            if (count > 0) {
+                 setDialogContent({
+                    title: 'Process Complete',
+                    description: `Annual premium and benefit increases (API/ABI) have been applied to ${count} eligible active policies.`,
+                });
+            } else {
+                setDialogContent({
+                    title: 'Process Complete',
+                    description: 'No policies were eligible for an annual increase at this time.',
+                });
+            }
+            setDialogOpen(true);
+        } catch (error) {
+            console.error("Failed to apply annual increases:", error);
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
+            setDialogContent({
+                title: 'API/ABI Process Failed',
+                description: errorMessage,
+            });
+            setDialogOpen(true);
+        }
+    };
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <PageHeader
           title="Premium Collection"
           description="Select a collection method to view active policies."
         />
-        <Button onClick={handleBillAll}>
-            <Banknote className="mr-2 h-4 w-4" />
-            Bill All Active Policies
-        </Button>
+        <div className="flex flex-wrap gap-2">
+            <Button onClick={handleApplyIncreases} variant="outline">
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Apply Annual Increases
+            </Button>
+            <Button onClick={handleBillAll}>
+                <Banknote className="mr-2 h-4 w-4" />
+                Bill All Active Policies
+            </Button>
+        </div>
       </div>
       <Tabs defaultValue="bank" className="w-full">
         <TabsList className="grid w-full grid-cols-2">

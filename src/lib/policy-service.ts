@@ -3,7 +3,7 @@
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
-import { format, startOfMonth } from 'date-fns';
+import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
@@ -103,14 +103,14 @@ export function createPolicy(values: any): NewBusiness {
         policy: '', // Policy number is blank on creation
         premium: values.premiumAmount,
         sumAssured: values.sumAssured,
-        commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+        commencementDate: format(new Date(), 'yyyy-MM-dd'),
         phone: values.phone,
         serial: values.serialNumber,
         placeOfBirth: values.placeOfBirth,
         onboardingStatus: 'Pending First Premium',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
-        expiryDate: new Date(new Date(values.commencementDate).setFullYear(new Date(values.commencementDate).getFullYear() + values.policyTerm)).toISOString().split('T')[0],
+        expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + values.policyTerm)).toISOString().split('T')[0],
         policyTerm: values.policyTerm,
         premiumTerm: values.premiumTerm,
         mandateVerified: false,
@@ -262,6 +262,79 @@ export function billAllActivePolicies(): number {
 
     savePoliciesToStorage(policies);
     return billedCount;
+}
+
+export function applyAnnualIncreases(): number {
+    const policies = getPoliciesFromStorage();
+    let updatedCount = 0;
+    const today = startOfDay(new Date());
+    const currentYear = getYear(today);
+
+    policies.forEach(policy => {
+        if (policy.policyStatus !== 'Active') {
+            return;
+        }
+
+        const commencementDate = startOfDay(new Date(policy.commencementDate));
+        const policyAgeInYears = differenceInYears(today, commencementDate);
+
+        // Rule: Increases stop after the 10th year.
+        if (policyAgeInYears >= 10) {
+            return;
+        }
+        
+        // Construct the anniversary date for the current year.
+        const anniversaryThisYear = new Date(commencementDate);
+        anniversaryThisYear.setFullYear(currentYear);
+
+        // Check if the anniversary is today or has passed, but we are still in the same year.
+        if (isBefore(anniversaryThisYear, today) || anniversaryThisYear.getTime() === today.getTime()) {
+             // Check if an API/ABI has already been applied this year.
+            const alreadyIncreasedThisYear = policy.activityLog.some(log => 
+                log.action === 'API/ABI Applied' && getYear(new Date(log.date)) === currentYear
+            );
+
+            if (alreadyIncreasedThisYear) {
+                return;
+            }
+
+            let premiumIncreaseRate: number;
+            let sumAssuredIncreaseRate: number;
+            
+            // Determine which rule to apply
+            if (policy.sumAssured >= 500000) {
+                premiumIncreaseRate = 0.07; // 7%
+                sumAssuredIncreaseRate = 0.03; // 3%
+            } else {
+                premiumIncreaseRate = 0.05; // 5%
+                sumAssuredIncreaseRate = 0.02; // 2%
+            }
+            
+            const oldPremium = policy.premium;
+            const oldSumAssured = policy.sumAssured;
+
+            const newPremium = oldPremium * (1 + premiumIncreaseRate);
+            const newSumAssured = oldSumAssured * (1 + sumAssuredIncreaseRate);
+
+            policy.premium = newPremium;
+            policy.sumAssured = newSumAssured;
+
+            policy.activityLog.push({
+                date: new Date().toISOString(),
+                user: 'System',
+                action: 'API/ABI Applied',
+                details: `Year ${policyAgeInYears + 1}. Premium increased from GHS ${oldPremium.toFixed(2)} to GHS ${newPremium.toFixed(2)}. Sum assured increased from GHS ${oldSumAssured.toFixed(2)} to GHS ${newSumAssured.toFixed(2)}.`,
+            });
+            
+            updatedCount++;
+        }
+    });
+
+    if (updatedCount > 0) {
+        savePoliciesToStorage(policies);
+    }
+
+    return updatedCount;
 }
 
     
