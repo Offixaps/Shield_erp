@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Card,
   CardDescription,
@@ -23,7 +24,25 @@ export default function HomePage() {
         </div>
       </header>
       <main className="flex flex-1 items-center justify-center p-4">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-4xl space-y-8">
+            <div className="flex justify-center">
+              <div className="relative h-16 w-48">
+                <Image
+                    src="/logo - light.svg"
+                    alt="Company Logo"
+                    fill
+                    className="object-contain dark:hidden"
+                    priority
+                />
+                 <Image
+                    src="/logo - dark.svg"
+                    alt="Company Logo"
+                    fill
+                    className="object-contain hidden dark:block"
+                    priority
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Link href="/business-development" className="group">
                     <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
