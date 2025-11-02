@@ -289,7 +289,8 @@ export function applyAnnualIncreases(): number {
 
         // Check if the anniversary is today or has passed, but we are still in the same year.
         if (isBefore(anniversaryThisYear, today) || anniversaryThisYear.getTime() === today.getTime()) {
-             // Check if an API/ABI has already been applied this year.
+             // IDEMPOTENCY CHECK: This is the preventative measure.
+             // It checks the activity log to ensure an increase hasn't already been applied this calendar year.
             const alreadyIncreasedThisYear = policy.activityLog.some(log => 
                 log.action === 'API/ABI Applied' && getYear(new Date(log.date)) === currentYear
             );
