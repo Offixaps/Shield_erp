@@ -10,6 +10,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -135,7 +136,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 1, 
     client: "Mr John K. Doe",
     placeOfBirth: "Accra", 
-    policy: "T1166017", 
+    policy: "", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 150.00, 
     sumAssured: 50000,
@@ -169,7 +170,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 2,
     client: "Mrs Jane Smith",
     placeOfBirth: "Kumasi", 
-    policy: "E1274718", 
+    policy: "", 
     product: "The Education Policy", 
     premium: 220.50, 
     sumAssured: 75000,
@@ -239,7 +240,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 4, 
     client: "Mr Mike Johnson",
     placeOfBirth: "Takoradi", 
-    policy: "E1274719", 
+    policy: "", 
     product: "The Education Policy", 
     premium: 85.75, 
     sumAssured: 30000,
@@ -302,7 +303,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 6, 
     client: "Dr Chris Brown",
     placeOfBirth: "Ho", 
-    policy: "E1274720", 
+    policy: "", 
     product: "The Education Policy", 
     premium: 175.00, 
     sumAssured: 60000,
@@ -338,7 +339,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 7, 
     client: "Prof Sarah Connor",
     placeOfBirth: "Sunyani", 
-    policy: "T1166021", 
+    policy: "", 
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 250.00, 
     sumAssured: 100000,
