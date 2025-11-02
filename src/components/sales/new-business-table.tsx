@@ -104,10 +104,8 @@ export default function NewBusinessTable() {
               </Link>
             </TableCell>
             <TableCell>
-              {isAllPoliciesPage
-                ? business.onboardingStatus === 'Accepted' || ['Active', 'Lapsed', 'Cancelled'].includes(business.policyStatus)
-                  ? business.policy
-                  : business.serial
+              {isAllPoliciesPage && business.policy
+                ? business.policy
                 : business.serial}
             </TableCell>
             <TableCell>{business.phone}</TableCell>
@@ -149,5 +147,3 @@ export default function NewBusinessTable() {
     </Table>
   );
 }
-
-    

@@ -31,13 +31,23 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
   const { toast } = useToast();
   const [open, setOpen] = React.useState(false);
 
-  const [policyNumber, setPolicyNumber] = React.useState(client.policy);
+  const [policyNumber, setPolicyNumber] = React.useState('');
   const [finalPremium, setFinalPremium] = React.useState(
     client.premium.toString()
   );
   const [finalSumAssured, setFinalSumAssured] = React.useState(client.sumAssured.toString());
 
   const handleAccept = () => {
+    
+    if (!policyNumber.match(/^[TE]\d{7}$/)) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Policy Number',
+            description: 'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
+        });
+        return;
+    }
+
     try {
         const updatedPolicy = updatePolicy(client.id, {
             policy: policyNumber,
@@ -92,6 +102,7 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
               value={policyNumber}
               onChange={(e) => setPolicyNumber(e.target.value)}
               className="col-span-3"
+              placeholder="e.g. T1234567"
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">

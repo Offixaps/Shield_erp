@@ -198,7 +198,7 @@ export default function ClientDetailsView({
   };
 
   const summaryDetails = [
-    { title: 'Policy Number', value: client.policy || 'N/A' },
+    { title: 'Policy Number', value: client.policy || 'Pending Acceptance' },
     { title: 'Contract Type', value: client.product },
     { title: 'Premium', value: `GHS ${client.premium.toFixed(2)}` },
     { title: 'Sum Assured', value: `GHS ${client.sumAssured.toFixed(2)}` },
@@ -253,10 +253,7 @@ export default function ClientDetailsView({
             )}
             {canMakeDecision && (
               <>
-                <Button onClick={() => handleOnboardingStatusUpdate('Accepted')}>
-                  <Check className="mr-2 h-4 w-4" />
-                  Accept Policy
-                </Button>
+                <AcceptPolicyDialog client={client} onUpdate={handlePolicyUpdate}/>
                 <Button className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
                   <PauseCircle className="mr-2 h-4 w-4" />
                   Defer Policy

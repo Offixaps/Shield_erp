@@ -131,12 +131,7 @@ const formSchema = z
       'The Education Policy',
     ]),
     serialNumber: z.string().regex(/^\d{4}$/, 'Serial number must be a 4-digit number.'),
-    policyNumber: z
-      .string()
-      .regex(
-        /^[TE]\d{7}$/,
-        'Policy number must start with "T" or "E" followed by 7 digits (e.g., T1234567).'
-      ),
+    policyNumber: z.string().optional(),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
     premiumTerm: z.coerce.number().positive('Premium term must be a positive number.'),
     policyTerm: z.coerce.number().positive('Policy term must be a positive number.'),
@@ -172,6 +167,7 @@ const formSchema = z
   })
   .refine(
     (data) => {
+      if (!data.policyNumber) return true; // Bypass validation if no policy number is present
       if (data.contractType === 'Buy Term and Invest in Mutual Fund') {
         return data.policyNumber.startsWith('T');
       }
@@ -185,6 +181,7 @@ const formSchema = z
   )
   .refine(
     (data) => {
+      if (!data.policyNumber) return true; // Bypass validation if no policy number is present
       if (data.contractType === 'The Education Policy') {
         return data.policyNumber.startsWith('E');
       }
@@ -396,7 +393,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 updatePolicy(policyId, {
                     client: lifeAssuredName,
                     product: values.contractType,
-                    policy: values.policyNumber,
+                    // policy: values.policyNumber, // Policy number is not edited here
                     premium: values.premiumAmount,
                     sumAssured: values.sumAssured,
                     commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
@@ -1129,7 +1126,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <FormItem>
                 <FormLabel>Policy Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g., T1234567" {...field} />
+                  <Input placeholder="Allocated upon acceptance" {...field} disabled />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -1467,4 +1464,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
