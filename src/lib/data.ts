@@ -13,6 +13,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -355,8 +356,7 @@ export const newBusinessData: NewBusiness[] = [
     mandateVerified: false,
     firstPremiumPaid: true,
     medicalUnderwritingState: { started: true, startDate: "2024-07-20", completed: false },
-    phone: "024 123 4573", 
-    serial: "1240",
+    phone: "024 123 4573", serial: "1240",
     bills: [],
     payments: [],
     activityLog: [

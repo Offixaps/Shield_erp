@@ -221,7 +221,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           lifeAssuredFirstName: firstName,
           lifeAssuredMiddleName: middleName,
           lifeAssuredSurname: surname,
-          policyNumber: businessData.policy,
+          policyNumber: businessData.policy || '',
           contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
