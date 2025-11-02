@@ -125,7 +125,7 @@ const formSchema = z
     nationality: z.string().min(2, 'Nationality is required.'),
     languages: z.string().min(2, 'Languages spoken is required.'),
 
-    // Policy Details
+    // Coverage Details
     contractType: z.enum([
       'Buy Term and Invest in Mutual Fund',
       'The Education Policy',
@@ -133,14 +133,14 @@ const formSchema = z
     serialNumber: z.string().regex(/^\d{4}$/, 'Serial number must be a 4-digit number.'),
     policyNumber: z.string().optional(),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
-    premiumTerm: z.coerce.number().positive('Premium term must be a positive number.'),
     policyTerm: z.coerce.number().positive('Policy term must be a positive number.'),
-    premiumAmount: z.coerce
-      .number()
-      .positive('Premium amount must be a positive number.'),
+    premiumTerm: z.coerce.number().positive('Premium term must be a positive number.'),
     sumAssured: z.coerce
       .number()
       .positive('Sum assured must be a positive number.'),
+    premiumAmount: z.coerce
+      .number()
+      .positive('Premium amount must be a positive number.'),
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
     increaseMonth: z.string().min(1, 'Increase month is required.'),
     notes: z.string().optional(),
@@ -164,34 +164,7 @@ const formSchema = z
     accountType: z.enum(['Current', 'Savings', 'Other']),
     bankAccountName: z.string().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
-  })
-  .refine(
-    (data) => {
-      if (!data.policyNumber) return true; // Bypass validation if no policy number is present
-      if (data.contractType === 'Buy Term and Invest in Mutual Fund') {
-        return data.policyNumber.startsWith('T');
-      }
-      return true;
-    },
-    {
-      message:
-        'Policy number must start with "T" for "Buy Term and Invest in Mutual Fund".',
-      path: ['policyNumber'],
-    }
-  )
-  .refine(
-    (data) => {
-      if (!data.policyNumber) return true; // Bypass validation if no policy number is present
-      if (data.contractType === 'The Education Policy') {
-        return data.policyNumber.startsWith('E');
-      }
-      return true;
-    },
-    {
-      message: 'Policy number must start with "E" for "The Education Policy".',
-      path: ['policyNumber'],
-    }
-  );
+  });
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -287,7 +260,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       contractType: "Buy Term and Invest in Mutual Fund" as const,
       serialNumber: '',
       policyNumber: '',
-      commencementDate: undefined,
+      commencementDate: new Date(),
       premiumTerm: 0,
       policyTerm: 0,
       premiumAmount: 0,
@@ -393,7 +366,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 updatePolicy(policyId, {
                     client: lifeAssuredName,
                     product: values.contractType,
-                    // policy: values.policyNumber, // Policy number is not edited here
                     premium: values.premiumAmount,
                     sumAssured: values.sumAssured,
                     commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
@@ -1147,6 +1119,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                           'w-full pl-3 text-left font-normal',
                           !field.value && 'text-muted-foreground'
                         )}
+                        disabled
                       >
                         {field.value ? (
                           format(field.value, 'PPP')
@@ -1166,6 +1139,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     />
                   </PopoverContent>
                 </Popover>
+                 <FormDescription>Set automatically on policy acceptance.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

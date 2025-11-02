@@ -100,7 +100,7 @@ export function createPolicy(values: any): NewBusiness {
         id: newId,
         client: lifeAssuredName,
         product: values.contractType,
-        policy: values.policyNumber,
+        policy: '', // Policy number is blank on creation
         premium: values.premiumAmount,
         sumAssured: values.sumAssured,
         commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
