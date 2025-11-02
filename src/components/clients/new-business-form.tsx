@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -320,6 +319,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const paymentFrequency = form.watch('paymentFrequency');
   const monthlyBasicIncome = form.watch('monthlyBasicIncome');
   const otherIncome = form.watch('otherIncome');
+  const ageNextBirthday = form.watch('ageNextBirthday');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -341,6 +341,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       form.setValue('ageNextBirthday', age);
     }
   }, [lifeAssuredDob, form]);
+
+   React.useEffect(() => {
+    if (ageNextBirthday && ageNextBirthday > 0) {
+      const policyTerm = 75 - ageNextBirthday;
+      const premiumTerm = 65 - ageNextBirthday;
+
+      form.setValue('policyTerm', Math.max(0, policyTerm));
+      form.setValue('premiumTerm', Math.max(0, premiumTerm));
+    }
+  }, [ageNextBirthday, form]);
 
   React.useEffect(() => {
     const basic = Number(monthlyBasicIncome) || 0;
@@ -1151,8 +1161,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <FormItem>
                 <FormLabel>Policy Term (years)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g., 5" {...field} />
+                  <Input type="number" placeholder="e.g., 5" {...field} disabled />
                 </FormControl>
+                 <FormDescription>Auto-calculated: 75 - Age</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -1164,8 +1175,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <FormItem>
                 <FormLabel>Premium Term (years)</FormLabel>
                 <FormControl>
-                  <Input type="number" placeholder="e.g., 10" {...field} />
+                  <Input type="number" placeholder="e.g., 10" {...field} disabled />
                 </FormControl>
+                 <FormDescription>Auto-calculated: 65 - Age</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -1438,3 +1450,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
