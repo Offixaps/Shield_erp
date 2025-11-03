@@ -17,17 +17,21 @@ import {
 } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { getRoles } from '@/lib/role-service';
-import type { Role } from '@/lib/data';
+import { getStaff } from '@/lib/staff-service';
+import type { Role, StaffMember } from '@/lib/data';
 
 export default function RolesPage() {
   const [allRoles, setAllRoles] = React.useState<Role[]>([]);
   const [filteredRoles, setFilteredRoles] = React.useState<Role[]>([]);
+  const [staff, setStaff] = React.useState<StaffMember[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
     const roles = getRoles();
+    const staffMembers = getStaff();
     setAllRoles(roles);
     setFilteredRoles(roles);
+    setStaff(staffMembers);
   }, []);
 
   React.useEffect(() => {
@@ -37,6 +41,10 @@ export default function RolesPage() {
     );
     setFilteredRoles(filtered);
   }, [searchTerm, allRoles]);
+
+  const getStaffCountForRole = (roleName: string) => {
+    return staff.filter(member => member.role === roleName).length;
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -69,6 +77,7 @@ export default function RolesPage() {
                 <TableRow>
                   <TableHead>Role Name</TableHead>
                   <TableHead>Permissions Count</TableHead>
+                  <TableHead>Staff #</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -77,6 +86,7 @@ export default function RolesPage() {
                   <TableRow key={role.id}>
                     <TableCell className="font-medium">{role.name}</TableCell>
                     <TableCell>{role.permissions.length}</TableCell>
+                    <TableCell>{getStaffCountForRole(role.name)}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" asChild>
                         <Link href={`/roles/${role.id}/edit`}>Edit</Link>

@@ -29,9 +29,10 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
+import { createStaffMember } from '@/lib/staff-service';
 
 
-const formSchema = z.object({
+export const newStaffFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
@@ -52,8 +53,8 @@ export default function NewStaffForm() {
     setRoles(getRoles());
   }, []);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof newStaffFormSchema>>({
+    resolver: zodResolver(newStaffFormSchema),
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -79,8 +80,8 @@ export default function NewStaffForm() {
     })
   };
   
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  function onSubmit(values: z.infer<typeof newStaffFormSchema>) {
+    createStaffMember(values);
     toast({
       title: 'Staff Member Added',
       description: `${values.firstName} ${values.lastName} has been added to the system.`,
