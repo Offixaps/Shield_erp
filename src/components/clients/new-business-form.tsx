@@ -1836,8 +1836,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <Info className="h-4 w-4" />
                 <AlertTitle>Important Information</AlertTitle>
                 <AlertDescription>
-                    The Policy Owner is the principal beneficiary. The Beneficiaries stated below will receive Policy proceeds at the death of the Policy Owner, unless otherwise specified, beneficiaries will share the proceeds equally. If a minor is named as a beneficiary, financial guardianship for the minor's estate will be required before policy proceeds can be released.
-                    If you select AN IRREVOCABLE BENEFICIARY (IB) add a photocopy of a passport or driver's license as an ID.
+                    <p>The Policy Owner is the principal beneficiary. The Beneficiaries stated below will receive Policy proceeds at the death of the Policy Owner, unless otherwise specified, beneficiaries will share the proceeds equally. If a minor is named as a beneficiary, financial guardianship for the minor's estate will be required before policy proceeds can be released.</p>
+                    <p className="mt-2">If you select an <strong>AN IRREVOCABLE BENEFICIARY (IB)</strong> add a photocopy of a passport or driver's license as an ID.</p>
                 </AlertDescription>
             </Alert>
             <Card>
@@ -2099,3 +2099,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   );
 }
 
+
+
+    
