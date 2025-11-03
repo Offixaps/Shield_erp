@@ -1,6 +1,8 @@
 
 
 
+
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -184,7 +186,7 @@ export const newBusinessData: NewBusiness[] = [
     id: 3, 
     client: "Acme Corp",
     placeOfBirth: "Tema", 
-    policy: "T1166018", 
+    policy: "T1166018",
     product: "Buy Term and Invest in Mutual Fund", 
     premium: 1200.00, 
     sumAssured: 1000000,
@@ -276,7 +278,7 @@ export const newBusinessData: NewBusiness[] = [
     narration: 'JULY 2024 PREMIUM',
   },
   { 
-    id: 6, 
+    id: 6,
     client: "Dr Chris Brown",
     placeOfBirth: "Ho", 
     policy: "", 
@@ -353,7 +355,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2034-05-01',
     policyTerm: 10,
     premiumTerm: 10,
-    onboardingStatus: 'Accepted',
+    onboardingStatus: 'Mandate Verified',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -385,7 +387,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2044-04-15',
     policyTerm: 20,
     premiumTerm: 15,
-    onboardingStatus: 'Accepted',
+    onboardingStatus: 'Mandate Verified',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -399,7 +401,7 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-04-16T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-04-16T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
-    bankName: 'Absa Bank Ghana Limited',
+    bankName: 'Republic Bank (Ghana) PLC',
     payerName: 'Ms. Adwoa P. Williams',
     bankAccountNumber: '2020202020202',
     sortCode: '202020',
@@ -417,7 +419,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2044-03-01',
     policyTerm: 20,
     premiumTerm: 20,
-    onboardingStatus: 'Accepted',
+    onboardingStatus: 'Mandate Verified',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -431,7 +433,7 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-03-02T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-03-02T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
-    bankName: 'Absa Bank Ghana Limited',
+    bankName: 'Zenith Bank (Ghana) Limited',
     payerName: 'Alhaji Musa Ibrahim',
     bankAccountNumber: '3030303030303',
     sortCode: '303030',
@@ -449,7 +451,7 @@ export const newBusinessData: NewBusiness[] = [
     expiryDate: '2039-02-10',
     policyTerm: 15,
     premiumTerm: 10,
-    onboardingStatus: 'Accepted',
+    onboardingStatus: 'Mandate Verified',
     billingStatus: 'Up to Date',
     policyStatus: 'Active',
     mandateVerified: true,
@@ -463,7 +465,7 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-02-11T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-02-11T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
-    bankName: 'Absa Bank Ghana Limited',
+    bankName: 'Consolidated Bank Ghana Limited',
     payerName: 'Mrs. Grace Ofori-Atta',
     bankAccountNumber: '4040404040404',
     sortCode: '404040',
@@ -631,3 +633,7 @@ export const newBusinessData: NewBusiness[] = [
 
     
 
+
+
+
+    
