@@ -1388,7 +1388,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 {!isPolicyHolderPayer && (
                     <div className="space-y-6">
-                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>
+                        <h4 className="font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>
                             Premium Payer's Details
                         </h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-4 border rounded-md bg-muted/50">
@@ -1896,7 +1896,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                             </FormControl>
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                                            <Calendar 
+                                                                mode="single" 
+                                                                selected={field.value} 
+                                                                onSelect={field.onChange} 
+                                                                initialFocus 
+                                                                captionLayout="dropdown-buttons"
+                                                                fromYear={1900}
+                                                                toYear={new Date().getFullYear()}
+                                                                disabled={(date) => date > new Date()}
+                                                            />
                                                         </PopoverContent>
                                                     </Popover>
                                                 )}
@@ -2014,7 +2023,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                             </FormControl>
                                                         </PopoverTrigger>
                                                         <PopoverContent className="w-auto p-0" align="start">
-                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                                            <Calendar 
+                                                                mode="single" 
+                                                                selected={field.value} 
+                                                                onSelect={field.onChange} 
+                                                                initialFocus 
+                                                                captionLayout="dropdown-buttons"
+                                                                fromYear={1900}
+                                                                toYear={new Date().getFullYear()}
+                                                                disabled={(date) => date > new Date()}
+                                                            />
                                                         </PopoverContent>
                                                     </Popover>
                                                 )}
@@ -2119,5 +2137,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 }
 
 
+
+    
 
     
