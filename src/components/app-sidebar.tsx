@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import * as React from 'react';
 import {
@@ -123,11 +124,16 @@ function AppSidebarHeader() {
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [isMounted, setIsMounted] = React.useState(false);
 
    React.useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleLogout = () => {
+    router.push('/');
+  };
 
 
   const getActiveDepartment = () => {
@@ -221,7 +227,7 @@ export default function AppSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Logout">
+            <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
               <LogOut />
               <span>Logout</span>
             </SidebarMenuButton>

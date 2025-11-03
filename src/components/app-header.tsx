@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Image from 'next/image';
@@ -15,11 +16,17 @@ import { Button } from './ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { SidebarTrigger } from './ui/sidebar';
 import { Shield } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function AppHeader() {
+  const router = useRouter();
   const userAvatar = PlaceHolderImages.find(
     (image) => image.id === 'user-avatar-1'
   );
+
+  const handleLogout = () => {
+    router.push('/');
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
@@ -56,7 +63,7 @@ export default function AppHeader() {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Support</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
