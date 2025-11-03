@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -41,6 +42,7 @@ import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service'
 import type { ActivityLog } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Switch } from '../ui/switch';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -156,8 +158,9 @@ const formSchema = z
     totalMonthlyIncome: z.coerce.number().optional(),
 
     // Payment Details
-    premiumPayerName: z.string().min(2, 'Premium Payer name is required.'),
-    premiumPayerOccupation: z.string().min(2, 'Premium Payer occupation is required.'),
+    isPolicyHolderPayer: z.boolean().default(true),
+    premiumPayerName: z.string().optional(),
+    premiumPayerOccupation: z.string().optional(),
     bankName: z.string().min(2, 'Bank name is required.'),
     bankBranch: z.string().min(2, 'Bank branch is required.'),
     amountInWords: z.string().min(3, 'Amount in words is required.'),
@@ -223,9 +226,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           sumAssured: businessData.sumAssured,
           paymentFrequency: 'Monthly' as const,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
-          premiumPayerName: businessData.client,
+          premiumPayerName: businessData.payerName,
           premiumPayerOccupation: 'Accountant',
-          bankName: 'CalBank PLC',
+          bankName: businessData.bankName,
           bankBranch: 'Accra Main',
           notes: '',
           maritalStatus: 'Married' as const,
@@ -242,10 +245,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           nationality: 'Ghana',
           languages: 'English, Twi',
           amountInWords: '',
-          sortCode: '123456',
+          sortCode: businessData.sortCode,
           accountType: 'Current' as const,
-          bankAccountName: businessData.client,
-          bankAccountNumber: '00112233445566',
+          bankAccountName: businessData.payerName,
+          bankAccountNumber: businessData.bankAccountNumber,
           occupation: 'Software Engineer',
           natureOfBusiness: 'Technology',
           employer: 'Google',
@@ -254,6 +257,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           otherIncome: 2000,
           totalMonthlyIncome: 12000,
           serialNumber: businessData.serial,
+          isPolicyHolderPayer: businessData.client === businessData.payerName,
         };
       }
     }
@@ -312,6 +316,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       homeTelephone: '',
       residentialAddress: '',
       gpsAddress: '',
+      isPolicyHolderPayer: true,
     };
   }, [isEditMode, businessId]);
 
@@ -332,6 +337,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const monthlyBasicIncome = form.watch('monthlyBasicIncome');
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
+  const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -385,6 +391,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
+        const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
+        
+        const finalValues = { ...values };
+        if (values.isPolicyHolderPayer) {
+            finalValues.premiumPayerName = lifeAssuredName;
+            finalValues.premiumPayerOccupation = values.occupation;
+        }
+
+
         if (isEditMode && businessId) {
             const policyId = parseInt(businessId, 10);
             const currentPolicy = getPolicyById(policyId);
@@ -396,19 +411,21 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     newStatus = 'Pending Mandate';
                 }
 
-                const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
-
                 updatePolicy(policyId, {
                     client: lifeAssuredName,
-                    product: values.contractType,
-                    premium: values.premiumAmount,
-                    sumAssured: values.sumAssured,
-                    commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
-                    phone: values.phone,
+                    product: finalValues.contractType,
+                    premium: finalValues.premiumAmount,
+                    sumAssured: finalValues.sumAssured,
+                    commencementDate: format(finalValues.commencementDate, 'yyyy-MM-dd'),
+                    phone: finalValues.phone,
                     onboardingStatus: newStatus,
-                    policyTerm: values.policyTerm,
-                    premiumTerm: values.premiumTerm,
-                    placeOfBirth: values.placeOfBirth,
+                    policyTerm: finalValues.policyTerm,
+                    premiumTerm: finalValues.premiumTerm,
+                    placeOfBirth: finalValues.placeOfBirth,
+                    payerName: finalValues.premiumPayerName,
+                    bankName: finalValues.bankName,
+                    bankAccountNumber: finalValues.bankAccountNumber,
+                    sortCode: finalValues.sortCode,
                     vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
                     mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
                 });
@@ -422,7 +439,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 throw new Error("Policy not found for updating.");
             }
         } else {
-            createPolicy(values);
+            createPolicy(finalValues);
             toast({
                 title: 'Form Submitted',
                 description: 'New client and policy details have been captured.',
@@ -1297,196 +1314,229 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Payment Details</h3>
               <Separator className="my-0" />
             </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
-              <FormField
-                  control={form.control}
-                  name="premiumAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Premium Amount (GHS)</FormLabel>
-                      <FormControl>
-                        <Input type="number" disabled value={premiumAmount} />
-                      </FormControl>
-                      <FormDescription>From Policy Details section.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="amountInWords"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Amount in Words</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Five Hundred Ghana Cedis" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+             <div className="p-4 space-y-6">
                 <FormField
                     control={form.control}
-                    name="paymentFrequency"
+                    name="isPolicyHolderPayer"
                     render={({ field }) => (
-                        <FormItem>
-                        <FormLabel>Premium Deduction Frequency</FormLabel>
-                        <FormControl>
-                            <Input disabled value={paymentFrequency} />
-                        </FormControl>
-                        <FormDescription>From Policy Details section.</FormDescription>
-                        <FormMessage />
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                                <FormLabel className="text-base">
+                                Will you be paying for this policy by yourself?
+                                </FormLabel>
+                                <FormDescription>
+                                If no, you will be required to provide the details of the person paying for the policy.
+                                </FormDescription>
+                            </div>
+                            <FormControl>
+                                <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                                />
+                            </FormControl>
                         </FormItem>
                     )}
+                />
+
+                {!isPolicyHolderPayer && (
+                    <div className="space-y-6 p-4 border rounded-md">
+                        <h4 className="text-md font-medium">Premium Payer's Details</h4>
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                             <FormField
+                                control={form.control}
+                                name="premiumPayerName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Premium Payer Name</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Jane Doe" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerOccupation"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Premium Payer Occupation</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., Teacher" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                    </div>
+                )}
+            
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <FormField
+                      control={form.control}
+                      name="premiumAmount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Premium Amount (GHS)</FormLabel>
+                          <FormControl>
+                            <Input type="number" disabled value={premiumAmount} />
+                          </FormControl>
+                          <FormDescription>From Policy Details section.</FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                <FormField
-                  control={form.control}
-                  name="premiumPayerName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Premium Payer Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Jane Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="premiumPayerOccupation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Premium Payer Occupation</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Teacher" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bankName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Name</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a bank" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {bankNames.map((bank) => (
-                            <SelectItem key={bank} value={bank}>
-                              {bank}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bankBranch"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Branch</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., Accra Main" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="sortCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Sort Code</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., 123456" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="accountType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Type of Account</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select account type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Current">Current</SelectItem>
-                          <SelectItem value="Savings">Savings</SelectItem>
-                          <SelectItem value="Other">Other</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bankAccountName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Account Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., John K. Doe" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="bankAccountNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Bank Account Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g., 001122334455" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-            </div>
-             <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem className="p-4">
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Any additional notes about the client or policy."
-                      className="resize-none"
-                      {...field}
+                    <FormField
+                      control={form.control}
+                      name="amountInWords"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount in Words</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Five Hundred Ghana Cedis" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </FormControl>
-                  <FormDescription>
-                    Add any relevant notes about the client or policy.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormField
+                        control={form.control}
+                        name="paymentFrequency"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Premium Deduction Frequency</FormLabel>
+                            <FormControl>
+                                <Input disabled value={paymentFrequency} />
+                            </FormControl>
+                            <FormDescription>From Policy Details section.</FormDescription>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                    <FormField
+                      control={form.control}
+                      name="bankName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bank Name</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a bank" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {bankNames.map((bank) => (
+                                <SelectItem key={bank} value={bank}>
+                                  {bank}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="bankBranch"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bank Branch</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., Accra Main" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="sortCode"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Sort Code</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., 123456" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="accountType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Type of Account</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select account type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="Current">Current</SelectItem>
+                              <SelectItem value="Savings">Savings</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="bankAccountName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bank Account Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., John K. Doe" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="bankAccountNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Bank Account Number</FormLabel>
+                          <FormControl>
+                            <Input placeholder="e.g., 001122334455" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                </div>
+                 <FormField
+                  control={form.control}
+                  name="notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Any additional notes about the client or policy."
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Add any relevant notes about the client or policy.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+             </div>
           </TabsContent>
           
           <TabsContent value="beneficiaries" className="mt-6">
