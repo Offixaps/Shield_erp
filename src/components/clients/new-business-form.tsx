@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -43,6 +43,7 @@ import type { ActivityLog } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Switch } from '../ui/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -98,6 +99,14 @@ const idTypes = [
   'NHIS',
   'TIN',
 ] as const;
+
+const beneficiarySchema = z.object({
+    name: z.string().min(1, "Name is required."),
+    dob: z.date({ required_error: 'Date of birth is required.' }),
+    gender: z.enum(['Male', 'Female']),
+    relationship: z.string().min(1, "Relationship is required."),
+    percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
+});
 
 const formSchema = z
   .object({
@@ -181,6 +190,10 @@ const formSchema = z
     accountType: z.enum(['Current', 'Savings', 'Other']),
     bankAccountName: z.string().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
+
+    // Beneficiaries
+    primaryBeneficiaries: z.array(beneficiarySchema).optional(),
+    contingentBeneficiaries: z.array(beneficiarySchema).optional(),
   });
 
 type NewBusinessFormProps = {
@@ -272,6 +285,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           totalMonthlyIncome: 12000,
           serialNumber: businessData.serial,
           isPolicyHolderPayer: businessData.client === businessData.payerName,
+          primaryBeneficiaries: [],
+          contingentBeneficiaries: [],
         };
       }
     }
@@ -337,12 +352,24 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       residentialAddress: '',
       gpsAddress: '',
       isPolicyHolderPayer: true,
+      primaryBeneficiaries: [],
+      contingentBeneficiaries: [],
     };
   }, [isEditMode, businessId]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues,
+  });
+  
+  const { fields: primaryFields, append: appendPrimary, remove: removePrimary } = useFieldArray({
+    control: form.control,
+    name: 'primaryBeneficiaries'
+  });
+
+  const { fields: contingentFields, append: appendContingent, remove: removeContingent } = useFieldArray({
+    control: form.control,
+    name: 'contingentBeneficiaries'
   });
 
   React.useEffect(() => {
@@ -1801,16 +1828,212 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
              </div>
           </TabsContent>
           
-          <TabsContent value="beneficiaries" className="mt-6">
+          <TabsContent value="beneficiaries" className="mt-6 space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Beneficiaries</CardTitle>
+                    <div className="flex items-center justify-between">
+                         <CardTitle>Primary Beneficiaries</CardTitle>
+                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0 })}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Primary
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground">Beneficiary form fields will be implemented here.</p>
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Date of Birth</TableHead>
+                                    <TableHead>Gender</TableHead>
+                                    <TableHead>Relationship</TableHead>
+                                    <TableHead>Percentage (%)</TableHead>
+                                    <TableHead className="w-[50px]"></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {primaryFields.map((field, index) => (
+                                    <TableRow key={field.id}>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.name`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="Beneficiary Name" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                             <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.dob`}
+                                                render={({ field }) => (
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                            <Button
+                                                                variant={'outline'}
+                                                                className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
+                                                            >
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.gender`}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                                        <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem></SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.relationship`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="e.g., Spouse" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.percentage`}
+                                                render={({ field }) => (
+                                                    <Input type="number" {...field} placeholder="e.g., 100" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => removePrimary(index)}>
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <CardTitle>Contingent Beneficiaries</CardTitle>
+                        <Button type="button" size="sm" onClick={() => appendContingent({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0 })}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Contingent
+                        </Button>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                     <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Date of Birth</TableHead>
+                                    <TableHead>Gender</TableHead>
+                                    <TableHead>Relationship</TableHead>
+                                    <TableHead>Percentage (%)</TableHead>
+                                    <TableHead className="w-[50px]"></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {contingentFields.map((field, index) => (
+                                    <TableRow key={field.id}>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.name`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="Beneficiary Name" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                             <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.dob`}
+                                                render={({ field }) => (
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <FormControl>
+                                                            <Button
+                                                                variant={'outline'}
+                                                                className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
+                                                            >
+                                                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                            </Button>
+                                                            </FormControl>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0" align="start">
+                                                            <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.gender`}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                                                        <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem></SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.relationship`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="e.g., Child" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.percentage`}
+                                                render={({ field }) => (
+                                                    <Input type="number" {...field} placeholder="e.g., 100" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button type="button" variant="ghost" size="icon" onClick={() => removeContingent(index)}>
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
+
           <TabsContent value="health" className="mt-6">
              <Card>
                 <CardHeader>
@@ -1864,11 +2087,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
-
-    
-
-
-
-    
