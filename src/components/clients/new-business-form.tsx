@@ -121,6 +121,12 @@ const alcoholHabitsOptions = [
     'current_regular_drinker',
 ] as const;
 
+const alcoholDetailSchema = z.object({
+    consumed: z.boolean().default(false),
+    averagePerWeek: z.string().optional(),
+    notes: z.string().optional(),
+});
+
 const formSchema = z
   .object({
     // Client Details
@@ -210,6 +216,9 @@ const formSchema = z
     
     // Health
     alcoholHabits: z.enum(alcoholHabitsOptions).optional(),
+    alcoholBeer: alcoholDetailSchema.optional(),
+    alcoholWine: alcoholDetailSchema.optional(),
+    alcoholSpirits: alcoholDetailSchema.optional(),
   });
 
 type NewBusinessFormProps = {
@@ -379,6 +388,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
+      alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
+      alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
+      alcoholSpirits: { consumed: false, averagePerWeek: '', notes: '' },
     };
   }, [isEditMode, businessId]);
 
@@ -410,6 +422,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
   const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
+  const alcoholHabits = form.watch('alcoholHabits');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -2141,6 +2154,116 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </FormItem>
                         )}
                     />
+                    
+                    { (alcoholHabits === 'occasional_socially' || alcoholHabits === 'current_regular_drinker') && (
+                        <div className="space-y-4 pt-4">
+                            <p className="text-sm text-muted-foreground">1.2 If you have confirmed that you "drink occasionally or socially only" or you are a "current regular drinker", please confirm the type and amount you drink in the table below.</p>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-12">Tick</TableHead>
+                                            <TableHead>Description</TableHead>
+                                            <TableHead>Average per week</TableHead>
+                                            <TableHead>Notes (if any)</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholBeer.consumed"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>Beer</TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholBeer.averagePerWeek"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="e.g., 3 bottles" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholBeer.notes"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="Notes" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholWine.consumed"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>Wine</TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholWine.averagePerWeek"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="e.g., 2 glasses" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholWine.notes"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="Notes" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholSpirits.consumed"
+                                                    render={({ field }) => (
+                                                        <FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>Spirits</TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholSpirits.averagePerWeek"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="e.g., 1 shot" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <FormField
+                                                    control={form.control}
+                                                    name="alcoholSpirits.notes"
+                                                    render={({ field }) => (
+                                                        <Input {...field} placeholder="Notes" />
+                                                    )}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2193,4 +2316,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
