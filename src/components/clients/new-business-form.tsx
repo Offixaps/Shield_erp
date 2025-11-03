@@ -132,6 +132,15 @@ const reducedAlcoholReasonSchema = z.object({
     notes: z.string().optional(),
 });
 
+const tobaccoHabitsOptions = [
+    'never_smoked',
+    'ex_smoker_over_5_years',
+    'ex_smoker_1_to_5_years',
+    'ex_smoker_within_1_year',
+    'smoke_occasionally_socially',
+    'current_regular_smoker',
+] as const;
+
 const formSchema = z
   .object({
     // Client Details
@@ -226,6 +235,7 @@ const formSchema = z
     alcoholSpirits: alcoholDetailSchema.optional(),
     reducedAlcoholMedicalAdvice: reducedAlcoholReasonSchema,
     reducedAlcoholHealthProblems: reducedAlcoholReasonSchema,
+    tobaccoHabits: z.enum(tobaccoHabitsOptions, { required_error: 'You must select a smoking habit.'}),
   });
 
 type NewBusinessFormProps = {
@@ -248,6 +258,15 @@ const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> =
     ex_drinker_1_to_5_years: 'Ex-drinker: last drunk alcohol 1 to 5 years ago',
     ex_drinker_within_1_year: 'Ex-drinker: last drunk alcohol within the last year',
     current_regular_drinker: 'Current regular drinker',
+};
+
+const tobaccoHabitsLabels: Record<typeof tobaccoHabitsOptions[number], string> = {
+    never_smoked: 'Have never smoked',
+    ex_smoker_over_5_years: 'Ex-smoker: last smoked or used nicotine products over 5 years ago',
+    ex_smoker_1_to_5_years: 'Ex-smoker: last smoked or used nicotine products 1 to 5 years ago',
+    ex_smoker_within_1_year: 'Ex-smoker: last smoked or used nicotine products within the last year',
+    smoke_occasionally_socially: 'Smoke occasionally or socially only',
+    current_regular_smoker: 'Current regular smoker',
 };
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
@@ -401,6 +420,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       alcoholSpirits: { consumed: false, averagePerWeek: '', notes: '' },
       reducedAlcoholMedicalAdvice: { reduced: 'no', notes: ''},
       reducedAlcoholHealthProblems: { reduced: 'no', notes: ''},
+      tobaccoHabits: 'never_smoked' as const,
     };
   }, [isEditMode, businessId]);
 
@@ -2349,6 +2369,38 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </Table>
                         </div>
                     </div>
+                    <Separator />
+                     <div className="space-y-2">
+                        <h3 className="font-bold">2. Tobacco and nicotine use</h3>
+                        <p className="text-sm text-muted-foreground">2.1 Which of the following best describes your smoking habits (Please tick one)</p>
+                    </div>
+                     <FormField
+                        control={form.control}
+                        name="tobaccoHabits"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                     <RadioGroup
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2"
+                                    >
+                                        {tobaccoHabitsOptions.map((option) => (
+                                            <FormItem key={option} className="flex items-center space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value={option} />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    {tobaccoHabitsLabels[option]}
+                                                </FormLabel>
+                                            </FormItem>
+                                        ))}
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2401,6 +2453,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
