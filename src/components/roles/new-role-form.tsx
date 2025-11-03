@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { createRole } from '@/lib/role-service';
 
 const formSchema = z.object({
   roleName: z.string().min(2, 'Role name must be at least 2 characters.'),
@@ -48,13 +49,11 @@ export default function NewRoleForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    createRole(values);
     toast({
       title: 'Role Created',
       description: `The role "${values.roleName}" has been created with ${values.permissions.length} permissions.`,
     });
-    // For now, we'll just log to console. Later this would save to a database.
-    // And then redirect.
     router.push('/roles');
   }
 

@@ -4,6 +4,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -38,13 +39,20 @@ export const recentActivityData = [
     { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
 ];
 
-export const rolesData = [
-  "Administrator",
-  "Sales Agent",
-  "Underwriter",
-  "Premium Administrator",
-  "Claims Officer",
-  "Business Development Manager",
+export type Role = {
+  id: number;
+  name: string;
+  permissions: string[];
+};
+
+
+export const rolesData: Role[] = [
+  { id: 1, name: "Administrator", permissions: ["General.Staff Management.view", "General.Staff Management.create", "General.Staff Management.edit", "General.Staff Management.delete", "General.Role Management.view", "General.Role Management.create", "General.Role Management.edit", "General.Role Management.delete"] },
+  { id: 2, name: "Sales Agent", permissions: ["Business Development.Sales.view", "Business Development.Sales.create", "Business Development.Clients.view", "Business Development.Clients.create"] },
+  { id: 3, name: "Underwriter", permissions: ["Underwriting.New Business.view", "Underwriting.Mandates.view", "Underwriting.Mandates.edit"] },
+  { id: 4, name: "Premium Administrator", permissions: ["Premium Administration.New Business.view", "Premium Administration.Premium Collection.view"] },
+  { id: 5, name: "Claims Officer", permissions: ["Business Development.Claims.view"] },
+  { id: 6, name: "Business Development Manager", permissions: ["Business Development.Sales.view", "Business Development.Clients.view", "Business Development.Reports.view"] },
 ];
 
 export type OnboardingStatus =
@@ -647,3 +655,4 @@ export const newBusinessData: NewBusiness[] = [
 
 
     
+

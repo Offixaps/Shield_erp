@@ -27,7 +27,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
-import { rolesData } from '@/lib/data';
+import { getRoles } from '@/lib/role-service';
+import type { Role } from '@/lib/data';
+
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
@@ -44,6 +46,11 @@ export default function NewStaffForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
+  const [roles, setRoles] = React.useState<Role[]>([]);
+
+  React.useEffect(() => {
+    setRoles(getRoles());
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -150,9 +157,9 @@ export default function NewStaffForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {rolesData.map((role) => (
-                          <SelectItem key={role} value={role}>
-                            {role}
+                        {roles.map((role) => (
+                          <SelectItem key={role.id} value={role.name}>
+                            {role.name}
                           </SelectItem>
                         ))}
                       </SelectContent>

@@ -1,10 +1,43 @@
+
+'use client';
+
+import * as React from 'react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import Link from 'next/link';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
+import { getRoles } from '@/lib/role-service';
+import type { Role } from '@/lib/data';
 
 export default function RolesPage() {
+  const [allRoles, setAllRoles] = React.useState<Role[]>([]);
+  const [filteredRoles, setFilteredRoles] = React.useState<Role[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
+
+  React.useEffect(() => {
+    const roles = getRoles();
+    setAllRoles(roles);
+    setFilteredRoles(roles);
+  }, []);
+
+  React.useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = allRoles.filter(role =>
+      role.name.toLowerCase().includes(lowercasedFilter)
+    );
+    setFilteredRoles(filtered);
+  }, [searchTerm, allRoles]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -19,10 +52,46 @@ export default function RolesPage() {
         </div>
       </div>
       <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground">
-            A table of all roles will be displayed here, with features for adding, editing, and assigning permissions.
-          </p>
+        <CardContent className="pt-6 space-y-4">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search by role name..."
+              className="w-full pl-8 sm:w-[300px]"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Role Name</TableHead>
+                  <TableHead>Permissions Count</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredRoles.map((role) => (
+                  <TableRow key={role.id}>
+                    <TableCell className="font-medium">{role.name}</TableCell>
+                    <TableCell>{role.permissions.length}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+           {filteredRoles.length === 0 && (
+            <p className="text-center text-muted-foreground py-4">
+              No roles found matching your search.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>
