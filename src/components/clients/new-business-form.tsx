@@ -89,6 +89,16 @@ const ghanaRegions = [
   'Western North',
 ] as const;
 
+const idTypes = [
+  "Driver's License",
+  'Passport',
+  'Voter ID',
+  'National ID',
+  'SSNIT',
+  'NHIS',
+  'TIN',
+] as const;
+
 const formSchema = z
   .object({
     // Client Details
@@ -109,15 +119,7 @@ const formSchema = z
     maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
     dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.'),
     gender: z.enum(['Male', 'Female']),
-    nationalIdType: z.enum([
-      "Driver's License",
-      'Passport',
-      'Voter ID',
-      'National ID',
-      'SSNIT',
-      'NHIS',
-      'TIN',
-    ]),
+    nationalIdType: z.enum(idTypes),
     idNumber: z.string().min(2, 'ID Number is required.'),
     issueDate: z.date({ required_error: 'Issue date is required.' }),
     expiryDate: z.date({ required_error: 'Expiry date is required.' }),
@@ -167,6 +169,11 @@ const formSchema = z
     premiumPayerPostalAddress: z.string().optional(),
     premiumPayerDob: z.date().optional(),
     premiumPayerBusinessName: z.string().optional(),
+    premiumPayerIdType: z.enum(idTypes).optional(),
+    premiumPayerIdNumber: z.string().optional(),
+    premiumPayerIssueDate: z.date().optional(),
+    premiumPayerExpiryDate: z.date().optional(),
+    premiumPayerPlaceOfIssue: z.string().optional(),
     bankName: z.string().min(2, 'Bank name is required.'),
     bankBranch: z.string().min(2, 'Bank branch is required.'),
     amountInWords: z.string().min(3, 'Amount in words is required.'),
@@ -806,13 +813,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Driver's License">Driver's License</SelectItem>
-                        <SelectItem value="Passport">Passport</SelectItem>
-                        <SelectItem value="Voter ID">Voter ID</SelectItem>
-                        <SelectItem value="National ID">National ID</SelectItem>
-                        <SelectItem value="SSNIT">SSNIT</SelectItem>
-                        <SelectItem value="NHIS">NHIS</SelectItem>
-                        <SelectItem value="TIN">TIN</SelectItem>
+                        {idTypes.map(idType => (
+                            <SelectItem key={idType} value={idType}>{idType}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1355,7 +1358,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 {!isPolicyHolderPayer && (
                     <div className="space-y-6">
-                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.9)' , color: 'hsl(var(--primary-foreground))' }}>Premium Payer's Details</h4>
+                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>Premium Payer's Details</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-4 border rounded-md bg-muted/50">
                              <FormField
                                 control={form.control}
@@ -1490,6 +1493,141 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
+                                )}
+                            />
+                        </div>
+                        <h5 className="font-medium text-primary/90">For Owners who are individuals</h5>
+                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4 border rounded-md bg-muted/50">
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerIdType"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>National ID</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                        <SelectValue placeholder="Select ID type" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {idTypes.map(idType => (
+                                            <SelectItem key={idType} value={idType}>{idType}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerIdNumber"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>ID Number</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., GHA-123456789-0" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerPlaceOfIssue"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Place of Issue</FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="e.g., Accra" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerIssueDate"
+                                render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Issue Date</FormLabel>
+                                    <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                        <Button
+                                            variant={'outline'}
+                                            className={cn(
+                                            'w-full pl-3 text-left font-normal',
+                                            !field.value && 'text-muted-foreground'
+                                            )}
+                                        >
+                                            {field.value ? (
+                                            format(field.value, 'PPP')
+                                            ) : (
+                                            <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        initialFocus
+                                        disabled={(date) => date > new Date()}
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1980}
+                                        toYear={new Date().getFullYear()}
+                                        />
+                                    </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerExpiryDate"
+                                render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Expiry Date</FormLabel>
+                                    <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                        <Button
+                                            variant={'outline'}
+                                            className={cn(
+                                            'w-full pl-3 text-left font-normal',
+                                            !field.value && 'text-muted-foreground'
+                                            )}
+                                        >
+                                            {field.value ? (
+                                            format(field.value, 'PPP')
+                                            ) : (
+                                            <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        initialFocus
+                                        disabled={(date) => date < new Date()}
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={new Date().getFullYear()}
+                                        toYear={new Date().getFullYear() + 20}
+                                        />
+                                    </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
                                 )}
                             />
                         </div>
@@ -1731,3 +1869,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
     
 
+
+
+    
