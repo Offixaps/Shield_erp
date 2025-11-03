@@ -127,6 +127,11 @@ const alcoholDetailSchema = z.object({
     notes: z.string().optional(),
 });
 
+const reducedAlcoholReasonSchema = z.object({
+    reduced: z.enum(['yes', 'no'], { required_error: "You must select Yes or No."}),
+    notes: z.string().optional(),
+});
+
 const formSchema = z
   .object({
     // Client Details
@@ -215,10 +220,12 @@ const formSchema = z
     contingentBeneficiaries: z.array(beneficiarySchema).optional(),
     
     // Health
-    alcoholHabits: z.enum(alcoholHabitsOptions).optional(),
+    alcoholHabits: z.enum(alcoholHabitsOptions, { required_error: 'You must select a drinking habit.'}),
     alcoholBeer: alcoholDetailSchema.optional(),
     alcoholWine: alcoholDetailSchema.optional(),
     alcoholSpirits: alcoholDetailSchema.optional(),
+    reducedAlcoholMedicalAdvice: reducedAlcoholReasonSchema,
+    reducedAlcoholHealthProblems: reducedAlcoholReasonSchema,
   });
 
 type NewBusinessFormProps = {
@@ -388,9 +395,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
+      alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholSpirits: { consumed: false, averagePerWeek: '', notes: '' },
+      reducedAlcoholMedicalAdvice: { reduced: 'no', notes: ''},
+      reducedAlcoholHealthProblems: { reduced: 'no', notes: ''},
     };
   }, [isEditMode, businessId]);
 
@@ -2122,8 +2132,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <CardHeader>
                     <CardTitle>Health Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div>
+                <CardContent className="space-y-8">
+                    <div className="space-y-2">
                         <h3 className="font-bold">1. Alcohol use</h3>
                         <p className="text-sm text-muted-foreground">1.1 Which of the following best describes your drinking habits (please tick one)</p>
                     </div>
@@ -2133,10 +2143,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         render={({ field }) => (
                             <FormItem>
                                 <FormControl>
-                                    <RadioGroup
+                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         value={field.value}
-                                        className="grid grid-cols-1 md:grid-cols-2 gap-x-8"
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2"
                                     >
                                         {alcoholHabitsOptions.map((option) => (
                                             <FormItem key={option} className="flex items-center space-x-3 space-y-0">
@@ -2264,6 +2274,81 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </div>
                         </div>
                     )}
+                    
+                    <div className="space-y-4 pt-4">
+                        <p className="text-sm text-muted-foreground">1.3 In the last 5 years, have you ever reduced the amount of alcohol you drink for any of the following reasons</p>
+                        <div className="rounded-md border">
+                             <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Reason</TableHead>
+                                        <TableHead className="w-48">Tick yes/no</TableHead>
+                                        <TableHead>Notes (if any)</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="font-medium">You were advised by a medical professional</TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name="reducedAlcoholMedicalAdvice.reduced"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormControl>
+                                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                             <FormField
+                                                control={form.control}
+                                                name="reducedAlcoholMedicalAdvice.notes"
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="Notes" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="font-medium">Alcohol was causing or contributing to health problems</TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name="reducedAlcoholHealthProblems.reduced"
+                                                render={({ field }) => (
+                                                     <FormItem>
+                                                        <FormControl>
+                                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                            </RadioGroup>
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                             <FormField
+                                                control={form.control}
+                                                name="reducedAlcoholHealthProblems.notes"
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="Notes" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2316,5 +2401,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
