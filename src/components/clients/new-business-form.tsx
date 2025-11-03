@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2, Info } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -1385,7 +1386,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 {!isPolicyHolderPayer && (
                     <div className="space-y-6">
-                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>Premium Payer's Details</h4>
+                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.1)', color: 'hsl(var(--primary))' }}>
+                            Premium Payer's Details
+                        </h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-4 border rounded-md bg-muted/50">
                              <FormField
                                 control={form.control}
@@ -1829,6 +1832,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="beneficiaries" className="mt-6 space-y-6">
+            <Alert>
+                <Info className="h-4 w-4" />
+                <AlertTitle>Important Information</AlertTitle>
+                <AlertDescription>
+                    The Policy Owner is the principal beneficiary. The Beneficiaries stated below will receive Policy proceeds at the death of the Policy Owner, unless otherwise specified, beneficiaries will share the proceeds equally. If a minor is named as a beneficiary, financial guardianship for the minor's estate will be required before policy proceeds can be released.
+                    If you select AN IRREVOCABLE BENEFICIARY (IB) add a photocopy of a passport or driver's license as an ID.
+                </AlertDescription>
+            </Alert>
             <Card>
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -2087,3 +2098,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
