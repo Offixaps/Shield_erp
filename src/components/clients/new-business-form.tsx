@@ -47,6 +47,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { Badge } from '../ui/badge';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -236,6 +237,9 @@ const formSchema = z
     contingentBeneficiaries: z.array(beneficiarySchema).optional(),
     
     // Health
+    height: z.coerce.number().positive('Height must be a positive number.').optional(),
+    heightUnit: z.enum(['m', 'cm', 'ft']).default('cm'),
+    weight: z.coerce.number().positive('Weight must be a positive number.').optional(),
     alcoholHabits: z.enum(alcoholHabitsOptions, { required_error: 'You must select a drinking habit.'}),
     alcoholBeer: alcoholDetailSchema.optional(),
     alcoholWine: alcoholDetailSchema.optional(),
@@ -287,6 +291,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
+  const [bmi, setBmi] = React.useState<number | null>(null);
+  const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
   
   const isEditMode = !!businessId;
   
@@ -428,6 +434,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
+      height: undefined,
+      heightUnit: 'cm' as const,
+      weight: undefined,
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
@@ -476,6 +485,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const alcoholHabits = form.watch('alcoholHabits');
   const tobaccoHabits = form.watch('tobaccoHabits');
   const usedNicotineLast12Months = form.watch('usedNicotineLast12Months');
+  const height = form.watch('height');
+  const heightUnit = form.watch('heightUnit');
+  const weight = form.watch('weight');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -514,6 +526,40 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     form.setValue('totalMonthlyIncome', basic + other);
   }, [monthlyBasicIncome, otherIncome, form]);
   
+  React.useEffect(() => {
+    if (height && weight && height > 0 && weight > 0) {
+      let heightInMeters: number;
+      switch (heightUnit) {
+        case 'cm':
+          heightInMeters = height / 100;
+          break;
+        case 'ft':
+          heightInMeters = height * 0.3048;
+          break;
+        case 'm':
+        default:
+          heightInMeters = height;
+          break;
+      }
+
+      const calculatedBmi = weight / (heightInMeters * heightInMeters);
+      setBmi(calculatedBmi);
+
+      if (calculatedBmi < 18.5) {
+        setBmiStatus({ text: 'Underweight', color: 'bg-blue-500' });
+      } else if (calculatedBmi >= 18.5 && calculatedBmi < 25) {
+        setBmiStatus({ text: 'Healthy Weight', color: 'bg-green-500' });
+      } else if (calculatedBmi >= 25 && calculatedBmi < 30) {
+        setBmiStatus({ text: 'Overweight', color: 'bg-yellow-500' });
+      } else {
+        setBmiStatus({ text: 'Obesity', color: 'bg-red-500' });
+      }
+    } else {
+      setBmi(null);
+      setBmiStatus(null);
+    }
+  }, [height, heightUnit, weight]);
+
   const handleTabChange = (direction: 'next' | 'prev') => {
     const currentIndex = tabSequence.indexOf(activeTab);
     if (direction === 'next') {
@@ -2512,6 +2558,67 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </div>
                         </div>
                     )}
+                     <Separator />
+                     <div className="space-y-4">
+                        <h3 className="font-bold">Height and Weight</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="height"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>What is your height?</FormLabel>
+                                    <div className="flex items-center gap-2">
+                                        <FormControl>
+                                            <Input type="number" placeholder="e.g., 175" {...field} />
+                                        </FormControl>
+                                        <FormField
+                                            control={form.control}
+                                            name="heightUnit"
+                                            render={({ field: unitField }) => (
+                                                <Select onValueChange={unitField.onChange} value={unitField.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-[80px]">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="cm">cm</SelectItem>
+                                                        <SelectItem value="m">m</SelectItem>
+                                                        <SelectItem value="ft">ft</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="weight"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>What is your weight? (KG)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="e.g., 70" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        {bmi && bmiStatus && (
+                            <div className="mt-4 space-y-2">
+                                <FormLabel>Body Mass Index (BMI)</FormLabel>
+                                <div className="flex items-center gap-4">
+                                <div className="text-2xl font-bold">{bmi.toFixed(1)}</div>
+                                <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2564,6 +2671,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
