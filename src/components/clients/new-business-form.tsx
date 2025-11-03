@@ -141,6 +141,13 @@ const tobaccoHabitsOptions = [
     'current_regular_smoker',
 ] as const;
 
+const tobaccoDetailSchema = z.object({
+    smoked: z.boolean().default(false),
+    avgPerDay: z.string().optional(),
+    avgPerWeek: z.string().optional(),
+    otherType: z.string().optional(),
+});
+
 const formSchema = z
   .object({
     // Client Details
@@ -237,6 +244,12 @@ const formSchema = z
     reducedAlcoholHealthProblems: reducedAlcoholReasonSchema,
     tobaccoHabits: z.enum(tobaccoHabitsOptions, { required_error: 'You must select a smoking habit.'}),
     usedNicotineLast12Months: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    tobaccoCigarettes: tobaccoDetailSchema.optional(),
+    tobaccoCigars: tobaccoDetailSchema.optional(),
+    tobaccoPipe: tobaccoDetailSchema.optional(),
+    tobaccoNicotineReplacement: tobaccoDetailSchema.optional(),
+    tobaccoEcigarettes: tobaccoDetailSchema.optional(),
+    tobaccoOther: tobaccoDetailSchema.optional(),
   });
 
 type NewBusinessFormProps = {
@@ -423,6 +436,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       reducedAlcoholHealthProblems: { reduced: 'no', notes: ''},
       tobaccoHabits: 'never_smoked' as const,
       usedNicotineLast12Months: 'no' as const,
+      tobaccoCigarettes: { smoked: false, avgPerDay: '', avgPerWeek: '' },
+      tobaccoCigars: { smoked: false, avgPerDay: '', avgPerWeek: '' },
+      tobaccoPipe: { smoked: false, avgPerDay: '', avgPerWeek: '' },
+      tobaccoNicotineReplacement: { smoked: false, avgPerDay: '', avgPerWeek: '' },
+      tobaccoEcigarettes: { smoked: false, avgPerDay: '', avgPerWeek: '' },
+      tobaccoOther: { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
     };
   }, [isEditMode, businessId]);
 
@@ -455,6 +474,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const ageNextBirthday = form.watch('ageNextBirthday');
   const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
   const alcoholHabits = form.watch('alcoholHabits');
+  const tobaccoHabits = form.watch('tobaccoHabits');
+  const usedNicotineLast12Months = form.watch('usedNicotineLast12Months');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -2435,6 +2456,62 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                       )}
                     />
+
+                    { (usedNicotineLast12Months === 'yes' || tobaccoHabits === 'current_regular_smoker') && (
+                        <div className="space-y-4 pt-4">
+                            <p className="text-sm text-muted-foreground">2.3 If you answered "yes" to questions 2.2 above or have confirmed that you are a "Current regular smoker", please confirm the type and amount you smoke below.</p>
+                            <div className="rounded-md border">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="w-12">Tick</TableHead>
+                                            <TableHead>Type</TableHead>
+                                            <TableHead>Average per day</TableHead>
+                                            <TableHead>Average per week</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigarettes.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell>Cigarettes</TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigarettes.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigarettes.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigars.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell>Cigars</TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigars.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoCigars.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoPipe.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell>Pipe</TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoPipe.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoPipe.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoNicotineReplacement.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell>Nicotine replacement products</TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoEcigarettes.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell>E-cigarettes</TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoEcigarettes.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoEcigarettes.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell><FormField control={form.control} name="tobaccoOther.smoked" render={({ field }) => (<FormItem className="flex items-center justify-center h-full"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl></FormItem>)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoOther.otherType" render={({ field }) => (<Input {...field} placeholder="Other (specify)" />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoOther.avgPerDay" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                            <TableCell><FormField control={form.control} name="tobaccoOther.avgPerWeek" render={({ field }) => (<Input {...field} />)} /></TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
+                            </div>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2487,6 +2564,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
