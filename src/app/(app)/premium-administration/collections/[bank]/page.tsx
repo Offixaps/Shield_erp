@@ -20,9 +20,10 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Upload, Download } from 'lucide-react';
+import { Upload, Download, Search } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
 
 export default function BankPoliciesPage() {
   const params = useParams();
@@ -34,7 +35,9 @@ export default function BankPoliciesPage() {
     return typeof bank === 'string' ? decodeURIComponent(bank) : '';
   }, [params.bank]);
 
-  const [policies, setPolicies] = React.useState<NewBusiness[]>([]);
+  const [allPolicies, setAllPolicies] = React.useState<NewBusiness[]>([]);
+  const [filteredPolicies, setFilteredPolicies] = React.useState<NewBusiness[]>([]);
+  const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
     if (bankName) {
@@ -42,12 +45,25 @@ export default function BankPoliciesPage() {
       const filtered = allPolicies.filter(
         (p) => p.policyStatus === 'Active' && p.bankName === bankName
       );
-      setPolicies(filtered);
+      setAllPolicies(filtered);
+      setFilteredPolicies(filtered);
     }
   }, [bankName]);
 
+   React.useEffect(() => {
+    const lowercasedFilter = searchTerm.toLowerCase();
+    const filtered = allPolicies.filter(item => {
+      return (
+        item.policy.toLowerCase().includes(lowercasedFilter) ||
+        item.payerName.toLowerCase().includes(lowercasedFilter) ||
+        item.bankAccountNumber.toLowerCase().includes(lowercasedFilter)
+      );
+    });
+    setFilteredPolicies(filtered);
+  }, [searchTerm, allPolicies]);
+
   const handlePostToBank = () => {
-    const dataToExport = policies.map(p => ({
+    const dataToExport = filteredPolicies.map(p => ({
         'Policy Number': p.policy,
         'Payer Name': p.payerName,
         'Premium Amount': p.premium,
@@ -140,39 +156,51 @@ export default function BankPoliciesPage() {
       </div>
       
       <Card>
-        <CardContent className="pt-6">
-          {policies.length > 0 ? (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Policy number</TableHead>
-                  <TableHead>Payer Name</TableHead>
-                  <TableHead>Premium Amount</TableHead>
-                  <TableHead>Bank Account Number</TableHead>
-                  <TableHead>Sort Code</TableHead>
-                  <TableHead>Narration</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {policies.map((policy) => (
-                  <TableRow key={policy.id}>
-                    <TableCell>
-                         <Link href={`/business-development/clients/${policy.id}?from=premium-admin&tab=payment-history`} className="font-medium text-primary hover:underline">
-                            {policy.policy}
-                         </Link>
-                    </TableCell>
-                    <TableCell>{policy.payerName}</TableCell>
-                    <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
-                    <TableCell>{policy.bankAccountNumber}</TableCell>
-                    <TableCell>{policy.sortCode}</TableCell>
-                    <TableCell>{policy.narration}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+        <CardContent className="pt-6 space-y-4">
+            <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search by policy, payer name, or account..."
+                    className="w-full pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            {filteredPolicies.length > 0 ? (
+            <div className="rounded-md border">
+                <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Policy number</TableHead>
+                    <TableHead>Payer Name</TableHead>
+                    <TableHead>Premium Amount</TableHead>
+                    <TableHead>Bank Account Number</TableHead>
+                    <TableHead>Sort Code</TableHead>
+                    <TableHead>Narration</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredPolicies.map((policy) => (
+                    <TableRow key={policy.id}>
+                        <TableCell>
+                            <Link href={`/business-development/clients/${policy.id}?from=premium-admin&tab=payment-history`} className="font-medium text-primary hover:underline">
+                                {policy.policy}
+                            </Link>
+                        </TableCell>
+                        <TableCell>{policy.payerName}</TableCell>
+                        <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
+                        <TableCell>{policy.bankAccountNumber}</TableCell>
+                        <TableCell>{policy.sortCode}</TableCell>
+                        <TableCell>{policy.narration}</TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+                </Table>
+            </div>
           ) : (
-            <p className="text-muted-foreground">
-              No active policies found for {bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}.
+            <p className="text-center text-muted-foreground py-4">
+              No active policies found for {bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')} matching your search.
             </p>
           )}
         </CardContent>

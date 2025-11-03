@@ -20,16 +20,37 @@ import { cn } from '@/lib/utils';
 import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
 import VerifyMandateDialog from '@/components/premium-administration/verify-mandate-dialog';
 import { getPolicies } from '@/lib/policy-service';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 export default function NewBusinessPage() {
-    const [businessList, setBusinessList] = React.useState<NewBusiness[]>([]);
+    const [allBusinessList, setAllBusinessList] = React.useState<NewBusiness[]>([]);
+    const [filteredBusinessList, setFilteredBusinessList] = React.useState<NewBusiness[]>([]);
+    const [searchTerm, setSearchTerm] = React.useState('');
 
     React.useEffect(() => {
-        setBusinessList(getPolicies());
+        const policies = getPolicies();
+        setAllBusinessList(policies);
+        setFilteredBusinessList(policies);
     }, []);
 
+    React.useEffect(() => {
+        const lowercasedFilter = searchTerm.toLowerCase();
+        const filtered = allBusinessList.filter(item => {
+        return (
+            item.client.toLowerCase().includes(lowercasedFilter) ||
+            item.serial.toLowerCase().includes(lowercasedFilter) ||
+            (item.policy && item.policy.toLowerCase().includes(lowercasedFilter))
+        );
+        });
+        setFilteredBusinessList(filtered);
+    }, [searchTerm, allBusinessList]);
+
+
     const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
-        setBusinessList(list => list.map(p => p.id === updatedPolicy.id ? updatedPolicy : p));
+        const updatedList = allBusinessList.map(p => p.id === updatedPolicy.id ? updatedPolicy : p)
+        setAllBusinessList(updatedList);
+        setFilteredBusinessList(updatedList);
     };
 
     const getStatusBadgeColor = (status: string) => {
@@ -65,68 +86,83 @@ export default function NewBusinessPage() {
         description="A list of new policies pending review and activation."
       />
       <Card>
-        <CardContent className="pt-6">
-           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>#</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Serial #</TableHead>
-                <TableHead>Product</TableHead>
-                <TableHead>Premium</TableHead>
-                <TableHead>Commencement Date</TableHead>
-                <TableHead>Onboarding Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {businessList.map((business, index) => (
-                <TableRow key={business.id}>
-                  <TableCell>{index + 1}</TableCell>
-                  <TableCell>
-                    <Link href={`/business-development/clients/${business.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
-                      {business.client}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {business.serial}
-                  </TableCell>
-                  <TableCell>
-                    {business.product}
-                  </TableCell>
-                  <TableCell>
-                    GHS{business.premium.toFixed(2)}
-                  </TableCell>
-                  <TableCell>
-                    {format(new Date(business.commencementDate), 'PPP')}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={cn(
-                        'w-44 justify-center truncate',
-                        getStatusBadgeColor(business.onboardingStatus),
-                        'text-white'
-                      )}
-                    >
-                      {business.onboardingStatus}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {business.onboardingStatus === 'Pending Mandate' && (
-                      <div className="flex gap-2 justify-end">
-                        <VerifyMandateDialog client={business} onUpdate={handlePolicyUpdate} />
-                      </div>
-                    )}
-                    {business.onboardingStatus === 'Pending First Premium' && (
-                        <div className="flex gap-2 justify-end">
-                            <ConfirmFirstPremiumDialog client={business} onUpdate={handlePolicyUpdate} />
-                        </div>
-                    )}
-                  </TableCell>
+        <CardContent className="pt-6 space-y-4">
+           <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                    type="search"
+                    placeholder="Search by client, policy, or serial..."
+                    className="w-full pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+            <div className="rounded-md border">
+                <Table>
+                <TableHeader>
+                <TableRow>
+                    <TableHead>#</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Serial #</TableHead>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Premium</TableHead>
+                    <TableHead>Commencement Date</TableHead>
+                    <TableHead>Onboarding Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                {filteredBusinessList.map((business, index) => (
+                    <TableRow key={business.id}>
+                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>
+                        <Link href={`/business-development/clients/${business.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
+                        {business.client}
+                        </Link>
+                    </TableCell>
+                    <TableCell>
+                        {business.serial}
+                    </TableCell>
+                    <TableCell>
+                        {business.product}
+                    </TableCell>
+                    <TableCell>
+                        GHS{business.premium.toFixed(2)}
+                    </TableCell>
+                    <TableCell>
+                        {format(new Date(business.commencementDate), 'PPP')}
+                    </TableCell>
+                    <TableCell>
+                        <Badge
+                        className={cn(
+                            'w-44 justify-center truncate',
+                            getStatusBadgeColor(business.onboardingStatus),
+                            'text-white'
+                        )}
+                        >
+                        {business.onboardingStatus}
+                        </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        {business.onboardingStatus === 'Pending Mandate' && (
+                        <div className="flex gap-2 justify-end">
+                            <VerifyMandateDialog client={business} onUpdate={handlePolicyUpdate} />
+                        </div>
+                        )}
+                        {business.onboardingStatus === 'Pending First Premium' && (
+                            <div className="flex gap-2 justify-end">
+                                <ConfirmFirstPremiumDialog client={business} onUpdate={handlePolicyUpdate} />
+                            </div>
+                        )}
+                    </TableCell>
+                    </TableRow>
+                ))}
+                </TableBody>
+            </Table>
+           </div>
+            {filteredBusinessList.length === 0 && (
+                <p className="text-center text-muted-foreground py-4">No policies found matching your search.</p>
+            )}
         </CardContent>
       </Card>
     </div>
