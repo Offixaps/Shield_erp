@@ -1339,7 +1339,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 />
 
                 {!isPolicyHolderPayer && (
-                    <div className="space-y-6 p-4 border rounded-md">
+                    <div className="space-y-6 p-4 border rounded-md bg-muted/50">
                         <h4 className="text-md font-medium">Premium Payer's Details</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                              <FormField
