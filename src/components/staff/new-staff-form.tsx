@@ -15,17 +15,26 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
+import { rolesData } from '@/lib/data';
 
 const formSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().min(10, 'Telephone number must be at least 10 digits.'),
+  role: z.string({ required_error: 'Please select a role.' }),
   profileImage: z.any().optional(),
   sendWelcomeEmail: z.boolean().default(false),
   password: z.string().min(8, 'Password must be at least 8 characters.'),
@@ -43,6 +52,7 @@ export default function NewStaffForm() {
       lastName: '',
       email: '',
       phone: '',
+      role: '',
       sendWelcomeEmail: true,
       password: '',
     },
@@ -127,6 +137,30 @@ export default function NewStaffForm() {
                 </FormItem>
                 )}
             />
+             <FormField
+                control={form.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a role for the staff member" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {rolesData.map((role) => (
+                          <SelectItem key={role} value={role}>
+                            {role}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
         </div>
 
         <FormField

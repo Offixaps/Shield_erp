@@ -3,6 +3,7 @@
 
 
 
+
 export const dashboardStats = {
   totalClients: 1256,
   premiumsCollected: 450320,
@@ -35,6 +36,15 @@ export const recentActivityData = [
     { id: 3, client: "Acme Corp", policy: "T1166018", amount: 1200.00, status: "Paid" },
     { id: 4, client: "Mike Johnson", policy: "E1274719", amount: 85.75, status: "Overdue" },
     { id: 5, client: "Emily White", policy: "T1166019", amount: 300.00, status: "Paid" },
+];
+
+export const rolesData = [
+  "Administrator",
+  "Sales Agent",
+  "Underwriter",
+  "Premium Administrator",
+  "Claims Officer",
+  "Business Development Manager",
 ];
 
 export type OnboardingStatus =
