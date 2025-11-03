@@ -1340,7 +1340,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 {!isPolicyHolderPayer && (
                     <div className="space-y-6">
-                        <h4 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Premium Payer's Details</h4>
+                        <h4 className="text-lg font-medium text-white p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary))' }}>Premium Payer's Details</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-4 border rounded-md bg-muted/50">
                              <FormField
                                 control={form.control}
