@@ -27,7 +27,8 @@ import {
 } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { createRole } from '@/lib/role-service';
+import { createRole, getRoleById, updateRole } from '@/lib/role-service';
+import type { Role } from '@/lib/data';
 
 const formSchema = z.object({
   roleName: z.string().min(2, 'Role name must be at least 2 characters.'),
@@ -36,9 +37,14 @@ const formSchema = z.object({
   }),
 });
 
-export default function NewRoleForm() {
+type NewRoleFormProps = {
+  roleId?: string;
+};
+
+export default function NewRoleForm({ roleId }: NewRoleFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const isEditMode = !!roleId;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -48,13 +54,34 @@ export default function NewRoleForm() {
     },
   });
 
+  React.useEffect(() => {
+    if (isEditMode && roleId) {
+      const roleData = getRoleById(parseInt(roleId, 10));
+      if (roleData) {
+        form.reset({
+            roleName: roleData.name,
+            permissions: roleData.permissions,
+        })
+      }
+    }
+  }, [isEditMode, roleId, form]);
+
   function onSubmit(values: z.infer<typeof formSchema>) {
-    createRole(values);
-    toast({
-      title: 'Role Created',
-      description: `The role "${values.roleName}" has been created with ${values.permissions.length} permissions.`,
-    });
+    if (isEditMode && roleId) {
+      updateRole(parseInt(roleId, 10), values);
+       toast({
+        title: 'Role Updated',
+        description: `The role "${values.roleName}" has been updated.`,
+      });
+    } else {
+      createRole(values);
+      toast({
+        title: 'Role Created',
+        description: `The role "${values.roleName}" has been created with ${values.permissions.length} permissions.`,
+      });
+    }
     router.push('/roles');
+    router.refresh(); // To see the changes in the table
   }
 
   return (
@@ -139,7 +166,7 @@ export default function NewRoleForm() {
             </CardContent>
         </Card>
         
-        <Button type="submit">Create Role</Button>
+        <Button type="submit">{isEditMode ? 'Update Role' : 'Create Role'}</Button>
       </form>
     </Form>
   );

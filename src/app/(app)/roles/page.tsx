@@ -78,8 +78,8 @@ export default function RolesPage() {
                     <TableCell className="font-medium">{role.name}</TableCell>
                     <TableCell>{role.permissions.length}</TableCell>
                     <TableCell className="text-right">
-                      <Button variant="outline" size="sm">
-                        Edit
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/roles/${role.id}/edit`}>Edit</Link>
                       </Button>
                     </TableCell>
                   </TableRow>

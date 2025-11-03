@@ -52,3 +52,18 @@ export function createRole(values: { roleName: string; permissions: string[] }):
     saveRolesToStorage(updatedRoles);
     return newRole;
 }
+
+export function updateRole(id: number, values: { roleName: string; permissions: string[] }): Role | undefined {
+    const roles = getRolesFromStorage();
+    const roleIndex = roles.findIndex(r => r.id === id);
+    if (roleIndex !== -1) {
+        roles[roleIndex] = {
+            ...roles[roleIndex],
+            name: values.roleName,
+            permissions: values.permissions,
+        };
+        saveRolesToStorage(roles);
+        return roles[roleIndex];
+    }
+    return undefined;
+}
