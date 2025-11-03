@@ -236,6 +236,7 @@ const formSchema = z
     reducedAlcoholMedicalAdvice: reducedAlcoholReasonSchema,
     reducedAlcoholHealthProblems: reducedAlcoholReasonSchema,
     tobaccoHabits: z.enum(tobaccoHabitsOptions, { required_error: 'You must select a smoking habit.'}),
+    usedNicotineLast12Months: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
   });
 
 type NewBusinessFormProps = {
@@ -421,6 +422,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       reducedAlcoholMedicalAdvice: { reduced: 'no', notes: ''},
       reducedAlcoholHealthProblems: { reduced: 'no', notes: ''},
       tobaccoHabits: 'never_smoked' as const,
+      usedNicotineLast12Months: 'no' as const,
     };
   }, [isEditMode, businessId]);
 
@@ -2401,6 +2403,38 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </FormItem>
                         )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="usedNicotineLast12Months"
+                      render={({ field }) => (
+                        <FormItem className="rounded-lg border p-4 space-y-3">
+                          <FormLabel>
+                            2.2 Have you used any tobacco or nicotine products including cigarettes, cigarillos, colts, cigars, pipes, chewing tobacco, snuff, nicotine gum or patches, or any form of nicotine substitute in the last 12 months?
+                          </FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              className="flex gap-4"
+                            >
+                              <FormItem className="flex items-center space-x-2">
+                                <FormControl>
+                                  <RadioGroupItem value="yes" />
+                                </FormControl>
+                                <FormLabel className="font-normal">Yes</FormLabel>
+                              </FormItem>
+                              <FormItem className="flex items-center space-x-2">
+                                <FormControl>
+                                  <RadioGroupItem value="no" />
+                                </FormControl>
+                                <FormLabel className="font-normal">No</FormLabel>
+                              </FormItem>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2453,6 +2487,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
