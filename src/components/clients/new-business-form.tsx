@@ -45,6 +45,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Switch } from '../ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Checkbox } from '../ui/checkbox';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -107,6 +108,7 @@ const beneficiarySchema = z.object({
     gender: z.enum(['Male', 'Female']),
     relationship: z.string().min(1, "Relationship is required."),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
+    isIrrevocable: z.boolean().optional().default(false),
 });
 
 const formSchema = z
@@ -1844,7 +1846,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                          <CardTitle>Primary Beneficiaries</CardTitle>
-                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0 })}>
+                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0, isIrrevocable: false })}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Primary
                         </Button>
@@ -1860,6 +1862,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     <TableHead>Gender</TableHead>
                                     <TableHead>Relationship</TableHead>
                                     <TableHead>Percentage (%)</TableHead>
+                                    <TableHead>IB</TableHead>
                                     <TableHead className="w-[50px]"></TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -1926,6 +1929,22 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                 name={`primaryBeneficiaries.${index}.percentage`}
                                                 render={({ field }) => (
                                                     <Input type="number" {...field} placeholder="e.g., 100" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                             <FormField
+                                                control={form.control}
+                                                name={`primaryBeneficiaries.${index}.isIrrevocable`}
+                                                render={({ field }) => (
+                                                    <FormItem className="flex items-center justify-center h-full">
+                                                        <FormControl>
+                                                            <Checkbox
+                                                            checked={field.value}
+                                                            onCheckedChange={field.onChange}
+                                                            />
+                                                        </FormControl>
+                                                    </FormItem>
                                                 )}
                                             />
                                         </TableCell>
