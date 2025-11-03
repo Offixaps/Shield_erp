@@ -159,8 +159,14 @@ const formSchema = z
 
     // Payment Details
     isPolicyHolderPayer: z.boolean().default(true),
-    premiumPayerName: z.string().optional(),
+    premiumPayerSurname: z.string().optional(),
+    premiumPayerOtherNames: z.string().optional(),
     premiumPayerOccupation: z.string().optional(),
+    premiumPayerRelationship: z.string().optional(),
+    premiumPayerResidentialAddress: z.string().optional(),
+    premiumPayerPostalAddress: z.string().optional(),
+    premiumPayerDob: z.date().optional(),
+    premiumPayerBusinessName: z.string().optional(),
     bankName: z.string().min(2, 'Bank name is required.'),
     bankBranch: z.string().min(2, 'Bank branch is required.'),
     amountInWords: z.string().min(3, 'Amount in words is required.'),
@@ -226,7 +232,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           sumAssured: businessData.sumAssured,
           paymentFrequency: 'Monthly' as const,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
-          premiumPayerName: businessData.payerName,
+          premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' '),
+          premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' '),
           premiumPayerOccupation: 'Accountant',
           bankName: businessData.bankName,
           bankBranch: 'Accra Main',
@@ -283,8 +290,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       paymentFrequency: 'Monthly' as const,
       increaseMonth: '',
       notes: '',
-      premiumPayerName: '',
+      premiumPayerSurname: '',
+      premiumPayerOtherNames: '',
       premiumPayerOccupation: '',
+      premiumPayerRelationship: '',
+      premiumPayerResidentialAddress: '',
+      premiumPayerPostalAddress: '',
+      premiumPayerDob: undefined,
+      premiumPayerBusinessName: '',
       bankName: '',
       bankBranch: '',
       maritalStatus: 'Single' as const,
@@ -393,10 +406,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     try {
         const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
         
-        const finalValues = { ...values };
+        let finalPayerName: string;
         if (values.isPolicyHolderPayer) {
-            finalValues.premiumPayerName = lifeAssuredName;
-            finalValues.premiumPayerOccupation = values.occupation;
+            finalPayerName = lifeAssuredName;
+            values.premiumPayerOccupation = values.occupation;
+        } else {
+            finalPayerName = [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' ');
         }
 
 
@@ -413,19 +428,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 updatePolicy(policyId, {
                     client: lifeAssuredName,
-                    product: finalValues.contractType,
-                    premium: finalValues.premiumAmount,
-                    sumAssured: finalValues.sumAssured,
-                    commencementDate: format(finalValues.commencementDate, 'yyyy-MM-dd'),
-                    phone: finalValues.phone,
+                    product: values.contractType,
+                    premium: values.premiumAmount,
+                    sumAssured: values.sumAssured,
+                    commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+                    phone: values.phone,
                     onboardingStatus: newStatus,
-                    policyTerm: finalValues.policyTerm,
-                    premiumTerm: finalValues.premiumTerm,
-                    placeOfBirth: finalValues.placeOfBirth,
-                    payerName: finalValues.premiumPayerName,
-                    bankName: finalValues.bankName,
-                    bankAccountNumber: finalValues.bankAccountNumber,
-                    sortCode: finalValues.sortCode,
+                    policyTerm: values.policyTerm,
+                    premiumTerm: values.premiumTerm,
+                    placeOfBirth: values.placeOfBirth,
+                    payerName: finalPayerName,
+                    bankName: values.bankName,
+                    bankAccountNumber: values.bankAccountNumber,
+                    sortCode: values.sortCode,
                     vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
                     mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
                 });
@@ -439,7 +454,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 throw new Error("Policy not found for updating.");
             }
         } else {
-            createPolicy(finalValues);
+            createPolicy({...values, payerName: finalPayerName});
             toast({
                 title: 'Form Submitted',
                 description: 'New client and policy details have been captured.',
@@ -1325,7 +1340,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 Will you be paying for this policy by yourself?
                                 </FormLabel>
                                 <FormDescription>
-                                If no, you will be required to provide the details of the person paying for the policy.
+                                If not, you will be required to provide the details of the person paying for the policy.
                                 </FormDescription>
                             </div>
                             <FormControl>
@@ -1340,16 +1355,29 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
                 {!isPolicyHolderPayer && (
                     <div className="space-y-6">
-                        <h4 className="text-lg font-medium text-white p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary))' }}>Premium Payer's Details</h4>
+                        <h4 className="text-lg font-medium p-2 rounded-t-md" style={{ backgroundColor: 'hsl(var(--primary) / 0.9)' , color: 'hsl(var(--primary-foreground))' }}>Premium Payer's Details</h4>
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 p-4 border rounded-md bg-muted/50">
                              <FormField
                                 control={form.control}
-                                name="premiumPayerName"
+                                name="premiumPayerSurname"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Premium Payer Name</FormLabel>
+                                    <FormLabel>Surname</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Jane Doe" {...field} />
+                                        <Input placeholder="Doe" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
+                             <FormField
+                                control={form.control}
+                                name="premiumPayerOtherNames"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Other Names</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="Jane" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -1360,9 +1388,105 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 name="premiumPayerOccupation"
                                 render={({ field }) => (
                                     <FormItem>
-                                    <FormLabel>Premium Payer Occupation</FormLabel>
+                                    <FormLabel>Occupation</FormLabel>
                                     <FormControl>
                                         <Input placeholder="e.g., Teacher" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerRelationship"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Relationship to Insured</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., Spouse, Parent" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerResidentialAddress"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Residential Address</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="123 Payer Lane" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="premiumPayerPostalAddress"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Postal Address</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="P.O. Box 123" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="premiumPayerDob"
+                                render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                    <FormLabel>Date of Birth</FormLabel>
+                                    <Popover>
+                                    <PopoverTrigger asChild>
+                                        <FormControl>
+                                        <Button
+                                            variant={'outline'}
+                                            className={cn(
+                                            'w-full pl-3 text-left font-normal',
+                                            !field.value && 'text-muted-foreground'
+                                            )}
+                                        >
+                                            {field.value ? (
+                                            format(field.value, 'PPP')
+                                            ) : (
+                                            <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                        </Button>
+                                        </FormControl>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                        mode="single"
+                                        selected={field.value}
+                                        onSelect={field.onChange}
+                                        initialFocus
+                                        disabled={(date) =>
+                                            date > new Date() || date < new Date('1900-01-01')
+                                        }
+                                        captionLayout="dropdown-buttons"
+                                        fromYear={1900}
+                                        toYear={new Date().getFullYear()}
+                                        />
+                                    </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                             <FormField
+                                control={form.control}
+                                name="premiumPayerBusinessName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>Business Name (if applicable)</FormLabel>
+                                    <FormControl>
+                                        <Input placeholder="e.g., Payer Corp" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -1606,3 +1730,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
