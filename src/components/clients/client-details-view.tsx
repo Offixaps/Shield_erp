@@ -48,10 +48,12 @@ function DetailItem({
   value?: React.ReactNode;
 }) {
   return (
-    <div>
-      <p className="text-sm text-muted-foreground">{label}</p>
-      <div className="text-base font-medium">{value || 'N/A'}</div>
-    </div>
+    <Card className="flex-1 bg-card">
+      <CardHeader className="p-3">
+        <p className="text-xs text-muted-foreground">{label}</p>
+        <div className="text-sm font-semibold">{value || 'N/A'}</div>
+      </CardHeader>
+    </Card>
   );
 }
 
@@ -382,7 +384,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
               <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
                 <DetailItem label="Date of Birth" value="1985-05-20" />
                 <DetailItem label="Place of Birth" value={client.placeOfBirth} />
@@ -404,7 +406,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Email Address" value="j.doe@example.com" />
                 <DetailItem label="Telephone Number" value={client.phone} />
                  <DetailItem label="Work Telephone" value="030 123 4567" />
@@ -422,7 +424,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="National ID Type" value="Passport" />
                 <DetailItem label="ID Number" value="G1234567" />
                 <DetailItem label="Place of Issue" value="Accra" />
@@ -444,7 +446,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Serial Number" value={client.serial} />
                 <DetailItem label="Payment Frequency" value="Monthly" />
                 <DetailItem
@@ -461,7 +463,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Occupation" value="Software Engineer" />
                 <DetailItem label="Nature of Business/Work" value="Technology" />
                 <DetailItem label="Employer" value="Google" />
@@ -482,7 +484,7 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6">
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Premium Payer Name" value={client.client} />
                 <DetailItem
                   label="Premium Payer Occupation"
