@@ -171,9 +171,19 @@ type NewBusinessFormProps = {
     businessId?: string;
 }
 
+const tabSequence = [
+    'policy-holder',
+    'payment-details',
+    'beneficiaries',
+    'health',
+    'lifestyle',
+    'declaration',
+];
+
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
   
   const isEditMode = !!businessId;
   
@@ -359,6 +369,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     const other = Number(otherIncome) || 0;
     form.setValue('totalMonthlyIncome', basic + other);
   }, [monthlyBasicIncome, otherIncome, form]);
+  
+  const handleTabChange = (direction: 'next' | 'prev') => {
+    const currentIndex = tabSequence.indexOf(activeTab);
+    if (direction === 'next') {
+        if (currentIndex < tabSequence.length - 1) {
+            setActiveTab(tabSequence[currentIndex + 1]);
+        }
+    } else {
+        if (currentIndex > 0) {
+            setActiveTab(tabSequence[currentIndex - 1]);
+        }
+    }
+  };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -415,11 +438,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         });
     }
   }
+  
+  const currentTabIndex = tabSequence.indexOf(activeTab);
+  const isFirstTab = currentTabIndex === 0;
+  const isLastTab = currentTabIndex === tabSequence.length - 1;
+
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Tabs defaultValue="policy-holder" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
             <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
@@ -1503,8 +1531,23 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
 
         </Tabs>
-
-        <Button type="submit" className="ml-4 mb-4">{isEditMode ? 'Update Policy' : 'Submit'}</Button>
+        
+        <div className="flex justify-between p-4">
+            {!isFirstTab ? (
+                 <Button type="button" variant="outline" onClick={() => handleTabChange('prev')}>
+                    Previous
+                </Button>
+            ) : <div />}
+            {!isLastTab ? (
+                 <Button type="button" onClick={() => handleTabChange('next')}>
+                    Next
+                </Button>
+            ) : (
+                <Button type="submit">
+                    {isEditMode ? 'Update Application' : 'Submit Application'}
+                </Button>
+            )}
+        </div>
       </form>
     </Form>
   );
