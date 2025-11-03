@@ -46,6 +46,7 @@ import { Switch } from '../ui/switch';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Checkbox } from '../ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -110,6 +111,15 @@ const beneficiarySchema = z.object({
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
     isIrrevocable: z.boolean().optional().default(false),
 });
+
+const alcoholHabitsOptions = [
+    'never_used',
+    'occasional_socially',
+    'ex_drinker_over_5_years',
+    'ex_drinker_1_to_5_years',
+    'ex_drinker_within_1_year',
+    'current_regular_drinker',
+] as const;
 
 const formSchema = z
   .object({
@@ -197,6 +207,9 @@ const formSchema = z
     // Beneficiaries
     primaryBeneficiaries: z.array(beneficiarySchema).optional(),
     contingentBeneficiaries: z.array(beneficiarySchema).optional(),
+    
+    // Health
+    alcoholHabits: z.enum(alcoholHabitsOptions).optional(),
   });
 
 type NewBusinessFormProps = {
@@ -211,6 +224,15 @@ const tabSequence = [
     'lifestyle',
     'declaration',
 ];
+
+const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> = {
+    never_used: 'Have never used alcohol',
+    occasional_socially: 'Drink occasionally or socially only',
+    ex_drinker_over_5_years: 'Ex-drinker; last drunk alcohol over 5 years ago',
+    ex_drinker_1_to_5_years: 'Ex-drinker: last drunk alcohol 1 to 5 years ago',
+    ex_drinker_within_1_year: 'Ex-drinker: last drunk alcohol within the last year',
+    current_regular_drinker: 'Current regular drinker',
+};
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
@@ -2082,13 +2104,57 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             </Card>
           </TabsContent>
 
-          <TabsContent value="health" className="mt-6">
+          <TabsContent value="health" className="mt-6 space-y-6">
              <Card>
                 <CardHeader>
                     <CardTitle>Health Details</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Health-related form fields will be implemented here.</p>
+                <CardContent className="space-y-6">
+                    <div>
+                        <h3 className="font-bold">1. Alcohol use</h3>
+                        <p className="text-sm text-muted-foreground">1.1 Which of the following best describes your drinking habits (please tick one)</p>
+                    </div>
+                    <FormField
+                        control={form.control}
+                        name="alcoholHabits"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormControl>
+                                    <RadioGroup
+                                        onValueChange={field.onChange}
+                                        value={field.value}
+                                        className="space-y-1"
+                                    >
+                                        <Table>
+                                            <TableHeader>
+                                                <TableRow>
+                                                    <TableHead className="w-[100px]">Tick</TableHead>
+                                                    <TableHead>Description</TableHead>
+                                                </TableRow>
+                                            </TableHeader>
+                                            <TableBody>
+                                                {alcoholHabitsOptions.map((option) => (
+                                                    <TableRow key={option}>
+                                                        <TableCell>
+                                                            <FormControl>
+                                                                <RadioGroupItem value={option} />
+                                                            </FormControl>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <FormLabel className="font-normal">
+                                                                {alcoholHabitsLabels[option]}
+                                                            </FormLabel>
+                                                        </TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </CardContent>
             </Card>
           </TabsContent>
