@@ -166,7 +166,12 @@ export default function NewRoleForm({ roleId }: NewRoleFormProps) {
             </CardContent>
         </Card>
         
-        <Button type="submit">{isEditMode ? 'Update Role' : 'Create Role'}</Button>
+        <div className="flex gap-2">
+          <Button type="submit">{isEditMode ? 'Update Role' : 'Create Role'}</Button>
+          <Button type="button" variant="outline" onClick={() => router.push('/roles')}>
+            Cancel
+          </Button>
+        </div>
       </form>
     </Form>
   );
