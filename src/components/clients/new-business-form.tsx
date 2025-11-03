@@ -1856,12 +1856,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="beneficiaries" className="mt-6 space-y-6">
-            <Alert>
+             <Alert>
                 <Info className="h-4 w-4" />
                 <AlertTitle>Important Information</AlertTitle>
                 <AlertDescription>
                     <p>The Policy Owner is the principal beneficiary. The Beneficiaries stated below will receive Policy proceeds at the death of the Policy Owner, unless otherwise specified, beneficiaries will share the proceeds equally. If a minor is named as a beneficiary, financial guardianship for the minor's estate will be required before policy proceeds can be released.</p>
-                    <p className="mt-2">If you select an <strong>AN IRREVOCABLE BENEFICIARY (IB)</strong> add a photocopy of a passport or driver's license as an ID.</p>
+                    <p className="mt-2">If you select an <strong>AN IRREVOCABLE BENEFICIARY (IB)</strong>, add a photocopy of a passport or driver's license as an ID.</p>
                 </AlertDescription>
             </Alert>
             <Card>
@@ -2123,32 +2123,18 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     <RadioGroup
                                         onValueChange={field.onChange}
                                         value={field.value}
-                                        className="space-y-1"
+                                        className="grid grid-cols-1 md:grid-cols-2 gap-x-8"
                                     >
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead className="w-[100px]">Tick</TableHead>
-                                                    <TableHead>Description</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {alcoholHabitsOptions.map((option) => (
-                                                    <TableRow key={option}>
-                                                        <TableCell>
-                                                            <FormControl>
-                                                                <RadioGroupItem value={option} />
-                                                            </FormControl>
-                                                        </TableCell>
-                                                        <TableCell>
-                                                            <FormLabel className="font-normal">
-                                                                {alcoholHabitsLabels[option]}
-                                                            </FormLabel>
-                                                        </TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
+                                        {alcoholHabitsOptions.map((option) => (
+                                            <FormItem key={option} className="flex items-center space-x-3 space-y-0">
+                                                <FormControl>
+                                                    <RadioGroupItem value={option} />
+                                                </FormControl>
+                                                <FormLabel className="font-normal">
+                                                    {alcoholHabitsLabels[option]}
+                                                </FormLabel>
+                                            </FormItem>
+                                        ))}
                                     </RadioGroup>
                                 </FormControl>
                                 <FormMessage />
@@ -2207,3 +2193,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
