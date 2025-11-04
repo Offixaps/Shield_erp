@@ -387,6 +387,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           isPolicyHolderPayer: businessData.client === businessData.payerName,
           primaryBeneficiaries: [],
           contingentBeneficiaries: [],
+          height: '' as any,
+          heightUnit: 'cm' as const,
+          weight: '' as any,
         };
       }
     }
@@ -454,9 +457,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
-      height: '',
+      height: '' as any,
       heightUnit: 'cm' as const,
-      weight: '',
+      weight: '' as any,
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
@@ -488,7 +491,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
+    defaultValues: defaultValues as any,
   });
   
   const { fields: primaryFields, append: appendPrimary, remove: removePrimary } = useFieldArray({
@@ -502,7 +505,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   });
 
   React.useEffect(() => {
-    form.reset(defaultValues);
+    form.reset(defaultValues as any);
   }, [defaultValues, form]);
 
 
@@ -684,7 +687,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+          <TabsList className="w-full h-auto justify-start overflow-x-auto">
             <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
@@ -2826,6 +2829,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
