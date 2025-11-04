@@ -265,6 +265,15 @@ const formSchema = z
     testedPositiveViralInfection: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     testedPositiveFor: viralInfectionDetailSchema.optional(),
     awaitingResultsFor: viralInfectionDetailSchema.optional(),
+
+    // Medical History
+    bloodTransfusionOrSurgery: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    highBloodPressure: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    cancer: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    diabetes: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    colitisCrohns: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    paralysisEpilepsy: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    mentalIllness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
   });
 
 type NewBusinessFormProps = {
@@ -467,6 +476,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       testedPositiveViralInfection: 'no' as const,
       testedPositiveFor: { hiv: false, hepB: false, hepC: false },
       awaitingResultsFor: { hiv: false, hepB: false, hepC: false },
+      bloodTransfusionOrSurgery: 'no' as const,
+      highBloodPressure: 'no' as const,
+      cancer: 'no' as const,
+      diabetes: 'no' as const,
+      colitisCrohns: 'no' as const,
+      paralysisEpilepsy: 'no' as const,
+      mentalIllness: 'no' as const,
     };
   }, [isEditMode, businessId]);
 
@@ -2665,6 +2681,39 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         )}
                      </div>
                      <Separator />
+                      <div className="space-y-4">
+                        <h3 className="font-bold uppercase">Have you ever had, received or been diagnosed with any of the following:</h3>
+                        <div className="space-y-3">
+                            {[
+                                { name: 'bloodTransfusionOrSurgery', label: '5. Blood transfusion or surgery' },
+                                { name: 'highBloodPressure', label: "6. High blood pressure, angina, heart attack, stroke, coma or other diseases of the heart, arteries or circulation?" },
+                                { name: 'cancer', label: "7. Cancer, Leukemia, Hodgkin's disease, lymphoma or any other tumor?" },
+                                { name: 'diabetes', label: "8. Any form of diabetes?" },
+                                { name: 'colitisCrohns', label: "9. Colitis, Crohn's disease" },
+                                { name: 'paralysisEpilepsy', label: "10. Paralysis, multiple sclerosis, epilepsy, dementia or other disorder of the central nervous system?" },
+                                { name: 'mentalIllness', label: "11. Any mental illness that required Hospital or psychiatric treatment, depression and/or nevous breakdown?" },
+                            ].map(item => (
+                                <FormField
+                                    key={item.name}
+                                    control={form.control}
+                                    name={item.name as any}
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage className="col-span-full" />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                     <Separator />
                      <div className="space-y-4">
                         <h3 className="font-bold">Height and Weight</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2777,6 +2826,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
