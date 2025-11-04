@@ -457,9 +457,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
-      height: '' as any,
+      height: '',
       heightUnit: 'cm' as const,
-      weight: '' as any,
+      weight: '',
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
@@ -687,7 +687,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full h-auto justify-start overflow-x-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
             <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
@@ -2829,6 +2829,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
