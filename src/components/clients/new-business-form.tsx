@@ -454,9 +454,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
-      height: '' as any,
+      height: '',
       heightUnit: 'cm' as const,
-      weight: '' as any,
+      weight: '',
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
       alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
@@ -2826,6 +2826,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
