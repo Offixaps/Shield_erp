@@ -2239,6 +2239,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     <CardTitle>Health Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-8">
+                     <Alert variant="destructive">
+                        <AlertTitle className="font-bold">WARNING</AlertTitle>
+                        <AlertDescription>
+                            The answers you give to these questions are material. If you fail to give accurate answers, it may affect the terms of your contract and we may decline a claim. In some cases the Company may check these answers by obtaining a report from your doctor/hospital.
+                        </AlertDescription>
+                    </Alert>
                     <div className="space-y-2">
                         <h3 className="font-bold">1. Alcohol use</h3>
                         <p className="text-sm text-muted-foreground">1.1 Which of the following best describes your drinking habits (please tick one)</p>
@@ -2771,6 +2777,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
