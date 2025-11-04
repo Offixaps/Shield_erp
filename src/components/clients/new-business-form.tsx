@@ -2639,17 +2639,17 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         {testedPositiveViralInfection === 'yes' && (
                             <div className="rounded-lg border p-4 space-y-4 bg-muted/50">
                                 <p className="text-sm text-muted-foreground">If Yes please specify below:</p>
-                                <div className="space-y-2">
-                                    <FormLabel>Tested positive for:</FormLabel>
-                                    <div className="flex gap-4">
+                                <div className="flex items-center gap-6">
+                                    <FormLabel className="min-w-[140px]">Tested positive for:</FormLabel>
+                                    <div className="flex flex-wrap gap-4">
                                         <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
                                         <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
                                         <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <FormLabel>Awaiting results for:</FormLabel>
-                                    <div className="flex gap-4">
+                                <div className="flex items-center gap-6">
+                                    <FormLabel className="min-w-[140px]">Awaiting results for:</FormLabel>
+                                    <div className="flex flex-wrap gap-4">
                                         <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
                                         <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
                                         <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
@@ -2771,6 +2771,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
