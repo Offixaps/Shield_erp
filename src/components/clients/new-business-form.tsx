@@ -149,6 +149,12 @@ const tobaccoDetailSchema = z.object({
     otherType: z.string().optional(),
 });
 
+const viralInfectionDetailSchema = z.object({
+    hiv: z.boolean().default(false),
+    hepB: z.boolean().default(false),
+    hepC: z.boolean().default(false),
+});
+
 const formSchema = z
   .object({
     // Client Details
@@ -254,6 +260,11 @@ const formSchema = z
     tobaccoNicotineReplacement: tobaccoDetailSchema.optional(),
     tobaccoEcigarettes: tobaccoDetailSchema.optional(),
     tobaccoOther: tobaccoDetailSchema.optional(),
+    usedRecreationalDrugs: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    injectedNonPrescribedDrugs: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    testedPositiveViralInfection: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    testedPositiveFor: viralInfectionDetailSchema.optional(),
+    awaitingResultsFor: viralInfectionDetailSchema.optional(),
   });
 
 type NewBusinessFormProps = {
@@ -451,6 +462,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       tobaccoNicotineReplacement: { smoked: false, avgPerDay: '', avgPerWeek: '' },
       tobaccoEcigarettes: { smoked: false, avgPerDay: '', avgPerWeek: '' },
       tobaccoOther: { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
+      usedRecreationalDrugs: 'no' as const,
+      injectedNonPrescribedDrugs: 'no' as const,
+      testedPositiveViralInfection: 'no' as const,
+      testedPositiveFor: { hiv: false, hepB: false, hepC: false },
+      awaitingResultsFor: { hiv: false, hepB: false, hepC: false },
     };
   }, [isEditMode, businessId]);
 
@@ -488,6 +504,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const height = form.watch('height');
   const heightUnit = form.watch('heightUnit');
   const weight = form.watch('weight');
+  const testedPositiveViralInfection = form.watch('testedPositiveViralInfection');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -2558,6 +2575,89 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </div>
                         </div>
                     )}
+                    <Separator />
+                    <div className="space-y-4">
+                        <h3 className="font-bold">3. Recreational Drugs</h3>
+                        <FormField
+                            control={form.control}
+                            name="usedRecreationalDrugs"
+                            render={({ field }) => (
+                                <FormItem className="rounded-lg border p-4 space-y-3">
+                                <FormLabel>
+                                    3.1 Have you ever used recreational drugs (e.g. cocaine, heroin, weed) or taken drugs other than for medical purposes?
+                                </FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="injectedNonPrescribedDrugs"
+                            render={({ field }) => (
+                                <FormItem className="rounded-lg border p-4 space-y-3">
+                                <FormLabel>
+                                    3.2 Have you ever injected a non-prescribed drugs?
+                                </FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <Separator />
+                     <div className="space-y-4">
+                        <h3 className="font-bold">4. Viral Co-infections</h3>
+                        <FormField
+                            control={form.control}
+                            name="testedPositiveViralInfection"
+                            render={({ field }) => (
+                                <FormItem className="rounded-lg border p-4 space-y-3">
+                                <FormLabel>
+                                    4.1 Have you ever been tested positive for HIV, Hepatitis B or C, or are you awaiting the results of such a test?
+                                </FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        {testedPositiveViralInfection === 'yes' && (
+                            <div className="rounded-lg border p-4 space-y-4 bg-muted/50">
+                                <p className="text-sm text-muted-foreground">If Yes please specify below:</p>
+                                <div className="space-y-2">
+                                    <FormLabel>Tested positive for:</FormLabel>
+                                    <div className="flex gap-4">
+                                        <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                                        <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                                        <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                                    </div>
+                                </div>
+                                <div className="space-y-2">
+                                    <FormLabel>Awaiting results for:</FormLabel>
+                                    <div className="flex gap-4">
+                                        <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                                        <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                                        <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                     </div>
                      <Separator />
                      <div className="space-y-4">
                         <h3 className="font-bold">Height and Weight</h3>
@@ -2671,6 +2771,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
