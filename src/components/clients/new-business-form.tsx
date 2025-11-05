@@ -109,6 +109,7 @@ const beneficiarySchema = z.object({
     dob: z.date({ required_error: 'Date of birth is required.' }),
     gender: z.enum(['Male', 'Female']),
     relationship: z.string().min(1, "Relationship is required."),
+    telephone: z.string().optional(),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
     isIrrevocable: z.boolean().optional().default(false),
 });
@@ -2028,7 +2029,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                          <CardTitle>Primary Beneficiaries</CardTitle>
-                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0, isIrrevocable: false })}>
+                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0, isIrrevocable: false })}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Primary
                         </Button>
@@ -2043,6 +2044,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     <TableHead>Date of Birth</TableHead>
                                     <TableHead>Gender</TableHead>
                                     <TableHead>Relationship</TableHead>
+                                    <TableHead>Telephone</TableHead>
                                     <TableHead>Percentage (%)</TableHead>
                                     <TableHead>IB</TableHead>
                                     <TableHead className="w-[50px]"></TableHead>
@@ -2117,6 +2119,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                         <TableCell>
                                             <FormField
                                                 control={form.control}
+                                                name={`primaryBeneficiaries.${index}.telephone`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="e.g., 024..." />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
                                                 name={`primaryBeneficiaries.${index}.percentage`}
                                                 render={({ field }) => (
                                                     <Input type="number" {...field} placeholder="e.g., 100" />
@@ -2156,7 +2167,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <CardTitle>Contingent Beneficiaries</CardTitle>
-                        <Button type="button" size="sm" onClick={() => appendContingent({ name: '', dob: new Date(), gender: 'Male', relationship: '', percentage: 0 })}>
+                        <Button type="button" size="sm" onClick={() => appendContingent({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0 })}>
                             <Plus className="mr-2 h-4 w-4" />
                             Add Contingent
                         </Button>
@@ -2171,6 +2182,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     <TableHead>Date of Birth</TableHead>
                                     <TableHead>Gender</TableHead>
                                     <TableHead>Relationship</TableHead>
+                                    <TableHead>Telephone</TableHead>
                                     <TableHead>Percentage (%)</TableHead>
                                     <TableHead className="w-[50px]"></TableHead>
                                 </TableRow>
@@ -2238,6 +2250,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                 name={`contingentBeneficiaries.${index}.relationship`}
                                                 render={({ field }) => (
                                                     <Input {...field} placeholder="e.g., Child" />
+                                                )}
+                                            />
+                                        </TableCell>
+                                        <TableCell>
+                                            <FormField
+                                                control={form.control}
+                                                name={`contingentBeneficiaries.${index}.telephone`}
+                                                render={({ field }) => (
+                                                    <Input {...field} placeholder="e.g., 024..." />
                                                 )}
                                             />
                                         </TableCell>
@@ -2873,6 +2894,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
