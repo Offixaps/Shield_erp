@@ -281,6 +281,17 @@ const formSchema = z
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    kidneyDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    numbness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    anxietyStress: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    earEyeDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    lumpGrowth: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    hospitalAttendance: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    criticalIllness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    sti: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    presentSymptoms: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    presentWaitingConsultation: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    presentTakingMedication: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
   });
 
 type NewBusinessFormProps = {
@@ -499,6 +510,17 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       digestiveDisorder: 'no' as const,
       bloodDisorder: 'no' as const,
       thyroidDisorder: 'no' as const,
+      kidneyDisorder: 'no' as const,
+      numbness: 'no' as const,
+      anxietyStress: 'no' as const,
+      earEyeDisorder: 'no' as const,
+      lumpGrowth: 'no' as const,
+      hospitalAttendance: 'no' as const,
+      criticalIllness: 'no' as const,
+      sti: 'no' as const,
+      presentSymptoms: 'no' as const,
+      presentWaitingConsultation: 'no' as const,
+      presentTakingMedication: 'no' as const,
     };
   }, [isEditMode, businessId]);
 
@@ -700,7 +722,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 h-auto">
+          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 h-auto">
             <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
@@ -2821,6 +2843,43 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
                                 { name: 'bloodDisorder', label: "16. Blood disorder or anemia?" },
                                 { name: 'thyroidDisorder', label: "17. Thyroid disorder?" },
+                                { name: 'kidneyDisorder', label: '18. Kidney, renal failure or bladder disorder?' },
+                                { name: 'numbness', label: '19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?' },
+                                { name: 'anxietyStress', label: '20. Any medical attention for anxiety, stress or depression?' },
+                                { name: 'earEyeDisorder', label: '21. Disorder of the ear or eye, blindness (including blurred or double vision)? Please ignore sight problems corrected by lens.' },
+                                { name: 'lumpGrowth', label: '22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?' },
+                                { name: 'hospitalAttendance', label: '23. in the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?' },
+                                { name: 'criticalIllness', label: "24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." },
+                                { name: 'sti', label: "25. Sexually transmitted infections (STI's) (e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge or vaginal trush?" },
+                            ].map(item => (
+                                <FormField
+                                    key={item.name}
+                                    control={form.control}
+                                    name={item.name as any}
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage className="col-span-full" />
+                                        </FormItem>
+                                    )}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <Separator />
+                    <div className="space-y-4">
+                        <h3 className="font-bold">Are you presently:</h3>
+                        <div className="space-y-3">
+                            {[
+                                { name: 'presentSymptoms', label: '26. Experiencing any symptom, condition or disability not mentioned above?' },
+                                { name: 'presentWaitingConsultation', label: '27. Waiting to have any consultation, investigation, test or follow up on any condition not previously disclosed?' },
+                                { name: 'presentTakingMedication', label: '28. Taking any medication or any other form of medical treatment for any condition not previously disclosed?' },
                             ].map(item => (
                                 <FormField
                                     key={item.name}
@@ -2894,6 +2953,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
