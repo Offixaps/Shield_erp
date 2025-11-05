@@ -2811,20 +2811,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 { name: 'colitisCrohns', label: "9. Colitis, Crohn's disease" },
                                 { name: 'paralysisEpilepsy', label: "10. Paralysis, multiple sclerosis, epilepsy, dementia or other disorder of the central nervous system?" },
                                 { name: 'mentalIllness', label: "11. Any mental illness that required Hospital or psychiatric treatment, depression and/or nevous breakdown?" },
-                                { name: 'arthritis', label: '12. Arthritis, neck or back pain, gout or other muscle, joint or bone disorder' },
-                                { name: 'chestPain', label: "13. Chest pain, irregular heart beat or raised cholesterol?" },
-                                { name: 'asthma', label: "14. Asthma, bronchitis, shortness of breath or other chest complaint?" },
-                                { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
-                                { name: 'bloodDisorder', label: "16. Blood disorder or anemia?" },
-                                { name: 'thyroidDisorder', label: "17. Thyroid disorder?" },
-                                { name: 'kidneyDisorder', label: '18. Kidney, renal failure or bladder disorder?' },
-                                { name: 'numbness', label: '19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?' },
-                                { name: 'anxietyStress', label: '20. Any medical attention for anxiety, stress or depression?' },
-                                { name: 'earEyeDisorder', label: '21. Disorder of the ear or eye, blindness (including blurred or double vision)? Please ignore sight problems corrected by lens.' },
-                                { name: 'lumpGrowth', label: '22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?' },
-                                { name: 'hospitalAttendance', label: '23. in the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?' },
-                                { name: 'criticalIllness', label: "24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." },
-                                { name: 'sti', label: "25. Sexually transmitted infections (STI's) (e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge or vaginal trush?" },
                             ].map(item => (
                                 <FormField
                                     key={item.name}
@@ -2847,10 +2833,43 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </div>
                     </div>
                     <Separator />
-                     <div className="space-y-4">
+                    <div className="space-y-4">
                         <h3 className="font-bold">In the past 5 years have you ever had:</h3>
                         <div className="space-y-3">
-                           
+                             {[
+                                { name: 'arthritis', label: '12. Arthritis, neck or back pain, gout or other muscle, joint or bone disorder' },
+                                { name: 'chestPain', label: "13. Chest pain, irregular heart beat or raised cholesterol?" },
+                                { name: 'asthma', label: "14. Asthma, bronchitis, shortness of breath or other chest complaint?" },
+                                { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
+                                { name: 'bloodDisorder', label: "16. Blood disorder or anemia?" },
+                                { name: 'thyroidDisorder', label: "17. Thyroid disorder?" },
+                                { name: 'kidneyDisorder', label: '18. Kidney, renal failure or bladder disorder?' },
+                                { name: 'numbness', label: '19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?' },
+                                { name: 'anxietyStress', label: '20. Any medical attention for anxiety, stress or depression?' },
+                                { name: 'earEyeDisorder', label: '21. Disorder of the ear or eye, blindness (including blurred or double vision)? Please ignore sight problems corrected by lens.' },
+                                { name: 'lumpGrowth', label: '22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?' },
+                                { name: 'hospitalAttendance', label: '23. in the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?' },
+                                { name: 'criticalIllness', label: "24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." },
+                                { name: 'sti', label: "25. Sexually transmitted infections (STI's) (e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge or vaginal trush?" },
+                             ].map(item => (
+                                <FormField
+                                    key={item.name}
+                                    control={form.control}
+                                    name={item.name as any}
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage className="col-span-full" />
+                                        </FormItem>
+                                    )}
+                                />
+                             ))}
                         </div>
                     </div>
                     <Separator />
@@ -2934,6 +2953,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
