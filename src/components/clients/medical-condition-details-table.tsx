@@ -2,8 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { useFieldArray, type Control, type UseFormReturn } from 'react-hook-form';
-import { z } from 'zod';
+import { useFieldArray, type UseFormReturn } from 'react-hook-form';
 import {
   Table,
   TableBody,
@@ -24,18 +23,20 @@ import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { FormField, FormControl } from '../ui/form';
-import type { illnessDetailSchema } from './new-business-form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 type FormValues = any;
 
 type MedicalConditionDetailsTableProps = {
   form: UseFormReturn<FormValues>;
-  fieldName: any; // keyof FormValues that is an array of illnessDetailSchema
+  fieldName: any;
+  illnessOptions?: string[];
 };
 
 export default function MedicalConditionDetailsTable({
   form,
   fieldName,
+  illnessOptions,
 }: MedicalConditionDetailsTableProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -64,7 +65,22 @@ export default function MedicalConditionDetailsTable({
                     control={form.control}
                     name={`${fieldName}.${index}.illness`}
                     render={({ field }) => (
-                      <Input {...field} placeholder="e.g., Surgery" />
+                      illnessOptions ? (
+                        <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select illness" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {illnessOptions.map(option => (
+                                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                      ) : (
+                        <Input {...field} placeholder="e.g., Surgery" />
+                      )
                     )}
                   />
                 </TableCell>

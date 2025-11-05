@@ -2832,7 +2832,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                   <FormMessage />
                                   {bloodTransfusionOrSurgery === 'yes' && (
                                     <div className="pt-4">
-                                      <MedicalConditionDetailsTable form={form} fieldName="bloodTransfusionOrSurgeryDetails" />
+                                      <MedicalConditionDetailsTable form={form} fieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery']} />
                                     </div>
                                   )}
                                 </FormItem>
@@ -2988,6 +2988,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
