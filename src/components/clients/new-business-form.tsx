@@ -2635,6 +2635,67 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     )}
                     <Separator />
                     <div className="space-y-4">
+                        <h3 className="font-bold">Height and Weight</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                                control={form.control}
+                                name="height"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>What is your height?</FormLabel>
+                                    <div className="flex items-center gap-2">
+                                        <FormControl>
+                                            <Input type="number" placeholder="e.g., 175" {...field} />
+                                        </FormControl>
+                                        <FormField
+                                            control={form.control}
+                                            name="heightUnit"
+                                            render={({ field: unitField }) => (
+                                                <Select onValueChange={unitField.onChange} value={unitField.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-[80px]">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="cm">cm</SelectItem>
+                                                        <SelectItem value="m">m</SelectItem>
+                                                        <SelectItem value="ft">ft</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            )}
+                                        />
+                                    </div>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="weight"
+                                render={({ field }) => (
+                                    <FormItem>
+                                    <FormLabel>What is your weight? (KG)</FormLabel>
+                                    <FormControl>
+                                        <Input type="number" placeholder="e.g., 70" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
+                        {bmi && bmiStatus && (
+                            <div className="mt-4 space-y-2">
+                                <FormLabel>Body Mass Index (BMI)</FormLabel>
+                                <div className="flex items-center gap-4">
+                                <div className="text-2xl font-bold">{bmi.toFixed(1)}</div>
+                                <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <Separator />
+                    <div className="space-y-4">
                         <h3 className="font-bold">3. Recreational Drugs</h3>
                         <FormField
                             control={form.control}
@@ -2781,67 +2842,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             ))}
                         </div>
                     </div>
-                     <Separator />
-                     <div className="space-y-4">
-                        <h3 className="font-bold">Height and Weight</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <FormField
-                                control={form.control}
-                                name="height"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>What is your height?</FormLabel>
-                                    <div className="flex items-center gap-2">
-                                        <FormControl>
-                                            <Input type="number" placeholder="e.g., 175" {...field} />
-                                        </FormControl>
-                                        <FormField
-                                            control={form.control}
-                                            name="heightUnit"
-                                            render={({ field: unitField }) => (
-                                                <Select onValueChange={unitField.onChange} value={unitField.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger className="w-[80px]">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="cm">cm</SelectItem>
-                                                        <SelectItem value="m">m</SelectItem>
-                                                        <SelectItem value="ft">ft</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            )}
-                                        />
-                                    </div>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="weight"
-                                render={({ field }) => (
-                                    <FormItem>
-                                    <FormLabel>What is your weight? (KG)</FormLabel>
-                                    <FormControl>
-                                        <Input type="number" placeholder="e.g., 70" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
-                        {bmi && bmiStatus && (
-                            <div className="mt-4 space-y-2">
-                                <FormLabel>Body Mass Index (BMI)</FormLabel>
-                                <div className="flex items-center gap-4">
-                                <div className="text-2xl font-bold">{bmi.toFixed(1)}</div>
-                                <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
-                                </div>
-                            </div>
-                        )}
-                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
@@ -2894,6 +2894,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
