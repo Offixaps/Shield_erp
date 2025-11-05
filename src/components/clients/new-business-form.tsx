@@ -317,6 +317,7 @@ const formSchema = z
     sti: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     stiDetails: z.array(illnessDetailSchema).optional(),
     presentSymptoms: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    presentSymptomsDetails: z.array(illnessDetailSchema).optional(),
     presentWaitingConsultation: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     presentTakingMedication: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
   });
@@ -564,6 +565,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       sti: 'no' as const,
       stiDetails: [],
       presentSymptoms: 'no' as const,
+      presentSymptomsDetails: [],
       presentWaitingConsultation: 'no' as const,
       presentTakingMedication: 'no' as const,
     };
@@ -622,6 +624,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const hospitalAttendance = form.watch('hospitalAttendance');
   const criticalIllness = form.watch('criticalIllness');
   const sti = form.watch('sti');
+  const presentSymptoms = form.watch('presentSymptoms');
 
 
   React.useEffect(() => {
@@ -2720,7 +2723,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </div>
                     )}
                     <Separator />
-                    <div className="space-y-4">
+                     <div className="space-y-4">
                         <h3 className="font-bold">Height and Weight</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField
@@ -3031,7 +3034,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     </div>
                     <Separator />
                     <div className="space-y-4">
-                         <h3 className="font-bold">In the past 5 years have you ever had:</h3>
+                        <h3 className="font-bold">In the past 5 years have you ever had:</h3>
                         <div className="space-y-3">
                              <FormField
                               control={form.control}
@@ -3338,8 +3341,30 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     <div className="space-y-4">
                         <h3 className="font-bold">Are you presently:</h3>
                         <div className="space-y-3">
+                            <FormField
+                              control={form.control}
+                              name="presentSymptoms"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">26. Experiencing any symptom, condition or disability not mentioned above?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {presentSymptoms === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="presentSymptomsDetails" />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
                             {[
-                                { name: 'presentSymptoms', label: '26. Experiencing any symptom, condition or disability not mentioned above?' },
                                 { name: 'presentWaitingConsultation', label: '27. Waiting to have any consultation, investigation, test or follow up on any condition not previously disclosed?' },
                                 { name: 'presentTakingMedication', label: '28. Taking any medication or any other form of medical treatment for any condition not previously disclosed?' },
                             ].map(item => (
@@ -3415,6 +3440,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
