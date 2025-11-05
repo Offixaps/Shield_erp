@@ -163,6 +163,16 @@ export const illnessDetailSchema = z.object({
   hospital: z.string().optional(),
   duration: z.string().optional(),
   status: z.string().optional(),
+  // Nested fields for High Blood Pressure
+  diagnosisDate: z.date().optional(),
+  bpReadingAtDiagnosis: z.string().optional(),
+  causeOfHighBp: z.string().optional(),
+  prescribedTreatment: z.string().optional(),
+  complications: z.string().optional(),
+  monitoringFrequency: z.string().optional(),
+  lastMonitoredDate: z.date().optional(),
+  lastBpReading: z.string().optional(),
+  sugarCholesterolChecked: z.string().optional(),
 });
 
 const formSchema = z
@@ -3440,6 +3450,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
