@@ -722,7 +722,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 h-auto">
+           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
             <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
@@ -2801,7 +2801,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                      </div>
                      <Separator />
                       <div className="space-y-4">
-                        <h3 className="font-bold uppercase">Have you ever had, received or been diagnosed with any of the following:</h3>
+                        <h3 className="font-bold">Have you ever had, received or been diagnosed with any of the following:</h3>
                         <div className="space-y-3">
                             {[
                                 { name: 'bloodTransfusionOrSurgery', label: '5. Blood transfusion or surgery' },
@@ -2811,32 +2811,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 { name: 'colitisCrohns', label: "9. Colitis, Crohn's disease" },
                                 { name: 'paralysisEpilepsy', label: "10. Paralysis, multiple sclerosis, epilepsy, dementia or other disorder of the central nervous system?" },
                                 { name: 'mentalIllness', label: "11. Any mental illness that required Hospital or psychiatric treatment, depression and/or nevous breakdown?" },
-                            ].map(item => (
-                                <FormField
-                                    key={item.name}
-                                    control={form.control}
-                                    name={item.name as any}
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
-                                            <FormControl>
-                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                                </RadioGroup>
-                                            </FormControl>
-                                            <FormMessage className="col-span-full" />
-                                        </FormItem>
-                                    )}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                    <Separator />
-                     <div className="space-y-4">
-                        <h3 className="font-bold">In the past 5 years have you ever had:</h3>
-                        <div className="space-y-3">
-                            {[
                                 { name: 'arthritis', label: '12. Arthritis, neck or back pain, gout or other muscle, joint or bone disorder' },
                                 { name: 'chestPain', label: "13. Chest pain, irregular heart beat or raised cholesterol?" },
                                 { name: 'asthma', label: "14. Asthma, bronchitis, shortness of breath or other chest complaint?" },
@@ -2870,6 +2844,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     )}
                                 />
                             ))}
+                        </div>
+                    </div>
+                    <Separator />
+                     <div className="space-y-4">
+                        <h3 className="font-bold">In the past 5 years have you ever had:</h3>
+                        <div className="space-y-3">
+                           
                         </div>
                     </div>
                     <Separator />
@@ -2953,6 +2934,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
