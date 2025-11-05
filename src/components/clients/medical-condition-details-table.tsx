@@ -203,6 +203,93 @@ function HighBloodPressureDetails({ control, index, fieldName }: { control: any,
     );
 }
 
+function DiabetesDetails({ control, index, fieldName }: { control: any, index: number, fieldName: string }) {
+    return (
+        <div className="p-4 mt-2 space-y-6 bg-red-500/10 rounded-md border border-red-500/20">
+            <h4 className="font-semibold text-destructive">Diabetes Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name={`${fieldName}.${index}.diabetesFirstSignsDate`}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>1. When did the first signs commence?</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date()} captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} />
+                            </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                  />
+                <FormField
+                    control={control}
+                    name={`${fieldName}.${index}.diabetesSymptoms`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>2. What were the symptoms?</FormLabel>
+                        <FormControl>
+                            <Input {...field} placeholder="e.g., Frequent urination, thirst" />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+            </div>
+            <FormField
+                control={control}
+                name={`${fieldName}.${index}.diabetesConsulted`}
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>3. Have you consulted a Medical Attendant for this condition?</FormLabel>
+                        <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                        </FormControl>
+                    </FormItem>
+                )}
+            />
+             <FormField
+                    control={control}
+                    name={`${fieldName}.${index}.diabetesDiagnosisDate`}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>4. When did your doctor diagnose you with Diabetes Mellitus?</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date()} captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} />
+                            </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesHospitalized`} render={({ field }) => (<FormItem><FormLabel>5. Have you ever been hospitalized for Diabetes? If yes, when, at which hospital and for how long?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesTakingInsulin`} render={({ field }) => (<FormItem><FormLabel>6. Are you taking any Insulin? If Yes, what type and how many units per day?</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesOralTreatment`} render={({ field }) => (<FormItem><FormLabel>7. Are you taking any oral treatment? If Yes, provide full details of the type and dosage.</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesDosageVaried`} render={({ field }) => (<FormItem><FormLabel>8. Has the intake of Insulin or oral drugs varied during the last 12 months? If Yes, give details of previous dosage.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesRegularTests`} render={({ field }) => (<FormItem><FormLabel>9. Do you regularly test blood and urine for sugar? If Yes, at what intervals and do you do home blood glucometer checks?</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesLatestBloodSugar`} render={({ field }) => (<FormItem><FormLabel>10. What was the latest blood sugar reading?</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesDiabeticComa`} render={({ field }) => (<FormItem><FormLabel>11. Have you ever been in a diabetic or insulin coma at any time? If Yes, state number of attacks and dates.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+        </div>
+    );
+}
 
 function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOptions }: { form: UseFormReturn<FormValues>, field: any, index: number, fieldName: string, remove: (index: number) => void, illnessOptions?: string[] }) {
     const watchIllness = useWatch({
@@ -322,6 +409,13 @@ function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOpt
                     </TableCell>
                 </TableRow>
             )}
+            {watchIllness === 'Diabetes' && (
+                <TableRow>
+                    <TableCell colSpan={6}>
+                        <DiabetesDetails control={form.control} index={index} fieldName={fieldName} />
+                    </TableCell>
+                </TableRow>
+            )}
         </>
     )
 }
@@ -384,3 +478,5 @@ export default function MedicalConditionDetailsTable({
     </div>
   );
 }
+
+    

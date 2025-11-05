@@ -173,6 +173,18 @@ export const illnessDetailSchema = z.object({
   lastMonitoredDate: z.date().optional(),
   lastBpReading: z.string().optional(),
   sugarCholesterolChecked: z.string().optional(),
+  // Nested fields for Diabetes
+  diabetesFirstSignsDate: z.date().optional(),
+  diabetesSymptoms: z.string().optional(),
+  diabetesConsulted: z.enum(['yes', 'no']).optional(),
+  diabetesDiagnosisDate: z.date().optional(),
+  diabetesHospitalized: z.string().optional(),
+  diabetesTakingInsulin: z.string().optional(),
+  diabetesOralTreatment: z.string().optional(),
+  diabetesDosageVaried: z.string().optional(),
+  diabetesRegularTests: z.string().optional(),
+  diabetesLatestBloodSugar: z.string().optional(),
+  diabetesDiabeticComa: z.string().optional(),
 });
 
 const formSchema = z
@@ -294,6 +306,7 @@ const formSchema = z
     cancer: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     cancerDetails: z.array(illnessDetailSchema).optional(),
     diabetes: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    diabetesDetails: z.array(illnessDetailSchema).optional(),
     colitisCrohns: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     colitisCrohnsDetails: z.array(illnessDetailSchema).optional(),
     paralysisEpilepsy: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
@@ -542,6 +555,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       cancer: 'no' as const,
       cancerDetails: [],
       diabetes: 'no' as const,
+      diabetesDetails: [],
       colitisCrohns: 'no' as const,
       colitisCrohnsDetails: [],
       paralysisEpilepsy: 'no' as const,
@@ -619,6 +633,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const bloodTransfusionOrSurgery = form.watch('bloodTransfusionOrSurgery');
   const highBloodPressure = form.watch('highBloodPressure');
   const cancer = form.watch('cancer');
+  const diabetes = form.watch('diabetes');
   const colitisCrohns = form.watch('colitisCrohns');
   const paralysisEpilepsy = form.watch('paralysisEpilepsy');
   const mentalIllness = form.watch('mentalIllness');
@@ -2733,7 +2748,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </div>
                     )}
                     <Separator />
-                     <div className="space-y-4">
+                    <div className="space-y-4">
                         <h3 className="font-bold">Height and Weight</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField
@@ -2793,7 +2808,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </div>
                         )}
                     </div>
-                    <Separator />
+                     <Separator />
                     <div className="space-y-4">
                         <h3 className="font-bold">3. Recreational Drugs</h3>
                         <FormField
@@ -2952,21 +2967,27 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             />
                             
                             <FormField
-                                key="diabetes"
-                                control={form.control}
-                                name="diabetes"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                        <FormLabel className="max-w-[80%]">8. Any form of diabetes?</FormLabel>
-                                        <FormControl>
-                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                            </RadioGroup>
-                                        </FormControl>
-                                        <FormMessage className="col-span-full" />
-                                    </FormItem>
-                                )}
+                              control={form.control}
+                              name="diabetes"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">8. Any form of diabetes?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {diabetes === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="diabetesDetails" illnessOptions={['Diabetes']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
                             />
 
                             <FormField
@@ -3481,3 +3502,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
 
+
+
+    
