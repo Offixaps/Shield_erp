@@ -291,11 +291,15 @@ const formSchema = z
     mentalIllness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     mentalIllnessDetails: z.array(illnessDetailSchema).optional(),
     arthritis: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    arthritisDetails: z.array(illnessDetailSchema).optional(),
     chestPain: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    chestPainDetails: z.array(illnessDetailSchema).optional(),
     asthma: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    bloodDisorderDetails: z.array(illnessDetailSchema).optional(),
     thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    thyroidDisorderDetails: z.array(illnessDetailSchema).optional(),
     kidneyDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     numbness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     anxietyStress: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
@@ -526,11 +530,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       mentalIllness: 'no' as const,
       mentalIllnessDetails: [],
       arthritis: 'no' as const,
+      arthritisDetails: [],
       chestPain: 'no' as const,
+      chestPainDetails: [],
       asthma: 'no' as const,
       digestiveDisorder: 'no' as const,
       bloodDisorder: 'no' as const,
+      bloodDisorderDetails: [],
       thyroidDisorder: 'no' as const,
+      thyroidDisorderDetails: [],
       kidneyDisorder: 'no' as const,
       numbness: 'no' as const,
       anxietyStress: 'no' as const,
@@ -586,6 +594,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const colitisCrohns = form.watch('colitisCrohns');
   const paralysisEpilepsy = form.watch('paralysisEpilepsy');
   const mentalIllness = form.watch('mentalIllness');
+  const arthritis = form.watch('arthritis');
+  const chestPain = form.watch('chestPain');
+  const bloodDisorder = form.watch('bloodDisorder');
+  const thyroidDisorder = form.watch('thyroidDisorder');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -2894,7 +2906,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                   <FormMessage />
                                   {cancer === 'yes' && (
                                     <div className="pt-4">
-                                      <MedicalConditionDetailsTable form={form} fieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', 'Hodgkin\'s disease', 'Lymphoma', 'Other tumor']} />
+                                      <MedicalConditionDetailsTable form={form} fieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
                                     </div>
                                   )}
                                 </FormItem>
@@ -2936,7 +2948,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                   <FormMessage />
                                   {colitisCrohns === 'yes' && (
                                     <div className="pt-4">
-                                      <MedicalConditionDetailsTable form={form} fieldName="colitisCrohnsDetails" illnessOptions={['Colitis', 'Crohn\'s disease']} />
+                                      <MedicalConditionDetailsTable form={form} fieldName="colitisCrohnsDetails" illnessOptions={['Colitis', "Crohn's disease"]} />
                                     </div>
                                   )}
                                 </FormItem>
@@ -2997,13 +3009,122 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     <div className="space-y-4">
                          <h3 className="font-bold">In the past 5 years have you ever had:</h3>
                         <div className="space-y-3">
+                             <FormField
+                              control={form.control}
+                              name="arthritis"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">12. Arthritis, neck or back pain, gout or other muscle, joint or bone disorder</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {arthritis === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="arthritisDetails" illnessOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                             <FormField
+                              control={form.control}
+                              name="chestPain"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">13. Chest pain, irregular heart beat or raised cholesterol?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {chestPain === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="chestPainDetails" illnessOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+
                              {[
-                                { name: 'arthritis', label: '12. Arthritis, neck or back pain, gout or other muscle, joint or bone disorder' },
-                                { name: 'chestPain', label: "13. Chest pain, irregular heart beat or raised cholesterol?" },
                                 { name: 'asthma', label: "14. Asthma, bronchitis, shortness of breath or other chest complaint?" },
                                 { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
-                                { name: 'bloodDisorder', label: "16. Blood disorder or anemia?" },
-                                { name: 'thyroidDisorder', label: "17. Thyroid disorder?" },
+                             ].map(item => (
+                                <FormField
+                                    key={item.name}
+                                    control={form.control}
+                                    name={item.name as any}
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
+                                            <FormControl>
+                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                                </RadioGroup>
+                                            </FormControl>
+                                            <FormMessage className="col-span-full" />
+                                        </FormItem>
+                                    )}
+                                />
+                             ))}
+                              <FormField
+                              control={form.control}
+                              name="bloodDisorder"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">16. Blood disorder or anemia?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {bloodDisorder === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="bloodDisorderDetails" illnessOptions={['Blood disorder', 'Anemia']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="thyroidDisorder"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">17. Thyroid disorder?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {thyroidDisorder === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="thyroidDisorderDetails" illnessOptions={['Thyroid disorder']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                             {[
                                 { name: 'kidneyDisorder', label: '18. Kidney, renal failure or bladder disorder?' },
                                 { name: 'numbness', label: '19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?' },
                                 { name: 'anxietyStress', label: '20. Any medical attention for anxiety, stress or depression?' },
@@ -3114,6 +3235,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
