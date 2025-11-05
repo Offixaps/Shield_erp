@@ -301,9 +301,13 @@ const formSchema = z
     thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     thyroidDisorderDetails: z.array(illnessDetailSchema).optional(),
     kidneyDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    kidneyDisorderDetails: z.array(illnessDetailSchema).optional(),
     numbness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    numbnessDetails: z.array(illnessDetailSchema).optional(),
     anxietyStress: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    anxietyStressDetails: z.array(illnessDetailSchema).optional(),
     earEyeDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    earEyeDisorderDetails: z.array(illnessDetailSchema).optional(),
     lumpGrowth: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     hospitalAttendance: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     criticalIllness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
@@ -540,9 +544,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       thyroidDisorder: 'no' as const,
       thyroidDisorderDetails: [],
       kidneyDisorder: 'no' as const,
+      kidneyDisorderDetails: [],
       numbness: 'no' as const,
+      numbnessDetails: [],
       anxietyStress: 'no' as const,
+      anxietyStressDetails: [],
       earEyeDisorder: 'no' as const,
+      earEyeDisorderDetails: [],
       lumpGrowth: 'no' as const,
       hospitalAttendance: 'no' as const,
       criticalIllness: 'no' as const,
@@ -598,6 +606,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const chestPain = form.watch('chestPain');
   const bloodDisorder = form.watch('bloodDisorder');
   const thyroidDisorder = form.watch('thyroidDisorder');
+  const kidneyDisorder = form.watch('kidneyDisorder');
+  const numbness = form.watch('numbness');
+  const anxietyStress = form.watch('anxietyStress');
+  const earEyeDisorder = form.watch('earEyeDisorder');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -3124,11 +3136,99 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 </FormItem>
                               )}
                             />
+                             <FormField
+                              control={form.control}
+                              name="kidneyDisorder"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">18. Kidney, renal failure or bladder disorder?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {kidneyDisorder === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="kidneyDisorderDetails" illnessOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                             <FormField
+                              control={form.control}
+                              name="numbness"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {numbness === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="numbnessDetails" />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="anxietyStress"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">20. Any medical attention for anxiety, stress or depression?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {anxietyStress === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="anxietyStressDetails" illnessOptions={['Anxiety', 'Stress', 'Depression']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="earEyeDisorder"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">21. Disorder of the ear or eye, blindness (including blurred or double vision)? Please ignore sight problems corrected by lens.</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {earEyeDisorder === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="earEyeDisorderDetails" illnessOptions={['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
                              {[
-                                { name: 'kidneyDisorder', label: '18. Kidney, renal failure or bladder disorder?' },
-                                { name: 'numbness', label: '19. Numbness, loss of feelings or tingling of the limbs or face or temporary loss of muscle power?' },
-                                { name: 'anxietyStress', label: '20. Any medical attention for anxiety, stress or depression?' },
-                                { name: 'earEyeDisorder', label: '21. Disorder of the ear or eye, blindness (including blurred or double vision)? Please ignore sight problems corrected by lens.' },
                                 { name: 'lumpGrowth', label: '22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?' },
                                 { name: 'hospitalAttendance', label: '23. in the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?' },
                                 { name: 'criticalIllness', label: "24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." },
@@ -3235,6 +3335,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
