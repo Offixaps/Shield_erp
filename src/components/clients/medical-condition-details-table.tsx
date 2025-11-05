@@ -115,6 +115,9 @@ export default function MedicalConditionDetailsTable({
                             onSelect={field.onChange}
                             initialFocus
                             disabled={(date) => date > new Date()}
+                            captionLayout="dropdown-buttons"
+                            fromYear={1900}
+                            toYear={new Date().getFullYear()}
                           />
                         </PopoverContent>
                       </Popover>
