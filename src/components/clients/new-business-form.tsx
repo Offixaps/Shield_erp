@@ -48,6 +48,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Badge } from '../ui/badge';
+import MedicalConditionDetailsTable from './medical-condition-details-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -154,6 +155,14 @@ const viralInfectionDetailSchema = z.object({
     hiv: z.boolean().default(false),
     hepB: z.boolean().default(false),
     hepC: z.boolean().default(false),
+});
+
+export const illnessDetailSchema = z.object({
+  illness: z.string().min(1, 'Illness/Injury is required.'),
+  date: z.date({ required_error: 'Date is required.' }),
+  hospital: z.string().optional(),
+  duration: z.string().optional(),
+  status: z.string().optional(),
 });
 
 const formSchema = z
@@ -269,6 +278,7 @@ const formSchema = z
 
     // Medical History
     bloodTransfusionOrSurgery: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    bloodTransfusionOrSurgeryDetails: z.array(illnessDetailSchema).optional(),
     highBloodPressure: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     cancer: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     diabetes: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
@@ -280,7 +290,7 @@ const formSchema = z
     asthma: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
-    thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     kidneyDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     numbness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     anxietyStress: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
@@ -498,6 +508,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       testedPositiveFor: { hiv: false, hepB: false, hepC: false },
       awaitingResultsFor: { hiv: false, hepB: false, hepC: false },
       bloodTransfusionOrSurgery: 'no' as const,
+      bloodTransfusionOrSurgeryDetails: [],
       highBloodPressure: 'no' as const,
       cancer: 'no' as const,
       diabetes: 'no' as const,
@@ -559,6 +570,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const heightUnit = form.watch('heightUnit');
   const weight = form.watch('weight');
   const testedPositiveViralInfection = form.watch('testedPositiveViralInfection');
+  const bloodTransfusionOrSurgery = form.watch('bloodTransfusionOrSurgery');
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -2657,7 +2669,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     )}
                     <Separator />
                     <div className="space-y-4">
-                        <h3 className="font-bold">Height and Weight</h3>
+                         <h3 className="font-bold">Height and Weight</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <FormField
                                 control={form.control}
@@ -2803,8 +2815,31 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                       <div className="space-y-4">
                         <h3 className="font-bold">Have you ever had, received or been diagnosed with any of the following:</h3>
                         <div className="space-y-3">
+                           <FormField
+                              control={form.control}
+                              name="bloodTransfusionOrSurgery"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">5. Blood transfusion or surgery</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {bloodTransfusionOrSurgery === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="bloodTransfusionOrSurgeryDetails" />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+
                             {[
-                                { name: 'bloodTransfusionOrSurgery', label: '5. Blood transfusion or surgery' },
                                 { name: 'highBloodPressure', label: "6. High blood pressure, angina, heart attack, stroke, coma or other diseases of the heart, arteries or circulation?" },
                                 { name: 'cancer', label: "7. Cancer, Leukemia, Hodgkin's disease, lymphoma or any other tumor?" },
                                 { name: 'diabetes', label: "8. Any form of diabetes?" },
@@ -2953,6 +2988,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
 
 
 
