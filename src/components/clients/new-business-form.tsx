@@ -309,9 +309,13 @@ const formSchema = z
     earEyeDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     earEyeDisorderDetails: z.array(illnessDetailSchema).optional(),
     lumpGrowth: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    lumpGrowthDetails: z.array(illnessDetailSchema).optional(),
     hospitalAttendance: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    hospitalAttendanceDetails: z.array(illnessDetailSchema).optional(),
     criticalIllness: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    criticalIllnessDetails: z.array(illnessDetailSchema).optional(),
     sti: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    stiDetails: z.array(illnessDetailSchema).optional(),
     presentSymptoms: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     presentWaitingConsultation: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     presentTakingMedication: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
@@ -552,9 +556,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       earEyeDisorder: 'no' as const,
       earEyeDisorderDetails: [],
       lumpGrowth: 'no' as const,
+      lumpGrowthDetails: [],
       hospitalAttendance: 'no' as const,
+      hospitalAttendanceDetails: [],
       criticalIllness: 'no' as const,
+      criticalIllnessDetails: [],
       sti: 'no' as const,
+      stiDetails: [],
       presentSymptoms: 'no' as const,
       presentWaitingConsultation: 'no' as const,
       presentTakingMedication: 'no' as const,
@@ -610,6 +618,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const numbness = form.watch('numbness');
   const anxietyStress = form.watch('anxietyStress');
   const earEyeDisorder = form.watch('earEyeDisorder');
+  const lumpGrowth = form.watch('lumpGrowth');
+  const hospitalAttendance = form.watch('hospitalAttendance');
+  const criticalIllness = form.watch('criticalIllness');
+  const sti = form.watch('sti');
+
 
   React.useEffect(() => {
     if (commencementDate) {
@@ -3014,7 +3027,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 </FormItem>
                               )}
                             />
-
                         </div>
                     </div>
                     <Separator />
@@ -3228,30 +3240,98 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 </FormItem>
                               )}
                             />
-                             {[
-                                { name: 'lumpGrowth', label: '22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?' },
-                                { name: 'hospitalAttendance', label: '23. in the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?' },
-                                { name: 'criticalIllness', label: "24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." },
-                                { name: 'sti', label: "25. Sexually transmitted infections (STI's) (e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge or vaginal trush?" },
-                             ].map(item => (
-                                <FormField
-                                    key={item.name}
-                                    control={form.control}
-                                    name={item.name as any}
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
-                                            <FormControl>
-                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                                </RadioGroup>
-                                            </FormControl>
-                                            <FormMessage className="col-span-full" />
-                                        </FormItem>
-                                    )}
-                                />
-                             ))}
+                             <FormField
+                              control={form.control}
+                              name="lumpGrowth"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">22. A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed colour or increased in size?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {lumpGrowth === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="lumpGrowthDetails" illnessOptions={['Lump', 'Growth', 'Mole', 'Freckle']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="hospitalAttendance"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">23. In the past 5 years have you attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {hospitalAttendance === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="hospitalAttendanceDetails" illnessOptions={['X-ray', 'Scan', 'Checkup', 'Operation']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="criticalIllness"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">24. This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis.</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {criticalIllness === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="criticalIllnessDetails" illnessOptions={['Heart Attack', 'Coronary Artery Disease', 'Paraplegia', 'Loss of Speech', 'Major Organ Transplant', 'Coma', 'Major Burns', "Alzheimer's Disease", 'Multiple Sclerosis']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={form.control}
+                              name="sti"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">25. Sexually transmitted infections (STI's) (e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge or vaginal trush?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {sti === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="stiDetails" illnessOptions={['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
                         </div>
                     </div>
                     <Separator />
@@ -3335,6 +3415,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     
 
     
+
+
 
 
 
