@@ -352,7 +352,7 @@ function AsthmaDetails({ control, index, fieldName }: { control: any, index: num
                         </Select>
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem value="item-1">
-                                <AccordionTrigger className="text-xs p-2 -mt-1">View Severity Guide</AccordionTrigger>
+                                <AccordionTrigger className="text-xs p-2 -mt-1 hover:no-underline">View Severity Guide</AccordionTrigger>
                                 <AccordionContent>
                                     <Card className="bg-background">
                                         <CardHeader>
@@ -397,6 +397,8 @@ function AsthmaDetails({ control, index, fieldName }: { control: any, index: num
              <FormField control={control} name={`${fieldName}.${index}.asthmaHospitalization`} render={({ field }) => (<FormItem><FormLabel>9. Have you ever been hospitalized for Asthma? If Yes, when, for how long and in which hospital?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
              <FormField control={control} name={`${fieldName}.${index}.asthmaWorkAbsence`} render={({ field }) => (<FormItem><FormLabel>10. Have you ever been absent from work due to any asthma attacks? If yes, for what length of time?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
              <FormField control={control} name={`${fieldName}.${index}.asthmaFunctionalLimitation`} render={({ field }) => (<FormItem><FormLabel>11. Is there any limitation of functional capacity with regards to work output?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaChestXRay`} render={({ field }) => (<FormItem><FormLabel>12. Has your chest ever been x-rayed or have undergone a lung function test? If yes, give details of results including test dates.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaComplicatingFeatures`} render={({ field }) => (<FormItem><FormLabel>13. Are you aware of any features that may complicate your condition, e.g. Smoke, occupational hazards?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
         </div>
     );
 }

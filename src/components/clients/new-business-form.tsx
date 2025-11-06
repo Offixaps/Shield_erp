@@ -197,6 +197,8 @@ export const illnessDetailSchema = z.object({
   asthmaHospitalization: z.string().optional(),
   asthmaWorkAbsence: z.string().optional(),
   asthmaFunctionalLimitation: z.string().optional(),
+  asthmaChestXRay: z.string().optional(),
+  asthmaComplicatingFeatures: z.string().optional(),
   // Nested fields for Digestive Disorders
   digestiveSymptoms: z.string().optional(),
   digestiveSymptomFrequency: z.string().optional(),
@@ -3560,4 +3562,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
     
+
 
