@@ -291,6 +291,70 @@ function DiabetesDetails({ control, index, fieldName }: { control: any, index: n
     );
 }
 
+function AsthmaDetails({ control, index, fieldName }: { control: any, index: number, fieldName: string }) {
+    return (
+        <div className="p-4 mt-2 space-y-6 bg-purple-500/10 rounded-md border border-purple-500/20">
+            <h4 className="font-semibold" style={{ color: 'hsl(var(--chart-3))' }}>Asthma Details</h4>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                 <FormField control={control} name={`${fieldName}.${index}.asthmaFirstSignsAge`} render={({ field }) => (<FormItem><FormLabel>1. Age at first signs</FormLabel><FormControl><Input type="number" {...field} /></FormControl></FormItem>)} />
+                 <FormField control={control} name={`${fieldName}.${index}.asthmaSymptomDuration`} render={({ field }) => (<FormItem><FormLabel>2. Duration of symptoms</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                 <FormField control={control} name={`${fieldName}.${index}.asthmaSymptomFrequency`} render={({ field }) => (<FormItem><FormLabel>3. Frequency of symptoms</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+            </div>
+            <FormField control={control} name={`${fieldName}.${index}.asthmaTrigger`} render={({ field }) => (<FormItem><FormLabel>4. Are symptoms caused by any special circumstance or conditions? If Yes, provide full details.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                    control={control}
+                    name={`${fieldName}.${index}.asthmaLastAttackDate`}
+                    render={({ field }) => (
+                      <FormItem className="flex flex-col">
+                        <FormLabel>5. When did you last have an Asthma attack?</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button variant={'outline'} className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar mode="single" selected={field.value} onSelect={field.onChange} initialFocus disabled={(date) => date > new Date()} captionLayout="dropdown-buttons" fromYear={1900} toYear={new Date().getFullYear()} />
+                            </PopoverContent>
+                        </Popover>
+                      </FormItem>
+                    )}
+                />
+                 <FormField
+                    control={control}
+                    name={`${fieldName}.${index}.asthmaSeverity`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>6. How would you describe your condition?</FormLabel>
+                         <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select severity" />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                <SelectItem value="Mild">Mild</SelectItem>
+                                <SelectItem value="Moderate">Moderate</SelectItem>
+                                <SelectItem value="Severe">Severe</SelectItem>
+                            </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                />
+            </div>
+             <FormField control={control} name={`${fieldName}.${index}.asthmaMedication`} render={({ field }) => (<FormItem><FormLabel>7. What medicines or drugs have you taken to relieve the attacks?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaSteroidTherapy`} render={({ field }) => (<FormItem><FormLabel>8. Please give details of treatment, particularly steroid therapy (if applicable).</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaHospitalization`} render={({ field }) => (<FormItem><FormLabel>9. Have you ever been hospitalized for Asthma? If Yes, when, for how long and in which hospital?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaWorkAbsence`} render={({ field }) => (<FormItem><FormLabel>10. Have you ever been absent from work due to any asthma attacks? If yes, for what length of time?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+             <FormField control={control} name={`${fieldName}.${index}.asthmaFunctionalLimitation`} render={({ field }) => (<FormItem><FormLabel>11. Is there any limitation of functional capacity with regards to work output?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+        </div>
+    );
+}
+
 function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOptions }: { form: UseFormReturn<FormValues>, field: any, index: number, fieldName: string, remove: (index: number) => void, illnessOptions?: string[] }) {
     const watchIllness = useWatch({
         control: form.control,
@@ -413,6 +477,13 @@ function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOpt
                 <TableRow>
                     <TableCell colSpan={6}>
                         <DiabetesDetails control={form.control} index={index} fieldName={fieldName} />
+                    </TableCell>
+                </TableRow>
+            )}
+             {watchIllness === 'Asthma' && (
+                <TableRow>
+                    <TableCell colSpan={6}>
+                        <AsthmaDetails control={form.control} index={index} fieldName={fieldName} />
                     </TableCell>
                 </TableRow>
             )}

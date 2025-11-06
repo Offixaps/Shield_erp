@@ -185,6 +185,18 @@ export const illnessDetailSchema = z.object({
   diabetesRegularTests: z.string().optional(),
   diabetesLatestBloodSugar: z.string().optional(),
   diabetesDiabeticComa: z.string().optional(),
+  // Nested fields for Asthma
+  asthmaFirstSignsAge: z.coerce.number().optional(),
+  asthmaSymptomDuration: z.string().optional(),
+  asthmaSymptomFrequency: z.string().optional(),
+  asthmaTrigger: z.string().optional(),
+  asthmaLastAttackDate: z.date().optional(),
+  asthmaSeverity: z.enum(['Mild', 'Moderate', 'Severe']).optional(),
+  asthmaMedication: z.string().optional(),
+  asthmaSteroidTherapy: z.string().optional(),
+  asthmaHospitalization: z.string().optional(),
+  asthmaWorkAbsence: z.string().optional(),
+  asthmaFunctionalLimitation: z.string().optional(),
 });
 
 const formSchema = z
@@ -318,6 +330,7 @@ const formSchema = z
     chestPain: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     chestPainDetails: z.array(illnessDetailSchema).optional(),
     asthma: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    asthmaDetails: z.array(illnessDetailSchema).optional(),
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorderDetails: z.array(illnessDetailSchema).optional(),
@@ -567,6 +580,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       chestPain: 'no' as const,
       chestPainDetails: [],
       asthma: 'no' as const,
+      asthmaDetails: [],
       digestiveDisorder: 'no' as const,
       bloodDisorder: 'no' as const,
       bloodDisorderDetails: [],
@@ -639,6 +653,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const mentalIllness = form.watch('mentalIllness');
   const arthritis = form.watch('arthritis');
   const chestPain = form.watch('chestPain');
+  const asthma = form.watch('asthma');
   const bloodDisorder = form.watch('bloodDisorder');
   const thyroidDisorder = form.watch('thyroidDisorder');
   const kidneyDisorder = form.watch('kidneyDisorder');
@@ -3113,9 +3128,30 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                 </FormItem>
                               )}
                             />
-
+                            <FormField
+                                control={form.control}
+                                name="asthma"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col rounded-lg border p-4">
+                                        <div className="flex flex-row items-center justify-between">
+                                            <FormLabel className="max-w-[80%]">14. Asthma, bronchitis, shortness of breath or other chest complaint?</FormLabel>
+                                            <FormControl>
+                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                            </RadioGroup>
+                                            </FormControl>
+                                        </div>
+                                        <FormMessage />
+                                        {asthma === 'yes' && (
+                                            <div className="pt-4">
+                                                <MedicalConditionDetailsTable form={form} fieldName="asthmaDetails" illnessOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']} />
+                                            </div>
+                                        )}
+                                    </FormItem>
+                                )}
+                            />
                              {[
-                                { name: 'asthma', label: "14. Asthma, bronchitis, shortness of breath or other chest complaint?" },
                                 { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
                              ].map(item => (
                                 <FormField
