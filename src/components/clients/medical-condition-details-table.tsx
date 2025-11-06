@@ -23,10 +23,17 @@ import { Calendar } from '@/components/ui/calendar';
 import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { FormField, FormControl, FormItem, FormLabel } from '../ui/form';
+import { FormField, FormControl, FormItem, FormLabel, FormDescription } from '../ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Textarea } from '../ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 type FormValues = any;
 
@@ -343,6 +350,46 @@ function AsthmaDetails({ control, index, fieldName }: { control: any, index: num
                                 <SelectItem value="Severe">Severe</SelectItem>
                             </SelectContent>
                         </Select>
+                        <FormDescription>
+                            <Accordion type="single" collapsible className="w-full">
+                                <AccordionItem value="item-1">
+                                    <AccordionTrigger className="text-xs">View Severity Guide</AccordionTrigger>
+                                    <AccordionContent>
+                                        <Card className="bg-background">
+                                            <CardHeader>
+                                                <CardTitle className="text-sm">Asthma Severity Guide</CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="space-y-4 text-xs">
+                                                <div>
+                                                    <h4 className="font-semibold">Mild</h4>
+                                                    <ul className="list-disc pl-5 text-muted-foreground">
+                                                        <li>Airways clear between attacks.</li>
+                                                        <li>Attacks responding rapidly to self-administered remedies.</li>
+                                                        <li>No acute spasmodic attacks or frequent respiratory infections within the last two years.</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold">Moderate</h4>
+                                                    <ul className="list-disc pl-5 text-muted-foreground">
+                                                        <li>More than three acute spasmodic attacks within the last two years.</li>
+                                                        <li>More frequent use of antispasmodics.</li>
+                                                        <li>Occasional use of oral corticosteroids during an acute spasmodic attack.</li>
+                                                    </ul>
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-semibold">Severe</h4>
+                                                    <ul className="list-disc pl-5 text-muted-foreground">
+                                                        <li>Continuous medication.</li>
+                                                        <li>Impaired chest development.</li>
+                                                        <li>History of status asthmaticus or hospital admission within the last two years.</li>
+                                                    </ul>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </FormDescription>
                       </FormItem>
                     )}
                 />
