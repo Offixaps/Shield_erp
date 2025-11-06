@@ -185,6 +185,9 @@ export const illnessDetailSchema = z.object({
   diabetesRegularTests: z.string().optional(),
   diabetesLatestBloodSugar: z.string().optional(),
   diabetesDiabeticComa: z.string().optional(),
+  diabetesComplications: z.string().optional(),
+  diabetesOtherExams: z.string().optional(),
+  diabetesOtherConsultations: z.string().optional(),
   // Nested fields for Asthma
   asthmaFirstSignsAge: z.coerce.number().optional(),
   asthmaSymptomDuration: z.string().optional(),
@@ -3562,5 +3565,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
     
+
 
 

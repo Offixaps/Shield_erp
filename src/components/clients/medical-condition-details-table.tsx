@@ -295,6 +295,9 @@ function DiabetesDetails({ control, index, fieldName }: { control: any, index: n
             <FormField control={control} name={`${fieldName}.${index}.diabetesRegularTests`} render={({ field }) => (<FormItem><FormLabel>9. Do you regularly test blood and urine for sugar? If Yes, at what intervals and do you do home blood glucometer checks?</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
             <FormField control={control} name={`${fieldName}.${index}.diabetesLatestBloodSugar`} render={({ field }) => (<FormItem><FormLabel>10. What was the latest blood sugar reading?</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
             <FormField control={control} name={`${fieldName}.${index}.diabetesDiabeticComa`} render={({ field }) => (<FormItem><FormLabel>11. Have you ever been in a diabetic or insulin coma at any time? If Yes, state number of attacks and dates.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesComplications`} render={({ field }) => (<FormItem><FormLabel>12. Are you aware of any diabetic complications such as eye problems, pain or numbness in feet, kidney problems, and poor blood circulations? If yes, state complications and date of diagnosis.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesOtherExams`} render={({ field }) => (<FormItem><FormLabel>13. Have you had any other medical examinations in respect of diabetes? If so when and at what was the results?</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
+            <FormField control={control} name={`${fieldName}.${index}.diabetesOtherConsultations`} render={({ field }) => (<FormItem><FormLabel>14. Have you consulted with any other Medical Attendant(s) or Medical Institutions in respect of diabetes, diabetes complications and treatment? Please provide details of Medical Attendant(s) and the results.</FormLabel><FormControl><Textarea {...field} /></FormControl></FormItem>)} />
         </div>
     );
 }
@@ -681,3 +684,4 @@ export default function MedicalConditionDetailsTable({
     
 
     
+
