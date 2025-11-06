@@ -49,6 +49,7 @@ import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Badge } from '../ui/badge';
 import MedicalConditionDetailsTable from './medical-condition-details-table';
+import FamilyMedicalHistoryTable from './family-medical-history-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -218,6 +219,14 @@ export const illnessDetailSchema = z.object({
   dischargeDate: z.date().optional(),
 });
 
+const familyMedicalHistoryDetailSchema = z.object({
+  condition: z.string().min(1, 'Condition is required.'),
+  relation: z.string().min(1, 'Relation is required.'),
+  ageOfOccurrence: z.coerce.number().positive('Age must be a positive number.').optional(),
+  currentAgeOrAgeAtDeath: z.coerce.number().positive('Age must be a positive number.').optional(),
+});
+
+
 const formSchema = z
   .object({
     // Client Details
@@ -376,6 +385,8 @@ const formSchema = z
     presentSymptomsDetails: z.array(illnessDetailSchema).optional(),
     presentWaitingConsultation: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     presentTakingMedication: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    familyMedicalHistory: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    familyMedicalHistoryDetails: z.array(familyMedicalHistoryDetailSchema).optional(),
   });
 
 type NewBusinessFormProps = {
@@ -627,6 +638,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       presentSymptomsDetails: [],
       presentWaitingConsultation: 'no' as const,
       presentTakingMedication: 'no' as const,
+      familyMedicalHistory: 'no' as const,
+      familyMedicalHistoryDetails: [],
     };
   }, [isEditMode, businessId]);
 
@@ -687,6 +700,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const criticalIllness = form.watch('criticalIllness');
   const sti = form.watch('sti');
   const presentSymptoms = form.watch('presentSymptoms');
+  const familyMedicalHistory = form.watch('familyMedicalHistory');
 
 
   React.useEffect(() => {
@@ -3479,6 +3493,33 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             ))}
                         </div>
                     </div>
+                     <Separator />
+                    <div className="space-y-4">
+                        <h3 className="font-bold">Family Medical History</h3>
+                        <FormField
+                            control={form.control}
+                            name="familyMedicalHistory"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                    <div className="flex flex-row items-center justify-between">
+                                        <FormLabel className="max-w-[80%]">29. Has/Have any of your biological parents, brothers or sisters been diagnosed with or died from any of the following before the age 60; Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease, multiple sclerosis, polyposis, Glaucoma, polyposis of colon or any form of hereditary disorder?</FormLabel>
+                                        <FormControl>
+                                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                            </RadioGroup>
+                                        </FormControl>
+                                    </div>
+                                    <FormMessage />
+                                    {familyMedicalHistory === 'yes' && (
+                                        <div className="pt-4">
+                                            <FamilyMedicalHistoryTable form={form} fieldName="familyMedicalHistoryDetails" />
+                                        </div>
+                                    )}
+                                </FormItem>
+                            )}
+                        />
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
@@ -3565,6 +3606,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
     
+
 
 
 
