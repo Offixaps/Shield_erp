@@ -197,6 +197,20 @@ export const illnessDetailSchema = z.object({
   asthmaHospitalization: z.string().optional(),
   asthmaWorkAbsence: z.string().optional(),
   asthmaFunctionalLimitation: z.string().optional(),
+  // Nested fields for Digestive Disorders
+  digestiveSymptoms: z.string().optional(),
+  digestiveSymptomFrequency: z.string().optional(),
+  digestiveConditionStartDate: z.date().optional(),
+  digestivePreciseDiagnosis: z.string().optional(),
+  digestiveMedication: z.string().optional(),
+  hadEndoscopy: z.enum(['yes', 'no']).optional(),
+  endoscopyDetails: z.string().optional(),
+  hadDigestiveSurgery: z.enum(['yes', 'no']).optional(),
+  problemsAfterSurgery: z.enum(['yes', 'no']).optional(),
+  problemsAfterSurgeryDetails: z.string().optional(),
+  isReceivingTreatmentNow: z.enum(['yes', 'no']).optional(),
+  treatmentDetails: z.string().optional(),
+  dischargeDate: z.date().optional(),
 });
 
 const formSchema = z
@@ -332,6 +346,7 @@ const formSchema = z
     asthma: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     asthmaDetails: z.array(illnessDetailSchema).optional(),
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    digestiveDisorderDetails: z.array(illnessDetailSchema).optional(),
     bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     bloodDisorderDetails: z.array(illnessDetailSchema).optional(),
     thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
@@ -582,6 +597,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       asthma: 'no' as const,
       asthmaDetails: [],
       digestiveDisorder: 'no' as const,
+      digestiveDisorderDetails: [],
       bloodDisorder: 'no' as const,
       bloodDisorderDetails: [],
       thyroidDisorder: 'no' as const,
@@ -654,6 +670,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const arthritis = form.watch('arthritis');
   const chestPain = form.watch('chestPain');
   const asthma = form.watch('asthma');
+  const digestiveDisorder = form.watch('digestiveDisorder');
   const bloodDisorder = form.watch('bloodDisorder');
   const thyroidDisorder = form.watch('thyroidDisorder');
   const kidneyDisorder = form.watch('kidneyDisorder');
@@ -2908,7 +2925,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                      </div>
                      <Separator />
                       <div className="space-y-4">
-                        <h3 className="font-bold">Have you ever had, received or been diagnosed with any of the following:</h3>
+                        <h3 className="font-medium">Have you ever had, received or been diagnosed with any of the following:</h3>
                         <div className="space-y-3">
                            <FormField
                               control={form.control}
@@ -3080,7 +3097,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     </div>
                     <Separator />
                     <div className="space-y-4">
-                        <h3 className="font-bold">In the past 5 years have you ever had:</h3>
+                        <h3 className="font-medium">In the past 5 years have you ever had:</h3>
                         <div className="space-y-3">
                              <FormField
                               control={form.control}
@@ -3151,27 +3168,29 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     </FormItem>
                                 )}
                             />
-                             {[
-                                { name: 'digestiveDisorder', label: "15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?" },
-                             ].map(item => (
-                                <FormField
-                                    key={item.name}
-                                    control={form.control}
-                                    name={item.name as any}
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                                            <FormLabel className="max-w-[80%]">{item.label}</FormLabel>
-                                            <FormControl>
-                                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                                </RadioGroup>
-                                            </FormControl>
-                                            <FormMessage className="col-span-full" />
-                                        </FormItem>
-                                    )}
-                                />
-                             ))}
+                             <FormField
+                              control={form.control}
+                              name="digestiveDisorder"
+                              render={({ field }) => (
+                                <FormItem className="flex flex-col rounded-lg border p-4">
+                                  <div className="flex flex-row items-center justify-between">
+                                    <FormLabel className="max-w-[80%]">15. Duodenal or gastric ulcer or any other disorder of the digestive system, liver or pancreases?</FormLabel>
+                                    <FormControl>
+                                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                      </RadioGroup>
+                                    </FormControl>
+                                  </div>
+                                  <FormMessage />
+                                  {digestiveDisorder === 'yes' && (
+                                    <div className="pt-4">
+                                      <MedicalConditionDetailsTable form={form} fieldName="digestiveDisorderDetails" illnessOptions={['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas']} />
+                                    </div>
+                                  )}
+                                </FormItem>
+                              )}
+                            />
                               <FormField
                               control={form.control}
                               name="bloodDisorder"
@@ -3406,7 +3425,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     </div>
                     <Separator />
                     <div className="space-y-4">
-                        <h3 className="font-bold">Are you presently:</h3>
+                        <h3 className="font-medium">Are you presently:</h3>
                         <div className="space-y-3">
                             <FormField
                               control={form.control}
@@ -3541,3 +3560,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
     
+
