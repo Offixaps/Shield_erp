@@ -50,6 +50,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Badge } from '../ui/badge';
 import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -387,6 +388,14 @@ const formSchema = z
     presentTakingMedication: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     familyMedicalHistory: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     familyMedicalHistoryDetails: z.array(familyMedicalHistoryDetailSchema).optional(),
+
+    // Doctor's Details
+    currentDoctorName: z.string().optional(),
+    currentDoctorPhone: z.string().optional(),
+    currentDoctorHospital: z.string().optional(),
+    previousDoctorName: z.string().optional(),
+    previousDoctorPhone: z.string().optional(),
+    previousDoctorHospital: z.string().optional(),
   });
 
 type NewBusinessFormProps = {
@@ -640,6 +649,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       presentTakingMedication: 'no' as const,
       familyMedicalHistory: 'no' as const,
       familyMedicalHistoryDetails: [],
+      currentDoctorName: '',
+      currentDoctorPhone: '',
+      currentDoctorHospital: '',
+      previousDoctorName: '',
+      previousDoctorPhone: '',
+      previousDoctorHospital: '',
     };
   }, [isEditMode, businessId]);
 
@@ -2452,8 +2467,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
           <TabsContent value="health" className="mt-6 space-y-6">
             <div>
-              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Health Details</h3>
-              <Separator className="my-0" />
+                <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>HEALTH DETAILS</h3>
+                <Separator className="my-0" />
             </div>
             <div className="p-4 space-y-8">
                 <Alert variant="destructive">
@@ -3520,6 +3535,84 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         )}
                     />
                 </div>
+                 <div className="mt-8">
+                    <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>DOCTOR'S DETAILS</h3>
+                    <Separator className="my-0" />
+                </div>
+                <div className="p-4 space-y-6">
+                    <h4 className="font-medium">Current doctor's details</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="currentDoctorName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name of doctor</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="currentDoctorPhone"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Telephone Number</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="currentDoctorHospital"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Hospital & Address</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                    <p className="font-bold">If you have changed your doctor in the last six months, please give your previous doctor's details below.</p>
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <FormField
+                            control={form.control}
+                            name="previousDoctorName"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name of previous doctor</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="previousDoctorPhone"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Telephone number</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                         <FormField
+                            control={form.control}
+                            name="previousDoctorHospital"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Hospital & Address</FormLabel>
+                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
             </div>
           </TabsContent>
           <TabsContent value="lifestyle" className="mt-6">
@@ -3610,5 +3703,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
 
+
+    
 
     
