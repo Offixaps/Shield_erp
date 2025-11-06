@@ -51,6 +51,7 @@ import { Badge } from '../ui/badge';
 import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
+import LifestyleDetailTable from './lifestyle-detail-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -161,7 +162,7 @@ const viralInfectionDetailSchema = z.object({
 
 export const illnessDetailSchema = z.object({
   illness: z.string().min(1, 'Illness/Injury is required.'),
-  date: z.date({ required_error: 'Date is required.' }),
+  date: z.date({ required_error: 'Date is required.' }).optional(),
   hospital: z.string().optional(),
   duration: z.string().optional(),
   status: z.string().optional(),
@@ -225,6 +226,11 @@ const familyMedicalHistoryDetailSchema = z.object({
   relation: z.string().min(1, 'Relation is required.'),
   ageOfOccurrence: z.coerce.number().positive('Age must be a positive number.').optional(),
   currentAgeOrAgeAtDeath: z.coerce.number().positive('Age must be a positive number.').optional(),
+});
+
+const lifestyleDetailSchema = z.object({
+    item: z.string().min(1, "Item selection is required."),
+    details: z.string().optional(),
 });
 
 
@@ -396,6 +402,14 @@ const formSchema = z
     previousDoctorName: z.string().optional(),
     previousDoctorPhone: z.string().optional(),
     previousDoctorHospital: z.string().optional(),
+
+    // Lifestyle
+    flownAsPilot: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    flownAsPilotDetails: z.array(lifestyleDetailSchema).optional(),
+    hazardousSports: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    hazardousSportsDetails: z.array(lifestyleDetailSchema).optional(),
+    travelOutsideCountry: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
+    travelOutsideCountryDetails: z.array(lifestyleDetailSchema).optional(),
   });
 
 type NewBusinessFormProps = {
@@ -655,6 +669,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       previousDoctorName: '',
       previousDoctorPhone: '',
       previousDoctorHospital: '',
+      flownAsPilot: 'no' as const,
+      flownAsPilotDetails: [],
+      hazardousSports: 'no' as const,
+      hazardousSportsDetails: [],
+      travelOutsideCountry: 'no' as const,
+      travelOutsideCountryDetails: [],
     };
   }, [isEditMode, businessId]);
 
@@ -716,6 +736,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const sti = form.watch('sti');
   const presentSymptoms = form.watch('presentSymptoms');
   const familyMedicalHistory = form.watch('familyMedicalHistory');
+  const flownAsPilot = form.watch('flownAsPilot');
+  const hazardousSports = form.watch('hazardousSports');
+  const travelOutsideCountry = form.watch('travelOutsideCountry');
 
 
   React.useEffect(() => {
@@ -3615,15 +3638,94 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 </div>
             </div>
           </TabsContent>
-          <TabsContent value="lifestyle" className="mt-6">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Lifestyle Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Lifestyle-related form fields will be implemented here.</p>
-                </CardContent>
-            </Card>
+          <TabsContent value="lifestyle" className="mt-6 space-y-6">
+            <div>
+                <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>LIFESTYLE DETAILS</h3>
+                <Separator className="my-0" />
+            </div>
+            <div className="p-4 space-y-8">
+                 <FormField
+                  control={form.control}
+                  name="flownAsPilot"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col rounded-lg border p-4">
+                      <div className="flex flex-row items-center justify-between">
+                        <FormLabel className="max-w-[80%]">1. In the past 3 years have you flown as a pilot, student pilot, or crew member on any aircraft (other than commercial) or do you intend to do so in the future?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                      {flownAsPilot === 'yes' && (
+                        <div className="pt-4">
+                           <LifestyleDetailTable
+                                form={form}
+                                fieldName="flownAsPilotDetails"
+                                itemOptions={['Pilot', 'Student Pilot', 'Crew Member', 'Intend to do']}
+                            />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="hazardousSports"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col rounded-lg border p-4">
+                      <div className="flex flex-row items-center justify-between">
+                        <FormLabel className="max-w-[80%]">2. Have you been engaging in any hazardous sports such as scuba diving, mountain climbing, parachuting, hang gliding, paragliding, or racing of automobiles, motorcycles, boat, or intend to do so in the future?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                      {hazardousSports === 'yes' && (
+                        <div className="pt-4">
+                           <LifestyleDetailTable
+                                form={form}
+                                fieldName="hazardousSportsDetails"
+                                itemOptions={['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing', 'Intend to do so']}
+                            />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="travelOutsideCountry"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col rounded-lg border p-4">
+                      <div className="flex flex-row items-center justify-between">
+                        <FormLabel className="max-w-[80%]">3. In the next 30 days, are you scheduled to live, work or go on holiday outside your country of residence?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                      </div>
+                      <FormMessage />
+                      {travelOutsideCountry === 'yes' && (
+                        <div className="pt-4">
+                           <LifestyleDetailTable
+                                form={form}
+                                fieldName="travelOutsideCountryDetails"
+                                itemOptions={['Live Outside', 'Work outside', 'Go on Holiday']}
+                            />
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+            </div>
           </TabsContent>
           <TabsContent value="declaration" className="mt-6">
              <Card>
