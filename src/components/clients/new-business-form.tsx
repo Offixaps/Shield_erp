@@ -3366,6 +3366,23 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             )}
                         </div>
                     )}
+                     <Separator className="my-6" />
+                    <div className="space-y-4">
+                        <h4 className="font-bold uppercase">DECLARATION OF CONDITIONAL COVERAGE BY POLICY OWNER</h4>
+                        <ol className="list-decimal list-outside space-y-2 pl-5">
+                            <li>I submit this application with the intention of entering into a contract with FIRST INSURANCE COMPANY LIMITED for the benefit set out in its policy and on its terms and conditions.</li>
+                            <li>
+                                <p className="font-bold">I understand and agree that the insurance coverage I am applying for is subject to all the following conditions being met:</p>
+                                <ul className="list-disc list-outside space-y-1 pl-6 mt-2">
+                                    <li>All the information provided in this application together with any additional statement or documents are wholly true and accurate.</li>
+                                    <li>All information concerning the insurability of the Life Insured (including but not limited to, the result of medical examinations or body fluid studies and certified Medical Officer's statements) is received by the Company.</li>
+                                    <li>The Company's underwriters have accepted this application for life insurance.</li>
+                                    <li>The Company has received the first premium in full.</li>
+                                    <li>The final premium will be determined by the Company's underwriters.</li>
+                                </ul>
+                            </li>
+                        </ol>
+                    </div>
                 </CardContent>
             </Card>
           </TabsContent>
@@ -3925,6 +3942,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
