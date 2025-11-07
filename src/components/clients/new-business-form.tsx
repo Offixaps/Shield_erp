@@ -3252,13 +3252,16 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                 />
             </div>
           </TabsContent>
-          <TabsContent value="declaration" className="mt-6">
-             <Card>
-                <CardHeader>
-                    <CardTitle>Declaration</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Declaration form fields will be implemented here.</p>
+          <TabsContent value="declaration" className="mt-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>DECLARATION BY LIFE INSURED</h3>
+              <Separator className="my-0" />
+            </div>
+            <Card>
+                <CardContent className="pt-6 space-y-4 text-sm">
+                    <p>1. I declare that the information provided by me in this application together with any additional statements or documents, whether in my own handwriting or not, are wholly true and accurate and shall form the basis of the life insurance contract between the Company and myself and shall be read together with the policy document.</p>
+                    <p>2. I have read over my responses to the questions in this application and I declare that all the answers are true and correct.</p>
+                    <p>3. I understand that if any information is found to be false, misleading or incorrect, this policy shall be rendered void and the position of any payments made shall be at the discretion of the Company.</p>
                 </CardContent>
             </Card>
           </TabsContent>
