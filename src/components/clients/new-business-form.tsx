@@ -31,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, Trash2, Info } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2, Info, Send, ShieldCheck } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -52,6 +52,7 @@ import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import LifestyleDetailTable from './lifestyle-detail-table';
+import SignaturePad from './signature-pad';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -410,6 +411,9 @@ const formSchema = z
     hazardousSportsDetails: z.array(lifestyleDetailSchema).optional(),
     travelOutsideCountry: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     travelOutsideCountryDetails: z.array(lifestyleDetailSchema).optional(),
+    
+    // Declaration
+    signature: z.string().optional(),
   });
 
 type NewBusinessFormProps = {
@@ -449,6 +453,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(null);
+  const [isSignatureVerified, setIsSignatureVerified] = React.useState(false);
+  const [verificationCode, setVerificationCode] = React.useState('');
+  const [isCodeSent, setIsCodeSent] = React.useState(false);
+
   
   const isEditMode = !!businessId;
   
@@ -675,6 +684,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       hazardousSportsDetails: [],
       travelOutsideCountry: 'no' as const,
       travelOutsideCountryDetails: [],
+      signature: '',
     };
   }, [isEditMode, businessId]);
 
@@ -825,7 +835,53 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
+  const handleSaveSignature = (dataUrl: string) => {
+    setSignatureDataUrl(dataUrl);
+    form.setValue('signature', dataUrl);
+    toast({
+        title: "Signature Saved",
+        description: "Your signature has been captured. Please proceed to verify your identity.",
+    });
+  };
+  
+  const handleSendCode = () => {
+    // Placeholder function
+    setIsCodeSent(true);
+    toast({
+      title: "Verification Code Sent",
+      description: `A verification code has been sent to ${form.getValues('email')}. (This is a simulation).`,
+    });
+  };
+  
+  const handleVerifyCode = () => {
+    // Placeholder function
+    if (verificationCode === "123456") { // Simulate correct code
+      setIsSignatureVerified(true);
+      toast({
+        title: "Identity Verified",
+        description: "Your signature has been successfully verified.",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Invalid Code",
+        description: "The verification code is incorrect. Please try again.",
+      });
+    }
+  };
+
+
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!values.signature || !isSignatureVerified) {
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: "Please sign the declaration and verify your identity before submitting.",
+        });
+        setActiveTab('declaration');
+        return;
+    }
+
     try {
         const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
         
@@ -3268,6 +3324,48 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         <p>5. I understand that i may be required to undergo medical examination and/or tests where necessary and I give consent to a certified Medical Officer or any other appointed health provider to take sample of my blood, urine or other bodily fluid for the purpose of conducting such test.</p>
                         <p>6. I understand that it is my responsibility to avail myself for any necessary re-testing and that, if i choose not to do so, the Company may consider my inaction as a request to withdraw this application.</p>
                     </div>
+                    <Separator className="my-6" />
+                    <div className="space-y-4">
+                        <h4 className="font-bold">Signature of Life Insured</h4>
+                        <SignaturePad onSave={handleSaveSignature} />
+                    </div>
+                     {signatureDataUrl && (
+                        <div className="space-y-4 pt-4">
+                            <Separator />
+                            <h4 className="font-bold">Identity Verification</h4>
+                            {!isSignatureVerified ? (
+                                <div className="p-4 border rounded-md bg-muted/50 space-y-4">
+                                    <p className="text-sm text-muted-foreground">To verify your signature, a confirmation code will be sent to your email address on file. Please click the button below to receive your code.</p>
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <Button type="button" onClick={handleSendCode} disabled={isCodeSent}>
+                                            <Send className="mr-2" />
+                                            {isCodeSent ? 'Code Sent' : 'Send Verification Code'}
+                                        </Button>
+                                        {isCodeSent && (
+                                            <div className="flex items-center gap-2">
+                                                <Input 
+                                                    placeholder="Enter 6-digit code" 
+                                                    value={verificationCode}
+                                                    onChange={(e) => setVerificationCode(e.target.value)}
+                                                    maxLength={6}
+                                                />
+                                                <Button type="button" onClick={handleVerifyCode}>Verify</Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {isCodeSent && <FormDescription>For this demo, please use the code: <strong>123456</strong></FormDescription>}
+                                </div>
+                            ) : (
+                                <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500/50">
+                                    <ShieldCheck className="h-4 w-4 text-green-600" />
+                                    <AlertTitle className="text-green-700 dark:text-green-400">Signature Verified</AlertTitle>
+                                    <AlertDescription className="text-green-700 dark:text-green-500">
+                                        Your identity has been confirmed. You may now proceed to submit the application.
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                        </div>
+                    )}
                 </CardContent>
             </Card>
           </TabsContent>
@@ -3755,12 +3853,21 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                     Previous
                 </Button>
             ) : <div />}
-            {!isLastTab ? (
+           
+            {activeTab !== 'declaration' && !isLastTab ? (
                  <Button type="button" onClick={() => handleTabChange('next')}>
                     Next
                 </Button>
-            ) : (
-                <Button type="submit">
+            ) : null}
+
+            {activeTab === 'declaration' && (
+                 <Button type="button" onClick={() => handleTabChange('next')} disabled={!isSignatureVerified}>
+                    Proceed to Payment
+                </Button>
+            )}
+
+            {isLastTab && (
+                 <Button type="submit" disabled={!isSignatureVerified}>
                     {isEditMode ? 'Update Application' : 'Submit Application'}
                 </Button>
             )}
@@ -3818,5 +3925,6 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
