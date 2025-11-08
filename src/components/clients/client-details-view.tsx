@@ -40,6 +40,7 @@ import PaymentHistoryTab from './payment-history-tab';
 import ActivityLogTab from './activity-log-tab';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Checkbox } from '../ui/checkbox';
+import MandateTab from './mandate-tab';
 
 
 function DetailItem({
@@ -680,14 +681,7 @@ export default function ClientDetailsView({
         </TabsContent>
         
         <TabsContent value="mandate" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Mandate Information</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Details about the payment mandate, including bank details and authorization status, will be displayed here.</p>
-            </CardContent>
-          </Card>
+          <MandateTab client={client} />
         </TabsContent>
 
         <TabsContent value="claims" className="mt-6">
