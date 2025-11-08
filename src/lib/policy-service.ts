@@ -2,7 +2,7 @@
 
 'use client';
 
-import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
+import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog, type Beneficiary } from './data';
 import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
@@ -131,8 +131,10 @@ export function createPolicy(values: any): NewBusiness {
                 action: 'Status changed to Pending First Premium'
             }
         ],
+        primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+        contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
         bankName: values.bankName,
-        payerName: values.premiumPayerName,
+        payerName: values.payerName,
         bankAccountNumber: values.bankAccountNumber,
         sortCode: values.sortCode,
         narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
@@ -337,5 +339,7 @@ export function applyAnnualIncreases(): number {
 
     return updatedCount;
 }
+
+    
 
     

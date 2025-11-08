@@ -22,7 +22,7 @@ import {
   Banknote,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { NewBusiness, OnboardingStatus } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus, Beneficiary } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   Tabs,
@@ -38,6 +38,8 @@ import { updatePolicy } from '@/lib/policy-service';
 import VerifyMandateDialog from '../premium-administration/verify-mandate-dialog';
 import PaymentHistoryTab from './payment-history-tab';
 import ActivityLogTab from './activity-log-tab';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+import { Checkbox } from '../ui/checkbox';
 
 
 function DetailItem({
@@ -72,6 +74,61 @@ function SummaryCard({
       </CardHeader>
     </Card>
   );
+}
+
+function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiaries: Beneficiary[] }) {
+    if (!beneficiaries || beneficiaries.length === 0) {
+        return (
+             <Card>
+                <CardHeader>
+                    <CardTitle>{title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">No {title.toLowerCase()} found.</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>{title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="rounded-md border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Name</TableHead>
+                                <TableHead>Date of Birth</TableHead>
+                                <TableHead>Gender</TableHead>
+                                <TableHead>Relationship</TableHead>
+                                <TableHead>Telephone</TableHead>
+                                <TableHead>% Share</TableHead>
+                                <TableHead>Irrevocable</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {beneficiaries.map((beneficiary, index) => (
+                                <TableRow key={index}>
+                                    <TableCell>{beneficiary.name}</TableCell>
+                                    <TableCell>{format(new Date(beneficiary.dob), 'PPP')}</TableCell>
+                                    <TableCell>{beneficiary.gender}</TableCell>
+                                    <TableCell>{beneficiary.relationship}</TableCell>
+                                    <TableCell>{beneficiary.telephone || 'N/A'}</TableCell>
+                                    <TableCell>{beneficiary.percentage}%</TableCell>
+                                    <TableCell>
+                                        <Checkbox checked={beneficiary.isIrrevocable} disabled />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+    );
 }
 
 export default function ClientDetailsView({
@@ -554,14 +611,10 @@ export default function ClientDetailsView({
         </TabsContent>
 
         <TabsContent value="beneficiaries" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Beneficiary Updates</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Features for updating and viewing the history of beneficiary changes will be implemented here.</p>
-            </CardContent>
-          </Card>
+            <div className="space-y-6">
+                <BeneficiaryTable title="Primary Beneficiaries" beneficiaries={client.primaryBeneficiaries} />
+                <BeneficiaryTable title="Contingent Beneficiaries" beneficiaries={client.contingentBeneficiaries} />
+            </div>
         </TabsContent>
 
         <TabsContent value="claims" className="mt-6">
@@ -615,3 +668,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    

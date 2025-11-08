@@ -1,10 +1,14 @@
 
 
-
-
-
-
-
+export type Beneficiary = {
+  name: string;
+  dob: string; // Storing as string in data, will be Date object in form
+  gender: 'Male' | 'Female';
+  relationship: string;
+  telephone?: string;
+  percentage: number;
+  isIrrevocable?: boolean;
+};
 
 export const dashboardStats = {
   totalClients: 1256,
@@ -149,6 +153,8 @@ export type NewBusiness = {
   bills: Bill[];
   payments: Payment[];
   activityLog: ActivityLog[];
+  primaryBeneficiaries: Beneficiary[];
+  contingentBeneficiaries: Beneficiary[];
   bankName: string;
   payerName: string;
   bankAccountNumber: string;
@@ -181,6 +187,12 @@ export const newBusinessData: NewBusiness[] = [
     bills: [],
     payments: [],
     activityLog: [],
+    primaryBeneficiaries: [
+      { name: 'Mrs. Jane Doe', dob: '1988-08-15', gender: 'Female', relationship: 'Spouse', telephone: '0247654321', percentage: 100, isIrrevocable: true }
+    ],
+    contingentBeneficiaries: [
+      { name: 'Master John Doe Jr.', dob: '2015-10-20', gender: 'Male', relationship: 'Son', telephone: '0247654321', percentage: 100, isIrrevocable: false }
+    ],
     bankName: 'GCB Bank PLC',
     payerName: 'Mr John K. Doe',
     bankAccountNumber: '1234567890123',
@@ -210,6 +222,8 @@ export const newBusinessData: NewBusiness[] = [
     bills: [],
     payments: [],
     activityLog: [],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Absa Bank Ghana Limited',
     payerName: 'Mrs Jane Smith',
     bankAccountNumber: '0987654321098',
@@ -242,6 +256,8 @@ export const newBusinessData: NewBusiness[] = [
        { date: "2024-06-21T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
        { date: "2024-06-21T09:00:01Z", user: "System", action: "Policy status changed to Active." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Stanbic Bank Ghana Limited',
     payerName: 'Acme Corp',
     bankAccountNumber: '1122334455667',
@@ -273,6 +289,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
        { date: "2024-07-11T15:00:00Z", user: "Underwriting", action: "Onboarding status changed to Declined.", details: "Risk profile too high." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Fidelity Bank Ghana Limited',
     payerName: 'Mr Mike Johnson',
     bankAccountNumber: '2233445566778',
@@ -305,6 +323,8 @@ export const newBusinessData: NewBusiness[] = [
        { date: "2024-06-16T09:00:00Z", user: "System", action: "Onboarding status changed to Mandate Verified." },
        { date: "2024-06-16T09:00:01Z", user: "System", action: "Policy status changed to Active." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Ecobank Ghana PLC',
     payerName: 'Miss Emily White',
     bankAccountNumber: '3344556677889',
@@ -341,6 +361,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: "2024-07-13T10:00:00Z", user: "Premium Admin", action: "First Premium Confirmed", details: "Payment of GHS 175.00 received via Mobile Money." },
       { date: "2024-07-13T10:00:01Z", user: "System", action: "Status changed to Pending Vetting." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'CalBank PLC',
     payerName: 'Dr Chris Brown',
     bankAccountNumber: '4455667788990',
@@ -371,6 +393,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
       { date: "2024-07-22T12:00:00Z", user: "Underwriting", action: "Onboarding status changed to NTU.", details: "Not taken up by client." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'United Bank for Africa (Ghana) Limited',
     payerName: 'Prof Sarah Connor',
     bankAccountNumber: '5566778899001',
@@ -403,6 +427,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-05-02T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-05-02T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Absa Bank Ghana Limited',
     payerName: 'Mr Kwabena A. Darko',
     bankAccountNumber: '1010101010101',
@@ -435,6 +461,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-04-16T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-04-16T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Republic Bank (Ghana) PLC',
     payerName: 'Ms. Adwoa P. Williams',
     bankAccountNumber: '2020202020202',
@@ -467,6 +495,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-03-02T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-03-02T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Zenith Bank (Ghana) Limited',
     payerName: 'Alhaji Musa Ibrahim',
     bankAccountNumber: '3030303030303',
@@ -499,6 +529,8 @@ export const newBusinessData: NewBusiness[] = [
       { date: '2024-02-11T09:00:00Z', user: 'System', action: 'Onboarding status changed to Mandate Verified.' },
       { date: '2024-02-11T09:00:01Z', user: 'System', action: 'Policy status changed to Active.' }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Consolidated Bank Ghana Limited',
     payerName: 'Mrs. Grace Ofori-Atta',
     bankAccountNumber: '4040404040404',
@@ -528,6 +560,8 @@ export const newBusinessData: NewBusiness[] = [
     bills: [],
     payments: [],
     activityLog: [{ date: new Date().toISOString(), user: "Sales Agent", action: "Policy Created" }],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'GCB Bank PLC',
     payerName: 'Mr David Ayer',
     bankAccountNumber: '5050505050505',
@@ -561,6 +595,8 @@ export const newBusinessData: NewBusiness[] = [
         { date: "2024-08-05T11:00:00Z", user: "Premium Admin", action: "First Premium Confirmed" },
         { date: "2024-08-05T11:00:01Z", user: "System", action: "Status changed to Pending Vetting" }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Access Bank (Ghana) Plc',
     payerName: 'Ms Fiona Shrek',
     bankAccountNumber: '6060606060606',
@@ -592,6 +628,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
       { date: "2024-08-09T14:00:00Z", user: "Underwriting", action: "Vetting Completed" }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'FBNBank (Ghana) Limited',
     payerName: 'Hon. Peter Pan',
     bankAccountNumber: '7070707070707',
@@ -623,6 +661,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
       { date: "2024-08-16T09:00:00Z", user: "Underwriting", action: "Status changed to Pending Medicals" }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Guaranty Trust Bank (Ghana) Limited',
     payerName: 'Dr. Wendy Darling',
     bankAccountNumber: '8080808080808',
@@ -655,6 +695,8 @@ export const newBusinessData: NewBusiness[] = [
     activityLog: [
        { date: "2024-08-19T16:00:00Z", user: "Underwriting", action: "Status changed to Rework Required", details: "ID information is blurry." }
     ],
+    primaryBeneficiaries: [],
+    contingentBeneficiaries: [],
     bankName: 'Prudential Bank Limited',
     payerName: 'Captain James Hook',
     bankAccountNumber: '9090909090909',
@@ -673,3 +715,6 @@ export const newBusinessData: NewBusiness[] = [
     
 
 
+
+
+    
