@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import PageHeader from '@/components/page-header';
-import { Card, CardContent, CardHeader, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -668,5 +668,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-    
