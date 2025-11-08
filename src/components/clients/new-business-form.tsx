@@ -131,7 +131,6 @@ const alcoholHabitsOptions = [
 const alcoholDetailSchema = z.object({
     consumed: z.boolean().default(false),
     averagePerWeek: z.string().optional(),
-    notes: z.string().optional(),
 });
 
 const reducedAlcoholReasonSchema = z.object({
@@ -285,6 +284,13 @@ const formSchema = z
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
     increaseMonth: z.string().min(1, 'Increase month is required.'),
 
+    // Agent Details
+    agentName: z.string().optional(),
+    agentCode: z.string().optional(),
+    uplineName: z.string().optional(),
+    uplineCode: z.string().optional(),
+    introducerCode: z.string().optional(),
+
     // Employment Details
     occupation: z.string().min(2, 'Occupation is required.'),
     natureOfBusiness: z.string().min(2, 'Nature of business/work is required.'),
@@ -421,7 +427,8 @@ type NewBusinessFormProps = {
 }
 
 const tabSequence = [
-    'policy-holder',
+    'coverage',
+    'agent',
     'beneficiaries',
     'health',
     'lifestyle',
@@ -605,9 +612,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       heightUnit: 'cm' as const,
       weight: '',
       alcoholHabits: 'never_used' as const,
-      alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
-      alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
-      alcoholSpirits: { consumed: false, averagePerWeek: '', notes: '' },
+      alcoholBeer: { consumed: false, averagePerWeek: '' },
+      alcoholWine: { consumed: false, averagePerWeek: '' },
+      alcoholSpirits: { consumed: false, averagePerWeek: '' },
       reducedAlcoholMedicalAdvice: { reduced: 'no', notes: ''},
       reducedAlcoholHealthProblems: { reduced: 'no', notes: ''},
       tobaccoHabits: 'never_smoked' as const,
@@ -977,8 +984,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
-            <TabsTrigger value="policy-holder">Coverage</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
+            <TabsTrigger value="coverage">Coverage</TabsTrigger>
+            <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
@@ -986,7 +994,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="policy-holder" className="mt-6 space-y-8">
+          <TabsContent value="coverage" className="mt-6 space-y-8">
              <div>
               <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Personal details of life insured</h3>
               <Separator className="my-0" />
@@ -1817,6 +1825,85 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             </div>
           </TabsContent>
 
+          <TabsContent value="agent" className="mt-6 space-y-8">
+            <div>
+              <h3 className="text-lg font-bold text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>DETAILS OF AGENT</h3>
+              <Separator className="my-0" />
+            </div>
+            <div className="p-4 space-y-6">
+                <p>I am a duly authorized agent of First Insurance.</p>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="agentName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Name of Agent</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g., Jane Doe" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="agentCode"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Code</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g., A1234" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <FormField
+                        control={form.control}
+                        name="uplineName"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Name of Upline</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g., John Smith" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="uplineCode"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Upline Code</FormLabel>
+                            <FormControl>
+                            <Input placeholder="e.g., U5678" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                </div>
+                 <FormField
+                    control={form.control}
+                    name="introducerCode"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Introducer's Code</FormLabel>
+                        <FormControl>
+                        <Input placeholder="e.g., I9101" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+            </div>
+          </TabsContent>
+
           <TabsContent value="beneficiaries" className="mt-6 space-y-6">
              <Alert>
                 <Info className="h-4 w-4" />
@@ -2140,7 +2227,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                         <TableHead className="w-12">Tick</TableHead>
                                         <TableHead>Description</TableHead>
                                         <TableHead>Average per week</TableHead>
-                                        <TableHead>Notes (if any)</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -2161,15 +2247,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                 name="alcoholBeer.averagePerWeek"
                                                 render={({ field }) => (
                                                     <Input {...field} placeholder="e.g., 3 bottles" />
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <FormField
-                                                control={form.control}
-                                                name="alcoholBeer.notes"
-                                                render={({ field }) => (
-                                                    <Input {...field} placeholder="Notes" />
                                                 )}
                                             />
                                         </TableCell>
@@ -2194,15 +2271,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                 )}
                                             />
                                         </TableCell>
-                                        <TableCell>
-                                            <FormField
-                                                control={form.control}
-                                                name="alcoholWine.notes"
-                                                render={({ field }) => (
-                                                    <Input {...field} placeholder="Notes" />
-                                                )}
-                                            />
-                                        </TableCell>
                                     </TableRow>
                                     <TableRow>
                                         <TableCell>
@@ -2221,15 +2289,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                                 name="alcoholSpirits.averagePerWeek"
                                                 render={({ field }) => (
                                                     <Input {...field} placeholder="e.g., 1 shot" />
-                                                )}
-                                            />
-                                        </TableCell>
-                                        <TableCell>
-                                            <FormField
-                                                control={form.control}
-                                                name="alcoholSpirits.notes"
-                                                render={({ field }) => (
-                                                    <Input {...field} placeholder="Notes" />
                                                 )}
                                             />
                                         </TableCell>
@@ -3387,18 +3446,14 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                      <Separator className="my-6" />
                     <div className="space-y-4">
                         <h4 className="font-bold uppercase">DECLARATION OF CONDITIONAL COVERAGE BY POLICY OWNER</h4>
+                        <p className="font-bold">I understand and agree that the insurance coverage I am applying for is subject to all the following conditions being met:</p>
                         <ol className="list-decimal list-outside space-y-2 pl-5">
                             <li>I submit this application with the intention of entering into a contract with FIRST INSURANCE COMPANY LIMITED for the benefit set out in its policy and on its terms and conditions.</li>
-                            <li>
-                                <p className="font-bold">I understand and agree that the insurance coverage I am applying for is subject to all the following conditions being met:</p>
-                                <ul className="list-disc list-outside space-y-1 pl-6 mt-2">
-                                    <li>All the information provided in this application together with any additional statement or documents are wholly true and accurate.</li>
-                                    <li>All information concerning the insurability of the Life Insured (including but not limited to, the result of medical examinations or body fluid studies and certified Medical Officer's statements) is received by the Company.</li>
-                                    <li>The Company's underwriters have accepted this application for life insurance.</li>
-                                    <li>The Company has received the first premium in full.</li>
-                                    <li>The final premium will be determined by the Company's underwriters.</li>
-                                </ul>
-                            </li>
+                            <li>All the information provided in this application together with any additional statement or documents are wholly true and accurate.</li>
+                            <li>All information concerning the insurability of the Life Insured (including but not limited to, the result of medical examinations or body fluid studies and certified Medical Officer's statements) is received by the Company.</li>
+                            <li>The Company's underwriters have accepted this application for life insurance.</li>
+                            <li>The Company has received the first premium in full.</li>
+                            <li>The final premium will be determined by the Company's underwriters.</li>
                         </ol>
                     </div>
                      <div className="space-y-4 pt-4">
@@ -3945,6 +4000,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
