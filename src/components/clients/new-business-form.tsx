@@ -413,7 +413,8 @@ const formSchema = z
     travelOutsideCountryDetails: z.array(lifestyleDetailSchema).optional(),
     
     // Declaration
-    signature: z.string().optional(),
+    lifeInsuredSignature: z.string().optional(),
+    policyOwnerSignature: z.string().optional(),
   });
 
 type NewBusinessFormProps = {
@@ -453,7 +454,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
-  const [signatureDataUrl, setSignatureDataUrl] = React.useState<string | null>(null);
+  const [lifeInsuredSignatureDataUrl, setLifeInsuredSignatureDataUrl] = React.useState<string | null>(null);
+  const [policyOwnerSignatureDataUrl, setPolicyOwnerSignatureDataUrl] = React.useState<string | null>(null);
   const [isSignatureVerified, setIsSignatureVerified] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
   const [isCodeSent, setIsCodeSent] = React.useState(false);
@@ -684,7 +686,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       hazardousSportsDetails: [],
       travelOutsideCountry: 'no' as const,
       travelOutsideCountryDetails: [],
-      signature: '',
+      lifeInsuredSignature: '',
+      policyOwnerSignature: '',
     };
   }, [isEditMode, businessId]);
 
@@ -835,12 +838,21 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-  const handleSaveSignature = (dataUrl: string) => {
-    setSignatureDataUrl(dataUrl);
-    form.setValue('signature', dataUrl);
+  const handleSaveLifeInsuredSignature = (dataUrl: string) => {
+    setLifeInsuredSignatureDataUrl(dataUrl);
+    form.setValue('lifeInsuredSignature', dataUrl);
     toast({
         title: "Signature Saved",
-        description: "Your signature has been captured. Please proceed to verify your identity.",
+        description: "The life insured's signature has been captured. Please proceed to verify identity.",
+    });
+  };
+
+  const handleSavePolicyOwnerSignature = (dataUrl: string) => {
+    setPolicyOwnerSignatureDataUrl(dataUrl);
+    form.setValue('policyOwnerSignature', dataUrl);
+    toast({
+        title: "Signature Saved",
+        description: "The policy owner's signature has been captured.",
     });
   };
   
@@ -872,11 +884,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!values.signature || !isSignatureVerified) {
+    if (!values.lifeInsuredSignature || !isSignatureVerified) {
         toast({
             variant: "destructive",
             title: "Submission Error",
-            description: "Please sign the declaration and verify your identity before submitting.",
+            description: "Please ensure the Life Insured has signed and verified their identity before submitting.",
+        });
+        setActiveTab('declaration');
+        return;
+    }
+    if (!isPolicyHolderPayer && !values.policyOwnerSignature) {
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: "The Policy Owner must also sign the declaration.",
         });
         setActiveTab('declaration');
         return;
@@ -3327,9 +3348,9 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                     <Separator className="my-6" />
                     <div className="space-y-4">
                         <h4 className="font-bold">Signature of Life Insured</h4>
-                        <SignaturePad onSave={handleSaveSignature} />
+                        <SignaturePad onSave={handleSaveLifeInsuredSignature} />
                     </div>
-                     {signatureDataUrl && (
+                     {lifeInsuredSignatureDataUrl && (
                         <div className="space-y-4 pt-4">
                             <Separator />
                             <h4 className="font-bold">Identity Verification</h4>
@@ -3382,6 +3403,11 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                 </ul>
                             </li>
                         </ol>
+                    </div>
+                     <div className="space-y-4 pt-4">
+                        <Separator />
+                        <h4 className="font-bold">Signature of Policy Owner</h4>
+                        <SignaturePad onSave={handleSavePolicyOwnerSignature} />
                     </div>
                 </CardContent>
             </Card>
@@ -3942,6 +3968,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
