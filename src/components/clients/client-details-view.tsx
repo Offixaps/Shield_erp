@@ -404,11 +404,11 @@ export default function ClientDetailsView({
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
-          <TabsTrigger value="mandate">Mandate</TabsTrigger>
           <TabsTrigger value="claims">Claims History</TabsTrigger>
           <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
           <TabsTrigger value="payment-history">Payment History</TabsTrigger>
+          <TabsTrigger value="mandate">Mandate</TabsTrigger>
           <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
         </TabsList>
 
