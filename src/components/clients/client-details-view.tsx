@@ -400,11 +400,13 @@ export default function ClientDetailsView({
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-11 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
           <TabsTrigger value="policy-info">Policy Info</TabsTrigger>
           <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
+          <TabsTrigger value="health">Health</TabsTrigger>
+          <TabsTrigger value="mandate">Mandate</TabsTrigger>
           <TabsTrigger value="claims">Claims History</TabsTrigger>
           <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
           <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
@@ -615,6 +617,28 @@ export default function ClientDetailsView({
                 <BeneficiaryTable title="Primary Beneficiaries" beneficiaries={client.primaryBeneficiaries} />
                 <BeneficiaryTable title="Contingent Beneficiaries" beneficiaries={client.contingentBeneficiaries} />
             </div>
+        </TabsContent>
+        
+        <TabsContent value="health" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Health Information</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">All health-related information, medical history, and lifestyle details provided by the client will be displayed here.</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="mandate" className="mt-6">
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Mandate Information</h3>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">Details about the payment mandate, including bank details and authorization status, will be displayed here.</p>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="claims" className="mt-6">
