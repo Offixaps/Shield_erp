@@ -428,11 +428,11 @@ type NewBusinessFormProps = {
 
 const tabSequence = [
     'coverage',
-    'agent',
     'beneficiaries',
     'health',
     'lifestyle',
     'declaration',
+    'agent',
     'payment-details',
 ];
 
@@ -986,11 +986,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
             <TabsTrigger value="coverage">Coverage</TabsTrigger>
-            <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
             <TabsTrigger value="declaration">Declaration</TabsTrigger>
+            <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
           </TabsList>
           
@@ -3937,7 +3937,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
 
             {activeTab === 'declaration' && (
                  <Button type="button" onClick={() => handleTabChange('next')} disabled={!isSignatureVerified}>
-                    Proceed to Payment
+                    Proceed to Agent Details
                 </Button>
             )}
 
@@ -4000,6 +4000,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
