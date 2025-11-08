@@ -978,7 +978,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
-            <TabsTrigger value="policy-holder">Policy Holder & Coverage</TabsTrigger>
+            <TabsTrigger value="policy-holder">Coverage</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
@@ -3945,6 +3945,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
