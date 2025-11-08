@@ -400,10 +400,8 @@ export default function ClientDetailsView({
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-11 h-auto">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="personal-info">Personal Info</TabsTrigger>
-          <TabsTrigger value="policy-info">Policy Info</TabsTrigger>
           <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
           <TabsTrigger value="mandate">Mandate</TabsTrigger>
@@ -588,28 +586,6 @@ export default function ClientDetailsView({
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
-
-        <TabsContent value="personal-info" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Personal Information Updates</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Features for updating and viewing the history of personal information changes will be implemented here.</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="policy-info" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Policy Information Updates</h3>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">Features for updating and viewing the history of policy detail changes will be implemented here.</p>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         <TabsContent value="beneficiaries" className="mt-6">
