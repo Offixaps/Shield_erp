@@ -598,85 +598,7 @@ export default function ClientDetailsView({
         
         <TabsContent value="health" className="mt-6">
             <div className="space-y-6">
-                <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Health Details</h3>
-                    </CardHeader>
-                    <CardContent className="pt-6 grid grid-cols-2 md:grid-cols-4 gap-2">
-                        <DetailItem label="Height" value={'175 cm'} />
-                        <DetailItem label="Weight" value={'70 kg'} />
-                        <DetailItem label="BMI" value={'22.9'} />
-                        <DetailItem label="BMI Status" value={<Badge className="bg-green-500 text-white">Healthy Weight</Badge>} />
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Lifestyle Choices</h3>
-                    </CardHeader>
-                     <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem label="Alcohol Habits" value={"Drink occasionally or socially only"} />
-                        <DetailItem label="Tobacco/Nicotine Use" value={"Have never smoked"} />
-                        <DetailItem label="Recreational Drugs" value={"No"} />
-                        <DetailItem label="Injected Non-Prescribed Drugs" value={"No"} />
-                        <DetailItem label="Tested for HIV, Hep B/C" value={"No"} />
-                     </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Medical History</h3>
-                    </CardHeader>
-                     <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem label="Blood Transfusion or Surgery" value={"No"} />
-                        <DetailItem label="High Blood Pressure, Heart Issues, etc." value={"No"} />
-                        <DetailItem label="Cancer, Leukemia, Tumors, etc." value={"No"} />
-                        <DetailItem label="Any form of Diabetes" value={"No"} />
-                        <DetailItem label="Colitis or Crohn's Disease" value={"No"} />
-                        <DetailItem label="Paralysis, Epilepsy, etc." value={"No"} />
-                        <DetailItem label="Mental Illness" value={"No"} />
-                        <DetailItem label="Arthritis, Gout, Back Pain" value={"No"} />
-                        <DetailItem label="Chest Pain, Irregular Heart Beat" value={"No"} />
-                        <DetailItem label="Asthma, Bronchitis, etc." value={"No"} />
-                        <DetailItem label="Digestive, Liver, Pancreas Disorder" value={"No"} />
-                        <DetailItem label="Blood Disorder or Anemia" value={"No"} />
-                        <DetailItem label="Thyroid Disorder" value={"No"} />
-                        <DetailItem label="Kidney or Bladder Disorder" value={"No"} />
-                        <DetailItem label="Numbness or Tingling" value={"No"} />
-                        <DetailItem label="Anxiety, Stress, Depression" value={"No"} />
-                        <DetailItem label="Ear or Eye Disorder" value={"No"} />
-                        <DetailItem label="Lump or Growth" value={"No"} />
-                        <DetailItem label="Hospital Attendance (Last 5 Years)" value={"No"} />
-                        <DetailItem label="Critical Illness History" value={"No"} />
-                        <DetailItem label="Sexually Transmitted Infections" value={"No"} />
-                     </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Present Condition</h3>
-                    </CardHeader>
-                     <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem label="Currently Experiencing Symptoms" value={"No"} />
-                        <DetailItem label="Awaiting Consultation/Results" value={"No"} />
-                        <DetailItem label="Currently Taking Medication" value={"No"} />
-                     </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Family Medical History</h3>
-                    </CardHeader>
-                     <CardContent className="pt-6 grid grid-cols-1">
-                        <DetailItem label="Hereditary Conditions in Family" value={"No"} />
-                     </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="p-2 rounded-t-md" style={{ backgroundColor: '#023ea3' }}>
-                        <h3 className="font-medium uppercase text-white">Hazardous Activities</h3>
-                    </CardHeader>
-                     <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <DetailItem label="Flown as Pilot/Crew" value={"No"} />
-                        <DetailItem label="Hazardous Sports" value={"No"} />
-                        <DetailItem label="Travel Outside Country (Next 30 Days)" value={"No"} />
-                     </CardContent>
-                </Card>
+                 {/* This section will be populated dynamically based on client data */}
             </div>
         </TabsContent>
         
@@ -735,3 +657,4 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
