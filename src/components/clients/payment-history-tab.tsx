@@ -16,6 +16,8 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import type { NewBusiness, Bill, Payment } from '@/lib/data';
+import { Button } from '../ui/button';
+import { Download } from 'lucide-react';
 
 type PaymentHistoryTabProps = {
   client: NewBusiness;
@@ -107,8 +109,12 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Financial History</CardTitle>
+        <Button variant="outline">
+          <Download className="mr-2 h-4 w-4" />
+          Generate Statement
+        </Button>
       </CardHeader>
       <CardContent>
         {transactions && transactions.length > 0 ? (
