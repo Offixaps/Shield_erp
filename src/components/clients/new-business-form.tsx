@@ -284,7 +284,6 @@ const formSchema = z
       .positive('Premium amount must be a positive number.'),
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
     increaseMonth: z.string().min(1, 'Increase month is required.'),
-    notes: z.string().optional(),
 
     // Employment Details
     occupation: z.string().min(2, 'Occupation is required.'),
@@ -504,7 +503,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumPayerOccupation: 'Accountant',
           bankName: businessData.bankName,
           bankBranch: 'Accra Main',
-          notes: '',
           maritalStatus: 'Married' as const,
           dependents: 2,
           gender: 'Male' as const,
@@ -561,7 +559,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       sumAssured: 0,
       paymentFrequency: 'Monthly' as const,
       increaseMonth: '',
-      notes: '',
       premiumPayerSurname: '',
       premiumPayerOtherNames: '',
       premiumPayerOccupation: '',
@@ -3865,26 +3862,6 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                       )}
                     />
                 </div>
-                 <FormField
-                  control={form.control}
-                  name="notes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Notes</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Any additional notes about the client or policy."
-                          className="resize-none"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Add any relevant notes about the client or policy.
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
              </div>
           </TabsContent>
 
@@ -3968,6 +3945,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
