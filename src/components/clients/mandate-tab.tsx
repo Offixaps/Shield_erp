@@ -7,6 +7,7 @@ import { Card, CardContent } from '../ui/card';
 import { Separator } from '../ui/separator';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
+import Image from 'next/image';
 
 function DetailRow({ label, value }: { label: string, value: string | number | undefined }) {
     return (
@@ -44,8 +45,13 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
                 <div className="p-6">
                     <header className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">
-                            <div className="w-20 h-20 bg-gray-200 border-2 border-gray-800 flex items-center justify-center">
-                                <span className="text-xs text-gray-600">Logo</span>
+                            <div className="relative w-20 h-20">
+                                <Image
+                                    src="/logo - mandate.svg"
+                                    alt="First Insurance Company Limited Logo"
+                                    fill
+                                    className="object-contain"
+                                />
                             </div>
                             <div>
                                 <h1 className="font-bold text-gray-800">FIRST INSURANCE COMPANY LIMITED</h1>
