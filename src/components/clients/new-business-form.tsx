@@ -552,10 +552,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           isPolicyHolderPayer: businessData.client === businessData.payerName,
           primaryBeneficiaries: businessData.primaryBeneficiaries || [],
           contingentBeneficiaries: businessData.contingentBeneficiaries || [],
-          height: businessData.height || undefined,
+          height: businessData.height || '',
           heightUnit: businessData.heightUnit || 'cm',
-          weight: businessData.weight || undefined,
-          // Ensure optional fields that might be undefined are initialized to empty strings
+          weight: businessData.weight || '',
           lifeInsuredSignature: businessData.lifeInsuredSignature || '',
           policyOwnerSignature: businessData.policyOwnerSignature || '',
           postalAddress: businessData.postalAddress || '',
@@ -565,6 +564,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           previousDoctorName: businessData.previousDoctorName || '',
           previousDoctorPhone: businessData.previousDoctorPhone || '',
           previousDoctorHospital: businessData.previousDoctorHospital || '',
+          agentName: (businessData as any).agentName || '',
+          agentCode: (businessData as any).agentCode || '',
+          uplineName: (businessData as any).uplineName || '',
+          uplineCode: (businessData as any).uplineCode || '',
+          introducerCode: (businessData as any).introducerCode || '',
         };
       }
     }
@@ -631,9 +635,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
-      height: undefined,
+      height: '',
       heightUnit: 'cm' as const,
-      weight: undefined,
+      weight: '',
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '' },
       alcoholWine: { consumed: false, averagePerWeek: '' },
@@ -715,6 +719,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       travelOutsideCountryDetails: [],
       lifeInsuredSignature: '',
       policyOwnerSignature: '',
+      agentName: '',
+      agentCode: '',
+      uplineName: '',
+      uplineCode: '',
+      introducerCode: '',
     };
   }, [isEditMode, businessId]);
 
@@ -819,22 +828,22 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   }, [monthlyBasicIncome, otherIncome, form]);
   
   React.useEffect(() => {
-    if (height && weight && height > 0 && weight > 0) {
+    if (height && weight && Number(height) > 0 && Number(weight) > 0) {
       let heightInMeters: number;
       switch (heightUnit) {
         case 'cm':
-          heightInMeters = height / 100;
+          heightInMeters = Number(height) / 100;
           break;
         case 'ft':
-          heightInMeters = height * 0.3048;
+          heightInMeters = Number(height) * 0.3048;
           break;
         case 'm':
         default:
-          heightInMeters = height;
+          heightInMeters = Number(height);
           break;
       }
 
-      const calculatedBmi = weight / (heightInMeters * heightInMeters);
+      const calculatedBmi = Number(weight) / (heightInMeters * heightInMeters);
       setBmi(calculatedBmi);
 
       if (calculatedBmi < 18.5) {
@@ -4023,6 +4032,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
