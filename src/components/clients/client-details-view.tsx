@@ -20,6 +20,9 @@ import {
   ShieldCheck,
   FilePenLine,
   Banknote,
+  Heart,
+  Lungs,
+  Stethoscope,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness, OnboardingStatus, Beneficiary } from '@/lib/data';
@@ -603,33 +606,82 @@ export default function ClientDetailsView({
         </TabsContent>
         
         <TabsContent value="health" className="mt-6">
-          <Card>
-            <CardHeader>
-              <h3 className="text-lg font-medium">Health & Lifestyle Details</h3>
-            </CardHeader>
-            <CardContent>
-              <Accordion type="multiple" defaultValue={['health-status', 'lifestyle']} className="w-full">
-                <AccordionItem value="health-status">
-                  <AccordionTrigger>Health Status</AccordionTrigger>
-                  <AccordionContent>
-                    <p className="text-muted-foreground">Detailed health information will be displayed here.</p>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="medical-history">
-                  <AccordionTrigger>Medical History</AccordionTrigger>
-                  <AccordionContent>
-                     <p className="text-muted-foreground">A detailed medical history will be displayed here.</p>
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="lifestyle">
-                  <AccordionTrigger>Lifestyle</AccordionTrigger>
-                  <AccordionContent>
-                    <p className="text-muted-foreground">Lifestyle details such as smoking and alcohol consumption will be displayed here.</p>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </CardContent>
-          </Card>
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Heart className="text-primary"/> Health & Lifestyle Overview</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <DetailItem label="Height" value={client.height ? `${client.height} ${client.heightUnit}` : 'N/A'} />
+                <DetailItem label="Weight" value={client.weight ? `${client.weight} kg` : 'N/A'} />
+                <DetailItem label="BMI" value={client.bmi || 'N/A'} />
+                <DetailItem label="Alcohol Habits" value={client.alcoholHabits?.replace(/_/g, ' ')} />
+                <DetailItem label="Tobacco Habits" value={client.tobaccoHabits?.replace(/_/g, ' ')} />
+              </CardContent>
+            </Card>
+
+            <Card>
+               <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Stethoscope className="text-primary"/> Medical History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                 <Accordion type="multiple" className="w-full">
+                  {client.medicalHistory && client.medicalHistory.length > 0 ? (
+                    client.medicalHistory.map((history, index) => (
+                      <AccordionItem value={`item-${index}`} key={index}>
+                        <AccordionTrigger>{history.illness}</AccordionTrigger>
+                        <AccordionContent>
+                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                              <DetailItem label="Date" value={history.date ? format(new Date(history.date), 'PPP') : 'N/A'} />
+                              <DetailItem label="Hospital/Doctor" value={history.hospital} />
+                              <DetailItem label="Duration" value={history.duration} />
+                              <DetailItem label="Status" value={history.status} />
+                           </div>
+                           {/* Add rendering for nested conditional details here if they exist */}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))
+                  ) : (
+                    <p className="text-muted-foreground p-4">No medical history disclosed.</p>
+                  )}
+                </Accordion>
+              </CardContent>
+            </Card>
+
+             <Card>
+               <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Lungs className="text-primary"/> Family Medical History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                 {client.familyMedicalHistoryDetails && client.familyMedicalHistoryDetails.length > 0 ? (
+                    <div className="rounded-md border">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Condition</TableHead>
+                                    <TableHead>Relation</TableHead>
+                                    <TableHead>Age of Occurrence</TableHead>
+                                    <TableHead>Current Age / Age at Death</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {client.familyMedicalHistoryDetails.map((familyMember, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell>{familyMember.condition}</TableCell>
+                                        <TableCell>{familyMember.relation}</TableCell>
+                                        <TableCell>{familyMember.ageOfOccurrence}</TableCell>
+                                        <TableCell>{familyMember.currentAgeOrAgeAtDeath}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                 ) : (
+                    <p className="text-muted-foreground">No family medical history disclosed.</p>
+                 )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         
         <TabsContent value="mandate" className="mt-6">
