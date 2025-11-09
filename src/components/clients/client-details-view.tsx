@@ -41,6 +41,12 @@ import ActivityLogTab from './activity-log-tab';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 import { Checkbox } from '../ui/checkbox';
 import MandateTab from './mandate-tab';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 
 function DetailItem({
@@ -597,9 +603,33 @@ export default function ClientDetailsView({
         </TabsContent>
         
         <TabsContent value="health" className="mt-6">
-            <div className="space-y-6">
-                 {/* This section will be populated dynamically based on client data */}
-            </div>
+          <Card>
+            <CardHeader>
+              <h3 className="text-lg font-medium">Health & Lifestyle Details</h3>
+            </CardHeader>
+            <CardContent>
+              <Accordion type="multiple" defaultValue={['health-status', 'lifestyle']} className="w-full">
+                <AccordionItem value="health-status">
+                  <AccordionTrigger>Health Status</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-muted-foreground">Detailed health information will be displayed here.</p>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="medical-history">
+                  <AccordionTrigger>Medical History</AccordionTrigger>
+                  <AccordionContent>
+                     <p className="text-muted-foreground">A detailed medical history will be displayed here.</p>
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="lifestyle">
+                  <AccordionTrigger>Lifestyle</AccordionTrigger>
+                  <AccordionContent>
+                    <p className="text-muted-foreground">Lifestyle details such as smoking and alcohol consumption will be displayed here.</p>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </CardContent>
+          </Card>
         </TabsContent>
         
         <TabsContent value="mandate" className="mt-6">
@@ -657,4 +687,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
