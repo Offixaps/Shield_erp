@@ -520,8 +520,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           sumAssured: businessData.sumAssured,
           paymentFrequency: 'Monthly' as const,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
-          premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' '),
-          premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' '),
+          premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' ') || '',
+          premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' ') || '',
           premiumPayerOccupation: 'Accountant',
           maritalStatus: 'Married' as const,
           dependents: 2,
@@ -569,6 +569,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           uplineName: (businessData as any).uplineName || '',
           uplineCode: (businessData as any).uplineCode || '',
           introducerCode: (businessData as any).introducerCode || '',
+          premiumPayerRelationship: (businessData as any).premiumPayerRelationship || '',
+          premiumPayerResidentialAddress: (businessData as any).premiumPayerResidentialAddress || '',
+          premiumPayerPostalAddress: (businessData as any).premiumPayerPostalAddress || '',
+          premiumPayerBusinessName: (businessData as any).premiumPayerBusinessName || '',
+          premiumPayerIdNumber: (businessData as any).premiumPayerIdNumber || '',
+          premiumPayerPlaceOfIssue: (businessData as any).premiumPayerPlaceOfIssue || '',
         };
       }
     }
@@ -724,6 +730,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       uplineName: '',
       uplineCode: '',
       introducerCode: '',
+      premiumPayerIdType: undefined,
+      premiumPayerIdNumber: '',
+      premiumPayerIssueDate: undefined,
+      premiumPayerExpiryDate: undefined,
+      premiumPayerPlaceOfIssue: '',
     };
   }, [isEditMode, businessId]);
 
@@ -4032,6 +4043,8 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
+
 
 
 
