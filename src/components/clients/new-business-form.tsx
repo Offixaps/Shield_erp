@@ -552,9 +552,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           isPolicyHolderPayer: businessData.client === businessData.payerName,
           primaryBeneficiaries: businessData.primaryBeneficiaries || [],
           contingentBeneficiaries: businessData.contingentBeneficiaries || [],
-          height: businessData.height || '',
+          height: businessData.height || undefined,
           heightUnit: businessData.heightUnit || 'cm',
-          weight: businessData.weight || '',
+          weight: businessData.weight || undefined,
           // Ensure optional fields that might be undefined are initialized to empty strings
           lifeInsuredSignature: businessData.lifeInsuredSignature || '',
           policyOwnerSignature: businessData.policyOwnerSignature || '',
@@ -631,9 +631,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
-      height: '',
+      height: undefined,
       heightUnit: 'cm' as const,
-      weight: '',
+      weight: undefined,
       alcoholHabits: 'never_used' as const,
       alcoholBeer: { consumed: false, averagePerWeek: '' },
       alcoholWine: { consumed: false, averagePerWeek: '' },
@@ -4023,6 +4023,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
