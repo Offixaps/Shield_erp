@@ -539,9 +539,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           isPolicyHolderPayer: businessData.client === businessData.payerName,
           primaryBeneficiaries: [],
           contingentBeneficiaries: [],
-          height: '',
-          heightUnit: 'cm' as const,
-          weight: '',
+          height: businessData.height || '',
+          heightUnit: businessData.heightUnit || 'cm',
+          weight: businessData.weight || '',
         };
       }
     }
@@ -4000,6 +4000,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
 
 
 
