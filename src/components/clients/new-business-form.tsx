@@ -420,7 +420,24 @@ const formSchema = z
     // Declaration
     lifeInsuredSignature: z.string().optional(),
     policyOwnerSignature: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Total percentage for primary beneficiaries should be 100% if there are any
+    if (data.primaryBeneficiaries && data.primaryBeneficiaries.length > 0) {
+      const totalPrimaryPercentage = data.primaryBeneficiaries.reduce(
+        (acc, b) => acc + (b.percentage || 0),
+        0
+      );
+      if (totalPrimaryPercentage !== 100) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['primaryBeneficiaries'],
+          message: 'Total percentage for primary beneficiaries must be 100.',
+        });
+      }
+    }
   });
+
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -483,6 +500,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
         
         return {
+          ...businessData,
           title: title,
           lifeAssuredFirstName: firstName,
           lifeAssuredMiddleName: middleName,
@@ -492,10 +510,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
           lifeAssuredDob: new Date('1985-05-20'),
-          placeOfBirth: businessData.placeOfBirth,
           email: 'j.doe@example.com',
-          phone: businessData.phone,
-          postalAddress: '123 Main St, Accra',
           workTelephone: '030 123 4567',
           homeTelephone: '030 765 4321',
           residentialAddress: '456 Oak Avenue, Accra',
@@ -508,8 +523,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' '),
           premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' '),
           premiumPayerOccupation: 'Accountant',
-          bankName: businessData.bankName,
-          bankBranch: 'Accra Main',
           maritalStatus: 'Married' as const,
           dependents: 2,
           gender: 'Male' as const,
@@ -537,11 +550,21 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           totalMonthlyIncome: 12000,
           serialNumber: businessData.serial,
           isPolicyHolderPayer: businessData.client === businessData.payerName,
-          primaryBeneficiaries: [],
-          contingentBeneficiaries: [],
+          primaryBeneficiaries: businessData.primaryBeneficiaries || [],
+          contingentBeneficiaries: businessData.contingentBeneficiaries || [],
           height: businessData.height || '',
           heightUnit: businessData.heightUnit || 'cm',
           weight: businessData.weight || '',
+          // Ensure optional fields that might be undefined are initialized to empty strings
+          lifeInsuredSignature: businessData.lifeInsuredSignature || '',
+          policyOwnerSignature: businessData.policyOwnerSignature || '',
+          postalAddress: businessData.postalAddress || '',
+          currentDoctorName: businessData.currentDoctorName || '',
+          currentDoctorPhone: businessData.currentDoctorPhone || '',
+          currentDoctorHospital: businessData.currentDoctorHospital || '',
+          previousDoctorName: businessData.previousDoctorName || '',
+          previousDoctorPhone: businessData.previousDoctorPhone || '',
+          previousDoctorHospital: businessData.previousDoctorHospital || '',
         };
       }
     }
@@ -4000,6 +4023,9 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     
 
     
+
+
+
 
 
 
