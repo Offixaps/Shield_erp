@@ -21,8 +21,8 @@ import {
   FilePenLine,
   Banknote,
   Heart,
-  Lungs,
   Stethoscope,
+  Users,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness, OnboardingStatus, Beneficiary } from '@/lib/data';
@@ -650,7 +650,7 @@ export default function ClientDetailsView({
 
              <Card>
                <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Lungs className="text-primary"/> Family Medical History</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Users className="text-primary"/> Family Medical History</CardTitle>
               </CardHeader>
               <CardContent>
                  {client.familyMedicalHistoryDetails && client.familyMedicalHistoryDetails.length > 0 ? (
