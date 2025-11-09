@@ -23,9 +23,15 @@ import {
   Heart,
   Stethoscope,
   Users,
+  Pill,
+  Syringe,
+  Virus,
+  Plane,
+  Bike,
+  Waves,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { NewBusiness, OnboardingStatus, Beneficiary } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   Tabs,
@@ -141,6 +147,127 @@ function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiari
     );
 }
 
+function YesNoDisplay({ value }: { value: 'yes' | 'no' | undefined | boolean }) {
+    const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value || 'no';
+    return (
+      <Badge variant={displayValue === 'yes' ? 'destructive' : 'secondary'}>
+        {displayValue === 'yes' ? 'Yes' : 'No'}
+      </Badge>
+    );
+}
+
+function MedicalHistorySection({
+  title,
+  icon,
+  data,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  data: IllnessDetail[] | undefined;
+}) {
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          {icon} {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Accordion type="multiple" className="w-full">
+          {data.map((history, index) => (
+            <AccordionItem value={`item-${index}`} key={index}>
+              <AccordionTrigger>{history.illness}</AccordionTrigger>
+              <AccordionContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <DetailItem label="Date" value={history.date ? format(new Date(history.date), 'PPP') : 'N/A'} />
+                  <DetailItem label="Hospital/Doctor" value={history.hospital} />
+                  <DetailItem label="Duration" value={history.duration} />
+                  <DetailItem label="Status" value={history.status} />
+                </div>
+                {/* Specific conditional details can be added here */}
+                 {history.illness === 'High blood pressure' && (
+                    <div className="p-4 mt-2 space-y-4 bg-blue-500/10 rounded-md border border-blue-500/20">
+                        <h4 className="font-semibold text-primary">High Blood Pressure Specifics</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <DetailItem label="Diagnosis Date" value={history.diagnosisDate ? format(new Date(history.diagnosisDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Reading at Diagnosis" value={history.bpReadingAtDiagnosis} />
+                            <DetailItem label="Last Monitored Date" value={history.lastMonitoredDate ? format(new Date(history.lastMonitoredDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Last BP Reading" value={history.lastBpReading} />
+                            <DetailItem label="Monitoring Frequency" value={history.monitoringFrequency} />
+                        </div>
+                         <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Cause / Contributing Factors</p>
+                            <p className="text-sm font-semibold">{history.causeOfHighBp || 'N/A'}</p>
+                         </div>
+                         <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Prescribed Treatment</p>
+                            <p className="text-sm font-semibold">{history.prescribedTreatment || 'N/A'}</p>
+                         </div>
+                         <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Complications</p>
+                            <p className="text-sm font-semibold">{history.complications || 'N/A'}</p>
+                         </div>
+                         <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground">Sugar/Cholesterol Checked in past 2 years?</p>
+                            <p className="text-sm font-semibold">{history.sugarCholesterolChecked || 'N/A'}</p>
+                         </div>
+                    </div>
+                 )}
+                 {history.illness === 'Diabetes' && (
+                     <div className="p-4 mt-2 space-y-4 bg-red-500/10 rounded-md border border-red-500/20">
+                         <h4 className="font-semibold text-destructive">Diabetes Specifics</h4>
+                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <DetailItem label="First Signs Date" value={history.diabetesFirstSignsDate ? format(new Date(history.diabetesFirstSignsDate), 'PPP') : 'N/A'} />
+                             <DetailItem label="Symptoms" value={history.diabetesSymptoms} />
+                             <DetailItem label="Diagnosis Date" value={history.diabetesDiagnosisDate ? format(new Date(history.diabetesDiagnosisDate), 'PPP') : 'N/A'} />
+                             <DetailItem label="Consulted Doctor?" value={<YesNoDisplay value={history.diabetesConsulted} />} />
+                             <DetailItem label="Latest Blood Sugar Reading" value={history.diabetesLatestBloodSugar} />
+                         </div>
+                         <DetailItem label="Hospitalized for Diabetes?" value={history.diabetesHospitalized} />
+                         <DetailItem label="Taking Insulin?" value={history.diabetesTakingInsulin} />
+                         <DetailItem label="Taking Oral Treatment?" value={history.diabetesOralTreatment} />
+                         <DetailItem label="Dosage Varied in Last 12 Months?" value={history.diabetesDosageVaried} />
+                         <DetailItem label="Regular Tests (Blood/Urine)?" value={history.diabetesRegularTests} />
+                         <DetailItem label="Ever in Diabetic Coma?" value={history.diabetesDiabeticComa} />
+                         <DetailItem label="Aware of Complications?" value={history.diabetesComplications} />
+                         <DetailItem label="Other Medical Exams?" value={history.diabetesOtherExams} />
+                         <DetailItem label="Other Consultations?" value={history.diabetesOtherConsultations} />
+                     </div>
+                 )}
+                 {history.illness === 'Asthma' && (
+                     <div className="p-4 mt-2 space-y-4 bg-purple-500/10 rounded-md border border-purple-500/20">
+                          <h4 className="font-semibold" style={{ color: 'hsl(var(--chart-3))' }}>Asthma Specifics</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <DetailItem label="Age at First Signs" value={history.asthmaFirstSignsAge} />
+                            <DetailItem label="Symptom Duration" value={history.asthmaSymptomDuration} />
+                            <DetailItem label="Symptom Frequency" value={history.asthmaSymptomFrequency} />
+                            <DetailItem label="Last Attack Date" value={history.asthmaLastAttackDate ? format(new Date(history.asthmaLastAttackDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Condition Severity" value={history.asthmaSeverity} />
+                          </div>
+                           <DetailItem label="Triggers" value={history.asthmaTrigger} />
+                           <DetailItem label="Medication" value={history.asthmaMedication} />
+                           <DetailItem label="Steroid Therapy" value={history.asthmaSteroidTherapy} />
+                           <DetailItem label="Hospitalization" value={history.asthmaHospitalization} />
+                           <DetailItem label="Work Absence" value={history.asthmaWorkAbsence} />
+                           <DetailItem label="Functional Limitation" value={history.asthmaFunctionalLimitation} />
+                           <DetailItem label="Chest X-Ray / Lung Function Test" value={history.asthmaChestXRay} />
+                           <DetailItem label="Complicating Features" value={history.asthmaComplicatingFeatures} />
+                     </div>
+                 )}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </CardContent>
+    </Card>
+  );
+}
+
+
 export default function ClientDetailsView({
   client: initialClient,
   from,
@@ -152,6 +279,25 @@ export default function ClientDetailsView({
 }) {
   const { toast } = useToast();
   const [client, setClient] = React.useState(initialClient);
+  const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
+
+   React.useEffect(() => {
+    if (client.bmi) {
+      const calculatedBmi = client.bmi;
+      if (calculatedBmi < 18.5) {
+        setBmiStatus({ text: 'Underweight', color: 'bg-blue-500' });
+      } else if (calculatedBmi >= 18.5 && calculatedBmi < 25) {
+        setBmiStatus({ text: 'Healthy Weight', color: 'bg-green-500' });
+      } else if (calculatedBmi >= 25 && calculatedBmi < 30) {
+        setBmiStatus({ text: 'Overweight', color: 'bg-yellow-500' });
+      } else {
+        setBmiStatus({ text: 'Obesity', color: 'bg-red-500' });
+      }
+    } else {
+      setBmiStatus(null);
+    }
+  }, [client.bmi]);
+
 
   const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
     setClient(updatedPolicy);
@@ -614,46 +760,41 @@ export default function ClientDetailsView({
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <DetailItem label="Height" value={client.height ? `${client.height} ${client.heightUnit}` : 'N/A'} />
                 <DetailItem label="Weight" value={client.weight ? `${client.weight} kg` : 'N/A'} />
-                <DetailItem label="BMI" value={client.bmi || 'N/A'} />
+                 <DetailItem
+                    label="BMI"
+                    value={
+                        client.bmi && bmiStatus ? (
+                        <div className="flex items-center gap-2">
+                            <span>{client.bmi.toFixed(1)}</span>
+                            <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
+                        </div>
+                        ) : (
+                        'N/A'
+                        )
+                    }
+                />
                 <DetailItem label="Alcohol Habits" value={client.alcoholHabits?.replace(/_/g, ' ')} />
                 <DetailItem label="Tobacco Habits" value={client.tobaccoHabits?.replace(/_/g, ' ')} />
+                <DetailItem label="Used Recreational Drugs?" value={<YesNoDisplay value={client.usedRecreationalDrugs} />} />
+                <DetailItem label="Injected Non-Prescribed Drugs?" value={<YesNoDisplay value={client.injectedNonPrescribedDrugs} />} />
               </CardContent>
             </Card>
+
+            <MedicalHistorySection
+                title="Medical History"
+                icon={<Stethoscope className="text-primary" />}
+                data={client.medicalHistory}
+            />
 
             <Card>
-               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Stethoscope className="text-primary"/> Medical History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                 <Accordion type="multiple" className="w-full">
-                  {client.medicalHistory && client.medicalHistory.length > 0 ? (
-                    client.medicalHistory.map((history, index) => (
-                      <AccordionItem value={`item-${index}`} key={index}>
-                        <AccordionTrigger>{history.illness}</AccordionTrigger>
-                        <AccordionContent>
-                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              <DetailItem label="Date" value={history.date ? format(new Date(history.date), 'PPP') : 'N/A'} />
-                              <DetailItem label="Hospital/Doctor" value={history.hospital} />
-                              <DetailItem label="Duration" value={history.duration} />
-                              <DetailItem label="Status" value={history.status} />
-                           </div>
-                           {/* Add rendering for nested conditional details here if they exist */}
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))
-                  ) : (
-                    <p className="text-muted-foreground p-4">No medical history disclosed.</p>
-                  )}
-                </Accordion>
-              </CardContent>
-            </Card>
-
-             <Card>
-               <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Users className="text-primary"/> Family Medical History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                 {client.familyMedicalHistoryDetails && client.familyMedicalHistoryDetails.length > 0 ? (
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Users className="text-primary"/> Family Medical History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                 <div className='mb-4'>
+                    <YesNoDisplay value={client.familyMedicalHistory} />
+                 </div>
+                 {client.familyMedicalHistory === 'yes' && client.familyMedicalHistoryDetails && client.familyMedicalHistoryDetails.length > 0 ? (
                     <div className="rounded-md border">
                         <Table>
                             <TableHeader>
@@ -679,7 +820,63 @@ export default function ClientDetailsView({
                  ) : (
                     <p className="text-muted-foreground">No family medical history disclosed.</p>
                  )}
+                </CardContent>
+            </Card>
+
+             <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Stethoscope className="text-primary" /> Doctor's Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <h4 className="font-semibold">Current Doctor</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <DetailItem label="Name" value={client.currentDoctorName} />
+                    <DetailItem label="Phone" value={client.currentDoctorPhone} />
+                    <DetailItem label="Hospital" value={client.currentDoctorHospital} />
+                  </div>
+                </div>
+                 <div>
+                  <h4 className="font-semibold">Previous Doctor (if changed in last 6 months)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                    <DetailItem label="Name" value={client.previousDoctorName} />
+                    <DetailItem label="Phone" value={client.previousDoctorPhone} />
+                    <DetailItem label="Hospital" value={client.previousDoctorHospital} />
+                  </div>
+                </div>
               </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Waves className="text-primary"/> Lifestyle Details</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     {client.lifestyleDetails && client.lifestyleDetails.length > 0 ? (
+                        <div className="rounded-md border">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Activity</TableHead>
+                                        <TableHead>Details</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {client.lifestyleDetails.map((lifestyleItem, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{lifestyleItem.item}</TableCell>
+                                            <TableCell>{lifestyleItem.details || 'N/A'}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    ) : (
+                        <p className="text-muted-foreground">No special lifestyle details disclosed.</p>
+                    )}
+                </CardContent>
             </Card>
           </div>
         </TabsContent>
