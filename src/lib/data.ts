@@ -128,6 +128,79 @@ export type ActivityLog = {
   details?: string;
 };
 
+export type IllnessDetail = {
+    illness: string;
+    date: string;
+    hospital?: string;
+    duration?: string;
+    status?: string;
+    // High Blood Pressure
+    diagnosisDate?: string;
+    bpReadingAtDiagnosis?: string;
+    causeOfHighBp?: string;
+    prescribedTreatment?: string;
+    complications?: string;
+    monitoringFrequency?: string;
+    lastMonitoredDate?: string;
+    lastBpReading?: string;
+    sugarCholesterolChecked?: string;
+    // Diabetes
+    diabetesFirstSignsDate?: string;
+    diabetesSymptoms?: string;
+    diabetesConsulted?: 'yes' | 'no';
+    diabetesDiagnosisDate?: string;
+    diabetesHospitalized?: string;
+    diabetesTakingInsulin?: string;
+    diabetesOralTreatment?: string;
+    diabetesDosageVaried?: string;
+    diabetesRegularTests?: string;
+    diabetesLatestBloodSugar?: string;
+    diabetesDiabeticComa?: string;
+    diabetesComplications?: string;
+    diabetesOtherExams?: string;
+    diabetesOtherConsultations?: string;
+    // Asthma
+    asthmaFirstSignsAge?: number;
+    asthmaSymptomDuration?: string;
+    asthmaSymptomFrequency?: string;
+    asthmaTrigger?: string;
+    asthmaLastAttackDate?: string;
+    asthmaSeverity?: 'Mild' | 'Moderate' | 'Severe';
+    asthmaMedication?: string;
+    asthmaSteroidTherapy?: string;
+    asthmaHospitalization?: string;
+    asthmaWorkAbsence?: string;
+    asthmaFunctionalLimitation?: string;
+    asthmaChestXRay?: string;
+    asthmaComplicatingFeatures?: string;
+    // Digestive Disorders
+    digestiveSymptoms?: string;
+    digestiveSymptomFrequency?: string;
+    digestiveConditionStartDate?: string;
+    digestivePreciseDiagnosis?: string;
+    digestiveMedication?: string;
+    hadEndoscopy?: 'yes' | 'no';
+    endoscopyDetails?: string;
+    hadDigestiveSurgery?: 'yes' | 'no';
+    problemsAfterSurgery?: 'yes' | 'no';
+    problemsAfterSurgeryDetails?: string;
+    isReceivingTreatmentNow?: 'yes' | 'no';
+    treatmentDetails?: string;
+    dischargeDate?: string;
+}
+
+export type FamilyMedicalHistoryDetail = {
+    condition: string;
+    relation: string;
+    ageOfOccurrence?: number;
+    currentAgeOrAgeAtDeath?: number;
+};
+
+export type LifestyleDetail = {
+    item: string;
+    details?: string;
+}
+
 export type NewBusiness = {
   id: number;
   client: string;
@@ -160,6 +233,17 @@ export type NewBusiness = {
   bankAccountNumber: string;
   sortCode: string;
   narration: string;
+  // Health
+  height?: number;
+  heightUnit?: 'm' | 'cm' | 'ft';
+  weight?: number;
+  bmi?: number;
+  alcoholHabits: 'never_used' | 'occasional_socially' | 'ex_drinker_over_5_years' | 'ex_drinker_1_to_5_years' | 'ex_drinker_within_1_year' | 'current_regular_drinker';
+  tobaccoHabits: 'never_smoked' | 'ex_smoker_over_5_years' | 'ex_smoker_1_to_5_years' | 'ex_smoker_within_1_year' | 'smoke_occasionally_socially' | 'current_regular_smoker';
+  medicalHistory: IllnessDetail[];
+  familyMedicalHistory: 'yes' | 'no';
+  familyMedicalHistoryDetails: FamilyMedicalHistoryDetail[];
+  lifestyleDetails: LifestyleDetail[];
 };
 
 
@@ -208,7 +292,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Kofi Mensah",
     bankAccountNumber: "1234567890123",
     sortCode: "040101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 180,
+    heightUnit: "cm",
+    weight: 85,
+    bmi: 26.2,
+    alcoholHabits: 'occasional_socially',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 2,
@@ -239,7 +333,36 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Adwoa Williams",
     bankAccountNumber: "9876543210987",
     sortCode: "030101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 165,
+    heightUnit: "cm",
+    weight: 70,
+    bmi: 25.7,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'ex_smoker_over_5_years',
+    medicalHistory: [
+      {
+        illness: "High blood pressure",
+        date: "2020-01-15",
+        hospital: "37 Military Hospital",
+        duration: "Ongoing",
+        status: "Controlled",
+        diagnosisDate: "2020-01-15",
+        bpReadingAtDiagnosis: "150/95 mmHg",
+        causeOfHighBp: "Stress",
+        prescribedTreatment: "Amlodipine 5mg daily",
+        complications: "None",
+        monitoringFrequency: "Monthly",
+        lastMonitoredDate: "2024-07-01",
+        lastBpReading: "130/85 mmHg",
+        sugarCholesterolChecked: "Yes, results were normal in Jan 2024."
+      }
+    ],
+    familyMedicalHistory: 'yes',
+    familyMedicalHistoryDetails: [
+        { condition: "Heart disease", relation: "Father", ageOfOccurrence: 58, currentAgeOrAgeAtDeath: 65 }
+    ],
+    lifestyleDetails: []
   },
   {
     id: 3,
@@ -270,7 +393,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Esi Badu",
     bankAccountNumber: "2468013579246",
     sortCode: "140101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 170,
+    heightUnit: "cm",
+    weight: 65,
+    bmi: 22.5,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 4,
@@ -301,7 +434,33 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Yaw Asante",
     bankAccountNumber: "1357924680135",
     sortCode: "200102",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 175,
+    heightUnit: "cm",
+    weight: 90,
+    bmi: 29.4,
+    alcoholHabits: 'current_regular_drinker',
+    tobaccoHabits: 'current_regular_smoker',
+     medicalHistory: [
+      {
+        illness: "Diabetes",
+        date: "2021-06-10",
+        hospital: "Ridge Hospital",
+        duration: "Ongoing",
+        status: "Managed",
+        diabetesFirstSignsDate: "2021-05-01",
+        diabetesSymptoms: "Increased thirst and urination",
+        diabetesConsulted: 'yes',
+        diabetesDiagnosisDate: "2021-06-10",
+        diabetesOralTreatment: "Metformin 500mg twice daily",
+        diabetesLatestBloodSugar: "6.5 mmol/L (fasting)"
+      }
+    ],
+    familyMedicalHistory: 'yes',
+    familyMedicalHistoryDetails: [
+        { condition: "Diabetes", relation: "Mother", ageOfOccurrence: 55, currentAgeOrAgeAtDeath: 70 }
+    ],
+    lifestyleDetails: []
   },
   {
     id: 5,
@@ -332,7 +491,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Abena Owusu",
     bankAccountNumber: "3692581470369",
     sortCode: "040101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 168,
+    heightUnit: "cm",
+    weight: 62,
+    bmi: 22.0,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
    {
     id: 6,
@@ -363,7 +532,30 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Kwabena Darko",
     bankAccountNumber: "1122334455667",
     sortCode: "300101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 178,
+    heightUnit: "cm",
+    weight: 88,
+    bmi: 27.8,
+    alcoholHabits: 'ex_drinker_over_5_years',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [
+        {
+            illness: "Asthma",
+            date: "2010-09-01",
+            hospital: "Korle Bu",
+            duration: "Childhood",
+            status: "Resolved",
+            asthmaFirstSignsAge: 8,
+            asthmaSymptomFrequency: "Rarely, only with dust",
+            asthmaLastAttackDate: "2015-01-01",
+            asthmaSeverity: "Mild",
+            asthmaMedication: "Ventolin as needed (not used in 5+ years)"
+        }
+    ],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 7,
@@ -394,7 +586,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Fatima Ibrahim",
     bankAccountNumber: "2233445566778",
     sortCode: "070101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 160,
+    heightUnit: "cm",
+    weight: 60,
+    bmi: 23.4,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 8,
@@ -425,7 +627,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Charles Ampofo",
     bankAccountNumber: "3344556677889",
     sortCode: "030101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 182,
+    heightUnit: "cm",
+    weight: 95,
+    bmi: 28.7,
+    alcoholHabits: 'occasional_socially',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 9,
@@ -456,7 +668,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Akua Agyapong",
     bankAccountNumber: "4455667788990",
     sortCode: "040101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 162,
+    heightUnit: "cm",
+    weight: 58,
+    bmi: 22.1,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 10,
@@ -487,7 +709,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Nii Lante Lamptey",
     bankAccountNumber: "5566778899001",
     sortCode: "140101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 179,
+    heightUnit: "cm",
+    weight: 84,
+    bmi: 26.2,
+    alcoholHabits: 'occasional_socially',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
    {
     id: 11,
@@ -518,7 +750,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Samuel Alabi",
     bankAccountNumber: "6677889900112",
     sortCode: "040101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 172,
+    heightUnit: "cm",
+    weight: 75,
+    bmi: 25.4,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 12,
@@ -549,7 +791,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Beatrice Tetteh",
     bankAccountNumber: "7788990011223",
     sortCode: "030101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 163,
+    heightUnit: "cm",
+    weight: 68,
+    bmi: 25.6,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 13,
@@ -580,7 +832,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Ken Ofori",
     bankAccountNumber: "8899001122334",
     sortCode: "140101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 185,
+    heightUnit: "cm",
+    weight: 92,
+    bmi: 26.9,
+    alcoholHabits: 'occasional_socially',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 14,
@@ -611,7 +873,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Gifty Antwi",
     bankAccountNumber: "9900112233445",
     sortCode: "200102",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 166,
+    heightUnit: "cm",
+    weight: 63,
+    bmi: 22.8,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 15,
@@ -642,7 +914,17 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "David Annan",
     bankAccountNumber: "0011223344556",
     sortCode: "040101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 177,
+    heightUnit: "cm",
+    weight: 80,
+    bmi: 25.5,
+    alcoholHabits: 'occasional_socially',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'no',
+    familyMedicalHistoryDetails: [],
+    lifestyleDetails: []
   },
   {
     id: 16,
@@ -673,6 +955,18 @@ export const newBusinessData: NewBusiness[] = [
     payerName: "Zainab Mohammed",
     bankAccountNumber: "1122334455667",
     sortCode: "030101",
-    narration: "JULY 2024 PREMIUM"
+    narration: "JULY 2024 PREMIUM",
+    height: 169,
+    heightUnit: "cm",
+    weight: 72,
+    bmi: 25.2,
+    alcoholHabits: 'never_used',
+    tobaccoHabits: 'never_smoked',
+    medicalHistory: [],
+    familyMedicalHistory: 'yes',
+    familyMedicalHistoryDetails: [
+        { condition: "Diabetes", relation: "Father", ageOfOccurrence: 50, currentAgeOrAgeAtDeath: 62 }
+    ],
+    lifestyleDetails: []
   }
 ];
