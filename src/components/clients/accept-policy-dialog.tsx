@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { NewBusiness } from '@/lib/data';
 import { updatePolicy } from '@/lib/policy-service';
-import { differenceInYears } from 'date-fns';
+import { differenceInYears, startOfMonth, addMonths } from 'date-fns';
 
 type AcceptPolicyDialogProps = {
   client: NewBusiness;
@@ -51,18 +51,26 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
 
     try {
         const today = new Date();
-        const commencementDate = today.toISOString().split('T')[0];
+        let commencementDate: Date;
+        
+        if (today.getDate() <= 10) {
+            commencementDate = startOfMonth(today);
+        } else {
+            commencementDate = startOfMonth(addMonths(today, 1));
+        }
+
+        const commencementDateString = commencementDate.toISOString().split('T')[0];
 
         // Recalculate terms based on new commencement date
         // NOTE: The full DOB is not in the client object, using a placeholder.
         // In a real app, you'd fetch the full client record.
-        const dob = new Date('1985-05-20'); 
-        const ageAtCommencement = differenceInYears(today, dob);
+        const dob = new Date(client.lifeAssuredDob); 
+        const ageAtCommencement = differenceInYears(commencementDate, dob);
         
         const newPolicyTerm = 75 - ageAtCommencement;
         const newPremiumTerm = 65 - ageAtCommencement;
 
-        const newExpiryDate = new Date(today);
+        const newExpiryDate = new Date(commencementDate);
         newExpiryDate.setFullYear(newExpiryDate.getFullYear() + newPolicyTerm);
 
         const updatedPolicy = updatePolicy(client.id, {
@@ -70,7 +78,7 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
             premium: parseFloat(finalPremium),
             sumAssured: parseFloat(finalSumAssured),
             onboardingStatus: 'Pending Mandate',
-            commencementDate: commencementDate,
+            commencementDate: commencementDateString,
             expiryDate: newExpiryDate.toISOString().split('T')[0],
             policyTerm: newPolicyTerm,
             premiumTerm: newPremiumTerm,
