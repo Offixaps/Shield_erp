@@ -43,7 +43,7 @@ import { Separator } from '../ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import Link from 'next/link';
 import CompleteVettingDialog from './complete-vetting-dialog';
-import { updatePolicy } from '@/lib/policy-service';
+import { getPolicyById, updatePolicy } from '@/lib/policy-service';
 import VerifyMandateDialog from '../premium-administration/verify-mandate-dialog';
 import PaymentHistoryTab from './payment-history-tab';
 import ActivityLogTab from './activity-log-tab';
@@ -278,11 +278,18 @@ export default function ClientDetailsView({
   defaultTab?: string;
 }) {
   const { toast } = useToast();
-  const [client, setClient] = React.useState(initialClient);
+  const [client, setClient] = React.useState<NewBusiness | null>(initialClient);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
 
+  React.useEffect(() => {
+    // When the initialClient prop changes (e.g., due to navigation or re-fetch),
+    // update the client state and re-fetch from storage to ensure we have the freshest data.
+    const freshClient = getPolicyById(initialClient.id);
+    setClient(freshClient || initialClient);
+  }, [initialClient]);
+
    React.useEffect(() => {
-    if (client.bmi) {
+    if (client?.bmi) {
       const calculatedBmi = client.bmi;
       if (calculatedBmi < 18.5) {
         setBmiStatus({ text: 'Underweight', color: 'bg-blue-500' });
@@ -296,12 +303,17 @@ export default function ClientDetailsView({
     } else {
       setBmiStatus(null);
     }
-  }, [client.bmi]);
+  }, [client?.bmi]);
 
 
   const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
     setClient(updatedPolicy);
   };
+  
+  if (!client) {
+      // You can render a loading state or a not found message here
+      return <div>Loading client details...</div>;
+  }
 
   const isFromUnderwriting = from === 'underwriting';
   const isFromBusinessDevelopment = from === 'business-development';
@@ -366,7 +378,7 @@ export default function ClientDetailsView({
   const handleMedicalsCompleted = () => {
     handleOnboardingStatusUpdate('Medicals Completed', {
        medicalUnderwritingState: {
-        ...client.medicalUnderwritingState,
+        ...(client.medicalUnderwritingState || { started: true, completed: false }),
         completed: true,
       }
     });
@@ -383,6 +395,7 @@ export default function ClientDetailsView({
       case 'pending first premium':
       case 'pending medicals':
       case 'pending decision':
+      case 'pending':
         return 'bg-yellow-500/80';
       case 'vetting completed':
       case 'mandate verified':
@@ -394,6 +407,7 @@ export default function ClientDetailsView({
       case 'in force':
       case 'up to date':
       case 'first premium paid':
+      case 'paid':
         return 'bg-green-500/80';
       case 'ntu':
       case 'deferred':
@@ -403,6 +417,7 @@ export default function ClientDetailsView({
       case 'cancelled':
       case 'rework required':
       case 'mandate rework required':
+      case 'overdue':
         return 'bg-red-500/80';
       case 'lapsed':
       case 'outstanding':
@@ -599,16 +614,16 @@ export default function ClientDetailsView({
               <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
-                <DetailItem label="Date of Birth" value="1985-05-20" />
+                <DetailItem label="Date of Birth" value={(client as any).lifeAssuredDob ? format(new Date((client as any).lifeAssuredDob), 'PPP') : 'N/A'} />
                 <DetailItem label="Place of Birth" value={client.placeOfBirth} />
-                <DetailItem label="Age (Next Birthday)" value="40" />
-                <DetailItem label="Gender" value="Male" />
-                <DetailItem label="Marital Status" value="Married" />
-                <DetailItem label="Number of Dependents" value="2" />
-                <DetailItem label="Nationality" value="Ghana" />
-                <DetailItem label="Country of Residence" value="Ghana" />
-                <DetailItem label="Religion" value="Christian" />
-                <DetailItem label="Languages Spoken" value="English, Twi" />
+                <DetailItem label="Age (Next Birthday)" value={(client as any).ageNextBirthday || 'N/A'} />
+                <DetailItem label="Gender" value={(client as any).gender} />
+                <DetailItem label="Marital Status" value={(client as any).maritalStatus} />
+                <DetailItem label="Number of Dependents" value={(client as any).dependents} />
+                <DetailItem label="Nationality" value={(client as any).nationality} />
+                <DetailItem label="Country of Residence" value={(client as any).country} />
+                <DetailItem label="Religion" value={(client as any).religion} />
+                <DetailItem label="Languages Spoken" value={(client as any).languages} />
               </CardContent>
             </Card>
 
@@ -620,13 +635,13 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="Email Address" value="j.doe@example.com" />
+                <DetailItem label="Email Address" value={(client as any).email} />
                 <DetailItem label="Telephone Number" value={client.phone} />
-                 <DetailItem label="Work Telephone" value="030 123 4567" />
-                <DetailItem label="Home Telephone" value="030 765 4321" />
-                <DetailItem label="Postal Address" value="123 Main St, Accra" />
-                <DetailItem label="Residential Address" value="456 Oak Avenue, Accra" />
-                <DetailItem label="GPS Address" value="GA-123-4567" />
+                 <DetailItem label="Work Telephone" value={(client as any).workTelephone} />
+                <DetailItem label="Home Telephone" value={(client as any).homeTelephone} />
+                <DetailItem label="Postal Address" value={(client as any).postalAddress} />
+                <DetailItem label="Residential Address" value={(client as any).residentialAddress} />
+                <DetailItem label="GPS Address" value={(client as any).gpsAddress} />
               </CardContent>
             </Card>
 
@@ -638,16 +653,16 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="National ID Type" value="Passport" />
-                <DetailItem label="ID Number" value="G1234567" />
-                <DetailItem label="Place of Issue" value="Accra" />
+                <DetailItem label="National ID Type" value={(client as any).nationalIdType} />
+                <DetailItem label="ID Number" value={(client as any).idNumber} />
+                <DetailItem label="Place of Issue" value={(client as any).placeOfIssue} />
                 <DetailItem
                   label="Issue Date"
-                  value={format(new Date('2020-01-01'), 'PPP')}
+                  value={(client as any).issueDate ? format(new Date((client as any).issueDate), 'PPP') : 'N/A'}
                 />
                 <DetailItem
                   label="Expiry Date"
-                  value={format(new Date('2030-01-01'), 'PPP')}
+                  value={(client as any).expiryDate ? format(new Date((client as any).expiryDate), 'PPP') : 'N/A'}
                 />
               </CardContent>
             </Card>
@@ -661,7 +676,7 @@ export default function ClientDetailsView({
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Serial Number" value={client.serial} />
-                <DetailItem label="Payment Frequency" value="Monthly" />
+                <DetailItem label="Payment Frequency" value={(client as any).paymentFrequency} />
                 <DetailItem
                   label="Increase Month"
                   value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
@@ -677,40 +692,38 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="Occupation" value="Software Engineer" />
-                <DetailItem label="Nature of Business/Work" value="Technology" />
-                <DetailItem label="Employer" value="Google" />
+                <DetailItem label="Occupation" value={(client as any).occupation} />
+                <DetailItem label="Nature of Business/Work" value={(client as any).natureOfBusiness} />
+                <DetailItem label="Employer" value={(client as any).employer} />
                 <DetailItem
                   label="Employer Address"
-                  value="1600 Amphitheatre Parkway, Mountain View, CA"
+                  value={(client as any).employerAddress}
                 />
-                <DetailItem label="Monthly Basic Income (GHS)" value="10,000.00" />
-                <DetailItem label="Other Income (GHS)" value="2,000.00" />
-                <DetailItem label="Total Monthly Income (GHS)" value="12,000.00" />
+                <DetailItem label="Monthly Basic Income (GHS)" value={(client as any).monthlyBasicIncome?.toFixed(2)} />
+                <DetailItem label="Other Income (GHS)" value={(client as any).otherIncome?.toFixed(2)} />
+                <DetailItem label="Total Monthly Income (GHS)" value={(client as any).totalMonthlyIncome?.toFixed(2)} />
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
-                 <h3 className="font-medium uppercase text-sidebar-foreground">
-                  Payment Details
-                </h3>
-              </CardHeader>
-               <Separator />
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pt-6">
-                <DetailItem label="Premium Payer Name" value={client.payerName} />
-                <DetailItem label="Bank Name" value={client.bankName} />
-                <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
-                <DetailItem label="Sort Code" value={client.sortCode} />
-                <DetailItem
-                  label="Premium Amount (GHS)"
-                  value={`GHS ${client.premium.toFixed(2)}`}
-                />
-                <DetailItem
-                  label="Premium Deduction Frequency"
-                  value="Monthly"
-                />
-              </CardContent>
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                    <h3 className="font-medium uppercase text-sidebar-foreground">
+                    Payment Details
+                    </h3>
+                </CardHeader>
+                <Separator />
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pt-6">
+                    <DetailItem label="Premium Payer Name" value={client.payerName} />
+                    <DetailItem label="Bank Name" value={client.bankName} />
+                    <DetailItem label="Bank Branch" value={(client as any).bankBranch} />
+                    <DetailItem label="Sort Code" value={client.sortCode} />
+                    <DetailItem label="Account Type" value={(client as any).accountType} />
+                    <DetailItem label="Bank Account Name" value={(client as any).bankAccountName} />
+                    <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
+                    <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toFixed(2)}`} />
+                    <DetailItem label="Amount in Words" value={(client as any).amountInWords} />
+                    <DetailItem label="Premium Deduction Frequency" value={(client as any).paymentFrequency} />
+                </CardContent>
             </Card>
 
             <Card>
