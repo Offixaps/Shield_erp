@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -296,7 +297,7 @@ const formSchema = z
     employer: z.string().min(2, 'Employer is required.'),
     employerAddress: z.string().min(5, 'Employer address is required.'),
     monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.'),
-    otherIncome: zcoerce.number().min(0, 'Other income cannot be negative.'),
+    otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.'),
     totalMonthlyIncome: z.coerce.number().optional(),
 
     // Payment Details
@@ -4029,3 +4030,4 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
+
