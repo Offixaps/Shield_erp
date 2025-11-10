@@ -45,13 +45,18 @@ export default function VerifyMandateDialog({ client, onUpdate }: VerifyMandateD
     try {
       let updatedPolicy;
       if (verificationStatus === 'Successful') {
-        updatedPolicy = updatePolicy(client.id, { 
-            onboardingStatus: 'Mandate Verified',
-            policyStatus: 'Active', 
-            mandateReworkNotes: undefined 
+        updatedPolicy = updatePolicy(client.id, {
+          onboardingStatus: 'Mandate Verified',
+          policyStatus: 'Active',
+          mandateReworkNotes: undefined,
+          mandateVerificationTimestamp: new Date().toISOString(), // Set the timestamp
         });
       } else {
-        updatedPolicy = updatePolicy(client.id, { onboardingStatus: 'Mandate Rework Required', mandateReworkNotes: remarks });
+        updatedPolicy = updatePolicy(client.id, {
+          onboardingStatus: 'Mandate Rework Required',
+          mandateReworkNotes: remarks,
+          mandateVerificationTimestamp: undefined, // Clear timestamp on failure
+        });
       }
 
       if (updatedPolicy) {

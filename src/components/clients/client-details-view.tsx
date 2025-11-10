@@ -303,6 +303,31 @@ export default function ClientDetailsView({
     }
   }, [client?.bmi]);
 
+  React.useEffect(() => {
+    if (
+      client?.onboardingStatus === 'Mandate Verified' &&
+      client.mandateVerificationTimestamp
+    ) {
+      const verificationTime = new Date(client.mandateVerificationTimestamp).getTime();
+      const sixtyMinutesInMillis = 60 * 60 * 1000;
+      const currentTime = new Date().getTime();
+
+      if (currentTime - verificationTime > sixtyMinutesInMillis) {
+        // If 60 minutes have passed, update the status
+        handleOnboardingStatusUpdate('Policy Issued');
+      } else {
+        // Otherwise, set a timeout to re-check and update
+        const timeRemaining = sixtyMinutesInMillis - (currentTime - verificationTime);
+        const timer = setTimeout(() => {
+          handleOnboardingStatusUpdate('Policy Issued');
+        }, timeRemaining);
+
+        // Cleanup timer on component unmount
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [client?.onboardingStatus, client?.mandateVerificationTimestamp]);
+
 
   const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
     setClient(updatedPolicy);
@@ -317,7 +342,6 @@ export default function ClientDetailsView({
   const isFromPremiumAdmin = from === 'premium-admin';
 
   const isPendingVetting = isFromUnderwriting && client.onboardingStatus === 'Pending Vetting';
-  const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
   const canStartMedicals = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
   const isPendingMedicals = isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
   const canMakeDecision = isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
@@ -326,7 +350,6 @@ export default function ClientDetailsView({
   const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
   
-  const isAccepted = client.onboardingStatus === 'Accepted';
   const canVerifyMandate = isFromPremiumAdmin && client.onboardingStatus === 'Pending Mandate';
 
 
@@ -401,6 +424,7 @@ export default function ClientDetailsView({
       case 'up to date':
       case 'first premium paid':
       case 'paid':
+      case 'policy issued':
         return 'bg-green-500/80';
       case 'ntu':
       case 'deferred':
@@ -485,9 +509,6 @@ export default function ClientDetailsView({
                 </Button>
               </>
             )}
-            {isAccepted && isFromUnderwriting && (
-                <AcceptPolicyDialog client={client} onUpdate={handlePolicyUpdate}/>
-            )}
             {canVerifyMandate && <VerifyMandateDialog client={client} onUpdate={handlePolicyUpdate} />}
              {isNTU && (
                  <Button onClick={handleRevertNTU} variant="outline">
@@ -570,7 +591,7 @@ export default function ClientDetailsView({
           <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6">
+        <TabsContent value="overview" className="mt-6 space-y-6">
            <div className="space-y-6">
              <Card>
               <CardHeader className="flex flex-row items-center justify-between p-2 bg-summary rounded-t-md">
