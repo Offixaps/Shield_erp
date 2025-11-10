@@ -3,11 +3,11 @@
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
-import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears } from 'date-fns';
+import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 10; // Increment this version to force a data migration
+const CURRENT_DATA_VERSION = 11; // Increment this version to force a data migration
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
@@ -188,6 +188,7 @@ export function createPolicy(values: any): NewBusiness {
         accountType: values.accountType,
         bankAccountName: values.bankAccountName,
         amountInWords: values.amountInWords,
+        paymentAuthoritySignature: values.paymentAuthoritySignature,
         primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
         contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
         height: values.height,
@@ -404,3 +405,108 @@ export function applyAnnualIncreases(): number {
 
     return updatedCount;
 }
+
+type BankReportPayment = {
+    'Policy Number': string;
+    'Amount': number;
+    'Payment Date': string | number;
+    'Status': string;
+    'Transaction ID': string;
+};
+
+export function recordBulkPayments(payments: BankReportPayment[]): { successCount: number; failureCount: number; } {
+    const policies = getPoliciesFromStorage();
+    let successCount = 0;
+    let failureCount = 0;
+
+    const successfulPaymentStatuses = ['paid', 'success', 'processed'];
+
+    payments.forEach(payment => {
+        if (!payment['Policy Number'] || !payment['Status'] || !successfulPaymentStatuses.includes(payment['Status'].toLowerCase())) {
+            failureCount++;
+            return;
+        }
+
+        const policy = policies.find(p => p.policy === payment['Policy Number']);
+
+        if (!policy) {
+            failureCount++;
+            return;
+        }
+
+        const paymentAmount = payment['Amount'] ? Number(payment['Amount']) : policy.premium;
+        let paymentDate: Date;
+        
+        // Handle Excel's numeric date format
+        if (typeof payment['Payment Date'] === 'number') {
+            // Excel stores dates as number of days since 1900-01-01.
+            // The following formula converts it to a JS Date.
+            // Subtract 25569 to convert from Excel's epoch (1900) to Unix epoch (1970) and account for leap year bug.
+            paymentDate = new Date((payment['Payment Date'] - 25569) * 86400 * 1000);
+        } else {
+            // Attempt to parse various string date formats
+            try {
+                 paymentDate = parse(payment['Payment Date'], 'yyyy-MM-dd', new Date());
+                 if (isNaN(paymentDate.getTime())) {
+                    paymentDate = parse(payment['Payment Date'], 'dd/MM/yyyy', new Date());
+                 }
+                 if (isNaN(paymentDate.getTime())) {
+                     paymentDate = new Date(payment['Payment Date']);
+                 }
+                 if (isNaN(paymentDate.getTime())) throw new Error("Invalid date format");
+            } catch {
+                failureCount++;
+                return;
+            }
+        }
+        
+        // Find an unpaid bill to match this payment to.
+        const unpaidBill = policy.bills.find(b => b.status === 'Unpaid' && Math.abs(b.amount - paymentAmount) < 0.01);
+        
+        if (!unpaidBill) {
+            // Optional: Handle overpayments or payments without a bill by creating a new payment record anyway
+            // For now, we'll count it as a failure if no matching bill is found.
+            failureCount++;
+            return;
+        }
+
+        const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
+        const newPayment: Payment = {
+            id: newPaymentId,
+            policyId: policy.id,
+            billId: unpaidBill.id,
+            amount: paymentAmount,
+            paymentDate: format(paymentDate, 'yyyy-MM-dd'),
+            method: 'Bank Transfer', // Assuming since it's a bank report
+            transactionId: payment['Transaction ID'] || `BANK-${newId()}`,
+        };
+
+        policy.payments.push(newPayment);
+        unpaidBill.status = 'Paid';
+        unpaidBill.paymentId = newPaymentId;
+
+        // Update billing status if all bills are paid
+        const allBillsPaid = policy.bills.every(b => b.status === 'Paid');
+        if (allBillsPaid) {
+            policy.billingStatus = 'Up to Date';
+        }
+
+        policy.activityLog.push({
+            date: new Date().toISOString(),
+            user: 'System',
+            action: 'Payment Recorded',
+            details: `Bulk upload: GHS ${paymentAmount.toFixed(2)} paid on ${format(paymentDate, 'PPP')}.`,
+        });
+
+        successCount++;
+    });
+
+    savePoliciesToStorage(policies);
+    return { successCount, failureCount };
+}
+
+// Simple unique ID generator for transactions without one
+function newId() {
+    return Math.random().toString(36).substr(2, 9);
+}
+

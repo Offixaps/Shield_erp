@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import * as React from 'react';
 import { useParams } from 'next/navigation';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
-import { getPolicies } from '@/lib/policy-service';
+import { getPolicies, recordBulkPayments } from '@/lib/policy-service';
 import type { NewBusiness } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import {
@@ -39,16 +40,20 @@ export default function BankPoliciesPage() {
   const [filteredPolicies, setFilteredPolicies] = React.useState<NewBusiness[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
 
-  React.useEffect(() => {
-    if (bankName) {
-      const allPolicies = getPolicies();
-      const filtered = allPolicies.filter(
-        (p) => p.policyStatus === 'Active' && p.bankName === bankName
-      );
-      setAllPolicies(filtered);
-      setFilteredPolicies(filtered);
-    }
+  const refreshPolicies = React.useCallback(() => {
+      if (bankName) {
+        const allPolicies = getPolicies();
+        const filtered = allPolicies.filter(
+            (p) => p.policyStatus === 'Active' && p.bankName === bankName
+        );
+        setAllPolicies(filtered);
+        setFilteredPolicies(filtered);
+      }
   }, [bankName]);
+
+  React.useEffect(() => {
+    refreshPolicies();
+  }, [refreshPolicies]);
 
    React.useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -102,21 +107,22 @@ export default function BankPoliciesPage() {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        console.log('Uploaded Bank Report Data:', json);
-        
+        const result = recordBulkPayments(json as any);
+
         toast({
-          title: 'File Uploaded',
-          description: `${file.name} has been successfully processed. Check the console for the data.`,
+          title: 'Upload Processed',
+          description: `${result.successCount} payments successfully recorded. ${result.failureCount} records failed.`,
         });
-        
-        // TODO: Implement logic to update policies based on the uploaded report
+
+        // Refresh the policy data in the table to reflect updates
+        refreshPolicies();
       
       } catch (error) {
         console.error('Error processing uploaded file:', error);
         toast({
           variant: 'destructive',
           title: 'Upload Failed',
-          description: 'There was an error processing the uploaded file.',
+          description: 'There was an error processing the uploaded file. Please check the file format and column names.',
         });
       }
     };
@@ -175,6 +181,7 @@ export default function BankPoliciesPage() {
                     <TableHead>Policy number</TableHead>
                     <TableHead>Payer Name</TableHead>
                     <TableHead>Premium Amount</TableHead>
+                    <TableHead>Billing Status</TableHead>
                     <TableHead>Bank Account Number</TableHead>
                     <TableHead>Sort Code</TableHead>
                     <TableHead>Narration</TableHead>
@@ -190,6 +197,18 @@ export default function BankPoliciesPage() {
                         </TableCell>
                         <TableCell>{policy.payerName}</TableCell>
                         <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
+                        <TableCell>
+                           <Badge
+                                className={cn(
+                                    'w-28 justify-center truncate',
+                                    policy.billingStatus === 'Up to Date' && 'bg-green-500/80',
+                                    policy.billingStatus === 'Outstanding' && 'bg-red-500/80',
+                                    'text-white'
+                                )}
+                            >
+                                {policy.billingStatus}
+                            </Badge>
+                        </TableCell>
                         <TableCell>{policy.bankAccountNumber}</TableCell>
                         <TableCell>{policy.sortCode}</TableCell>
                         <TableCell>{policy.narration}</TableCell>
