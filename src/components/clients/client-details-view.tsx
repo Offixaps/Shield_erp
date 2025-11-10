@@ -282,8 +282,6 @@ export default function ClientDetailsView({
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
 
   React.useEffect(() => {
-    // When the initialClient prop changes (e.g., due to navigation or re-fetch),
-    // update the client state and re-fetch from storage to ensure we have the freshest data.
     const freshClient = getPolicyById(initialClient.id);
     setClient(freshClient || initialClient);
   }, [initialClient]);
@@ -311,7 +309,6 @@ export default function ClientDetailsView({
   };
   
   if (!client) {
-      // You can render a loading state or a not found message here
       return <div>Loading client details...</div>;
   }
 
@@ -319,7 +316,6 @@ export default function ClientDetailsView({
   const isFromBusinessDevelopment = from === 'business-development';
   const isFromPremiumAdmin = from === 'premium-admin';
 
-  // New Workflow State Checks
   const isPendingVetting = isFromUnderwriting && client.onboardingStatus === 'Pending Vetting';
   const isVettingCompleted = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
   const canStartMedicals = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
@@ -327,12 +323,10 @@ export default function ClientDetailsView({
   const canMakeDecision = isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
   const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
   
-  // Rework and older state checks
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
   const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
   
-  // New checks for post-acceptance
   const isAccepted = client.onboardingStatus === 'Accepted';
   const canVerifyMandate = isFromPremiumAdmin && client.onboardingStatus === 'Pending Mandate';
 
@@ -614,16 +608,16 @@ export default function ClientDetailsView({
               <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
-                <DetailItem label="Date of Birth" value={(client as any).lifeAssuredDob ? format(new Date((client as any).lifeAssuredDob), 'PPP') : 'N/A'} />
+                <DetailItem label="Date of Birth" value={client.lifeAssuredDob ? format(new Date(client.lifeAssuredDob), 'PPP') : 'N/A'} />
                 <DetailItem label="Place of Birth" value={client.placeOfBirth} />
-                <DetailItem label="Age (Next Birthday)" value={(client as any).ageNextBirthday || 'N/A'} />
-                <DetailItem label="Gender" value={(client as any).gender} />
-                <DetailItem label="Marital Status" value={(client as any).maritalStatus} />
-                <DetailItem label="Number of Dependents" value={(client as any).dependents} />
-                <DetailItem label="Nationality" value={(client as any).nationality} />
-                <DetailItem label="Country of Residence" value={(client as any).country} />
-                <DetailItem label="Religion" value={(client as any).religion} />
-                <DetailItem label="Languages Spoken" value={(client as any).languages} />
+                <DetailItem label="Age (Next Birthday)" value={client.ageNextBirthday || 'N/A'} />
+                <DetailItem label="Gender" value={client.gender} />
+                <DetailItem label="Marital Status" value={client.maritalStatus} />
+                <DetailItem label="Number of Dependents" value={client.dependents} />
+                <DetailItem label="Nationality" value={client.nationality} />
+                <DetailItem label="Country of Residence" value={client.country} />
+                <DetailItem label="Religion" value={client.religion} />
+                <DetailItem label="Languages Spoken" value={client.languages} />
               </CardContent>
             </Card>
 
@@ -635,13 +629,13 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="Email Address" value={(client as any).email} />
+                <DetailItem label="Email Address" value={client.email} />
                 <DetailItem label="Telephone Number" value={client.phone} />
-                 <DetailItem label="Work Telephone" value={(client as any).workTelephone} />
-                <DetailItem label="Home Telephone" value={(client as any).homeTelephone} />
-                <DetailItem label="Postal Address" value={(client as any).postalAddress} />
-                <DetailItem label="Residential Address" value={(client as any).residentialAddress} />
-                <DetailItem label="GPS Address" value={(client as any).gpsAddress} />
+                 <DetailItem label="Work Telephone" value={client.workTelephone} />
+                <DetailItem label="Home Telephone" value={client.homeTelephone} />
+                <DetailItem label="Postal Address" value={client.postalAddress} />
+                <DetailItem label="Residential Address" value={client.residentialAddress} />
+                <DetailItem label="GPS Address" value={client.gpsAddress} />
               </CardContent>
             </Card>
 
@@ -653,16 +647,16 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="National ID Type" value={(client as any).nationalIdType} />
-                <DetailItem label="ID Number" value={(client as any).idNumber} />
-                <DetailItem label="Place of Issue" value={(client as any).placeOfIssue} />
+                <DetailItem label="National ID Type" value={client.nationalIdType} />
+                <DetailItem label="ID Number" value={client.idNumber} />
+                <DetailItem label="Place of Issue" value={client.placeOfIssue} />
                 <DetailItem
                   label="Issue Date"
-                  value={(client as any).issueDate ? format(new Date((client as any).issueDate), 'PPP') : 'N/A'}
+                  value={client.issueDate ? format(new Date(client.issueDate), 'PPP') : 'N/A'}
                 />
                 <DetailItem
                   label="Expiry Date"
-                  value={(client as any).expiryDateId ? format(new Date((client as any).expiryDateId), 'PPP') : 'N/A'}
+                  value={client.expiryDateId ? format(new Date(client.expiryDateId), 'PPP') : 'N/A'}
                 />
               </CardContent>
             </Card>
@@ -676,7 +670,7 @@ export default function ClientDetailsView({
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Serial Number" value={client.serial} />
-                <DetailItem label="Payment Frequency" value={(client as any).paymentFrequency} />
+                <DetailItem label="Payment Frequency" value={client.paymentFrequency} />
                 <DetailItem
                   label="Increase Month"
                   value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
@@ -692,16 +686,16 @@ export default function ClientDetailsView({
               </CardHeader>
                <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="Occupation" value={(client as any).occupation} />
-                <DetailItem label="Nature of Business/Work" value={(client as any).natureOfBusiness} />
-                <DetailItem label="Employer" value={(client as any).employer} />
+                <DetailItem label="Occupation" value={client.occupation} />
+                <DetailItem label="Nature of Business/Work" value={client.natureOfBusiness} />
+                <DetailItem label="Employer" value={client.employer} />
                 <DetailItem
                   label="Employer Address"
-                  value={(client as any).employerAddress}
+                  value={client.employerAddress}
                 />
-                <DetailItem label="Monthly Basic Income (GHS)" value={(client as any).monthlyBasicIncome?.toFixed(2)} />
-                <DetailItem label="Other Income (GHS)" value={(client as any).otherIncome?.toFixed(2)} />
-                <DetailItem label="Total Monthly Income (GHS)" value={(client as any).totalMonthlyIncome?.toFixed(2)} />
+                <DetailItem label="Monthly Basic Income (GHS)" value={client.monthlyBasicIncome?.toFixed(2)} />
+                <DetailItem label="Other Income (GHS)" value={client.otherIncome?.toFixed(2)} />
+                <DetailItem label="Total Monthly Income (GHS)" value={client.totalMonthlyIncome?.toFixed(2)} />
               </CardContent>
             </Card>
 
@@ -715,14 +709,14 @@ export default function ClientDetailsView({
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pt-6">
                     <DetailItem label="Premium Payer Name" value={client.payerName} />
                     <DetailItem label="Bank Name" value={client.bankName} />
-                    <DetailItem label="Bank Branch" value={(client as any).bankBranch} />
+                    <DetailItem label="Bank Branch" value={client.bankBranch} />
                     <DetailItem label="Sort Code" value={client.sortCode} />
-                    <DetailItem label="Account Type" value={(client as any).accountType} />
-                    <DetailItem label="Bank Account Name" value={(client as any).bankAccountName} />
+                    <DetailItem label="Account Type" value={client.accountType} />
+                    <DetailItem label="Bank Account Name" value={client.bankAccountName} />
                     <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
                     <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toFixed(2)}`} />
-                    <DetailItem label="Amount in Words" value={(client as any).amountInWords} />
-                    <DetailItem label="Premium Deduction Frequency" value={(client as any).paymentFrequency} />
+                    <DetailItem label="Amount in Words" value={client.amountInWords} />
+                    <DetailItem label="Premium Deduction Frequency" value={client.paymentFrequency} />
                 </CardContent>
             </Card>
 
@@ -774,8 +768,6 @@ export default function ClientDetailsView({
                 />
                 <DetailItem label="Alcohol Habits" value={client.alcoholHabits?.replace(/_/g, ' ')} />
                 <DetailItem label="Tobacco Habits" value={client.tobaccoHabits?.replace(/_/g, ' ')} />
-                <DetailItem label="Used Recreational Drugs?" value={<YesNoDisplay value={(client as any).usedRecreationalDrugs} />} />
-                <DetailItem label="Injected Non-Prescribed Drugs?" value={<YesNoDisplay value={(client as any).injectedNonPrescribedDrugs} />} />
               </CardContent>
             </Card>
 
@@ -832,17 +824,9 @@ export default function ClientDetailsView({
                 <div>
                   <h4 className="font-semibold">Current Doctor</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                    <DetailItem label="Name" value={(client as any).currentDoctorName} />
-                    <DetailItem label="Phone" value={(client as any).currentDoctorPhone} />
-                    <DetailItem label="Hospital" value={(client as any).currentDoctorHospital} />
-                  </div>
-                </div>
-                 <div>
-                  <h4 className="font-semibold">Previous Doctor (if changed in last 6 months)</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                    <DetailItem label="Name" value={(client as any).previousDoctorName} />
-                    <DetailItem label="Phone" value={(client as any).previousDoctorPhone} />
-                    <DetailItem label="Hospital" value={(client as any).previousDoctorHospital} />
+                    <DetailItem label="Name" value={client.currentDoctorName} />
+                    <DetailItem label="Phone" value={client.currentDoctorPhone} />
+                    <DetailItem label="Hospital" value={client.currentDoctorHospital} />
                   </div>
                 </div>
               </CardContent>

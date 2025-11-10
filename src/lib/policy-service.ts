@@ -2,12 +2,12 @@
 
 'use client';
 
-import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog, type Beneficiary } from './data';
+import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 7; // Increment this version to force a data refresh
+const CURRENT_DATA_VERSION = 8; // Increment this version to force a data refresh
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
@@ -21,20 +21,17 @@ function getPoliciesFromStorage(): NewBusiness[] {
   if (storedData && storedVersion && parseInt(storedVersion, 10) === CURRENT_DATA_VERSION) {
     try {
       const parsedData = JSON.parse(storedData);
-      return Array.isArray(parsedData) ? parsedData : newBusinessData;
+      return Array.isArray(parsedData) ? parsedData : [...newBusinessData];
     } catch (e) {
       console.error("Failed to parse policies from localStorage", e);
-      // If parsing fails, fall back to seeding with initial data
     }
   }
   
-  // If no data, version mismatch, or parsing error, re-seed localStorage
   localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newBusinessData));
   localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION.toString());
-  return newBusinessData;
+  return [...newBusinessData];
 }
 
-// Helper function to save policies to localStorage
 function savePoliciesToStorage(policies: NewBusiness[]) {
     if (typeof window === 'undefined') return;
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(policies));
@@ -50,14 +47,11 @@ export function getPolicyById(id: number): NewBusiness | undefined {
   return policies.find((policy) => policy.id === id);
 }
 
-type UpdatePayload = Partial<Omit<NewBusiness, 'id' | 'activityLog'>> & { activityLog?: ActivityLog[] };
-
-
-export function updatePolicy(id: number, updates: UpdatePayload): NewBusiness | undefined {
+export function updatePolicy(id: number, updates: Partial<NewBusiness>): NewBusiness | undefined {
     const policies = getPoliciesFromStorage();
     const policyIndex = policies.findIndex(p => p.id === id);
     if (policyIndex !== -1) {
-        const originalPolicy = policies[policyIndex];
+        const originalPolicy = { ...policies[policyIndex] };
         const updatedPolicy = { ...originalPolicy, ...updates };
 
         // Ensure activityLog is an array
@@ -99,49 +93,82 @@ export function createPolicy(values: any): NewBusiness {
     const newPolicy: NewBusiness = {
         id: newId,
         client: lifeAssuredName,
+        lifeAssuredDob: format(values.lifeAssuredDob, 'yyyy-MM-dd'),
+        placeOfBirth: values.placeOfBirth,
+        ageNextBirthday: values.ageNextBirthday,
+        gender: values.gender,
+        maritalStatus: values.maritalStatus,
+        dependents: values.dependents,
+        nationality: values.nationality,
+        country: values.country,
+        religion: values.religion,
+        languages: values.languages,
+        email: values.email,
+        phone: values.phone,
+        workTelephone: values.workTelephone,
+        homeTelephone: values.homeTelephone,
+        postalAddress: values.postalAddress,
+        residentialAddress: values.residentialAddress,
+        gpsAddress: values.gpsAddress,
+        nationalIdType: values.nationalIdType,
+        idNumber: values.idNumber,
+        placeOfIssue: values.placeOfIssue,
+        issueDate: format(values.issueDate, 'yyyy-MM-dd'),
+        expiryDateId: format(values.expiryDate, 'yyyy-MM-dd'),
+        policy: '', // Blank on creation
         product: values.contractType,
-        policy: '', // Policy number is blank on creation
         premium: values.premiumAmount,
         sumAssured: values.sumAssured,
         commencementDate: format(new Date(), 'yyyy-MM-dd'),
-        phone: values.phone,
-        serial: values.serialNumber,
-        placeOfBirth: values.placeOfBirth,
-        onboardingStatus: 'Pending First Premium',
-        billingStatus: 'Outstanding',
-        policyStatus: 'Inactive',
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + values.policyTerm)).toISOString().split('T')[0],
         policyTerm: values.policyTerm,
         premiumTerm: values.premiumTerm,
+        serial: values.serialNumber,
+        paymentFrequency: values.paymentFrequency,
+        onboardingStatus: 'Pending First Premium',
+        billingStatus: 'Outstanding',
+        policyStatus: 'Inactive',
+        occupation: values.occupation,
+        natureOfBusiness: values.natureOfBusiness,
+        employer: values.employer,
+        employerAddress: values.employerAddress,
+        monthlyBasicIncome: values.monthlyBasicIncome,
+        otherIncome: values.otherIncome,
+        totalMonthlyIncome: values.totalMonthlyIncome,
+        payerName: values.isPolicyHolderPayer ? lifeAssuredName : [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' '),
+        bankName: values.bankName,
+        bankBranch: values.bankBranch,
+        bankAccountNumber: values.bankAccountNumber,
+        sortCode: values.sortCode,
+        narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
+        accountType: values.accountType,
+        bankAccountName: values.bankAccountName,
+        amountInWords: values.amountInWords,
+        primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+        contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+        height: values.height,
+        heightUnit: values.heightUnit,
+        weight: values.weight,
+        bmi: values.bmi,
+        alcoholHabits: values.alcoholHabits,
+        tobaccoHabits: values.tobaccoHabits,
+        medicalHistory: values.medicalHistory || [],
+        familyMedicalHistory: values.familyMedicalHistory,
+        familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
+        lifestyleDetails: values.lifestyleDetails || [],
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
         bills: [],
         payments: [],
         activityLog: [
-            {
-                date: new Date().toISOString(),
-                user: 'Sales Agent',
-                action: 'Policy Created',
-                details: 'Initial policy creation.'
-            },
-            {
-                date: new Date().toISOString(),
-                user: 'System',
-                action: 'Status changed to Pending First Premium'
-            }
+            { date: new Date().toISOString(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
+            { date: new Date().toISOString(), user: 'System', action: 'Status changed to Pending First Premium' }
         ],
-        primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
-        contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
-        bankName: values.bankName,
-        payerName: values.payerName,
-        bankAccountNumber: values.bankAccountNumber,
-        sortCode: values.sortCode,
-        narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
     };
     
     const firstBill: Bill = {
-        id: 1, // Simple ID for now
+        id: 1,
         policyId: newId,
         amount: newPolicy.premium,
         dueDate: newPolicy.commencementDate,
@@ -173,15 +200,9 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     if (policyIndex === -1) return undefined;
 
     const policy = policies[policyIndex];
-    if (!policy.bills) { // Defensive check
-        policy.bills = [];
-    }
-    if (!policy.payments) { // Defensive check
-        policy.payments = [];
-    }
-     if (!policy.activityLog) { // Defensive check
-        policy.activityLog = [];
-    }
+    if (!policy.bills) policy.bills = [];
+    if (!policy.payments) policy.payments = [];
+    if (!policy.activityLog) policy.activityLog = [];
     
     const firstBill = policy.bills.find(b => b.description === 'First Premium');
 
