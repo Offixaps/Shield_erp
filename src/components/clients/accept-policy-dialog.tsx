@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { NewBusiness } from '@/lib/data';
 import { updatePolicy } from '@/lib/policy-service';
+import { differenceInYears } from 'date-fns';
 
 type AcceptPolicyDialogProps = {
   client: NewBusiness;
@@ -49,12 +50,28 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
     }
 
     try {
+        const today = new Date();
+        const commencementDate = today.toISOString().split('T')[0];
+
+        // Recalculate terms based on new commencement date
+        const dob = new Date(client.placeOfBirth); // Assuming placeOfBirth holds DOB for calculation from form. A dedicated DOB field is better.
+        const ageAtCommencement = differenceInYears(today, dob);
+        
+        const newPolicyTerm = 75 - ageAtCommencement;
+        const newPremiumTerm = 65 - ageAtCommencement;
+
+        const newExpiryDate = new Date(today);
+        newExpiryDate.setFullYear(newExpiryDate.getFullYear() + newPolicyTerm);
+
         const updatedPolicy = updatePolicy(client.id, {
             policy: policyNumber,
             premium: parseFloat(finalPremium),
             sumAssured: parseFloat(finalSumAssured),
-            onboardingStatus: 'Pending Mandate', // New workflow: Move to Pending Mandate
-            commencementDate: new Date().toISOString().split('T')[0], // Set commencement to today
+            onboardingStatus: 'Pending Mandate',
+            commencementDate: commencementDate,
+            expiryDate: newExpiryDate.toISOString().split('T')[0],
+            policyTerm: newPolicyTerm,
+            premiumTerm: newPremiumTerm,
         });
         
         if (updatedPolicy) {
