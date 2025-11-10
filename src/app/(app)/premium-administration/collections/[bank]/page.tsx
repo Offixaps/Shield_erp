@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Upload, Download, Search } from 'lucide-react';
+import { Upload, Download, Search, FileDown } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -134,6 +134,29 @@ export default function BankPoliciesPage() {
     }
   };
 
+  const handleDownloadSample = () => {
+    const sampleData = [
+      {
+        'Policy Number': 'T1234567',
+        'Amount': 250.00,
+        'Payment Date': '2024-08-15',
+        'Status': 'Paid',
+        'Transaction ID': 'TXN12345ABC',
+      },
+      {
+        'Policy Number': 'E7654321',
+        'Amount': 500.50,
+        'Payment Date': '2024-08-16',
+        'Status': 'Success',
+        'Transaction ID': 'TXN67890DEF',
+      },
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(sampleData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Bank Report Sample');
+    XLSX.writeFile(workbook, 'Bank_Report_Sample.xlsx');
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -142,7 +165,7 @@ export default function BankPoliciesPage() {
           title={`Active Policies for ${bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}`}
           description="A list of all active policies for this bank."
         />
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePostToBank}>
                 <Download className="mr-2 h-4 w-4" />
                 Post to Bank
@@ -150,6 +173,10 @@ export default function BankPoliciesPage() {
             <Button onClick={handleUploadBankReport}>
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Bank Report
+            </Button>
+            <Button variant="secondary" onClick={handleDownloadSample}>
+              <FileDown className="mr-2 h-4 w-4" />
+              Download Sample
             </Button>
              <input
               type="file"
