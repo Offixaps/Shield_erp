@@ -321,7 +321,6 @@ export default function ClientDetailsView({
   const canStartMedicals = isFromUnderwriting && client.onboardingStatus === 'Vetting Completed';
   const isPendingMedicals = isFromUnderwriting && client.onboardingStatus === 'Pending Medicals';
   const canMakeDecision = isFromUnderwriting && client.onboardingStatus === 'Medicals Completed';
-  const canRequestFirstPremium = isFromUnderwriting && client.onboardingStatus === 'Mandate Verified';
   
   const isReworkRequired = client.onboardingStatus === 'Rework Required';
   const isMandateReworkRequired = client.onboardingStatus === 'Mandate Rework Required';
@@ -448,12 +447,6 @@ export default function ClientDetailsView({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
           <div className="flex flex-wrap gap-2">
-             {canRequestFirstPremium && (
-                <Button onClick={() => handleOnboardingStatusUpdate('Pending First Premium')}>
-                    <Banknote className="mr-2 h-4 w-4" />
-                    Request First Premium
-                </Button>
-            )}
             {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
