@@ -7,30 +7,66 @@ import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears 
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 8; // Increment this version to force a data refresh
+const CURRENT_DATA_VERSION = 9; // Increment this version to force a data migration
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
   if (typeof window === 'undefined') {
-    return newBusinessData; // Return initial data during server-side rendering
+    return [...newBusinessData]; // Return initial data during server-side rendering
   }
 
-  const storedVersion = localStorage.getItem(DATA_VERSION_KEY);
+  const storedVersionStr = localStorage.getItem(DATA_VERSION_KEY);
+  const storedVersion = storedVersionStr ? parseInt(storedVersionStr, 10) : 0;
   const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
 
-  if (storedData && storedVersion && parseInt(storedVersion, 10) === CURRENT_DATA_VERSION) {
+  if (storedData && storedVersion === CURRENT_DATA_VERSION) {
     try {
       const parsedData = JSON.parse(storedData);
       return Array.isArray(parsedData) ? parsedData : [...newBusinessData];
     } catch (e) {
       console.error("Failed to parse policies from localStorage", e);
+      // If parsing fails, fall back to default
     }
   }
-  
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newBusinessData));
+
+  // Handle data migration or initial load
+  let policiesToStore = [...newBusinessData];
+  if (storedData && storedVersion < CURRENT_DATA_VERSION) {
+    console.log(`Upgrading data from version ${storedVersion} to ${CURRENT_DATA_VERSION}`);
+    try {
+        const oldData = JSON.parse(storedData);
+        if (Array.isArray(oldData)) {
+            // This is the migration logic. It merges existing data with the default new data.
+            const migratedData = newBusinessData.map(defaultPolicy => {
+                const existingPolicy = oldData.find(p => p.id === defaultPolicy.id);
+                if (existingPolicy) {
+                    // Merge existing data over the new default structure
+                    return { ...defaultPolicy, ...existingPolicy };
+                }
+                return defaultPolicy; // Should not happen if IDs are stable
+            });
+            
+            // Add any policies that might exist in old data but not in newBusinessData (e.g. user created)
+            oldData.forEach(oldPolicy => {
+                if (!migratedData.some(p => p.id === oldPolicy.id)) {
+                    migratedData.push(oldPolicy);
+                }
+            });
+
+            policiesToStore = migratedData;
+        }
+    } catch(e) {
+        console.error("Failed to migrate old policy data", e);
+        // Fallback to default if migration fails
+        policiesToStore = [...newBusinessData];
+    }
+  }
+
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(policiesToStore));
   localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION.toString());
-  return [...newBusinessData];
+  return policiesToStore;
 }
+
 
 function savePoliciesToStorage(policies: NewBusiness[]) {
     if (typeof window === 'undefined') return;
@@ -47,12 +83,18 @@ export function getPolicyById(id: number): NewBusiness | undefined {
   return policies.find((policy) => policy.id === id);
 }
 
-export function updatePolicy(id: number, updates: Partial<NewBusiness>): NewBusiness | undefined {
+export function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): NewBusiness | undefined {
     const policies = getPoliciesFromStorage();
     const policyIndex = policies.findIndex(p => p.id === id);
+
     if (policyIndex !== -1) {
         const originalPolicy = { ...policies[policyIndex] };
-        const updatedPolicy = { ...originalPolicy, ...updates };
+        
+        // Create the updated policy object
+        const updatedPolicy = { 
+            ...originalPolicy, 
+            ...updates 
+        };
 
         // Ensure activityLog is an array
         if (!Array.isArray(updatedPolicy.activityLog)) {
@@ -93,7 +135,7 @@ export function createPolicy(values: any): NewBusiness {
     const newPolicy: NewBusiness = {
         id: newId,
         client: lifeAssuredName,
-        lifeAssuredDob: format(values.lifeAssuredDob, 'yyyy-MM-dd'),
+        lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : '',
         placeOfBirth: values.placeOfBirth,
         ageNextBirthday: values.ageNextBirthday,
         gender: values.gender,
@@ -113,8 +155,8 @@ export function createPolicy(values: any): NewBusiness {
         nationalIdType: values.nationalIdType,
         idNumber: values.idNumber,
         placeOfIssue: values.placeOfIssue,
-        issueDate: format(values.issueDate, 'yyyy-MM-dd'),
-        expiryDateId: format(values.expiryDate, 'yyyy-MM-dd'),
+        issueDate: values.issueDate ? format(values.issueDate, 'yyyy-MM-dd') : '',
+        expiryDateId: values.expiryDate ? format(values.expiryDate, 'yyyy-MM-dd') : '',
         policy: '', // Blank on creation
         product: values.contractType,
         premium: values.premiumAmount,
@@ -128,6 +170,8 @@ export function createPolicy(values: any): NewBusiness {
         onboardingStatus: 'Pending First Premium',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
+        vettingNotes: undefined,
+        mandateReworkNotes: undefined,
         occupation: values.occupation,
         natureOfBusiness: values.natureOfBusiness,
         employer: values.employer,
