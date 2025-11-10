@@ -930,16 +930,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!values.lifeInsuredSignature || !isSignatureVerified) {
+  const processSubmit = (values: z.infer<typeof formSchema>, redirectPath?: string) => {
+     if (!values.lifeInsuredSignature || (!isEditMode && !isSignatureVerified)) {
         toast({
             variant: "destructive",
             title: "Submission Error",
             description: "Please ensure the Life Insured has signed and verified their identity before submitting.",
         });
         setActiveTab('declaration');
-        return;
+        return Promise.reject();
     }
     if (!isPolicyHolderPayer && !values.policyOwnerSignature) {
         toast({
@@ -948,9 +947,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             description: "The Policy Owner must also sign the declaration.",
         });
         setActiveTab('declaration');
-        return;
+        return Promise.reject();
     }
-
     try {
         const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
         
@@ -961,7 +959,57 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         } else {
             finalPayerName = [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' ');
         }
+        const combinedMedicalHistory = [
+            ...(values.bloodTransfusionOrSurgeryDetails || []),
+            ...(values.highBloodPressureDetails || []),
+            ...(values.cancerDetails || []),
+            ...(values.diabetesDetails || []),
+            ...(values.colitisCrohnsDetails || []),
+            ...(values.paralysisEpilepsyDetails || []),
+            ...(values.mentalIllnessDetails || []),
+            ...(values.arthritisDetails || []),
+            ...(values.chestPainDetails || []),
+            ...(values.asthmaDetails || []),
+            ...(values.digestiveDisorderDetails || []),
+            ...(values.bloodDisorderDetails || []),
+            ...(values.thyroidDisorderDetails || []),
+            ...(values.kidneyDisorderDetails || []),
+            ...(values.numbnessDetails || []),
+            ...(values.anxietyStressDetails || []),
+            ...(values.earEyeDisorderDetails || []),
+            ...(values.lumpGrowthDetails || []),
+            ...(values.hospitalAttendanceDetails || []),
+            ...(values.criticalIllnessDetails || []),
+            ...(values.stiDetails || []),
+            ...(values.presentSymptomsDetails || []),
+        ];
 
+        const combinedLifestyleDetails = [
+            ...(values.flownAsPilotDetails || []),
+            ...(values.hazardousSportsDetails || []),
+            ...(values.travelOutsideCountryDetails || []),
+        ];
+        
+        const payload = {
+            ...values,
+            client: lifeAssuredName,
+            product: values.contractType,
+            premium: values.premiumAmount,
+            payerName: finalPayerName,
+            commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+            primaryBeneficiaries: (values.primaryBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+            contingentBeneficiaries: (values.contingentBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+            medicalHistory: combinedMedicalHistory,
+            familyMedicalHistory: values.familyMedicalHistory,
+            familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
+            lifestyleDetails: combinedLifestyleDetails,
+            height: values.height,
+            weight: values.weight,
+            heightUnit: values.heightUnit,
+            alcoholHabits: values.alcoholHabits,
+            tobaccoHabits: values.tobaccoHabits,
+            bmi: bmi || undefined,
+        };
 
         if (isEditMode && businessId) {
             const policyId = parseInt(businessId, 10);
@@ -974,77 +1022,30 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     newStatus = 'Pending Mandate';
                 }
                 
-                const combinedMedicalHistory = [
-                    ...(values.bloodTransfusionOrSurgeryDetails || []),
-                    ...(values.highBloodPressureDetails || []),
-                    ...(values.cancerDetails || []),
-                    ...(values.diabetesDetails || []),
-                    ...(values.colitisCrohnsDetails || []),
-                    ...(values.paralysisEpilepsyDetails || []),
-                    ...(values.mentalIllnessDetails || []),
-                    ...(values.arthritisDetails || []),
-                    ...(values.chestPainDetails || []),
-                    ...(values.asthmaDetails || []),
-                    ...(values.digestiveDisorderDetails || []),
-                    ...(values.bloodDisorderDetails || []),
-                    ...(values.thyroidDisorderDetails || []),
-                    ...(values.kidneyDisorderDetails || []),
-                    ...(values.numbnessDetails || []),
-                    ...(values.anxietyStressDetails || []),
-                    ...(values.earEyeDisorderDetails || []),
-                    ...(values.lumpGrowthDetails || []),
-                    ...(values.hospitalAttendanceDetails || []),
-                    ...(values.criticalIllnessDetails || []),
-                    ...(values.stiDetails || []),
-                    ...(values.presentSymptomsDetails || []),
-                ];
-
-                const combinedLifestyleDetails = [
-                    ...(values.flownAsPilotDetails || []),
-                    ...(values.hazardousSportsDetails || []),
-                    ...(values.travelOutsideCountryDetails || []),
-                ];
-
                 updatePolicy(policyId, {
-                    ...values,
-                    client: lifeAssuredName,
-                    product: values.contractType,
-                    premium: values.premiumAmount,
-                    commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
+                    ...payload,
                     onboardingStatus: newStatus,
-                    payerName: finalPayerName,
                     vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
                     mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
-                    primaryBeneficiaries: (values.primaryBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
-                    contingentBeneficiaries: (values.contingentBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
-                    medicalHistory: combinedMedicalHistory,
-                    familyMedicalHistory: values.familyMedicalHistory,
-                    familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
-                    lifestyleDetails: combinedLifestyleDetails,
-                    height: values.height,
-                    weight: values.weight,
-                    heightUnit: values.heightUnit,
-                    alcoholHabits: values.alcoholHabits,
-                    tobaccoHabits: values.tobaccoHabits,
-                    bmi: bmi || undefined,
                 });
                 
                 toast({
                     title: 'Form Updated',
                     description: 'Policy details have been successfully updated.',
                 });
-                router.push(`/business-development/clients/${businessId}?from=business-development`);
+                if(redirectPath) router.push(redirectPath);
             } else {
                 throw new Error("Policy not found for updating.");
             }
         } else {
-            createPolicy({...values, payerName: finalPayerName});
+            createPolicy(payload);
             toast({
                 title: 'Form Submitted',
                 description: 'New client and policy details have been captured.',
             });
-            router.push('/business-development/sales');
+            if(redirectPath) router.push(redirectPath);
         }
+        return Promise.resolve();
     } catch (error) {
         console.error("Form submission error:", error);
         toast({
@@ -1052,9 +1053,41 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             title: "Submission Failed",
             description: error instanceof Error ? error.message : "An unknown error occurred while submitting the form.",
         });
+        return Promise.reject();
     }
-  }
+  };
   
+  const handleSaveOnly = async () => {
+    const isValid = await form.trigger();
+    if (isValid) {
+      processSubmit(form.getValues(), `/business-development/clients/${businessId}?from=business-development`);
+    } else {
+        toast({
+            variant: "destructive",
+            title: "Validation Failed",
+            description: "Please check the form for errors before saving.",
+        });
+    }
+  };
+  
+  const handleSaveAndNext = async () => {
+     const isValid = await form.trigger();
+     if(isValid) {
+        await processSubmit(form.getValues());
+        handleTabChange('next');
+     } else {
+        toast({
+            variant: "destructive",
+            title: "Validation Failed",
+            description: "Please check the form for errors before proceeding.",
+        });
+     }
+  };
+  
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    processSubmit(values, '/business-development/sales');
+  }
+
   const currentTabIndex = tabSequence.indexOf(activeTab);
   const isFirstTab = currentTabIndex === 0;
   const isLastTab = currentTabIndex === tabSequence.length - 1;
@@ -4003,29 +4036,33 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
         </Tabs>
         
         <div className="flex justify-between p-4">
-            {!isFirstTab ? (
-                 <Button type="button" variant="outline" onClick={() => handleTabChange('prev')}>
-                    Previous
-                </Button>
-            ) :  <div />}
+            <Button type="button" variant="outline" onClick={() => handleTabChange('prev')} disabled={isFirstTab}>
+                Previous
+            </Button>
            
-            {activeTab !== 'declaration' && !isLastTab ? (
-                 <Button type="button" onClick={() => handleTabChange('next')}>
-                    Next
-                </Button>
-            ) : null}
+            <div className="flex gap-2">
+                {isEditMode && (
+                    <Button type="button" variant="secondary" onClick={handleSaveOnly}>
+                        Save Only
+                    </Button>
+                )}
 
-            {activeTab === 'declaration' && (
-                 <Button type="button" onClick={() => handleTabChange('next')} disabled={!isSignatureVerified}>
-                    Proceed to Agent Details
-                </Button>
-            )}
-
-            {isLastTab && (
-                 <Button type="submit" disabled={!isSignatureVerified}>
-                    {isEditMode ? 'Update Application' : 'Submit Application'}
-                </Button>
-            )}
+                {!isLastTab ? (
+                    isEditMode ? (
+                        <Button type="button" onClick={handleSaveAndNext}>
+                            Save & Next
+                        </Button>
+                    ) : (
+                         <Button type="button" onClick={() => handleTabChange('next')}>
+                            Next
+                        </Button>
+                    )
+                ) : (
+                     <Button type="submit" disabled={!isEditMode && !isSignatureVerified}>
+                        {isEditMode ? 'Update Application' : 'Submit Application'}
+                    </Button>
+                )}
+            </div>
         </div>
       </form>
     </Form>
