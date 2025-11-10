@@ -52,7 +52,7 @@ import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import LifestyleDetailTable from './lifestyle-detail-table';
-import SignaturePad from './signature-pad';
+import SignaturePadComponent from './signature-pad';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -3638,7 +3638,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                     <Separator className="my-6" />
                     <div className="space-y-4">
                         <h4 className="font-bold">Signature of Life Insured</h4>
-                        <SignaturePad onSave={handleSaveLifeInsuredSignature} initialUrl={lifeInsuredSignature}/>
+                        <SignaturePadComponent onSave={handleSaveLifeInsuredSignature} initialUrl={lifeInsuredSignature}/>
                     </div>
                      {lifeInsuredSignature && (
                         <div className="space-y-4 pt-4">
@@ -3693,7 +3693,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                      <div className="space-y-4 pt-4">
                         <Separator />
                         <h4 className="font-bold">Signature of Policy Owner</h4>
-                        <SignaturePad onSave={handleSavePolicyOwnerSignature} initialUrl={policyOwnerSignature} />
+                        <SignaturePadComponent onSave={handleSavePolicyOwnerSignature} initialUrl={policyOwnerSignature} />
                     </div>
                 </CardContent>
             </Card>
