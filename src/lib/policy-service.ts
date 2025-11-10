@@ -7,7 +7,7 @@ import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears 
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 9; // Increment this version to force a data migration
+const CURRENT_DATA_VERSION = 10; // Increment this version to force a data migration
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
@@ -404,7 +404,3 @@ export function applyAnnualIncreases(): number {
 
     return updatedCount;
 }
-
-    
-
-    
