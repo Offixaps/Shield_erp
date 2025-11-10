@@ -47,7 +47,7 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
     };
 
     return (
-        <Card className="max-w-4xl mx-auto font-serif">
+        <Card className="max-w-4xl mx-auto my-8 font-serif">
             <CardContent className="p-0">
                 <div className="p-6">
                     <header className="flex items-center justify-between mb-4">
@@ -152,8 +152,8 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
 
                         <div className="grid grid-cols-2 gap-x-8 pt-10">
                              <DetailRow label="Signature">
-                                {(client as any).paymentAuthoritySignature && (
-                                    <Image src={(client as any).paymentAuthoritySignature} alt="Payment Authority Signature" fill style={{ objectFit: 'contain', objectPosition: 'left bottom' }} />
+                                {client.paymentAuthoritySignature && (
+                                    <Image src={client.paymentAuthoritySignature} alt="Payment Authority Signature" fill style={{ objectFit: 'contain', objectPosition: 'left bottom' }} />
                                 )}
                             </DetailRow>
                             <DetailRow label="Date" value={client.commencementDate ? format(new Date(client.commencementDate), 'PPP') : ''} />
