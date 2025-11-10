@@ -9,12 +9,17 @@ import { Separator } from '../ui/separator';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
 import Image from 'next/image';
+import { format } from 'date-fns';
 
-function DetailRow({ label, value }: { label: string, value: string | number | undefined }) {
+function DetailRow({ label, value, children }: { label: string, value?: string | number | undefined, children?: React.ReactNode }) {
     return (
         <div className="flex flex-col space-y-1">
             <span className="text-xs uppercase text-gray-500 tracking-wider">{label}</span>
-            <span className="text-sm font-semibold border-b border-gray-300 pb-1 h-6">{value || ''}</span>
+             {children ? (
+                <div className="border-b border-gray-300 pb-1 h-20 relative">{children}</div>
+             ) : (
+                <span className="text-sm font-semibold border-b border-gray-300 pb-1 h-6">{value || ''}</span>
+             )}
         </div>
     )
 }
@@ -32,13 +37,13 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
         surname: client.payerName.split(' ').slice(-1).join(' '),
         firstName: client.payerName.split(' ').slice(0, -1).join(' '),
         middleName: '',
-        postalAddress: (client as any).postalAddress || 'N/A',
-        emailAddress: (client as any).email || 'N/A',
-        amountInWords: (client as any).amountInWords || 'N/A',
-        accountType: (client as any).accountType || 'N/A',
-        paymentFrequency: (client as any).paymentFrequency || 'N/A',
-        bankBranch: (client as any).bankBranch || 'N/A',
-        bankAccountName: (client as any).bankAccountName || 'N/A',
+        postalAddress: client.postalAddress || 'N/A',
+        emailAddress: client.email || 'N/A',
+        amountInWords: client.amountInWords || 'N/A',
+        accountType: client.accountType || 'N/A',
+        paymentFrequency: client.paymentFrequency || 'N/A',
+        bankBranch: client.bankBranch || 'N/A',
+        bankAccountName: client.bankAccountName || 'N/A',
     };
 
     return (
@@ -146,15 +151,19 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
                         </div>
 
                         <div className="grid grid-cols-2 gap-x-8 pt-10">
-                            <DetailRow label="Signature" value={undefined} />
-                            <DetailRow label="Date" value={undefined} />
+                             <DetailRow label="Signature">
+                                {(client as any).lifeInsuredSignature && (
+                                    <Image src={(client as any).lifeInsuredSignature} alt="Life Insured Signature" fill style={{ objectFit: 'contain', objectPosition: 'left bottom' }} />
+                                )}
+                            </DetailRow>
+                            <DetailRow label="Date" value={client.commencementDate ? format(new Date(client.commencementDate), 'PPP') : ''} />
                         </div>
                         
                         <div className="pt-6">
                             <SectionHeader title="Office use only:" />
                             <div className="space-y-4 p-4 border border-t-0 border-gray-800">
                                 <DetailRow label="Policy Number" value={client.policy} />
-                                <DetailRow label="Approval Date" value={undefined} />
+                                <DetailRow label="Approval Date" value={client.commencementDate ? format(new Date(client.commencementDate), 'PPP') : ''} />
                                 <DetailRow label="Authorized by (Name, Signature and Stamp)" value={undefined} />
                             </div>
                         </div>

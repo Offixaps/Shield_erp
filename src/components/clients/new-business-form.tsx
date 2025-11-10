@@ -477,8 +477,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
-  const [lifeInsuredSignatureDataUrl, setLifeInsuredSignatureDataUrl] = React.useState<string | null>(null);
-  const [policyOwnerSignatureDataUrl, setPolicyOwnerSignatureDataUrl] = React.useState<string | null>(null);
   const [isSignatureVerified, setIsSignatureVerified] = React.useState(false);
   const [verificationCode, setVerificationCode] = React.useState('');
   const [isCodeSent, setIsCodeSent] = React.useState(false);
@@ -502,12 +500,26 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const data: any = { ...businessData };
 
         const parseDate = (dateString: string | undefined) => dateString ? new Date(dateString) : undefined;
+        
         const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
             return (beneficiaries || []).map(b => ({...b, dob: new Date(b.dob)}));
         };
 
-        const getMedicalDetailsFor = (illness: string) => {
-            return (data.medicalHistory || []).filter((h:any) => h.illness === illness).map((h: any) => ({ ...h, date: new Date(h.date) }));
+        const parseMedicalDetails = (details: any[] | undefined) => {
+          return (details || []).map(d => {
+            const parsed = {...d};
+            Object.keys(d).forEach(key => {
+              if (key.toLowerCase().includes('date') && d[key]) {
+                parsed[key] = new Date(d[key]);
+              }
+            });
+            return parsed;
+          });
+        };
+
+        const getMedicalDetailsFor = (illness: string | string[]) => {
+            const illnesses = Array.isArray(illness) ? illness : [illness];
+            return parseMedicalDetails((data.medicalHistory || []).filter((h:any) => illnesses.includes(h.illness)));
         }
 
         const getLifestyleDetailsFor = (item: string) => {
@@ -524,121 +536,156 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
-          lifeAssuredDob: parseDate((data as any).lifeAssuredDob) || new Date('1985-05-20'),
-          email: (data as any).email || '',
-          workTelephone: (data as any).workTelephone || '',
-          homeTelephone: (data as any).homeTelephone || '',
-          residentialAddress: (data as any).residentialAddress || '',
-          gpsAddress: (data as any).gpsAddress || '',
+          expiryDate: parseDate(data.expiryDate),
+          lifeAssuredDob: parseDate(data.lifeAssuredDob),
+          email: data.email,
+          workTelephone: data.workTelephone,
+          homeTelephone: data.homeTelephone,
+          residentialAddress: data.residentialAddress,
+          gpsAddress: data.gpsAddress,
           policyTerm: businessData.policyTerm,
           premiumTerm: businessData.premiumTerm,
           sumAssured: businessData.sumAssured,
-          paymentFrequency: (data as any).paymentFrequency || 'Monthly',
+          paymentFrequency: data.paymentFrequency,
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
           premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' ') || '',
           premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' ') || '',
-          premiumPayerOccupation: (data as any).premiumPayerOccupation || '',
-          maritalStatus: (data as any).maritalStatus || 'Married',
-          dependents: (data as any).dependents || 0,
-          gender: (data as any).gender || 'Male',
-          nationalIdType: (data as any).nationalIdType || 'Passport',
-          idNumber: (data as any).idNumber || '',
-          issueDate: parseDate((data as any).issueDate) || new Date('2020-01-01'),
-          expiryDate: parseDate((data as any).expiryDate) || new Date('2030-01-01'),
-          placeOfIssue: (data as any).placeOfIssue || '',
-          country: (data as any).country || 'Ghana',
-          region: (data as any).region || 'Greater Accra',
-          religion: (data as any).religion || 'Christian',
-          nationality: (data as any).nationality || 'Ghana',
-          languages: (data as any).languages || '',
-          amountInWords: (data as any).amountInWords || '',
+          premiumPayerOccupation: data.premiumPayerOccupation,
+          maritalStatus: data.maritalStatus,
+          dependents: data.dependents,
+          gender: data.gender,
+          nationalIdType: data.nationalIdType,
+          idNumber: data.idNumber,
+          issueDate: parseDate(data.issueDate),
+          expiryDateId: parseDate(data.expiryDateId),
+          placeOfIssue: data.placeOfIssue,
+          country: data.country,
+          region: data.region,
+          religion: data.religion,
+          nationality: data.nationality,
+          languages: data.languages,
+          amountInWords: data.amountInWords,
           sortCode: businessData.sortCode,
-          accountType: (data as any).accountType || 'Current',
-          bankBranch: (data as any).bankBranch || '',
-          bankAccountName: (data as any).bankAccountName || businessData.payerName,
+          accountType: data.accountType,
+          bankBranch: data.bankBranch,
+          bankAccountName: data.bankAccountName,
           bankAccountNumber: businessData.bankAccountNumber,
-          occupation: (data as any).occupation || '',
-          natureOfBusiness: (data as any).natureOfBusiness || '',
-          employer: (data as any).employer || '',
-          employerAddress: (data as any).employerAddress || '',
-          monthlyBasicIncome: (data as any).monthlyBasicIncome || 0,
-          otherIncome: (data as any).otherIncome || 0,
-          totalMonthlyIncome: (data as any).totalMonthlyIncome || 0,
+          occupation: data.occupation,
+          natureOfBusiness: data.natureOfBusiness,
+          employer: data.employer,
+          employerAddress: data.employerAddress,
+          monthlyBasicIncome: data.monthlyBasicIncome,
+          otherIncome: data.otherIncome,
+          totalMonthlyIncome: data.totalMonthlyIncome,
           serialNumber: businessData.serial,
           isPolicyHolderPayer: businessData.client === businessData.payerName,
           primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
           contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
-          height: businessData.height || 0,
-          heightUnit: businessData.heightUnit || 'cm',
-          weight: businessData.weight || 0,
-          lifeInsuredSignature: (data as any).lifeInsuredSignature || '',
-          policyOwnerSignature: (data as any).policyOwnerSignature || '',
-          postalAddress: (data as any).postalAddress || '',
-          currentDoctorName: (data as any).currentDoctorName || '',
-          currentDoctorPhone: (data as any).currentDoctorPhone || '',
-          currentDoctorHospital: (data as any).currentDoctorHospital || '',
-          previousDoctorName: (data as any).previousDoctorName || '',
-          previousDoctorPhone: (data as any).previousDoctorPhone || '',
-          previousDoctorHospital: (data as any).previousDoctorHospital || '',
-          agentName: (data as any).agentName || '',
-          agentCode: (data as any).agentCode || '',
-          uplineName: (data as any).uplineName || '',
-          uplineCode: (data as any).uplineCode || '',
-          introducerCode: (data as any).introducerCode || '',
-          premiumPayerRelationship: (data as any).premiumPayerRelationship || '',
-          premiumPayerResidentialAddress: (data as any).premiumPayerResidentialAddress || '',
-          premiumPayerPostalAddress: (data as any).premiumPayerPostalAddress || '',
-          premiumPayerDob: parseDate((data as any).premiumPayerDob),
-          premiumPayerBusinessName: (data as any).premiumPayerBusinessName || '',
-          premiumPayerIdType: (data as any).premiumPayerIdType,
-          premiumPayerIdNumber: (data as any).premiumPayerIdNumber || '',
-          premiumPayerIssueDate: parseDate((data as any).premiumPayerIssueDate),
-          premiumPayerExpiryDate: parseDate((data as any).premiumPayerExpiryDate),
-          premiumPayerPlaceOfIssue: (data as any).premiumPayerPlaceOfIssue || '',
+          height: businessData.height,
+          heightUnit: businessData.heightUnit,
+          weight: businessData.weight,
+          lifeInsuredSignature: data.lifeInsuredSignature,
+          policyOwnerSignature: data.policyOwnerSignature,
+          postalAddress: data.postalAddress,
+          currentDoctorName: data.currentDoctorName,
+          currentDoctorPhone: data.currentDoctorPhone,
+          currentDoctorHospital: data.currentDoctorHospital,
+          previousDoctorName: data.previousDoctorName,
+          previousDoctorPhone: data.previousDoctorPhone,
+          previousDoctorHospital: data.previousDoctorHospital,
+          agentName: data.agentName,
+          agentCode: data.agentCode,
+          uplineName: data.uplineName,
+          uplineCode: data.uplineCode,
+          introducerCode: data.introducerCode,
+          premiumPayerRelationship: data.premiumPayerRelationship,
+          premiumPayerResidentialAddress: data.premiumPayerResidentialAddress,
+          premiumPayerPostalAddress: data.premiumPayerPostalAddress,
+          premiumPayerDob: parseDate(data.premiumPayerDob),
+          premiumPayerBusinessName: data.premiumPayerBusinessName,
+          premiumPayerIdType: data.premiumPayerIdType,
+          premiumPayerIdNumber: data.premiumPayerIdNumber,
+          premiumPayerIssueDate: parseDate(data.premiumPayerIssueDate),
+          premiumPayerExpiryDate: parseDate(data.premiumPayerExpiryDate),
+          premiumPayerPlaceOfIssue: data.premiumPayerPlaceOfIssue,
 
-          alcoholHabits: businessData.alcoholHabits || 'never_used',
-          alcoholBeer: (data as any).alcoholBeer || { consumed: false, averagePerWeek: '' },
-          alcoholWine: (data as any).alcoholWine || { consumed: false, averagePerWeek: '' },
-          alcoholSpirits: (data as any).alcoholSpirits || { consumed: false, averagePerWeek: '' },
-          reducedAlcoholMedicalAdvice: (data as any).reducedAlcoholMedicalAdvice || { reduced: 'no', notes: ''},
-          reducedAlcoholHealthProblems: (data as any).reducedAlcoholHealthProblems || { reduced: 'no', notes: ''},
+          alcoholHabits: businessData.alcoholHabits,
+          alcoholBeer: data.alcoholBeer,
+          alcoholWine: data.alcoholWine,
+          alcoholSpirits: data.alcoholSpirits,
+          reducedAlcoholMedicalAdvice: data.reducedAlcoholMedicalAdvice,
+          reducedAlcoholHealthProblems: data.reducedAlcoholHealthProblems,
 
-          tobaccoHabits: businessData.tobaccoHabits || 'never_smoked',
-          usedNicotineLast12Months: (data as any).usedNicotineLast12Months || 'no',
-          tobaccoCigarettes: (data as any).tobaccoCigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
-          tobaccoCigars: (data as any).tobaccoCigars || { smoked: false, avgPerDay: '', avgPerWeek: '' },
-          tobaccoPipe: (data as any).tobaccoPipe || { smoked: false, avgPerDay: '', avgPerWeek: '' },
-          tobaccoNicotineReplacement: (data as any).tobaccoNicotineReplacement || { smoked: false, avgPerDay: '', avgPerWeek: '' },
-          tobaccoEcigarettes: (data as any).tobaccoEcigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
-          tobaccoOther: (data as any).tobaccoOther || { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
+          tobaccoHabits: businessData.tobaccoHabits,
+          usedNicotineLast12Months: data.usedNicotineLast12Months,
+          tobaccoCigarettes: data.tobaccoCigarettes,
+          tobaccoCigars: data.tobaccoCigars,
+          tobaccoPipe: data.tobaccoPipe,
+          tobaccoNicotineReplacement: data.tobaccoNicotineReplacement,
+          tobaccoEcigarettes: data.tobaccoEcigarettes,
+          tobaccoOther: data.tobaccoOther,
 
-          usedRecreationalDrugs: (data as any).usedRecreationalDrugs || 'no',
-          injectedNonPrescribedDrugs: (data as any).injectedNonPrescribedDrugs || 'no',
-          testedPositiveViralInfection: (data as any).testedPositiveViralInfection || 'no',
-          testedPositiveFor: (data as any).testedPositiveFor || { hiv: false, hepB: false, hepC: false },
-          awaitingResultsFor: (data as any).awaitingResultsFor || { hiv: false, hepB: false, hepC: false },
+          usedRecreationalDrugs: data.usedRecreationalDrugs,
+          injectedNonPrescribedDrugs: data.injectedNonPrescribedDrugs,
+          testedPositiveViralInfection: data.testedPositiveViralInfection,
+          testedPositiveFor: data.testedPositiveFor,
+          awaitingResultsFor: data.awaitingResultsFor,
 
           bloodTransfusionOrSurgery: (data.medicalHistory || []).some((h:any) => ['Blood transfusion', 'Surgery'].includes(h.illness)) ? 'yes' : 'no',
-          bloodTransfusionOrSurgeryDetails: getMedicalDetailsFor('Blood transfusion'), // Simplified
-          highBloodPressure: (data.medicalHistory || []).some((h:any) => ['High blood pressure'].includes(h.illness)) ? 'yes' : 'no',
-          highBloodPressureDetails: getMedicalDetailsFor('High blood pressure'),
-          cancer: (data.medicalHistory || []).some((h:any) => ['Cancer'].includes(h.illness)) ? 'yes' : 'no',
-          cancerDetails: getMedicalDetailsFor('Cancer'),
-          diabetes: (data.medicalHistory || []).some((h:any) => ['Diabetes'].includes(h.illness)) ? 'yes' : 'no',
+          bloodTransfusionOrSurgeryDetails: getMedicalDetailsFor(['Blood transfusion', 'Surgery']),
+          highBloodPressure: (data.medicalHistory || []).some((h:any) => ['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma'].includes(h.illness)) ? 'yes' : 'no',
+          highBloodPressureDetails: getMedicalDetailsFor(['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma']),
+          cancer: (data.medicalHistory || []).some((h:any) => ['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor'].includes(h.illness)) ? 'yes' : 'no',
+          cancerDetails: getMedicalDetailsFor(['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']),
+          diabetes: (data.medicalHistory || []).some((h:any) => h.illness === 'Diabetes') ? 'yes' : 'no',
           diabetesDetails: getMedicalDetailsFor('Diabetes'),
-          asthma: (data.medicalHistory || []).some((h:any) => ['Asthma'].includes(h.illness)) ? 'yes' : 'no',
-          asthmaDetails: getMedicalDetailsFor('Asthma'),
-          digestiveDisorder: (data.medicalHistory || []).some((h:any) => ['Duodenal Ulcer'].includes(h.illness)) ? 'yes' : 'no',
-          digestiveDisorderDetails: getMedicalDetailsFor('Duodenal Ulcer'),
+          colitisCrohns: (data.medicalHistory || []).some((h:any) => h.illness === "Crohn's disease" || h.illness === 'Colitis') ? 'yes' : 'no',
+          colitisCrohnsDetails: getMedicalDetailsFor(["Crohn's disease", "Colitis"]),
+          paralysisEpilepsy: (data.medicalHistory || []).some((h:any) => ['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia'].includes(h.illness)) ? 'yes' : 'no',
+          paralysisEpilepsyDetails: getMedicalDetailsFor(['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia']),
+          mentalIllness: (data.medicalHistory || []).some((h:any) => ['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown'].includes(h.illness)) ? 'yes' : 'no',
+          mentalIllnessDetails: getMedicalDetailsFor(['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']),
+          arthritis: (data.medicalHistory || []).some((h:any) => ['Arthritis', 'Neck or back pain', 'Gout'].includes(h.illness)) ? 'yes' : 'no',
+          arthritisDetails: getMedicalDetailsFor(['Arthritis', 'Neck or back pain', 'Gout']),
+          chestPain: (data.medicalHistory || []).some((h:any) => ['Chest pain', 'Irregular heart beat', 'Raised cholesterol'].includes(h.illness)) ? 'yes' : 'no',
+          chestPainDetails: getMedicalDetailsFor(['Chest pain', 'Irregular heart beat', 'Raised cholesterol']),
+          asthma: (data.medicalHistory || []).some((h:any) => ['Asthma', 'Bronchitis', 'Shortness of breath'].includes(h.illness)) ? 'yes' : 'no',
+          asthmaDetails: getMedicalDetailsFor(['Asthma', 'Bronchitis', 'Shortness of breath']),
+          digestiveDisorder: (data.medicalHistory || []).some((h:any) => ['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas'].includes(h.illness)) ? 'yes' : 'no',
+          digestiveDisorderDetails: getMedicalDetailsFor(['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas']),
+          bloodDisorder: (data.medicalHistory || []).some((h:any) => ['Blood disorder', 'Anemia'].includes(h.illness)) ? 'yes' : 'no',
+          bloodDisorderDetails: getMedicalDetailsFor(['Blood disorder', 'Anemia']),
+          thyroidDisorder: (data.medicalHistory || []).some((h:any) => h.illness === 'Thyroid disorder') ? 'yes' : 'no',
+          thyroidDisorderDetails: getMedicalDetailsFor('Thyroid disorder'),
+          kidneyDisorder: (data.medicalHistory || []).some((h:any) => ['Kidney disorder', 'Renal failure', 'Bladder disorder'].includes(h.illness)) ? 'yes' : 'no',
+          kidneyDisorderDetails: getMedicalDetailsFor(['Kidney disorder', 'Renal failure', 'Bladder disorder']),
+          numbness: (data.medicalHistory || []).some((h:any) => h.illness === 'Numbness') ? 'yes' : 'no',
+          numbnessDetails: getMedicalDetailsFor('Numbness'),
+          anxietyStress: (data.medicalHistory || []).some((h:any) => ['Anxiety', 'Stress', 'Depression'].includes(h.illness)) ? 'yes' : 'no',
+          anxietyStressDetails: getMedicalDetailsFor(['Anxiety', 'Stress', 'Depression']),
+          earEyeDisorder: (data.medicalHistory || []).some((h:any) => ['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision'].includes(h.illness)) ? 'yes' : 'no',
+          earEyeDisorderDetails: getMedicalDetailsFor(['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision']),
+          lumpGrowth: (data.medicalHistory || []).some((h:any) => ['Lump', 'Growth', 'Mole', 'Freckle'].includes(h.illness)) ? 'yes' : 'no',
+          lumpGrowthDetails: getMedicalDetailsFor(['Lump', 'Growth', 'Mole', 'Freckle']),
+          hospitalAttendance: (data.medicalHistory || []).some((h:any) => ['X-ray', 'Scan', 'Checkup', 'Operation'].includes(h.illness)) ? 'yes' : 'no',
+          hospitalAttendanceDetails: getMedicalDetailsFor(['X-ray', 'Scan', 'Checkup', 'Operation']),
+          criticalIllness: (data.medicalHistory || []).some((h:any) => ["Alzheimer's Disease", 'Multiple Sclerosis'].includes(h.illness)) ? 'yes' : 'no',
+          criticalIllnessDetails: getMedicalDetailsFor(["Alzheimer's Disease", 'Multiple Sclerosis']),
+          sti: (data.medicalHistory || []).some((h:any) => h.illness === 'STI') ? 'yes' : 'no',
+          stiDetails: getMedicalDetailsFor('STI'),
+          presentSymptoms: (data.medicalHistory || []).some((h:any) => h.illness === 'Present Symptoms') ? 'yes' : 'no',
+          presentSymptomsDetails: getMedicalDetailsFor('Present Symptoms'),
+          presentWaitingConsultation: data.presentWaitingConsultation,
+          presentTakingMedication: data.presentTakingMedication,
 
-          familyMedicalHistory: businessData.familyMedicalHistory || 'no',
-          familyMedicalHistoryDetails: businessData.familyMedicalHistoryDetails || [],
+          familyMedicalHistory: businessData.familyMedicalHistory,
+          familyMedicalHistoryDetails: businessData.familyMedicalHistoryDetails,
 
           flownAsPilot: (data.lifestyleDetails || []).some((d:any) => d.item === 'Pilot') ? 'yes' : 'no',
           flownAsPilotDetails: getLifestyleDetailsFor('Pilot'),
-          hazardousSports: (data.lifestyleDetails || []).some((d:any) => d.item === 'Scuba diving') ? 'yes' : 'no',
+          hazardousSports: (data.lifestyleDetails || []).some((d:any) => ['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing'].includes(d.item)) ? 'yes' : 'no',
           hazardousSportsDetails: getLifestyleDetailsFor('Scuba diving'),
-          travelOutsideCountry: (data.lifestyleDetails || []).some((d:any) => d.item === 'Live Outside') ? 'yes' : 'no',
+          travelOutsideCountry: (data.lifestyleDetails || []).some((d:any) => ['Live Outside', 'Work outside', 'Go on Holiday'].includes(d.item)) ? 'yes' : 'no',
           travelOutsideCountryDetails: getLifestyleDetailsFor('Live Outside'),
         };
       }
@@ -864,6 +911,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const flownAsPilot = form.watch('flownAsPilot');
   const hazardousSports = form.watch('hazardousSports');
   const travelOutsideCountry = form.watch('travelOutsideCountry');
+  const lifeInsuredSignature = form.watch('lifeInsuredSignature');
+  const policyOwnerSignature = form.watch('policyOwnerSignature');
 
 
   React.useEffect(() => {
@@ -961,7 +1010,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
   const handleSaveLifeInsuredSignature = (dataUrl: string) => {
-    setLifeInsuredSignatureDataUrl(dataUrl);
     form.setValue('lifeInsuredSignature', dataUrl);
     toast({
         title: "Signature Saved",
@@ -970,7 +1018,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
   const handleSavePolicyOwnerSignature = (dataUrl: string) => {
-    setPolicyOwnerSignatureDataUrl(dataUrl);
     form.setValue('policyOwnerSignature', dataUrl);
     toast({
         title: "Signature Saved",
@@ -3591,9 +3638,9 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                     <Separator className="my-6" />
                     <div className="space-y-4">
                         <h4 className="font-bold">Signature of Life Insured</h4>
-                        <SignaturePad onSave={handleSaveLifeInsuredSignature} />
+                        <SignaturePad onSave={handleSaveLifeInsuredSignature} initialUrl={lifeInsuredSignature}/>
                     </div>
-                     {lifeInsuredSignatureDataUrl && (
+                     {lifeInsuredSignature && (
                         <div className="space-y-4 pt-4">
                             <Separator />
                             <h4 className="font-bold">Identity Verification</h4>
@@ -3646,7 +3693,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                      <div className="space-y-4 pt-4">
                         <Separator />
                         <h4 className="font-bold">Signature of Policy Owner</h4>
-                        <SignaturePad onSave={handleSavePolicyOwnerSignature} />
+                        <SignaturePad onSave={handleSavePolicyOwnerSignature} initialUrl={policyOwnerSignature} />
                     </div>
                 </CardContent>
             </Card>

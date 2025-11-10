@@ -9,11 +9,20 @@ import Image from 'next/image';
 
 type SignaturePadProps = {
   onSave: (dataUrl: string) => void;
+  initialUrl?: string | null;
 };
 
-export default function SignaturePad({ onSave }: SignaturePadProps) {
+export default function SignaturePad({ onSave, initialUrl }: SignaturePadProps) {
   const sigPad = React.useRef<SignatureCanvas>(null);
-  const [dataURL, setDataURL] = React.useState<string | null>(null);
+  const [dataURL, setDataURL] = React.useState<string | null>(initialUrl || null);
+
+  React.useEffect(() => {
+    if (initialUrl && sigPad.current) {
+        // This ensures that if an initial URL is provided, it's loaded into the canvas
+        // This is useful for edit mode. However, we'll mostly display it as an image.
+        setDataURL(initialUrl);
+    }
+  }, [initialUrl])
 
   const clear = () => {
     sigPad.current?.clear();
@@ -21,7 +30,7 @@ export default function SignaturePad({ onSave }: SignaturePadProps) {
   };
 
   const save = () => {
-    if (sigPad.current) {
+    if (sigPad.current && !sigPad.current.isEmpty()) {
         const url = sigPad.current.toDataURL();
         setDataURL(url);
         onSave(url);
