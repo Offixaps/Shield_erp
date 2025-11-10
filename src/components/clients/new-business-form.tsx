@@ -499,6 +499,21 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const surname = nameOnlyParts.length > 1 ? nameOnlyParts[nameOnlyParts.length - 1] : '';
         const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
         
+        const data: any = { ...businessData };
+
+        const parseDate = (dateString: string | undefined) => dateString ? new Date(dateString) : undefined;
+        const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
+            return (beneficiaries || []).map(b => ({...b, dob: new Date(b.dob)}));
+        };
+
+        const getMedicalDetailsFor = (illness: string) => {
+            return (data.medicalHistory || []).filter((h: any) => h.illness === illness).map((h: any) => ({ ...h, date: new Date(h.date) }));
+        }
+
+        const getLifestyleDetailsFor = (item: string) => {
+            return (data.lifestyleDetails || []).filter((d: any) => d.item === item);
+        }
+        
         return {
           ...businessData,
           title: title,
@@ -509,73 +524,122 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
           premiumAmount: businessData.premium,
           commencementDate: new Date(businessData.commencementDate),
-          lifeAssuredDob: new Date('1985-05-20'),
-          email: (businessData as any).email || '',
-          workTelephone: (businessData as any).workTelephone || '',
-          homeTelephone: (businessData as any).homeTelephone || '',
-          residentialAddress: (businessData as any).residentialAddress || '',
-          gpsAddress: (businessData as any).gpsAddress || '',
+          lifeAssuredDob: parseDate((data as any).lifeAssuredDob) || new Date('1985-05-20'),
+          email: (data as any).email || '',
+          workTelephone: (data as any).workTelephone || '',
+          homeTelephone: (data as any).homeTelephone || '',
+          residentialAddress: (data as any).residentialAddress || '',
+          gpsAddress: (data as any).gpsAddress || '',
           policyTerm: businessData.policyTerm,
           premiumTerm: businessData.premiumTerm,
           sumAssured: businessData.sumAssured,
-          paymentFrequency: 'Monthly' as const,
+          paymentFrequency: (data as any).paymentFrequency || 'Monthly',
           increaseMonth: format(new Date(businessData.commencementDate), 'MMMM'),
           premiumPayerSurname: businessData.payerName.split(' ').slice(-1).join(' ') || '',
           premiumPayerOtherNames: businessData.payerName.split(' ').slice(0, -1).join(' ') || '',
-          premiumPayerOccupation: (businessData as any).premiumPayerOccupation || '',
-          maritalStatus: 'Married' as const,
-          dependents: 2,
-          gender: 'Male' as const,
-          nationalIdType: 'Passport' as const,
-          idNumber: 'G1234567',
-          issueDate: new Date('2020-01-01'),
-          expiryDate: new Date('2030-01-01'),
-          placeOfIssue: 'Accra',
-          country: 'Ghana',
-          region: 'Greater Accra' as const,
-          religion: 'Christian' as const,
-          nationality: 'Ghana',
-          languages: 'English, Twi',
-          amountInWords: (businessData as any).amountInWords || '',
+          premiumPayerOccupation: (data as any).premiumPayerOccupation || '',
+          maritalStatus: (data as any).maritalStatus || 'Married',
+          dependents: (data as any).dependents || 0,
+          gender: (data as any).gender || 'Male',
+          nationalIdType: (data as any).nationalIdType || 'Passport',
+          idNumber: (data as any).idNumber || '',
+          issueDate: parseDate((data as any).issueDate) || new Date('2020-01-01'),
+          expiryDate: parseDate((data as any).expiryDate) || new Date('2030-01-01'),
+          placeOfIssue: (data as any).placeOfIssue || '',
+          country: (data as any).country || 'Ghana',
+          region: (data as any).region || 'Greater Accra',
+          religion: (data as any).religion || 'Christian',
+          nationality: (data as any).nationality || 'Ghana',
+          languages: (data as any).languages || '',
+          amountInWords: (data as any).amountInWords || '',
           sortCode: businessData.sortCode,
-          accountType: (businessData as any).accountType || 'Current',
-          bankBranch: (businessData as any).bankBranch || '',
-          bankAccountName: (businessData as any).bankAccountName || businessData.payerName,
+          accountType: (data as any).accountType || 'Current',
+          bankBranch: (data as any).bankBranch || '',
+          bankAccountName: (data as any).bankAccountName || businessData.payerName,
           bankAccountNumber: businessData.bankAccountNumber,
-          occupation: 'Software Engineer',
-          natureOfBusiness: 'Technology',
-          employer: 'Google',
-          employerAddress: '1600 Amphitheatre Parkway, Mountain View, CA',
-          monthlyBasicIncome: 10000,
-          otherIncome: 2000,
-          totalMonthlyIncome: 12000,
+          occupation: (data as any).occupation || '',
+          natureOfBusiness: (data as any).natureOfBusiness || '',
+          employer: (data as any).employer || '',
+          employerAddress: (data as any).employerAddress || '',
+          monthlyBasicIncome: (data as any).monthlyBasicIncome || 0,
+          otherIncome: (data as any).otherIncome || 0,
+          totalMonthlyIncome: (data as any).totalMonthlyIncome || 0,
           serialNumber: businessData.serial,
           isPolicyHolderPayer: businessData.client === businessData.payerName,
-          primaryBeneficiaries: businessData.primaryBeneficiaries || [],
-          contingentBeneficiaries: businessData.contingentBeneficiaries || [],
+          primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
+          contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
           height: businessData.height || 0,
           heightUnit: businessData.heightUnit || 'cm',
           weight: businessData.weight || 0,
-          lifeInsuredSignature: (businessData as any).lifeInsuredSignature || '',
-          policyOwnerSignature: (businessData as any).policyOwnerSignature || '',
-          postalAddress: (businessData as any).postalAddress || '',
-          currentDoctorName: (businessData as any).currentDoctorName || '',
-          currentDoctorPhone: (businessData as any).currentDoctorPhone || '',
-          currentDoctorHospital: (businessData as any).currentDoctorHospital || '',
-          previousDoctorName: (businessData as any).previousDoctorName || '',
-          previousDoctorPhone: (businessData as any).previousDoctorPhone || '',
-          previousDoctorHospital: (businessData as any).previousDoctorHospital || '',
-          agentName: (businessData as any).agentName || '',
-          agentCode: (businessData as any).agentCode || '',
-          uplineName: (businessData as any).uplineName || '',
-          uplineCode: (businessData as any).uplineCode || '',
-          introducerCode: (businessData as any).introducerCode || '',
-          premiumPayerRelationship: (businessData as any).premiumPayerRelationship || '',
-          premiumPayerResidentialAddress: (businessData as any).premiumPayerResidentialAddress || '',
-          premiumPayerPostalAddress: (businessData as any).premiumPayerPostalAddress || '',
-          premiumPayerBusinessName: (businessData as any).premiumPayerBusinessName || '',
-          premiumPayerIdNumber: (businessData as any).premiumPayerIdNumber || '',
-          premiumPayerPlaceOfIssue: (businessData as any).premiumPayerPlaceOfIssue || '',
+          lifeInsuredSignature: (data as any).lifeInsuredSignature || '',
+          policyOwnerSignature: (data as any).policyOwnerSignature || '',
+          postalAddress: (data as any).postalAddress || '',
+          currentDoctorName: (data as any).currentDoctorName || '',
+          currentDoctorPhone: (data as any).currentDoctorPhone || '',
+          currentDoctorHospital: (data as any).currentDoctorHospital || '',
+          previousDoctorName: (data as any).previousDoctorName || '',
+          previousDoctorPhone: (data as any).previousDoctorPhone || '',
+          previousDoctorHospital: (data as any).previousDoctorHospital || '',
+          agentName: (data as any).agentName || '',
+          agentCode: (data as any).agentCode || '',
+          uplineName: (data as any).uplineName || '',
+          uplineCode: (data as any).uplineCode || '',
+          introducerCode: (data as any).introducerCode || '',
+          premiumPayerRelationship: (data as any).premiumPayerRelationship || '',
+          premiumPayerResidentialAddress: (data as any).premiumPayerResidentialAddress || '',
+          premiumPayerPostalAddress: (data as any).premiumPayerPostalAddress || '',
+          premiumPayerDob: parseDate((data as any).premiumPayerDob),
+          premiumPayerBusinessName: (data as any).premiumPayerBusinessName || '',
+          premiumPayerIdType: (data as any).premiumPayerIdType,
+          premiumPayerIdNumber: (data as any).premiumPayerIdNumber || '',
+          premiumPayerIssueDate: parseDate((data as any).premiumPayerIssueDate),
+          premiumPayerExpiryDate: parseDate((data as any).premiumPayerExpiryDate),
+          premiumPayerPlaceOfIssue: (data as any).premiumPayerPlaceOfIssue || '',
+
+          alcoholHabits: businessData.alcoholHabits || 'never_used',
+          alcoholBeer: (data as any).alcoholBeer || { consumed: false, averagePerWeek: '' },
+          alcoholWine: (data as any).alcoholWine || { consumed: false, averagePerWeek: '' },
+          alcoholSpirits: (data as any).alcoholSpirits || { consumed: false, averagePerWeek: '' },
+          reducedAlcoholMedicalAdvice: (data as any).reducedAlcoholMedicalAdvice || { reduced: 'no', notes: ''},
+          reducedAlcoholHealthProblems: (data as any).reducedAlcoholHealthProblems || { reduced: 'no', notes: ''},
+
+          tobaccoHabits: businessData.tobaccoHabits || 'never_smoked',
+          usedNicotineLast12Months: (data as any).usedNicotineLast12Months || 'no',
+          tobaccoCigarettes: (data as any).tobaccoCigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+          tobaccoCigars: (data as any).tobaccoCigars || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+          tobaccoPipe: (data as any).tobaccoPipe || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+          tobaccoNicotineReplacement: (data as any).tobaccoNicotineReplacement || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+          tobaccoEcigarettes: (data as any).tobaccoEcigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+          tobaccoOther: (data as any).tobaccoOther || { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
+
+          usedRecreationalDrugs: (data as any).usedRecreationalDrugs || 'no',
+          injectedNonPrescribedDrugs: (data as any).injectedNonPrescribedDrugs || 'no',
+          testedPositiveViralInfection: (data as any).testedPositiveViralInfection || 'no',
+          testedPositiveFor: (data as any).testedPositiveFor || { hiv: false, hepB: false, hepC: false },
+          awaitingResultsFor: (data as any).awaitingResultsFor || { hiv: false, hepB: false, hepC: false },
+
+          bloodTransfusionOrSurgery: (data.medicalHistory || []).some((h:any) => ['Blood transfusion', 'Surgery'].includes(h.illness)) ? 'yes' : 'no',
+          bloodTransfusionOrSurgeryDetails: getMedicalDetailsFor('Blood transfusion'), // Simplified
+          highBloodPressure: (data.medicalHistory || []).some((h:any) => ['High blood pressure'].includes(h.illness)) ? 'yes' : 'no',
+          highBloodPressureDetails: getMedicalDetailsFor('High blood pressure'),
+          cancer: (data.medicalHistory || []).some((h:any) => ['Cancer'].includes(h.illness)) ? 'yes' : 'no',
+          cancerDetails: getMedicalDetailsFor('Cancer'),
+          diabetes: (data.medicalHistory || []).some((h:any) => ['Diabetes'].includes(h.illness)) ? 'yes' : 'no',
+          diabetesDetails: getMedicalDetailsFor('Diabetes'),
+          asthma: (data.medicalHistory || []).some((h:any) => ['Asthma'].includes(h.illness)) ? 'yes' : 'no',
+          asthmaDetails: getMedicalDetailsFor('Asthma'),
+          digestiveDisorder: (data.medicalHistory || []).some((h:any) => ['Duodenal Ulcer'].includes(h.illness)) ? 'yes' : 'no',
+          digestiveDisorderDetails: getMedicalDetailsFor('Duodenal Ulcer'),
+
+          familyMedicalHistory: businessData.familyMedicalHistory || 'no',
+          familyMedicalHistoryDetails: businessData.familyMedicalHistoryDetails || [],
+
+          flownAsPilot: (data.lifestyleDetails || []).some((d:any) => d.item === 'Pilot') ? 'yes' : 'no',
+          flownAsPilotDetails: getLifestyleDetailsFor('Pilot'),
+          hazardousSports: (data.lifestyleDetails || []).some((d:any) => d.item === 'Scuba diving') ? 'yes' : 'no',
+          hazardousSportsDetails: getLifestyleDetailsFor('Scuba diving'),
+          travelOutsideCountry: (data.lifestyleDetails || []).some((d:any) => d.item === 'Live Outside') ? 'yes' : 'no',
+          travelOutsideCountryDetails: getLifestyleDetailsFor('Live Outside'),
         };
       }
     }
@@ -4048,15 +4112,9 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                 )}
 
                 {!isLastTab ? (
-                    isEditMode ? (
-                        <Button type="button" onClick={handleSaveAndNext}>
-                            Save & Next
-                        </Button>
-                    ) : (
-                         <Button type="button" onClick={() => handleTabChange('next')}>
-                            Next
-                        </Button>
-                    )
+                     <Button type="button" onClick={isEditMode ? handleSaveAndNext : () => handleTabChange('next')}>
+                        {isEditMode ? 'Save & Next' : 'Next'}
+                    </Button>
                 ) : (
                      <Button type="submit" disabled={!isEditMode && !isSignatureVerified}>
                         {isEditMode ? 'Update Application' : 'Submit Application'}
