@@ -45,7 +45,7 @@ export default function BankPoliciesPage() {
       if (bankName) {
         const allPoliciesFromService = getPolicies();
         const filteredFromService = allPoliciesFromService.filter(
-            (p) => p.policyStatus === 'Active' && p.bankName === bankName
+            (p) => p.policyStatus === 'Active' && p.billingStatus === 'Outstanding' && p.bankName === bankName
         );
         const policiesWithArrears: PolicyWithArrears[] = filteredFromService.map(policy => {
             const arrears = (policy.bills || [])
@@ -169,8 +169,8 @@ export default function BankPoliciesPage() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <PageHeader
-          title={`Active Policies for ${bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}`}
-          description="A list of all active policies for this bank."
+          title={`Outstanding Policies for ${bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')}`}
+          description="A list of all policies with outstanding premiums for this bank."
         />
         <div className="flex items-center gap-2 flex-wrap">
             <Button variant="outline" onClick={handlePostToBank}>
@@ -257,7 +257,7 @@ export default function BankPoliciesPage() {
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-4">
-              No active policies found for {bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')} matching your search.
+              No outstanding policies found for {bankName.replace(' (Ghana) Limited', '').replace(' PLC', '').replace(' Limited', '')} matching your search.
             </p>
           )}
         </CardContent>
