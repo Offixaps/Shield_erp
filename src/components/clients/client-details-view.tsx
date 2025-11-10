@@ -662,7 +662,7 @@ export default function ClientDetailsView({
                 />
                 <DetailItem
                   label="Expiry Date"
-                  value={(client as any).expiryDate ? format(new Date((client as any).expiryDate), 'PPP') : 'N/A'}
+                  value={(client as any).expiryDateId ? format(new Date((client as any).expiryDateId), 'PPP') : 'N/A'}
                 />
               </CardContent>
             </Card>
