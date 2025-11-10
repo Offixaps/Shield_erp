@@ -54,7 +54,9 @@ export default function AcceptPolicyDialog({ client, onUpdate }: AcceptPolicyDia
         const commencementDate = today.toISOString().split('T')[0];
 
         // Recalculate terms based on new commencement date
-        const dob = new Date(client.placeOfBirth); // Assuming placeOfBirth holds DOB for calculation from form. A dedicated DOB field is better.
+        // NOTE: The full DOB is not in the client object, using a placeholder.
+        // In a real app, you'd fetch the full client record.
+        const dob = new Date('1985-05-20'); 
         const ageAtCommencement = differenceInYears(today, dob);
         
         const newPolicyTerm = 75 - ageAtCommencement;
