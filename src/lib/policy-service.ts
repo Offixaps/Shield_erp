@@ -160,6 +160,7 @@ export function createPolicy(values: any): NewBusiness {
         policy: '', // Blank on creation
         product: values.contractType,
         premium: values.premiumAmount,
+        initialSumAssured: values.sumAssured,
         sumAssured: values.sumAssured,
         commencementDate: format(new Date(), 'yyyy-MM-dd'),
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + values.policyTerm)).toISOString().split('T')[0],

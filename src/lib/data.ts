@@ -3,6 +3,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -237,6 +238,7 @@ export type NewBusiness = {
   policy: string;
   product: string;
   premium: number;
+  initialSumAssured?: number;
   sumAssured: number;
   commencementDate: string;
   expiryDate: string;
@@ -334,6 +336,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 350,
+    initialSumAssured: 150000,
     sumAssured: 150000,
     commencementDate: "2024-07-28",
     expiryDate: "2059-07-28",
@@ -403,6 +406,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 500,
+    initialSumAssured: 250000,
     sumAssured: 250000,
     commencementDate: "2024-07-28",
     expiryDate: "2054-07-28",
@@ -491,6 +495,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 200,
+    initialSumAssured: 100000,
     sumAssured: 100000,
     commencementDate: "2024-08-01",
     expiryDate: "2064-08-01",
@@ -560,6 +565,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 400,
+    initialSumAssured: 200000,
     sumAssured: 200000,
     commencementDate: "2024-08-01",
     expiryDate: "2063-08-01",
@@ -629,6 +635,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 1000,
+    initialSumAssured: 500000,
     sumAssured: 500000,
     commencementDate: "2024-08-01",
     expiryDate: "2050-08-01",
@@ -698,6 +705,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 300,
+    initialSumAssured: 150000,
     sumAssured: 150000,
     commencementDate: "2024-08-01",
     expiryDate: "2071-08-01",
@@ -767,6 +775,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 450,
+    initialSumAssured: 220000,
     sumAssured: 220000,
     commencementDate: "2024-08-01",
     expiryDate: "2055-08-01",
@@ -836,6 +845,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 250,
+    initialSumAssured: 125000,
     sumAssured: 125000,
     commencementDate: "2024-08-01",
     expiryDate: "2067-08-01",
@@ -905,6 +915,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 700,
+    initialSumAssured: 350000,
     sumAssured: 350000,
     commencementDate: "2024-08-01",
     expiryDate: "2052-08-01",
@@ -974,6 +985,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 300,
+    initialSumAssured: 150000,
     sumAssured: 150000,
     commencementDate: "2024-08-01",
     expiryDate: "2059-08-01",
@@ -1043,6 +1055,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 150,
+    initialSumAssured: 75000,
     sumAssured: 75000,
     commencementDate: "2024-08-01",
     expiryDate: "2073-08-01",
@@ -1112,6 +1125,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 600,
+    initialSumAssured: 300000,
     sumAssured: 300000,
     commencementDate: "2024-08-01",
     expiryDate: "2056-08-01",
@@ -1181,6 +1195,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 350,
+    initialSumAssured: 180000,
     sumAssured: 180000,
     commencementDate: "2024-08-01",
     expiryDate: "2066-08-01",
@@ -1250,6 +1265,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 550,
+    initialSumAssured: 275000,
     sumAssured: 275000,
     commencementDate: "2024-08-01",
     expiryDate: "2054-08-01",
@@ -1319,6 +1335,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "Buy Term and Invest in Mutual Fund",
     premium: 420,
+    initialSumAssured: 210000,
     sumAssured: 210000,
     commencementDate: "2024-08-01",
     expiryDate: "2062-08-01",
@@ -1388,6 +1405,7 @@ export const newBusinessData: NewBusiness[] = [
     policy: "",
     product: "The Education Policy",
     premium: 280,
+    initialSumAssured: 140000,
     sumAssured: 140000,
     commencementDate: "2024-08-01",
     expiryDate: "2065-08-01",
