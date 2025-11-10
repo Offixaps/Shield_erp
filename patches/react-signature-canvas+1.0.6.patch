@@ -1,0 +1,15 @@
+diff --git a/node_modules/react-signature-canvas/build/index.js b/node_modules/react-signature-canvas/build/index.js
+index 72413a1..58d6263 100644
+--- a/node_modules/react-signature-canvas/build/index.js
++++ b/node_modules/react-signature-canvas/build/index.js
+@@ -165,7 +165,9 @@
+       this.canvas.addEventListener("touchstart", this._handleBegin, false);
+       this.canvas.addEventListener("touchmove", this._handleMove, false);
+       document.addEventListener("touchend", this._handleEnd, false);
+-
++      
++      this.canvas.style.touchAction = 'none';
++      
+       this.canvas.addEventListener("mousedown", this._handleBegin, false);
+       this.canvas.addEventListener("mousemove", this._handleMove, false);
+       document.addEventListener("mouseup", this._handleEnd, false);
