@@ -697,28 +697,14 @@ export default function ClientDetailsView({
                 </h3>
               </CardHeader>
                <Separator />
-              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
-                <DetailItem label="Premium Payer Name" value={client.client} />
-                <DetailItem
-                  label="Premium Payer Occupation"
-                  value="Accountant"
-                />
-                <DetailItem label="Bank Name" value="CalBank PLC" />
-                <DetailItem label="Bank Branch" value="Accra Main" />
-                <DetailItem label="Sort Code" value="123456" />
-                <DetailItem label="Account Type" value="Current" />
-                <DetailItem label="Bank Account Name" value={client.client} />
-                <DetailItem
-                  label="Bank Account Number"
-                  value="00112233445566"
-                />
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pt-6">
+                <DetailItem label="Premium Payer Name" value={client.payerName} />
+                <DetailItem label="Bank Name" value={client.bankName} />
+                <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
+                <DetailItem label="Sort Code" value={client.sortCode} />
                 <DetailItem
                   label="Premium Amount (GHS)"
                   value={`GHS ${client.premium.toFixed(2)}`}
-                />
-                <DetailItem
-                  label="Amount in Words"
-                  value="One Hundred and Fifty Ghana Cedis"
                 />
                 <DetailItem
                   label="Premium Deduction Frequency"
@@ -775,8 +761,8 @@ export default function ClientDetailsView({
                 />
                 <DetailItem label="Alcohol Habits" value={client.alcoholHabits?.replace(/_/g, ' ')} />
                 <DetailItem label="Tobacco Habits" value={client.tobaccoHabits?.replace(/_/g, ' ')} />
-                <DetailItem label="Used Recreational Drugs?" value={<YesNoDisplay value={client.usedRecreationalDrugs} />} />
-                <DetailItem label="Injected Non-Prescribed Drugs?" value={<YesNoDisplay value={client.injectedNonPrescribedDrugs} />} />
+                <DetailItem label="Used Recreational Drugs?" value={<YesNoDisplay value={(client as any).usedRecreationalDrugs} />} />
+                <DetailItem label="Injected Non-Prescribed Drugs?" value={<YesNoDisplay value={(client as any).injectedNonPrescribedDrugs} />} />
               </CardContent>
             </Card>
 
@@ -833,17 +819,17 @@ export default function ClientDetailsView({
                 <div>
                   <h4 className="font-semibold">Current Doctor</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                    <DetailItem label="Name" value={client.currentDoctorName} />
-                    <DetailItem label="Phone" value={client.currentDoctorPhone} />
-                    <DetailItem label="Hospital" value={client.currentDoctorHospital} />
+                    <DetailItem label="Name" value={(client as any).currentDoctorName} />
+                    <DetailItem label="Phone" value={(client as any).currentDoctorPhone} />
+                    <DetailItem label="Hospital" value={(client as any).currentDoctorHospital} />
                   </div>
                 </div>
                  <div>
                   <h4 className="font-semibold">Previous Doctor (if changed in last 6 months)</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-                    <DetailItem label="Name" value={client.previousDoctorName} />
-                    <DetailItem label="Phone" value={client.previousDoctorPhone} />
-                    <DetailItem label="Hospital" value={client.previousDoctorHospital} />
+                    <DetailItem label="Name" value={(client as any).previousDoctorName} />
+                    <DetailItem label="Phone" value={(client as any).previousDoctorPhone} />
+                    <DetailItem label="Hospital" value={(client as any).previousDoctorHospital} />
                   </div>
                 </div>
               </CardContent>
