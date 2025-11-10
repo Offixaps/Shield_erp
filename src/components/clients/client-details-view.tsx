@@ -299,6 +299,7 @@ export default function ClientDetailsView({
         setBmiStatus({ text: 'Obesity', color: 'bg-red-500' });
       }
     } else {
+      setBmi(null);
       setBmiStatus(null);
     }
   }, [client?.bmi]);
@@ -309,15 +310,15 @@ export default function ClientDetailsView({
       client.mandateVerificationTimestamp
     ) {
       const verificationTime = new Date(client.mandateVerificationTimestamp).getTime();
-      const sixtyMinutesInMillis = 60 * 60 * 1000;
+      const sixtySecondsInMillis = 60 * 1000;
       const currentTime = new Date().getTime();
 
-      if (currentTime - verificationTime > sixtyMinutesInMillis) {
-        // If 60 minutes have passed, update the status
+      if (currentTime - verificationTime > sixtySecondsInMillis) {
+        // If 60 seconds have passed, update the status
         handleOnboardingStatusUpdate('Policy Issued');
       } else {
         // Otherwise, set a timeout to re-check and update
-        const timeRemaining = sixtyMinutesInMillis - (currentTime - verificationTime);
+        const timeRemaining = sixtySecondsInMillis - (currentTime - verificationTime);
         const timer = setTimeout(() => {
           handleOnboardingStatusUpdate('Policy Issued');
         }, timeRemaining);
