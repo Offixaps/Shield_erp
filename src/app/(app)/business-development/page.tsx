@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -32,25 +33,25 @@ export default function BusinessDevelopmentPage() {
     {
       key: 'totalClients',
       title: 'Total Clients',
-      value: dashboardStats.totalClients,
+      value: dashboardStats.totalClients.toLocaleString(),
       change: '+2.5%',
     },
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected',
-      value: `GHS${(dashboardStats.premiumsCollected / 1000).toFixed(1)}k`,
+      value: `GHS${dashboardStats.premiumsCollected.toLocaleString()}`,
       change: '+10.2%',
     },
     {
       key: 'newBusiness',
       title: 'New Business',
-      value: `GHS${(dashboardStats.newBusiness / 1000).toFixed(1)}k`,
+      value: `GHS${dashboardStats.newBusiness.toLocaleString()}`,
       change: '+5% this month',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `GHS${(dashboardStats.outstandingPremiums / 1000).toFixed(1)}k`,
+      value: `GHS${dashboardStats.outstandingPremiums.toLocaleString()}`,
       change: '-3.1%',
     },
   ];

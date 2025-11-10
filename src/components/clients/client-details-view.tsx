@@ -450,8 +450,8 @@ export default function ClientDetailsView({
   const summaryDetails = [
     { title: 'Policy Number', value: client.policy || 'Pending Acceptance' },
     { title: 'Contract Type', value: client.product },
-    { title: 'Premium', value: `GHS ${client.premium.toFixed(2)}` },
-    { title: 'Sum Assured', value: `GHS ${client.sumAssured.toFixed(2)}` },
+    { title: 'Premium', value: `GHS ${client.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+    { title: 'Sum Assured', value: `GHS ${client.sumAssured.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
     {
       title: 'Commencement Date',
       value: client.commencementDate
@@ -711,9 +711,9 @@ export default function ClientDetailsView({
                   label="Employer Address"
                   value={client.employerAddress}
                 />
-                <DetailItem label="Monthly Basic Income (GHS)" value={client.monthlyBasicIncome?.toFixed(2)} />
-                <DetailItem label="Other Income (GHS)" value={client.otherIncome?.toFixed(2)} />
-                <DetailItem label="Total Monthly Income (GHS)" value={client.totalMonthlyIncome?.toFixed(2)} />
+                <DetailItem label="Monthly Basic Income (GHS)" value={client.monthlyBasicIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                <DetailItem label="Other Income (GHS)" value={client.otherIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                <DetailItem label="Total Monthly Income (GHS)" value={client.totalMonthlyIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
               </CardContent>
             </Card>
 
@@ -732,7 +732,7 @@ export default function ClientDetailsView({
                     <DetailItem label="Account Type" value={client.accountType} />
                     <DetailItem label="Bank Account Name" value={client.bankAccountName} />
                     <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
-                    <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toFixed(2)}`} />
+                    <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
                     <DetailItem label="Amount in Words" value={client.amountInWords} />
                     <DetailItem label="Premium Deduction Frequency" value={client.paymentFrequency} />
                 </CardContent>

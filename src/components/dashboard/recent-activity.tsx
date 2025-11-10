@@ -47,7 +47,7 @@ export default function RecentActivity() {
                   {activity.policy}
                 </TableCell>
                 <TableCell className="text-right">
-                  GHS{activity.amount.toFixed(2)}
+                  GHS{activity.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell className="text-right">
                   <Badge
@@ -71,5 +71,3 @@ export default function RecentActivity() {
     </Card>
   );
 }
-
-    

@@ -129,12 +129,12 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
   return (
     <div className="space-y-6">
        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <StatCard title="Total Premiums Paid" value={`GHS ${totalPaid.toFixed(2)}`} />
-            <StatCard title="Outstanding Premium" value={`GHS ${totalOutstanding.toFixed(2)}`} />
-            <StatCard title="Initial Premium" value={`GHS ${initialPremium.toFixed(2)}`} />
-            <StatCard title="Current Premium" value={`GHS ${client.premium.toFixed(2)}`} />
-            <StatCard title="Initial Sum Assured" value={`GHS ${(client.initialSumAssured || client.sumAssured).toFixed(2)}`} />
-            <StatCard title="Current Sum Assured" value={`GHS ${client.sumAssured.toFixed(2)}`} />
+            <StatCard title="Total Premiums Paid" value={`GHS ${totalPaid.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+            <StatCard title="Outstanding Premium" value={`GHS ${totalOutstanding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+            <StatCard title="Initial Premium" value={`GHS ${initialPremium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+            <StatCard title="Current Premium" value={`GHS ${client.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+            <StatCard title="Initial Sum Assured" value={`GHS ${(client.initialSumAssured || client.sumAssured).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+            <StatCard title="Current Sum Assured" value={`GHS ${client.sumAssured.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
        </div>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -166,13 +166,13 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
                     <TableCell>{transaction.description}</TableCell>
                     <TableCell>{transaction.method ? getMethodDisplayName(transaction.method) : 'N/A'}</TableCell>
                     <TableCell className="text-right font-mono">
-                      {transaction.debit > 0 ? transaction.debit.toFixed(2) : '-'}
+                      {transaction.debit > 0 ? transaction.debit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}
                     </TableCell>
                     <TableCell className="text-right font-mono text-green-600">
-                      {transaction.credit > 0 ? transaction.credit.toFixed(2) : '-'}
+                      {transaction.credit > 0 ? transaction.credit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'}
                     </TableCell>
                     <TableCell className={cn("text-right font-semibold font-mono", getBalanceColor(transaction.balance))}>
-                      {transaction.balance.toFixed(2)}
+                      {transaction.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -180,9 +180,9 @@ export default function PaymentHistoryTab({ client }: PaymentHistoryTabProps) {
               <TableFooter>
                   <TableRow>
                       <TableCell colSpan={4} className="font-bold">Totals</TableCell>
-                      <TableCell className="text-right font-bold font-mono">{totalDebit.toFixed(2)}</TableCell>
-                      <TableCell className="text-right font-bold font-mono text-green-600">{totalCredit.toFixed(2)}</TableCell>
-                      <TableCell className={cn("text-right font-extrabold font-mono", getBalanceColor(finalBalance))}>{finalBalance.toFixed(2)}</TableCell>
+                      <TableCell className="text-right font-bold font-mono">{totalDebit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                      <TableCell className="text-right font-bold font-mono text-green-600">{totalCredit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                      <TableCell className={cn("text-right font-extrabold font-mono", getBalanceColor(finalBalance))}>{finalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                   </TableRow>
               </TableFooter>
             </Table>

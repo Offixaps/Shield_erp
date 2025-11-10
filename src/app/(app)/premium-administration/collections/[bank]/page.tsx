@@ -231,9 +231,9 @@ export default function BankPoliciesPage() {
                             </Link>
                         </TableCell>
                         <TableCell>{policy.payerName}</TableCell>
-                        <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
+                        <TableCell>GHS{policy.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                          <TableCell className={cn(policy.arrears > 0 && 'text-destructive font-semibold')}>
-                           GHS{policy.arrears.toFixed(2)}
+                           GHS{policy.arrears.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                          </TableCell>
                         <TableCell>
                            <Badge

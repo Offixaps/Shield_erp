@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -27,25 +28,25 @@ export default function PremiumAdministrationPage() {
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected (Month)',
-      value: `GHS${(dashboardStats.premiumsCollected / 1000).toFixed(1)}k`,
+      value: `GHS${dashboardStats.premiumsCollected.toLocaleString()}`,
       change: '+8.1% from last month',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `GHS${(dashboardStats.outstandingPremiums / 1000).toFixed(1)}k`,
+      value: `GHS${dashboardStats.outstandingPremiums.toLocaleString()}`,
       change: '-2.5% from last month',
     },
     {
       key: 'reconciledPayments',
       title: 'Reconciled Payments',
-      value: '1,830',
+      value: (1830).toLocaleString(),
       change: '+150 this week',
     },
     {
       key: 'pendingReconciliation',
       title: 'Pending Reconciliation',
-      value: '215',
+      value: (215).toLocaleString(),
       change: '+20 new',
     },
   ];

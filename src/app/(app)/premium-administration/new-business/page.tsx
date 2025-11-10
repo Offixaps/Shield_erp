@@ -127,7 +127,7 @@ export default function NewBusinessPage() {
                         {business.product}
                     </TableCell>
                     <TableCell>
-                        GHS{business.premium.toFixed(2)}
+                        GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </TableCell>
                     <TableCell>
                         {format(new Date(business.commencementDate), 'PPP')}

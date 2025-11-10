@@ -140,7 +140,7 @@ export default function NewBusinessTable() {
                     </TableCell>
                     <TableCell>{business.phone}</TableCell>
                     <TableCell>{business.product}</TableCell>
-                    <TableCell>GHS{business.premium.toFixed(2)}</TableCell>
+                    <TableCell>GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                     <TableCell>
                     {format(new Date(business.commencementDate), 'PPP')}
                     </TableCell>
