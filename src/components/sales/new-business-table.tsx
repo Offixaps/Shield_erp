@@ -118,7 +118,7 @@ export default function NewBusinessTable() {
                 <TableHead>Premium</TableHead>
                 <TableHead>Commencement Date</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                {!isAllPoliciesPage && <TableHead className="text-right">Actions</TableHead>}
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -151,26 +151,28 @@ export default function NewBusinessTable() {
                         {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
                     </Badge>
                     </TableCell>
-                    <TableCell className="text-right">
-                    {isUnderwritingNewBusiness ? (
-                        <Button asChild size="sm" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-                        <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
-                            Process
-                        </Link>
-                        </Button>
-                    ) : (
-                        <div className="flex items-center justify-end gap-2">
-                        <Button variant="ghost" size="icon" asChild>
-                            <Link
-                            href={`/business-development/sales/${business.id}/edit`}
-                            >
-                            <FilePenLine className="h-4 w-4" />
+                    {!isAllPoliciesPage && (
+                        <TableCell className="text-right">
+                        {isUnderwritingNewBusiness ? (
+                            <Button asChild size="sm" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                            <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
+                                Process
                             </Link>
-                        </Button>
-                        <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
-                        </div>
+                            </Button>
+                        ) : (
+                            <div className="flex items-center justify-end gap-2">
+                            <Button variant="ghost" size="icon" asChild>
+                                <Link
+                                href={`/business-development/sales/${business.id}/edit`}
+                                >
+                                <FilePenLine className="h-4 w-4" />
+                                </Link>
+                            </Button>
+                            <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
+                            </div>
+                        )}
+                        </TableCell>
                     )}
-                    </TableCell>
                 </TableRow>
                 ))}
             </TableBody>
