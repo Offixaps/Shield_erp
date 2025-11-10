@@ -3,11 +3,11 @@
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
-import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse } from 'date-fns';
+import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter } from 'date-fns';
 
 const LOCAL_STORAGE_KEY = 'shield-erp-policies';
 const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 11; // Increment this version to force a data migration
+const CURRENT_DATA_VERSION = 12; // Increment this version to force a data migration
 
 // Helper function to get policies from localStorage
 function getPoliciesFromStorage(): NewBusiness[] {
@@ -106,7 +106,7 @@ export function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'
             let user = 'System';
             if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
                 user = 'Underwriting';
-            } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed'].includes(updates.onboardingStatus)) {
+            } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed', 'Policy Issued'].includes(updates.onboardingStatus)) {
                 user = 'Premium Admin';
             }
 
@@ -172,6 +172,7 @@ export function createPolicy(values: any): NewBusiness {
         policyStatus: 'Inactive',
         vettingNotes: undefined,
         mandateReworkNotes: undefined,
+        mandateVerificationTimestamp: undefined,
         occupation: values.occupation,
         natureOfBusiness: values.natureOfBusiness,
         employer: values.employer,
@@ -342,36 +343,46 @@ export function billAllActivePolicies(): number {
     const currentMonthBillingDate = startOfMonth(today);
 
     policies.forEach(policy => {
-        if (policy.policyStatus === 'Active') {
-            const hasBeenBilledThisMonth = policy.bills.some(bill => {
-                const billDate = new Date(bill.dueDate);
-                return billDate.getFullYear() === currentMonthBillingDate.getFullYear() &&
-                       billDate.getMonth() === currentMonthBillingDate.getMonth();
+        // Condition 1: Policy must be active
+        if (policy.policyStatus !== 'Active') {
+            return;
+        }
+
+        // Condition 2: Commencement date must be in the current month or a past month
+        const commencementDate = startOfDay(new Date(policy.commencementDate));
+        if (isAfter(commencementDate, today)) {
+            return; // Don't bill if commencement date is in the future
+        }
+
+        // Condition 3: Policy must not have been billed for the current month already
+        const hasBeenBilledThisMonth = policy.bills.some(bill => {
+            const billDate = new Date(bill.dueDate);
+            return billDate.getFullYear() === currentMonthBillingDate.getFullYear() &&
+                   billDate.getMonth() === currentMonthBillingDate.getMonth();
+        });
+
+        if (!hasBeenBilledThisMonth) {
+            const newBillId = (policy.bills.length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
+            const newBill: Bill = {
+                id: newBillId,
+                policyId: policy.id,
+                amount: policy.premium,
+                dueDate: format(currentMonthBillingDate, 'yyyy-MM-dd'),
+                status: 'Unpaid',
+                description: `${format(currentMonthBillingDate, 'MMMM yyyy')} Premium`,
+            };
+            
+            policy.bills.push(newBill);
+            policy.billingStatus = 'Outstanding';
+            
+            policy.activityLog.push({
+                date: new Date().toISOString(),
+                user: 'System',
+                action: 'Policy Billed',
+                details: `Billed GHS ${policy.premium.toFixed(2)} for ${format(currentMonthBillingDate, 'MMMM yyyy')}.`
             });
 
-            if (!hasBeenBilledThisMonth) {
-                const newBillId = (policy.bills.length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
-                const newBill: Bill = {
-                    id: newBillId,
-                    policyId: policy.id,
-                    amount: policy.premium,
-                    dueDate: format(currentMonthBillingDate, 'yyyy-MM-dd'),
-                    status: 'Unpaid',
-                    description: `${format(currentMonthBillingDate, 'MMMM yyyy')} Premium`,
-                };
-                
-                policy.bills.push(newBill);
-                policy.billingStatus = 'Outstanding';
-                
-                policy.activityLog.push({
-                    date: new Date().toISOString(),
-                    user: 'System',
-                    action: 'Policy Billed',
-                    details: `Billed GHS ${policy.premium.toFixed(2)} for ${format(currentMonthBillingDate, 'MMMM yyyy')}.`
-                });
-
-                billedCount++;
-            }
+            billedCount++;
         }
     });
 
