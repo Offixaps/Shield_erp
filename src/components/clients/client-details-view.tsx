@@ -56,6 +56,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import CollectPremiumDialog from './collect-premium-dialog';
 
 
 function DetailItem({
@@ -352,6 +353,7 @@ export default function ClientDetailsView({
   const isNTU = isFromUnderwriting && client.onboardingStatus === 'NTU';
   
   const canVerifyMandate = isFromPremiumAdmin && client.onboardingStatus === 'Pending Mandate';
+  const canCollectPremium = isFromPremiumAdmin && client.policyStatus === 'Active';
 
 
   const handleOnboardingStatusUpdate = (
@@ -511,6 +513,7 @@ export default function ClientDetailsView({
               </>
             )}
             {canVerifyMandate && <VerifyMandateDialog client={client} onUpdate={handlePolicyUpdate} />}
+            {canCollectPremium && <CollectPremiumDialog client={client} onUpdate={handlePolicyUpdate} />}
              {isNTU && (
                  <Button onClick={handleRevertNTU} variant="outline">
                     <Undo2 className="mr-2 h-4 w-4" />

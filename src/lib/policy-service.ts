@@ -288,6 +288,53 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
     return policy;
 }
 
+export function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
+    const policies = getPoliciesFromStorage();
+    const policyIndex = policies.findIndex(p => p.id === policyId);
+    if (policyIndex === -1) return undefined;
+
+    const policy = policies[policyIndex];
+    if (!policy.bills) policy.bills = [];
+    if (!policy.payments) policy.payments = [];
+    if (!policy.activityLog) policy.activityLog = [];
+    
+    const unpaidBill = policy.bills.find(b => b.status === 'Unpaid');
+
+    if (!unpaidBill) {
+        // This case can be handled differently, e.g., by creating a credit.
+        // For now, we'll return undefined if there's no bill to pay against.
+        return undefined;
+    }
+
+    const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
+    
+    const newPayment: Payment = {
+        id: newPaymentId,
+        policyId: policyId,
+        billId: unpaidBill.id,
+        ...paymentDetails
+    };
+
+    policy.payments.push(newPayment);
+    unpaidBill.status = 'Paid';
+    unpaidBill.paymentId = newPaymentId;
+    
+    // Check if there are any other unpaid bills to determine the new billing status
+    const hasOtherUnpaidBills = policy.bills.some(b => b.status === 'Unpaid');
+    policy.billingStatus = hasOtherUnpaidBills ? 'Outstanding' : 'Up to Date';
+
+    policy.activityLog.push({
+        date: new Date().toISOString(),
+        user: 'Premium Admin',
+        action: 'Premium Collected',
+        details: `Payment of GHS ${paymentDetails.amount.toFixed(2)} received via ${paymentDetails.method}.`
+    });
+
+    policies[policyIndex] = policy;
+    savePoliciesToStorage(policies);
+    return policy;
+}
+
 export function billAllActivePolicies(): number {
     const policies = getPoliciesFromStorage();
     let billedCount = 0;
