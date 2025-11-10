@@ -322,6 +322,7 @@ const formSchema = z
     accountType: z.enum(['Current', 'Savings', 'Other']),
     bankAccountName: z.string().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
+    paymentAuthoritySignature: z.string().optional(),
 
     // Beneficiaries
     primaryBeneficiaries: z.array(beneficiarySchema).optional(),
@@ -477,9 +478,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
-  const [isSignatureVerified, setIsSignatureVerified] = React.useState(false);
-  const [verificationCode, setVerificationCode] = React.useState('');
-  const [isCodeSent, setIsCodeSent] = React.useState(false);
+
+  const [isLifeInsuredSignatureVerified, setIsLifeInsuredSignatureVerified] = React.useState(false);
+  const [lifeInsuredVerificationCode, setLifeInsuredVerificationCode] = React.useState('');
+  const [isLifeInsuredCodeSent, setIsLifeInsuredCodeSent] = React.useState(false);
+
+  const [isPayerSignatureVerified, setIsPayerSignatureVerified] = React.useState(false);
+  const [payerVerificationCode, setPayerVerificationCode] = React.useState('');
+  const [isPayerCodeSent, setIsPayerCodeSent] = React.useState(false);
 
   
   const isEditMode = !!businessId;
@@ -586,6 +592,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           weight: businessData.weight,
           lifeInsuredSignature: data.lifeInsuredSignature || '',
           policyOwnerSignature: data.policyOwnerSignature || '',
+          paymentAuthoritySignature: data.paymentAuthoritySignature || '',
           postalAddress: data.postalAddress,
           currentDoctorName: data.currentDoctorName || '',
           currentDoctorPhone: data.currentDoctorPhone || '',
@@ -837,6 +844,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       travelOutsideCountryDetails: [],
       lifeInsuredSignature: '',
       policyOwnerSignature: '',
+      paymentAuthoritySignature: '',
       agentName: '',
       agentCode: '',
       uplineName: '',
@@ -913,6 +921,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const travelOutsideCountry = form.watch('travelOutsideCountry');
   const lifeInsuredSignature = form.watch('lifeInsuredSignature');
   const policyOwnerSignature = form.watch('policyOwnerSignature');
+  const paymentAuthoritySignature = form.watch('paymentAuthoritySignature');
 
 
   React.useEffect(() => {
@@ -1024,20 +1033,26 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         description: "The policy owner's signature has been captured.",
     });
   };
+
+  const handleSavePaymentAuthoritySignature = (dataUrl: string) => {
+    form.setValue('paymentAuthoritySignature', dataUrl);
+    toast({
+        title: "Signature Saved",
+        description: "The payment authority signature has been captured.",
+    });
+  };
   
-  const handleSendCode = () => {
-    // Placeholder function
-    setIsCodeSent(true);
+  const handleSendLifeInsuredCode = () => {
+    setIsLifeInsuredCodeSent(true);
     toast({
       title: "Verification Code Sent",
       description: `A verification code has been sent to ${form.getValues('email')}. (This is a simulation).`,
     });
   };
   
-  const handleVerifyCode = () => {
-    // Placeholder function
-    if (verificationCode === "123456") { // Simulate correct code
-      setIsSignatureVerified(true);
+  const handleVerifyLifeInsuredCode = () => {
+    if (lifeInsuredVerificationCode === "123456") {
+      setIsLifeInsuredSignatureVerified(true);
       toast({
         title: "Identity Verified",
         description: "Your signature has been successfully verified.",
@@ -1051,8 +1066,33 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
+  const handleSendPayerCode = () => {
+    setIsPayerCodeSent(true);
+    toast({
+      title: "Verification Code Sent",
+      description: `A verification code has been sent to the premium payer's contact. (This is a simulation).`,
+    });
+  };
+
+  const handleVerifyPayerCode = () => {
+    if (payerVerificationCode === "123456") {
+      setIsPayerSignatureVerified(true);
+      toast({
+        title: "Identity Verified",
+        description: "The premium payer's signature has been successfully verified.",
+      });
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Invalid Code",
+        description: "The verification code is incorrect. Please try again.",
+      });
+    }
+  };
+
+
   const processSubmit = (values: z.infer<typeof formSchema>, redirectPath?: string) => {
-     if (!values.lifeInsuredSignature || (!isEditMode && !isSignatureVerified)) {
+     if (!values.lifeInsuredSignature || (!isEditMode && !isLifeInsuredSignatureVerified)) {
         toast({
             variant: "destructive",
             title: "Submission Error",
@@ -1068,6 +1108,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             description: "The Policy Owner must also sign the declaration.",
         });
         setActiveTab('declaration');
+        return Promise.reject();
+    }
+     if (!values.paymentAuthoritySignature || (!isEditMode && !isPayerSignatureVerified)) {
+        toast({
+            variant: "destructive",
+            title: "Submission Error",
+            description: "Please ensure the Premium Payer has signed and verified their identity for the mandate.",
+        });
+        setActiveTab('payment-details');
         return Promise.reject();
     }
     try {
@@ -2074,7 +2123,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <FormItem>
                             <FormLabel>Name of Agent</FormLabel>
                             <FormControl>
-                            <Input placeholder="e.g., Jane Doe" {...field} />
+                            <Input placeholder="e.g., Jane Doe" {...field} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -2087,7 +2136,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <FormItem>
                             <FormLabel>Code</FormLabel>
                             <FormControl>
-                            <Input placeholder="e.g., A1234" {...field} />
+                            <Input placeholder="e.g., A1234" {...field} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -2102,7 +2151,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <FormItem>
                             <FormLabel>Name of Upline</FormLabel>
                             <FormControl>
-                            <Input placeholder="e.g., John Smith" {...field} />
+                            <Input placeholder="e.g., John Smith" {...field} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -2115,7 +2164,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <FormItem>
                             <FormLabel>Upline Code</FormLabel>
                             <FormControl>
-                            <Input placeholder="e.g., U5678" {...field} />
+                            <Input placeholder="e.g., U5678" {...field} value={field.value ?? ''} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -2129,7 +2178,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     <FormItem>
                         <FormLabel>Introducer's Code</FormLabel>
                         <FormControl>
-                        <Input placeholder="e.g., I9101" {...field} />
+                        <Input placeholder="e.g., I9101" {...field} value={field.value ?? ''} />
                         </FormControl>
                         <FormMessage />
                     </FormItem>
@@ -3463,7 +3512,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Name of doctor</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3474,7 +3523,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Telephone Number</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3485,7 +3534,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Hospital & Address</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3499,7 +3548,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Name of previous doctor</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3510,7 +3559,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Telephone number</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3521,7 +3570,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Hospital & Address</FormLabel>
-                                    <FormControl><Input {...field} /></FormControl>
+                                    <FormControl><Input {...field} value={field.value ?? ''} /></FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -3644,27 +3693,27 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         <div className="space-y-4 pt-4">
                             <Separator />
                             <h4 className="font-bold">Identity Verification</h4>
-                            {!isSignatureVerified ? (
+                            {!isLifeInsuredSignatureVerified ? (
                                 <div className="p-4 border rounded-md bg-muted/50 space-y-4">
                                     <p className="text-sm text-muted-foreground">To verify your signature, a confirmation code will be sent to your email address on file. Please click the button below to receive your code.</p>
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <Button type="button" onClick={handleSendCode} disabled={isCodeSent}>
+                                        <Button type="button" onClick={handleSendLifeInsuredCode} disabled={isLifeInsuredCodeSent}>
                                             <Send className="mr-2" />
-                                            {isCodeSent ? 'Code Sent' : 'Send Verification Code'}
+                                            {isLifeInsuredCodeSent ? 'Code Sent' : 'Send Verification Code'}
                                         </Button>
-                                        {isCodeSent && (
+                                        {isLifeInsuredCodeSent && (
                                             <div className="flex items-center gap-2">
                                                 <Input 
                                                     placeholder="Enter 6-digit code" 
-                                                    value={verificationCode}
-                                                    onChange={(e) => setVerificationCode(e.target.value)}
+                                                    value={lifeInsuredVerificationCode}
+                                                    onChange={(e) => setLifeInsuredVerificationCode(e.target.value)}
                                                     maxLength={6}
                                                 />
-                                                <Button type="button" onClick={handleVerifyCode}>Verify</Button>
+                                                <Button type="button" onClick={handleVerifyLifeInsuredCode}>Verify</Button>
                                             </div>
                                         )}
                                     </div>
-                                    {isCodeSent && <FormDescription>For this demo, please use the code: <strong>123456</strong></FormDescription>}
+                                    {isLifeInsuredCodeSent && <FormDescription>For this demo, please use the code: <strong>123456</strong></FormDescription>}
                                 </div>
                             ) : (
                                 <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500/50">
@@ -3711,7 +3760,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                             <div className="space-y-0.5">
                                 <FormLabel className="text-base">
-                                Will you be paying for this policy by yourself?
+                                Will the Life Insured also be the Premium Payer?
                                 </FormLabel>
                                 <FormDescription>
                                 If not, you will be required to provide the details of the person paying for the policy.
@@ -3740,7 +3789,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Surname</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Doe" {...field} />
+                                        <Input placeholder="Doe" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3753,7 +3802,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Other Names</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Jane" {...field} />
+                                        <Input placeholder="Jane" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3766,7 +3815,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Occupation</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g., Teacher" {...field} />
+                                        <Input placeholder="e.g., Teacher" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3779,7 +3828,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Relationship to Insured</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g., Spouse, Parent" {...field} />
+                                        <Input placeholder="e.g., Spouse, Parent" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3792,7 +3841,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Residential Address</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="123 Payer Lane" {...field} />
+                                        <Input placeholder="123 Payer Lane" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3805,7 +3854,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Postal Address</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="P.O. Box 123" {...field} />
+                                        <Input placeholder="P.O. Box 123" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3862,7 +3911,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                     <FormItem>
                                     <FormLabel>Business Name (if applicable)</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="e.g., Payer Corp" {...field} />
+                                        <Input placeholder="e.g., Payer Corp" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                     </FormItem>
@@ -3900,7 +3949,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                 <FormItem>
                                     <FormLabel>ID Number</FormLabel>
                                     <FormControl>
-                                    <Input placeholder="e.g., GHA-123456789-0" {...field} />
+                                    <Input placeholder="e.g., GHA-123456789-0" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -3913,7 +3962,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                 <FormItem>
                                     <FormLabel>Place of Issue</FormLabel>
                                     <FormControl>
-                                    <Input placeholder="e.g., Accra" {...field} />
+                                    <Input placeholder="e.g., Accra" {...field} value={field.value ?? ''} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -4151,6 +4200,50 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                       )}
                     />
                 </div>
+
+                <div className="space-y-4 pt-6">
+                    <Separator />
+                    <h4 className="font-bold">Payment Authorization Signature</h4>
+                    <p className="text-sm text-muted-foreground">The premium payer must sign here to authorize premium deductions.</p>
+                    <SignaturePadComponent onSave={handleSavePaymentAuthoritySignature} initialUrl={paymentAuthoritySignature} />
+                    {paymentAuthoritySignature && (
+                    <div className="space-y-4 pt-4">
+                        <Separator />
+                        <h4 className="font-bold">Identity Verification</h4>
+                        {!isPayerSignatureVerified ? (
+                            <div className="p-4 border rounded-md bg-muted/50 space-y-4">
+                                <p className="text-sm text-muted-foreground">To verify the payer's signature, a confirmation code will be sent to their contact number. Please click the button below to receive the code.</p>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <Button type="button" onClick={handleSendPayerCode} disabled={isPayerCodeSent}>
+                                        <Send className="mr-2" />
+                                        {isPayerCodeSent ? 'Code Sent' : 'Send Verification Code'}
+                                    </Button>
+                                    {isPayerCodeSent && (
+                                        <div className="flex items-center gap-2">
+                                            <Input 
+                                                placeholder="Enter 6-digit code" 
+                                                value={payerVerificationCode}
+                                                onChange={(e) => setPayerVerificationCode(e.target.value)}
+                                                maxLength={6}
+                                            />
+                                            <Button type="button" onClick={handleVerifyPayerCode}>Verify</Button>
+                                        </div>
+                                    )}
+                                </div>
+                                {isPayerCodeSent && <FormDescription>For this demo, please use the code: <strong>123456</strong></FormDescription>}
+                            </div>
+                        ) : (
+                            <Alert variant="default" className="bg-green-100 dark:bg-green-900/30 border-green-500/50">
+                                <ShieldCheck className="h-4 w-4 text-green-600" />
+                                <AlertTitle className="text-green-700 dark:text-green-400">Signature Verified</AlertTitle>
+                                <AlertDescription className="text-green-700 dark:text-green-500">
+                                    The payer's identity has been confirmed.
+                                </AlertDescription>
+                            </Alert>
+                        )}
+                    </div>
+                )}
+                </div>
              </div>
           </TabsContent>
 
@@ -4173,7 +4266,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         {isEditMode ? 'Save & Next' : 'Next'}
                     </Button>
                 ) : (
-                     <Button type="submit" disabled={!isEditMode && !isSignatureVerified}>
+                     <Button type="submit" disabled={!isEditMode && !isLifeInsuredSignatureVerified}>
                         {isEditMode ? 'Update Application' : 'Submit Application'}
                     </Button>
                 )}

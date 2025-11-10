@@ -152,8 +152,8 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
 
                         <div className="grid grid-cols-2 gap-x-8 pt-10">
                              <DetailRow label="Signature">
-                                {(client as any).lifeInsuredSignature && (
-                                    <Image src={(client as any).lifeInsuredSignature} alt="Life Insured Signature" fill style={{ objectFit: 'contain', objectPosition: 'left bottom' }} />
+                                {(client as any).paymentAuthoritySignature && (
+                                    <Image src={(client as any).paymentAuthoritySignature} alt="Payment Authority Signature" fill style={{ objectFit: 'contain', objectPosition: 'left bottom' }} />
                                 )}
                             </DetailRow>
                             <DetailRow label="Date" value={client.commencementDate ? format(new Date(client.commencementDate), 'PPP') : ''} />

@@ -1,6 +1,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -265,6 +266,7 @@ export type NewBusiness = {
   accountType: 'Current' | 'Savings' | 'Other';
   bankAccountName: string;
   amountInWords: string;
+  paymentAuthoritySignature?: string;
   // Beneficiaries
   primaryBeneficiaries: Beneficiary[];
   contingentBeneficiaries: Beneficiary[];
