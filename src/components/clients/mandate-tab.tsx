@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -27,17 +28,18 @@ function SectionHeader({ title }: { title: string }) {
 }
 
 export default function MandateTab({ client }: { client: NewBusiness }) {
-    
-    // This is a placeholder since this data is not in the model
     const clientDetails = {
         surname: client.payerName.split(' ').slice(-1).join(' '),
         firstName: client.payerName.split(' ').slice(0, -1).join(' '),
         middleName: '',
-        postalAddress: '123 Main St, Accra',
-        emailAddress: 'j.doe@example.com',
-        amountInWords: 'One Hundred and Fifty Ghana Cedis',
-        accountType: 'Current',
-    }
+        postalAddress: (client as any).postalAddress || 'N/A',
+        emailAddress: (client as any).email || 'N/A',
+        amountInWords: (client as any).amountInWords || 'N/A',
+        accountType: (client as any).accountType || 'N/A',
+        paymentFrequency: (client as any).paymentFrequency || 'N/A',
+        bankBranch: (client as any).bankBranch || 'N/A',
+        bankAccountName: (client as any).bankAccountName || 'N/A',
+    };
 
     return (
         <Card className="max-w-4xl mx-auto font-serif">
@@ -88,9 +90,9 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
                              <DetailRow label="Amount in Words" value={clientDetails.amountInWords} />
                              <div>
                                 <span className="text-xs uppercase text-gray-500 tracking-wider">Premium Deduction Frequency</span>
-                                 <RadioGroup value="Monthly" className="flex gap-6 pt-2">
+                                 <RadioGroup value={clientDetails.paymentFrequency} className="flex gap-6 pt-2">
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="Monthly" id="r-monthly" checked={true} />
+                                        <RadioGroupItem value="Monthly" id="r-monthly" checked={clientDetails.paymentFrequency === 'Monthly'} disabled />
                                         <Label htmlFor="r-monthly" className="font-normal">Monthly</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
@@ -113,27 +115,27 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
                         <div className="space-y-4">
                             <DetailRow label="Name of Bank" value={client.bankName} />
                             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-                                <DetailRow label="Branch" value={"Accra Main"} />
+                                <DetailRow label="Branch" value={clientDetails.bankBranch} />
                                 <DetailRow label="Sort Code" value={client.sortCode} />
                             </div>
                             <div>
                                 <span className="text-xs uppercase text-gray-500 tracking-wider">Type of Account</span>
                                  <RadioGroup value={clientDetails.accountType} className="flex gap-6 pt-2">
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="Current" id="r-current" checked={clientDetails.accountType === 'Current'} />
+                                        <RadioGroupItem value="Current" id="r-current" checked={clientDetails.accountType === 'Current'} disabled />
                                         <Label htmlFor="r-current" className="font-normal">Current</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="Savings" id="r-savings" checked={clientDetails.accountType === 'Savings'} />
+                                        <RadioGroupItem value="Savings" id="r-savings" checked={clientDetails.accountType === 'Savings'} disabled />
                                         <Label htmlFor="r-savings" className="font-normal">Savings</Label>
                                     </div>
                                      <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="Others" id="r-others" checked={clientDetails.accountType === 'Others'} />
+                                        <RadioGroupItem value="Others" id="r-others" checked={clientDetails.accountType === 'Others'} disabled />
                                         <Label htmlFor="r-others" className="font-normal">Others</Label>
                                     </div>
                                 </RadioGroup>
                             </div>
-                            <DetailRow label="Bank Account Name" value={client.payerName} />
+                            <DetailRow label="Bank Account Name" value={clientDetails.bankAccountName} />
                             <DetailRow label="Bank Account Number" value={client.bankAccountNumber} />
                             <DetailRow label="Phone Number" value={client.phone} />
                         </div>
