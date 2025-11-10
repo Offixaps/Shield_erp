@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -297,7 +296,7 @@ const formSchema = z
     employer: z.string().min(2, 'Employer is required.'),
     employerAddress: z.string().min(5, 'Employer address is required.'),
     monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.'),
-    otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.'),
+    otherIncome: zcoerce.number().min(0, 'Other income cannot be negative.'),
     totalMonthlyIncome: z.coerce.number().optional(),
 
     // Payment Details
@@ -972,24 +971,60 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 } else if (currentPolicy.onboardingStatus === 'Mandate Rework Required') {
                     newStatus = 'Pending Mandate';
                 }
+                
+                const combinedMedicalHistory = [
+                    ...(values.bloodTransfusionOrSurgeryDetails || []),
+                    ...(values.highBloodPressureDetails || []),
+                    ...(values.cancerDetails || []),
+                    ...(values.diabetesDetails || []),
+                    ...(values.colitisCrohnsDetails || []),
+                    ...(values.paralysisEpilepsyDetails || []),
+                    ...(values.mentalIllnessDetails || []),
+                    ...(values.arthritisDetails || []),
+                    ...(values.chestPainDetails || []),
+                    ...(values.asthmaDetails || []),
+                    ...(values.digestiveDisorderDetails || []),
+                    ...(values.bloodDisorderDetails || []),
+                    ...(values.thyroidDisorderDetails || []),
+                    ...(values.kidneyDisorderDetails || []),
+                    ...(values.numbnessDetails || []),
+                    ...(values.anxietyStressDetails || []),
+                    ...(values.earEyeDisorderDetails || []),
+                    ...(values.lumpGrowthDetails || []),
+                    ...(values.hospitalAttendanceDetails || []),
+                    ...(values.criticalIllnessDetails || []),
+                    ...(values.stiDetails || []),
+                    ...(values.presentSymptomsDetails || []),
+                ];
+
+                const combinedLifestyleDetails = [
+                    ...(values.flownAsPilotDetails || []),
+                    ...(values.hazardousSportsDetails || []),
+                    ...(values.travelOutsideCountryDetails || []),
+                ];
 
                 updatePolicy(policyId, {
+                    ...values,
                     client: lifeAssuredName,
                     product: values.contractType,
                     premium: values.premiumAmount,
-                    sumAssured: values.sumAssured,
                     commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
-                    phone: values.phone,
                     onboardingStatus: newStatus,
-                    policyTerm: values.policyTerm,
-                    premiumTerm: values.premiumTerm,
-                    placeOfBirth: values.placeOfBirth,
                     payerName: finalPayerName,
-                    bankName: values.bankName,
-                    bankAccountNumber: values.bankAccountNumber,
-                    sortCode: values.sortCode,
                     vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
                     mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
+                    primaryBeneficiaries: (values.primaryBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+                    contingentBeneficiaries: (values.contingentBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+                    medicalHistory: combinedMedicalHistory,
+                    familyMedicalHistory: values.familyMedicalHistory,
+                    familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
+                    lifestyleDetails: combinedLifestyleDetails,
+                    height: values.height,
+                    weight: values.weight,
+                    heightUnit: values.heightUnit,
+                    alcoholHabits: values.alcoholHabits,
+                    tobaccoHabits: values.tobaccoHabits,
+                    bmi: bmi || undefined,
                 });
                 
                 toast({
@@ -3246,7 +3281,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                                         <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
                                             <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                        </RadioGroup>
+                                          </RadioGroup>
                                     </FormControl>
                                 </div>
                                 <FormMessage />
@@ -3970,7 +4005,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                  <Button type="button" variant="outline" onClick={() => handleTabChange('prev')}>
                     Previous
                 </Button>
-            ) : <div />}
+            ) :  <div />}
            
             {activeTab !== 'declaration' && !isLastTab ? (
                  <Button type="button" onClick={() => handleTabChange('next')}>
@@ -3994,70 +4029,3 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
-
-
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
