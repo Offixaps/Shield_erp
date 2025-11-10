@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/popover';
 import { CalendarIcon, Plus, Trash2, Info, Send, ShieldCheck } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
+import { cn, numberToWords } from '@/lib/utils';
 import { format } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { countries } from '@/lib/countries';
@@ -507,7 +507,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         };
 
         const getMedicalDetailsFor = (illness: string) => {
-            return (data.medicalHistory || []).filter((h: any) => h.illness === illness).map((h: any) => ({ ...h, date: new Date(h.date) }));
+            return (data.medicalHistory || []).filter((h:any) => h.illness === illness).map((h: any) => ({ ...h, date: new Date(h.date) }));
         }
 
         const getLifestyleDetailsFor = (item: string) => {
@@ -936,6 +936,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       setBmiStatus(null);
     }
   }, [height, heightUnit, weight]);
+  
+  React.useEffect(() => {
+    const amount = form.getValues('premiumAmount');
+    if (amount && Number(amount) > 0) {
+        const words = numberToWords(Number(amount));
+        form.setValue('amountInWords', `${words} Ghana Cedis`);
+    } else {
+        form.setValue('amountInWords', '');
+    }
+  }, [premiumAmount, form]);
 
   const handleTabChange = (direction: 'next' | 'prev') => {
     const currentIndex = tabSequence.indexOf(activeTab);
@@ -3972,7 +3982,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         <FormItem>
                           <FormLabel>Amount in Words</FormLabel>
                           <FormControl>
-                            <Input placeholder="e.g., Five Hundred Ghana Cedis" {...field} />
+                            <Input placeholder="e.g., Five Hundred Ghana Cedis" {...field} disabled />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
