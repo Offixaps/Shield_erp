@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -26,6 +25,8 @@ import * as XLSX from 'xlsx';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 
+type PolicyWithArrears = NewBusiness & { arrears: number };
+
 export default function BankPoliciesPage() {
   const params = useParams();
   const { toast } = useToast();
@@ -36,18 +37,24 @@ export default function BankPoliciesPage() {
     return typeof bank === 'string' ? decodeURIComponent(bank) : '';
   }, [params.bank]);
 
-  const [allPolicies, setAllPolicies] = React.useState<NewBusiness[]>([]);
-  const [filteredPolicies, setFilteredPolicies] = React.useState<NewBusiness[]>([]);
+  const [allPolicies, setAllPolicies] = React.useState<PolicyWithArrears[]>([]);
+  const [filteredPolicies, setFilteredPolicies] = React.useState<PolicyWithArrears[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const refreshPolicies = React.useCallback(() => {
       if (bankName) {
-        const allPolicies = getPolicies();
-        const filtered = allPolicies.filter(
+        const allPoliciesFromService = getPolicies();
+        const filteredFromService = allPoliciesFromService.filter(
             (p) => p.policyStatus === 'Active' && p.bankName === bankName
         );
-        setAllPolicies(filtered);
-        setFilteredPolicies(filtered);
+        const policiesWithArrears: PolicyWithArrears[] = filteredFromService.map(policy => {
+            const arrears = (policy.bills || [])
+                .filter(bill => bill.status === 'Unpaid')
+                .reduce((sum, bill) => sum + bill.amount, 0);
+            return { ...policy, arrears };
+        });
+        setAllPolicies(policiesWithArrears);
+        setFilteredPolicies(policiesWithArrears);
       }
   }, [bankName]);
 
@@ -208,6 +215,7 @@ export default function BankPoliciesPage() {
                     <TableHead>Policy number</TableHead>
                     <TableHead>Payer Name</TableHead>
                     <TableHead>Premium Amount</TableHead>
+                    <TableHead>Arrears</TableHead>
                     <TableHead>Billing Status</TableHead>
                     <TableHead>Bank Account Number</TableHead>
                     <TableHead>Sort Code</TableHead>
@@ -224,6 +232,9 @@ export default function BankPoliciesPage() {
                         </TableCell>
                         <TableCell>{policy.payerName}</TableCell>
                         <TableCell>GHS{policy.premium.toFixed(2)}</TableCell>
+                         <TableCell className={cn(policy.arrears > 0 && 'text-destructive font-semibold')}>
+                           GHS{policy.arrears.toFixed(2)}
+                         </TableCell>
                         <TableCell>
                            <Badge
                                 className={cn(
