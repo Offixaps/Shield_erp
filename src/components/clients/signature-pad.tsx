@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -19,15 +20,18 @@ export default function SignaturePadComponent({ onSave, initialUrl }: SignatureP
   React.useEffect(() => {
     if (initialUrl) {
       setDataURL(initialUrl);
+      if (sigPad.current) {
+        // Need to make sure the canvas is cleared before loading new data
+        // to avoid ghosting if the new data is smaller.
+        sigPad.current.clear();
+        sigPad.current.fromDataURL(initialUrl);
+      }
+    } else {
+        // If there's no initial URL, clear the canvas and state
+        sigPad.current?.clear();
+        setDataURL(null);
     }
   }, [initialUrl]);
-  
-  React.useEffect(() => {
-    if (sigPad.current && initialUrl) {
-      sigPad.current.fromDataURL(initialUrl);
-    }
-  }, [initialUrl]);
-
 
   const handleDrawEnd = () => {
     if (sigPad.current && !sigPad.current.isEmpty()) {
@@ -39,7 +43,6 @@ export default function SignaturePadComponent({ onSave, initialUrl }: SignatureP
     sigPad.current?.clear();
     setDataURL(null);
     setIsSigned(false);
-    onSave('');
   };
 
   const save = () => {
