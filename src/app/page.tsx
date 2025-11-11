@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -28,10 +29,17 @@ export default function HomePage() {
             <div className="flex justify-center">
               <div className="relative h-16 w-48">
                 <Image
-                    src="/Shield app logo.svg"
+                    src="/logo - light.svg"
                     alt="SHIELD ERP Logo"
                     fill
-                    className="object-contain"
+                    className="object-contain dark:hidden"
+                    priority
+                />
+                 <Image
+                    src="/logo - dark.svg"
+                    alt="SHIELD ERP Logo"
+                    fill
+                    className="object-contain hidden dark:block"
                     priority
                 />
               </div>
