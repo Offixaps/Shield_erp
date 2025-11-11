@@ -17,8 +17,8 @@ import {
 } from '@/components/ui/tabs';
 import { Handshake, Smartphone, CircleStop, Banknote, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { billAllActivePolicies, applyAnnualIncreases } from '@/lib/policy-service';
-import { format } from 'date-fns';
+import { getPolicies, billAllActivePolicies, applyAnnualIncreases } from '@/lib/policy-service';
+import { format, isAfter, startOfDay, getYear, differenceInYears, isBefore } from 'date-fns';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +30,7 @@ import {
   AlertDialogFooter,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 const bankBrandData = [
     { name: 'Absa Bank Ghana Limited', logo: '/logos/banks/absa.svg', color: '#E60000', textColor: '#FFFFFF' },
@@ -64,27 +65,82 @@ const nonBankCollectionData = [
 ];
 
 export default function CollectionsPage() {
+    const { toast } = useToast();
     const [selectedNonBankFilter, setSelectedNonBankFilter] = React.useState<string | null>(null);
-    const [resultDialogOpen, setResultDialogOpen] = React.useState(false);
-    const [resultDialogContent, setResultDialogContent] = React.useState({ title: '', description: '' });
+    const [eligibleForBillingCount, setEligibleForBillingCount] = React.useState(0);
+    const [eligibleForIncreaseCount, setEligibleForIncreaseCount] = React.useState(0);
+
+     const calculateEligibleForBilling = () => {
+        const policies = getPolicies();
+        const today = new Date();
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        let count = 0;
+
+        policies.forEach(policy => {
+            if (policy.policyStatus !== 'Active') return;
+            
+            const commencementDate = new Date(policy.commencementDate);
+            if (isAfter(commencementDate, today)) return;
+
+            const hasBeenBilledThisMonth = (policy.bills || []).some(bill => {
+                const billDate = new Date(bill.dueDate);
+                return billDate.getFullYear() === currentYear && billDate.getMonth() === currentMonth;
+            });
+
+            if (!hasBeenBilledThisMonth) {
+                count++;
+            }
+        });
+        setEligibleForBillingCount(count);
+    };
+
+    const calculateEligibleForIncrease = () => {
+        const policies = getPolicies();
+        const today = startOfDay(new Date());
+        const currentYear = getYear(today);
+        let count = 0;
+
+        policies.forEach(policy => {
+            if (policy.policyStatus !== 'Active') return;
+
+            const commencementDate = startOfDay(new Date(policy.commencementDate));
+            const policyAgeInYears = differenceInYears(today, commencementDate);
+
+            if (policyAgeInYears >= 10) return;
+            
+            const anniversaryThisYear = new Date(commencementDate);
+            anniversaryThisYear.setFullYear(currentYear);
+
+            if (isBefore(anniversaryThisYear, today) || anniversaryThisYear.getTime() === today.getTime()) {
+                const alreadyIncreasedThisYear = (policy.activityLog || []).some(log => 
+                    log.action === 'API/ABI Applied' && getYear(new Date(log.date)) === currentYear
+                );
+                if (!alreadyIncreasedThisYear) {
+                    count++;
+                }
+            }
+        });
+        setEligibleForIncreaseCount(count);
+    };
+
 
     const handleConfirmBillAll = () => {
         try {
             const count = billAllActivePolicies();
             const currentMonth = format(new Date(), 'MMMM yyyy');
-            setResultDialogContent({
+             toast({
                 title: 'Billing Process Complete',
                 description: `${count} active policies have been billed for ${currentMonth}.`,
             });
-            setResultDialogOpen(true);
         } catch (error) {
             console.error("Failed to bill active policies:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-            setResultDialogContent({
+             toast({
+                variant: 'destructive',
                 title: 'Billing Failed',
                 description: errorMessage,
             });
-            setResultDialogOpen(true);
         }
     };
     
@@ -92,25 +148,24 @@ export default function CollectionsPage() {
         try {
             const count = applyAnnualIncreases();
             if (count > 0) {
-                 setResultDialogContent({
+                 toast({
                     title: 'Process Complete',
                     description: `Annual premium and benefit increases (API/ABI) have been applied to ${count} eligible active policies.`,
                 });
             } else {
-                setResultDialogContent({
+                toast({
                     title: 'Process Complete',
                     description: 'No policies were eligible for an annual increase at this time.',
                 });
             }
-            setResultDialogOpen(true);
         } catch (error) {
             console.error("Failed to apply annual increases:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-            setResultDialogContent({
+            toast({
+                variant: 'destructive',
                 title: 'API/ABI Process Failed',
                 description: errorMessage,
             });
-            setResultDialogOpen(true);
         }
     };
 
@@ -124,7 +179,7 @@ export default function CollectionsPage() {
         <div className="flex flex-wrap gap-2">
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="outline">
+                <Button variant="outline" onClick={calculateEligibleForIncrease}>
                     <TrendingUp className="mr-2 h-4 w-4" />
                     Apply Annual Increases
                 </Button>
@@ -133,7 +188,7 @@ export default function CollectionsPage() {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Confirm Annual Increases</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Are you sure you want to apply the annual premium and benefit increases (API/ABI) to all eligible active policies? This action cannot be undone.
+                    You are about to apply annual premium and benefit increases (API/ABI) to <strong>{eligibleForIncreaseCount} eligible active policies</strong>. This action cannot be undone. Are you sure you want to continue?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -144,21 +199,21 @@ export default function CollectionsPage() {
             </AlertDialog>
             <AlertDialog>
                 <AlertDialogTrigger asChild>
-                    <Button>
+                    <Button onClick={calculateEligibleForBilling}>
                         <Banknote className="mr-2 h-4 w-4" />
                         Bill All Active Policies
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm Billing</AlertDialogTitle>
+                        <AlertDialogTitle>Confirm Bulk Billing</AlertDialogTitle>
                         <AlertDialogDescription>
-                           Are you sure you want to bill all active policies for the current month? This will generate a new unpaid bill for each eligible policy.
+                           You are about to generate a new bill for <strong>{eligibleForBillingCount} eligible active policies</strong> for the current month. This action will mark their billing status as 'Outstanding'. Do you want to proceed?
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleConfirmBillAll}>Confirm</AlertDialogAction>
+                        <AlertDialogAction onClick={handleConfirmBillAll}>Confirm & Bill</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
@@ -222,21 +277,6 @@ export default function CollectionsPage() {
             </div>
         </TabsContent>
       </Tabs>
-      
-      {/* Result Dialog */}
-      <AlertDialog open={resultDialogOpen} onOpenChange={setResultDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{resultDialogContent.title}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {resultDialogContent.description}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setResultDialogOpen(false)}>OK</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
