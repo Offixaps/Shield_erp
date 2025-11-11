@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -53,6 +52,7 @@ import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import LifestyleDetailTable from './lifestyle-detail-table';
 import SignaturePadComponent from './signature-pad';
+import ExistingPoliciesTable from './existing-policies-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -117,6 +117,16 @@ const beneficiarySchema = z.object({
     telephone: z.string().optional(),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
     isIrrevocable: z.boolean().optional().default(false),
+});
+
+const existingPolicySchema = z.object({
+  companyName: z.string().min(1, "Company name is required."),
+  personCovered: z.string().min(1, "Name of person covered is required."),
+  policyType: z.string().min(1, "Type of policy is required."),
+  issueDate: z.date({ required_error: 'Issue date is required.' }),
+  premiumAmount: z.coerce.number().positive(),
+  faceAmount: z.coerce.number().positive(),
+  changedGrpOrInd: z.enum(['yes', 'no'], { required_error: "This field is required."}),
 });
 
 const alcoholHabitsOptions = [
@@ -327,6 +337,10 @@ const formSchema = z
     // Beneficiaries
     primaryBeneficiaries: z.array(beneficiarySchema).optional(),
     contingentBeneficiaries: z.array(beneficiarySchema).optional(),
+    
+    // Existing Policies
+    hasExistingPolicies: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    existingPoliciesDetails: z.array(existingPolicySchema).optional(),
     
     // Health
     height: z.coerce.number().positive('Height must be a positive number.').optional(),
@@ -616,6 +630,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           premiumPayerIssueDate: parseDate(data.premiumPayerIssueDate),
           premiumPayerExpiryDate: parseDate(data.premiumPayerExpiryDate),
           premiumPayerPlaceOfIssue: data.premiumPayerPlaceOfIssue || '',
+          
+          hasExistingPolicies: (data.existingPoliciesDetails && data.existingPoliciesDetails.length > 0) ? 'yes' : 'no',
+          existingPoliciesDetails: parseMedicalDetails(data.existingPoliciesDetails),
 
           alcoholHabits: businessData.alcoholHabits,
           alcoholBeer: data.alcoholBeer,
@@ -761,6 +778,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       isPolicyHolderPayer: true,
       primaryBeneficiaries: [],
       contingentBeneficiaries: [],
+      hasExistingPolicies: 'no' as const,
+      existingPoliciesDetails: [],
       height: 0,
       heightUnit: 'cm' as const,
       weight: 0,
@@ -923,6 +942,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const lifeInsuredSignature = form.watch('lifeInsuredSignature');
   const policyOwnerSignature = form.watch('policyOwnerSignature');
   const paymentAuthoritySignature = form.watch('paymentAuthoritySignature');
+  const hasExistingPolicies = form.watch('hasExistingPolicies');
 
 
   React.useEffect(() => {
@@ -1170,6 +1190,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             commencementDate: format(values.commencementDate, 'yyyy-MM-dd'),
             primaryBeneficiaries: (values.primaryBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
             contingentBeneficiaries: (values.contingentBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
+            existingPoliciesDetails: (values.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: format(p.issueDate, 'yyyy-MM-dd') })),
             medicalHistory: combinedMedicalHistory,
             familyMedicalHistory: values.familyMedicalHistory,
             familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
@@ -2464,15 +2485,29 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <Separator className="my-0" />
             </div>
             <div className="p-4 space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Please provide details of any other applications for life, disability, critical illness or dread disease cover which you have made or which you are in the process of making.
-              </p>
-              {/* You can add a table component here to list existing policies */}
-               <Card>
-                <CardContent className="pt-6">
-                  <p className="text-muted-foreground">A table for adding and listing existing policies will be implemented here.</p>
-                </CardContent>
-              </Card>
+              <FormField
+                control={form.control}
+                name="hasExistingPolicies"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col rounded-lg border p-4">
+                    <div className="flex flex-row items-center justify-between">
+                      <FormLabel className="max-w-[80%]">Do you have an existing Life Insurance policy with any Insurance Company in Ghana?</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                          <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                          <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                    {hasExistingPolicies === 'yes' && (
+                        <div className="pt-4">
+                            <ExistingPoliciesTable form={form} fieldName="existingPoliciesDetails" />
+                        </div>
+                    )}
+                  </FormItem>
+                )}
+              />
             </div>
           </TabsContent>
 
