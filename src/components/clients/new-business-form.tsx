@@ -2196,17 +2196,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     <p className="mt-2">If you select an <strong>AN IRREVOCABLE BENEFICIARY (IB)</strong>, add a photocopy of a passport or driver's license as an ID.</p>
                 </AlertDescription>
             </Alert>
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                         <CardTitle>Primary Beneficiaries</CardTitle>
-                         <Button type="button" size="sm" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0, isIrrevocable: false })}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Primary
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Primary Beneficiaries</h3>
+                    <Button type="button" size="sm" variant="secondary" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0, isIrrevocable: false })}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Primary
+                    </Button>
+                </div>
+                <Separator className="my-0" />
+                <div className="p-4 rounded-b-md border border-t-0">
                     <div className="rounded-md border">
                         <Table>
                             <TableHeader>
@@ -2331,20 +2330,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </TableBody>
                         </Table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <CardTitle>Contingent Beneficiaries</CardTitle>
-                        <Button type="button" size="sm" onClick={() => appendContingent({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0 })}>
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Contingent
-                        </Button>
-                    </div>
-                </CardHeader>
-                <CardContent>
+            <div className="space-y-4">
+                 <div className="flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Contingent Beneficiaries</h3>
+                    <Button type="button" size="sm" variant="secondary" onClick={() => appendContingent({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0 })}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Contingent
+                    </Button>
+                </div>
+                <Separator className="my-0" />
+                <div className="p-4 rounded-b-md border border-t-0">
                      <div className="rounded-md border">
                         <Table>
                             <TableHeader>
@@ -2452,8 +2450,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             </TableBody>
                         </Table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="health" className="mt-6 space-y-6">
