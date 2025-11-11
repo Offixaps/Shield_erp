@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -250,7 +251,7 @@ const lifestyleDetailSchema = z.object({
 });
 
 
-const formSchema = z
+export const newBusinessFormSchema = z
   .object({
     // Client Details
     title: z.enum(['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon']),
@@ -890,8 +891,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     };
   }, [isEditMode, businessId]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof newBusinessFormSchema>>({
+    resolver: zodResolver(newBusinessFormSchema),
     defaultValues: defaultValues as any,
   });
   
@@ -1125,7 +1126,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
 
-  const processSubmit = (values: z.infer<typeof formSchema>, redirectPath?: string) => {
+  const processSubmit = (values: z.infer<typeof newBusinessFormSchema>, redirectPath?: string) => {
      if (!values.lifeInsuredSignature || (!isEditMode && !isLifeInsuredSignatureVerified)) {
         toast({
             variant: "destructive",
@@ -1290,7 +1291,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
      }
   };
   
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof newBusinessFormSchema>) => {
     processSubmit(values, '/business-development/sales');
   }
 

@@ -1,9 +1,11 @@
+
 import PageHeader from '@/components/page-header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Plus, Upload } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import NewBusinessTable from '@/components/sales/new-business-table';
+import BulkBusinessDialog from '@/components/sales/bulk-business-dialog';
 
 export default function SalesPage() {
   return (
@@ -17,10 +19,7 @@ export default function SalesPage() {
               New Business
             </Button>
           </Link>
-          <Button variant="outline">
-            <Upload className="mr-2 h-4 w-4" />
-            Bulk Business
-          </Button>
+          <BulkBusinessDialog />
         </div>
       </div>
       <Card>
