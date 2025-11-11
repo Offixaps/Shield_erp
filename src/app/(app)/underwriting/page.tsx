@@ -1,12 +1,20 @@
+
+'use client';
+
+import * as React from 'react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import { FileClock, FileCheck, FileX, Clock } from 'lucide-react';
 import PageHeader from '@/components/page-header';
-import RecentActivity from '@/components/dashboard/recent-activity';
+import NewBusinessTable from '@/components/sales/new-business-table';
+import { getPolicies } from '@/lib/policy-service';
+import type { NewBusiness } from '@/lib/data';
+import { differenceInDays, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 
 const iconMap = {
   pending: FileClock,
@@ -15,31 +23,99 @@ const iconMap = {
   turnaround: Clock,
 };
 
+type UnderwritingStats = {
+    pending: number;
+    approvedMonth: number;
+    declinedMonth: number;
+    avgTurnaroundTime: string;
+};
+
 export default function UnderwritingPage() {
-  const stats = [
+  const [stats, setStats] = React.useState<UnderwritingStats>({
+    pending: 0,
+    approvedMonth: 0,
+    declinedMonth: 0,
+    avgTurnaroundTime: 'N/A',
+  });
+  const [pendingPolicies, setPendingPolicies] = React.useState<NewBusiness[]>([]);
+
+
+  React.useEffect(() => {
+    const policies = getPolicies();
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+    
+    const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision'];
+    const pending = policies.filter(p => pendingStatuses.includes(p.onboardingStatus)).length;
+    setPendingPolicies(policies.filter(p => pendingStatuses.includes(p.onboardingStatus)));
+
+    let approvedMonth = 0;
+    let declinedMonth = 0;
+    const turnaroundTimes: number[] = [];
+
+    policies.forEach(policy => {
+      const acceptedLog = policy.activityLog.find(log => log.action === 'Status changed to Accepted');
+      const declinedLog = policy.activityLog.find(log => log.action === 'Status changed to Declined');
+      const creationLog = policy.activityLog.find(log => log.action === 'Policy Created');
+
+      if (acceptedLog) {
+        const acceptedDate = new Date(acceptedLog.date);
+        if (isWithinInterval(acceptedDate, { start: monthStart, end: monthEnd })) {
+          approvedMonth++;
+        }
+        if (creationLog) {
+            turnaroundTimes.push(differenceInDays(acceptedDate, new Date(creationLog.date)));
+        }
+      }
+
+      if (declinedLog) {
+        const declinedDate = new Date(declinedLog.date);
+        if (isWithinInterval(declinedDate, { start: monthStart, end: monthEnd })) {
+          declinedMonth++;
+        }
+        if (creationLog) {
+            turnaroundTimes.push(differenceInDays(declinedDate, new Date(creationLog.date)));
+        }
+      }
+    });
+    
+    const avgTurnaroundTime = turnaroundTimes.length > 0
+      ? (turnaroundTimes.reduce((a, b) => a + b, 0) / turnaroundTimes.length).toFixed(1) + ' days'
+      : 'N/A';
+
+    setStats({
+      pending,
+      approvedMonth,
+      declinedMonth,
+      avgTurnaroundTime,
+    });
+  }, []);
+
+  const statsCards = [
     {
       key: 'pending',
       title: 'Applications Pending',
-      value: '78',
-      change: '+5 from yesterday',
+      value: stats.pending.toString(),
+      change: 'Awaiting underwriting action',
     },
     {
       key: 'approved',
       title: 'Applications Approved (Month)',
-      value: '345',
-      change: '+12% from last month',
+      value: stats.approvedMonth.toString(),
+      change: 'Policies accepted this month',
     },
     {
       key: 'declined',
       title: 'Applications Declined (Month)',
-      value: '32',
-      change: '-5% from last month',
+      value: stats.declinedMonth.toString(),
+      change: 'Policies declined this month',
     },
     {
       key: 'turnaround',
       title: 'Avg. Turnaround Time',
-      value: '2.5 days',
-      change: 'Improving',
+      value: stats.avgTurnaroundTime,
+      change: 'From creation to decision',
     },
   ];
 
@@ -47,7 +123,7 @@ export default function UnderwritingPage() {
     <div className="flex flex-col gap-6">
       <PageHeader title="Underwriting Dashboard" />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
+        {statsCards.map((stat) => {
           const Icon = iconMap[stat.key as keyof typeof iconMap];
           return (
             <Card key={stat.title}>
@@ -68,11 +144,12 @@ export default function UnderwritingPage() {
        <Card>
         <CardHeader>
           <CardTitle>Pending Applications</CardTitle>
+           <CardDescription>
+            A table of applications awaiting underwriting review.
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            A table of applications awaiting underwriting review will be displayed here.
-          </p>
+          <NewBusinessTable />
         </CardContent>
       </Card>
     </div>
