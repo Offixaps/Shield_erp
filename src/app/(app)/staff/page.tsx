@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import DeleteStaffDialog from '@/components/staff/delete-staff-dialog';
+import { cn } from '@/lib/utils';
 
 export default function StaffPage() {
   const [view, setView] = React.useState<'list' | 'grid'>('grid');
@@ -128,7 +129,7 @@ export default function StaffPage() {
                             <TableCell>{staff.email}</TableCell>
                             <TableCell>{staff.phone}</TableCell>
                             <TableCell>
-                                <Badge className={getRoleBadgeColor(staff.role)}>{staff.role}</Badge>
+                                <Badge className={cn('w-44 justify-center truncate', getRoleBadgeColor(staff.role))}>{staff.role}</Badge>
                             </TableCell>
                             <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
