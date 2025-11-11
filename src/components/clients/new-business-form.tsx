@@ -447,6 +447,7 @@ type NewBusinessFormProps = {
 const tabSequence = [
     'coverage',
     'beneficiaries',
+    'existing-policies',
     'health',
     'lifestyle',
     'declaration',
@@ -1267,9 +1268,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             <TabsTrigger value="coverage">Coverage</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
+            <TabsTrigger value="existing-policies">Existing Policies</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
             <TabsTrigger value="declaration">Declaration</TabsTrigger>
@@ -2451,6 +2453,26 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </Table>
                     </div>
                 </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="existing-policies" className="mt-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
+                Existing Policies & Applications
+              </h3>
+              <Separator className="my-0" />
+            </div>
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Please provide details of any other applications for life, disability, critical illness or dread disease cover which you have made or which you are in the process of making.
+              </p>
+              {/* You can add a table component here to list existing policies */}
+               <Card>
+                <CardContent className="pt-6">
+                  <p className="text-muted-foreground">A table for adding and listing existing policies will be implemented here.</p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
