@@ -97,10 +97,11 @@ function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiari
     if (!beneficiaries || beneficiaries.length === 0) {
         return (
              <Card>
-                <CardHeader>
-                    <CardTitle>{title}</CardTitle>
+                <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                    <h3 className="font-medium uppercase text-sidebar-foreground">{title}</h3>
                 </CardHeader>
-                <CardContent>
+                <Separator />
+                <CardContent className="pt-6">
                     <p className="text-muted-foreground">No {title.toLowerCase()} found.</p>
                 </CardContent>
             </Card>
@@ -109,10 +110,11 @@ function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiari
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                <h3 className="font-medium uppercase text-sidebar-foreground">{title}</h3>
             </CardHeader>
-            <CardContent>
+            <Separator />
+            <CardContent className="pt-6">
                 <div className="rounded-md border">
                     <Table>
                         <TableHeader>
