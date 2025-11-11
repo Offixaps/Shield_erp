@@ -65,6 +65,7 @@ export default function NewBusinessPage() {
         case 'vetting completed':
             return 'bg-blue-500/80';
         case 'accepted':
+        case 'policy issued':
             return 'bg-green-500/80';
         case 'ntu':
         case 'deferred':

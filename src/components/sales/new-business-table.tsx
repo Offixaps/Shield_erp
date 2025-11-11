@@ -79,10 +79,10 @@ export default function NewBusinessTable() {
         case 'mandate verified':
         case 'first premium confirmed':
         case 'medicals completed':
-        case 'policy issued':
             return 'bg-blue-500/80';
         case 'accepted':
         case 'active':
+        case 'policy issued':
             return 'bg-green-500/80';
         case 'ntu':
         case 'deferred':
