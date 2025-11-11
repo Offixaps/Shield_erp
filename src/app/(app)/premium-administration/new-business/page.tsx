@@ -30,7 +30,7 @@ export default function NewBusinessPage() {
     const [searchTerm, setSearchTerm] = React.useState('');
 
     React.useEffect(() => {
-        const policies = getPolicies();
+        const policies = getPolicies().filter(p => p.onboardingStatus !== 'Policy Issued');
         setAllBusinessList(policies);
         setFilteredBusinessList(policies);
     }, []);
@@ -49,7 +49,7 @@ export default function NewBusinessPage() {
 
 
     const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
-        const updatedList = allBusinessList.map(p => p.id === updatedPolicy.id ? updatedPolicy : p)
+        const updatedList = allBusinessList.map(p => p.id === updatedPolicy.id ? updatedPolicy : p).filter(p => p.onboardingStatus !== 'Policy Issued');
         setAllBusinessList(updatedList);
         setFilteredBusinessList(updatedList);
     };

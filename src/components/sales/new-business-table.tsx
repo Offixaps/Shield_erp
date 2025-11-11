@@ -42,6 +42,8 @@ export default function NewBusinessTable() {
     if (isAllPoliciesPage) {
       const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
       policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
+    } else {
+      policies = policies.filter(p => p.onboardingStatus !== 'Policy Issued');
     }
     setAllData(policies);
     setFilteredData(policies);
