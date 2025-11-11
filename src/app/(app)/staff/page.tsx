@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Plus, List, Grid, Edit, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { getStaff } from '@/lib/staff-service';
+import { getStaff, deleteStaffMember } from '@/lib/staff-service';
 import type { StaffMember } from '@/lib/data';
 import {
   Table,
@@ -20,6 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import DeleteStaffDialog from '@/components/staff/delete-staff-dialog';
 
 export default function StaffPage() {
   const [view, setView] = React.useState<'list' | 'grid'>('grid');
@@ -31,6 +32,12 @@ export default function StaffPage() {
   React.useEffect(() => {
     setStaffList(getStaff());
   }, []);
+
+  const handleDelete = (id: number) => {
+    if (deleteStaffMember(id)) {
+      setStaffList(getStaff());
+    }
+  };
 
   const getRoleBadgeColor = (role: string) => {
     switch (role.toLowerCase()) {
@@ -86,12 +93,16 @@ export default function StaffPage() {
                 <p className="text-sm text-muted-foreground mt-2">{staff.phone}</p>
               </CardContent>
               <div className="flex justify-center p-4 border-t">
-                  <Button variant="ghost" size="sm" className="w-full justify-center">
-                    <Edit className="mr-2 h-4 w-4" /> Edit
+                  <Button variant="ghost" size="sm" className="w-full justify-center" asChild>
+                    <Link href={`/staff/${staff.id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" /> Edit
+                    </Link>
                   </Button>
+                  <DeleteStaffDialog onConfirm={() => handleDelete(staff.id)}>
                    <Button variant="ghost" size="sm" className="w-full justify-center text-destructive hover:text-destructive">
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
+                  </DeleteStaffDialog>
               </div>
             </Card>
           ))}
@@ -120,12 +131,16 @@ export default function StaffPage() {
                                 <Badge className={getRoleBadgeColor(staff.role)}>{staff.role}</Badge>
                             </TableCell>
                             <TableCell className="text-right">
-                                <Button variant="ghost" size="icon">
-                                    <Edit className="h-4 w-4" />
+                                <Button variant="ghost" size="icon" asChild>
+                                    <Link href={`/staff/${staff.id}/edit`}>
+                                        <Edit className="h-4 w-4" />
+                                    </Link>
                                 </Button>
-                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
+                                <DeleteStaffDialog onConfirm={() => handleDelete(staff.id)}>
+                                    <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </DeleteStaffDialog>
                             </TableCell>
                             </TableRow>
                         ))}

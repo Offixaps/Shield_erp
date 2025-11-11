@@ -58,3 +58,34 @@ export function createStaffMember(values: z.infer<typeof newStaffFormSchema>): S
     saveStaffToStorage(updatedStaff);
     return newStaffMember;
 }
+
+export function updateStaff(id: number, values: z.infer<typeof newStaffFormSchema>): StaffMember | undefined {
+    const staff = getStaffFromStorage();
+    const staffIndex = staff.findIndex(s => s.id === id);
+    if (staffIndex !== -1) {
+        staff[staffIndex] = {
+            ...staff[staffIndex],
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            phone: values.phone,
+            role: values.role,
+        };
+        // Note: Password update logic would go here, e.g., calling an auth service.
+        // We are not storing passwords in the staff member object itself for security reasons.
+        saveStaffToStorage(staff);
+        return staff[staffIndex];
+    }
+    return undefined;
+}
+
+export function deleteStaffMember(id: number): boolean {
+    let staff = getStaffFromStorage();
+    const initialLength = staff.length;
+    staff = staff.filter(s => s.id !== id);
+    if (staff.length < initialLength) {
+        saveStaffToStorage(staff);
+        return true;
+    }
+    return false;
+}

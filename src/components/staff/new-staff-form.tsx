@@ -29,8 +29,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
-import { createStaffMember } from '@/lib/staff-service';
-
+import { createStaffMember, getStaffById, updateStaff } from '@/lib/staff-service';
 
 export const newStaffFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
@@ -40,14 +39,19 @@ export const newStaffFormSchema = z.object({
   role: z.string({ required_error: 'Please select a role.' }),
   profileImage: z.any().optional(),
   sendWelcomeEmail: z.boolean().default(false),
-  password: z.string().min(8, 'Password must be at least 8 characters.'),
+  password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
 });
 
-export default function NewStaffForm() {
+type NewStaffFormProps = {
+  staffId?: string;
+};
+
+export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [showPassword, setShowPassword] = React.useState(false);
   const [roles, setRoles] = React.useState<Role[]>([]);
+  const isEditMode = !!staffId;
 
   React.useEffect(() => {
     setRoles(getRoles());
@@ -65,6 +69,18 @@ export default function NewStaffForm() {
       password: '',
     },
   });
+  
+  React.useEffect(() => {
+    if (isEditMode && staffId) {
+      const staffData = getStaffById(parseInt(staffId, 10));
+      if (staffData) {
+        form.reset({
+          ...staffData,
+          password: '',
+        });
+      }
+    }
+  }, [isEditMode, staffId, form]);
 
   const generatePassword = () => {
     const length = 12;
@@ -81,12 +97,25 @@ export default function NewStaffForm() {
   };
   
   function onSubmit(values: z.infer<typeof newStaffFormSchema>) {
-    createStaffMember(values);
-    toast({
-      title: 'Staff Member Added',
-      description: `${values.firstName} ${values.lastName} has been added to the system.`,
-    });
+    if (isEditMode && staffId) {
+      updateStaff(parseInt(staffId, 10), values);
+      toast({
+        title: 'Staff Member Updated',
+        description: `${values.firstName} ${values.lastName}'s details have been updated.`,
+      });
+    } else {
+        if (!values.password) {
+            form.setError('password', { message: 'Password is required for new staff members.' });
+            return;
+        }
+      createStaffMember(values);
+      toast({
+        title: 'Staff Member Added',
+        description: `${values.firstName} ${values.lastName} has been added to the system.`,
+      });
+    }
     router.push('/staff');
+    router.refresh();
   }
 
   return (
@@ -194,7 +223,7 @@ export default function NewStaffForm() {
                     <FormLabel>Password</FormLabel>
                     <div className="flex items-center gap-2">
                         <FormControl>
-                            <Input type={showPassword ? 'text' : 'password'} placeholder="Enter a strong password" {...field} />
+                            <Input type={showPassword ? 'text' : 'password'} placeholder={isEditMode ? "Enter new password to change" : "Enter a strong password"} {...field} />
                         </FormControl>
                         <Button type="button" variant="ghost" size="icon" onClick={() => setShowPassword(!showPassword)}>
                            {showPassword ? <EyeOff /> : <Eye />}
@@ -205,7 +234,7 @@ export default function NewStaffForm() {
                             Generate
                         </Button>
                     </div>
-                     <FormDescription>The user will use this password to log in.</FormDescription>
+                     <FormDescription>{isEditMode ? "Leave blank to keep the current password." : "The user will use this password to log in."}</FormDescription>
                     <FormMessage />
                 </FormItem>
             )}
@@ -220,6 +249,7 @@ export default function NewStaffForm() {
                 <Checkbox
                   checked={field.value}
                   onCheckedChange={field.onChange}
+                  disabled={isEditMode}
                 />
               </FormControl>
               <div className="space-y-1 leading-none">
@@ -227,14 +257,14 @@ export default function NewStaffForm() {
                   Send Welcome Email
                 </FormLabel>
                 <FormDescription>
-                  If checked, the new staff member will receive an email with their login credentials.
+                  If checked, the new staff member will receive an email with their login credentials. (Disabled on edit)
                 </FormDescription>
               </div>
             </FormItem>
           )}
         />
         
-        <Button type="submit">Add Staff Member</Button>
+        <Button type="submit">{isEditMode ? 'Update Staff Member' : 'Add Staff Member'}</Button>
       </form>
     </Form>
   );
