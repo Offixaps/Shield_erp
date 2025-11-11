@@ -75,7 +75,9 @@ export default function NewBusinessTable() {
       case 'pending mandate':
       case 'pending first premium':
       case 'pending medicals':
-        return 'bg-yellow-500/80 text-black';
+      case 'pending decision':
+      case 'pending':
+        return 'bg-[#fcba03] text-black';
       case 'vetting completed':
       case 'mandate verified':
       case 'first premium confirmed':

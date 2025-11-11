@@ -280,6 +280,7 @@ export default function ClientDetailsView({
 }) {
   const { toast } = useToast();
   const [client, setClient] = React.useState<NewBusiness | null>(initialClient);
+  const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
 
   React.useEffect(() => {
@@ -416,7 +417,7 @@ export default function ClientDetailsView({
       case 'pending medicals':
       case 'pending decision':
       case 'pending':
-        return 'bg-yellow-500/80 text-black';
+        return 'bg-[#fcba03] text-black';
       case 'vetting completed':
       case 'mandate verified':
       case 'first premium confirmed':

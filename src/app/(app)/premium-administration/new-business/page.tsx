@@ -61,7 +61,7 @@ export default function NewBusinessPage() {
         case 'pending mandate':
         case 'pending first premium':
         case 'pending medicals':
-            return 'bg-yellow-500/80 text-black';
+            return 'bg-[#fcba03] text-black';
         case 'vetting completed':
         case 'mandate verified':
         case 'first premium confirmed':

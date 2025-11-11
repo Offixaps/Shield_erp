@@ -104,7 +104,7 @@ export default function MandatesPage() {
                             <Badge
                             className={cn(
                                 'w-44 justify-center truncate',
-                                'bg-yellow-500/80 text-black'
+                                'bg-[#fcba03] text-black'
                             )}
                             >
                             {business.onboardingStatus}
