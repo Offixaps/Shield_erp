@@ -1,4 +1,6 @@
+'use client';
 
+import * as React from 'react';
 import {
   Card,
   CardContent,
@@ -12,9 +14,10 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import PageHeader from '@/components/page-header';
-import { dashboardStats } from '@/lib/data';
 import PremiumsChart from '@/components/dashboard/premiums-chart';
 import RecentActivity from '@/components/dashboard/recent-activity';
+import { getPolicies } from '@/lib/policy-service';
+import { isWithinInterval, startOfMonth, endOfMonth } from 'date-fns';
 
 const iconMap = {
   premiumsCollected: Banknote,
@@ -24,30 +27,92 @@ const iconMap = {
 };
 
 export default function PremiumAdministrationPage() {
+  const [dashboardData, setDashboardData] = React.useState({
+    premiumsCollectedMonth: 0,
+    outstandingPremiums: 0,
+    reconciledPaymentsCount: 0,
+    pendingReconciliationCount: 0,
+    premiumsChartData: [],
+  });
+
+  React.useEffect(() => {
+    const policies = getPolicies();
+    const now = new Date();
+    const monthStart = startOfMonth(now);
+    const monthEnd = endOfMonth(now);
+
+    let premiumsCollectedMonth = 0;
+    let outstandingPremiums = 0;
+    let reconciledPaymentsCount = 0;
+    let pendingReconciliationCount = 0;
+    const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
+
+    policies.forEach(policy => {
+      (policy.payments || []).forEach(payment => {
+        reconciledPaymentsCount++;
+        const paymentDate = new Date(payment.paymentDate);
+        if (isWithinInterval(paymentDate, { start: monthStart, end: monthEnd })) {
+          premiumsCollectedMonth += payment.amount;
+        }
+        const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+        monthlyData[month].collected += payment.amount;
+      });
+
+      (policy.bills || []).forEach(bill => {
+        if (bill.status === 'Unpaid') {
+          outstandingPremiums += bill.amount;
+          pendingReconciliationCount++;
+          
+          const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+          if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+          monthlyData[month].outstanding += bill.amount;
+        }
+      });
+    });
+
+    const premiumsChartData = Object.entries(monthlyData)
+      .map(([month, data]) => ({
+        month: month.split(' ')[0],
+        collected: data.collected,
+        outstanding: data.outstanding
+      }))
+      .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
+      .slice(-7);
+
+    setDashboardData({
+      premiumsCollectedMonth,
+      outstandingPremiums,
+      reconciledPaymentsCount,
+      pendingReconciliationCount,
+      premiumsChartData: premiumsChartData as any,
+    });
+  }, []);
+
   const stats = [
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected (Month)',
-      value: `GHS${dashboardStats.premiumsCollected.toLocaleString()}`,
-      change: '+8.1% from last month',
+      value: `GHS ${dashboardData.premiumsCollectedMonth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: 'Current calendar month',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `GHS${dashboardStats.outstandingPremiums.toLocaleString()}`,
-      change: '-2.5% from last month',
+      value: `GHS ${dashboardData.outstandingPremiums.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: 'All unpaid bills',
     },
     {
       key: 'reconciledPayments',
       title: 'Reconciled Payments',
-      value: (1830).toLocaleString(),
-      change: '+150 this week',
+      value: dashboardData.reconciledPaymentsCount.toLocaleString(),
+      change: 'Total payments recorded',
     },
     {
       key: 'pendingReconciliation',
       title: 'Pending Reconciliation',
-      value: (215).toLocaleString(),
-      change: '+20 new',
+      value: dashboardData.pendingReconciliationCount.toLocaleString(),
+      change: 'Total unpaid bills',
     },
   ];
 
@@ -79,7 +144,7 @@ export default function PremiumAdministrationPage() {
             <CardTitle>Collections Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <PremiumsChart />
+            <PremiumsChart data={dashboardData.premiumsChartData} />
           </CardContent>
         </Card>
         <Card className="lg:col-span-3">
