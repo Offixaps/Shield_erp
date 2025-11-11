@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -37,8 +38,6 @@ export default function UnderwritingPage() {
     declinedMonth: 0,
     avgTurnaroundTime: 'N/A',
   });
-  const [pendingPolicies, setPendingPolicies] = React.useState<NewBusiness[]>([]);
-
 
   React.useEffect(() => {
     const policies = getPolicies();
@@ -46,9 +45,8 @@ export default function UnderwritingPage() {
     const monthStart = startOfMonth(now);
     const monthEnd = endOfMonth(now);
     
-    const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision'];
+    const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
     const pending = policies.filter(p => pendingStatuses.includes(p.onboardingStatus)).length;
-    setPendingPolicies(policies.filter(p => pendingStatuses.includes(p.onboardingStatus)));
 
     let approvedMonth = 0;
     let declinedMonth = 0;

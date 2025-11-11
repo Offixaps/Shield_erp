@@ -17,11 +17,18 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { FilePenLine, Search } from 'lucide-react';
+import { FilePenLine, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import DeletePolicyDialog from './delete-policy-dialog';
 import { getPolicies, deletePolicy as deletePolicyFromService } from '@/lib/policy-service';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function NewBusinessTable() {
   const pathname = usePathname();
@@ -36,17 +43,29 @@ export default function NewBusinessTable() {
   const [allData, setAllData] = React.useState<NewBusiness[]>([]);
   const [filteredData, setFilteredData] = React.useState<NewBusiness[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   React.useEffect(() => {
     let policies = getPolicies();
     if (isAllPoliciesPage) {
       const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
       policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
-    } else {
+    } else if (!pathname.includes('underwriting/page')) {
       policies = policies.filter(p => p.onboardingStatus !== 'Policy Issued');
     }
+    
+    if (pathname.startsWith('/underwriting') && !isAllPoliciesPage) {
+        const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
+        policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
+    }
+
+
     setAllData(policies);
     setFilteredData(policies);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [pathname, isAllPoliciesPage]);
 
   React.useEffect(() => {
@@ -60,6 +79,7 @@ export default function NewBusinessTable() {
       );
     });
     setFilteredData(filtered);
+    setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [searchTerm, allData]);
 
   const handleDelete = (id: number) => {
@@ -103,6 +123,11 @@ export default function NewBusinessTable() {
     }
   };
 
+  const pageCount = Math.ceil(filteredData.length / pagination.pageSize);
+  const paginatedData = filteredData.slice(
+    pagination.pageIndex * pagination.pageSize,
+    (pagination.pageIndex + 1) * pagination.pageSize
+  );
 
   return (
     <div className="space-y-4">
@@ -132,9 +157,9 @@ export default function NewBusinessTable() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {filteredData.map((business, index) => (
+                {paginatedData.map((business, index) => (
                 <TableRow key={business.id}>
-                    <TableCell>{index + 1}</TableCell>
+                    <TableCell>{pagination.pageIndex * pagination.pageSize + index + 1}</TableCell>
                     <TableCell>
                     <Link
                         href={`/business-development/clients/${business.id}?from=${from}`}
@@ -191,6 +216,59 @@ export default function NewBusinessTable() {
         {filteredData.length === 0 && (
             <p className="text-center text-muted-foreground py-4">No policies found matching your search.</p>
         )}
+
+        <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              Showing {Math.min(pagination.pageIndex * pagination.pageSize + 1, filteredData.length)} to {Math.min((pagination.pageIndex + 1) * pagination.pageSize, filteredData.length)} of{' '}
+              {filteredData.length} entries
+            </div>
+            <div className="flex items-center space-x-2">
+                <p className="text-sm font-medium">Rows per page</p>
+                <Select
+                    value={`${pagination.pageSize}`}
+                    onValueChange={(value) => {
+                    setPagination({
+                        pageIndex: 0,
+                        pageSize: Number(value),
+                    });
+                    }}
+                >
+                    <SelectTrigger className="h-8 w-[70px]">
+                    <SelectValue placeholder={pagination.pageSize} />
+                    </SelectTrigger>
+                    <SelectContent side="top">
+                    {[10, 20, 30, 40, 50].map((pageSize) => (
+                        <SelectItem key={pageSize} value={`${pageSize}`}>
+                        {pageSize}
+                        </SelectItem>
+                    ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+              Page {pagination.pageIndex + 1} of {pageCount}
+            </div>
+            <div className="flex items-center space-x-2">
+                <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
+                    disabled={pagination.pageIndex === 0}
+                >
+                    <span className="sr-only">Go to previous page</span>
+                    <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant="outline"
+                    className="h-8 w-8 p-0"
+                    onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
+                    disabled={pagination.pageIndex >= pageCount - 1}
+                >
+                    <span className="sr-only">Go to next page</span>
+                    <ChevronRight className="h-4 w-4" />
+                </Button>
+            </div>
+        </div>
     </div>
   );
 }
