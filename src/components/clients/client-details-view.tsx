@@ -31,7 +31,7 @@ import {
   Waves,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail, ExistingPolicyDetail, DeclinedPolicyDetail } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   Tabs,
@@ -270,6 +270,70 @@ function MedicalHistorySection({
   );
 }
 
+function ExistingPoliciesDisplay({ policies }: { policies: ExistingPolicyDetail[] | undefined }) {
+  if (!policies || policies.length === 0) {
+    return <p className="text-muted-foreground">No existing policies declared.</p>;
+  }
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Insurance Company</TableHead>
+            <TableHead>Person(s) Covered</TableHead>
+            <TableHead>Type of Policy</TableHead>
+            <TableHead>Date Issued</TableHead>
+            <TableHead>Premium Amount (GHS)</TableHead>
+            <TableHead>Face Amount (GHS)</TableHead>
+            <TableHead>Changed GRP/IND</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {policies.map((policy, index) => (
+            <TableRow key={index}>
+              <TableCell>{policy.companyName}</TableCell>
+              <TableCell>{policy.personCovered}</TableCell>
+              <TableCell>{policy.policyType}</TableCell>
+              <TableCell>{format(new Date(policy.issueDate), 'PPP')}</TableCell>
+              <TableCell>{policy.premiumAmount.toFixed(2)}</TableCell>
+              <TableCell>{policy.faceAmount.toFixed(2)}</TableCell>
+              <TableCell><YesNoDisplay value={policy.changedGrpOrInd} /></TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+function DeclinedPoliciesDisplay({ policies }: { policies: DeclinedPolicyDetail[] | undefined }) {
+  if (!policies || policies.length === 0) {
+    return <p className="text-muted-foreground">No previously declined policies declared.</p>;
+  }
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Insurance Company</TableHead>
+            <TableHead>Details</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {policies.map((policy, index) => (
+            <TableRow key={index}>
+              <TableCell>{policy.companyName}</TableCell>
+              <TableCell>{policy.details}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 
 export default function ClientDetailsView({
   client: initialClient,
@@ -430,7 +494,6 @@ export default function ClientDetailsView({
       case 'in force':
       case 'up to date':
       case 'first premium paid':
-      case 'paid':
       case 'policy issued':
         return 'bg-green-500/80 text-white';
       case 'ntu':
@@ -739,19 +802,23 @@ export default function ClientDetailsView({
                 </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
-                 <h3 className="font-medium uppercase text-sidebar-foreground">
-                  Underwriting
-                </h3>
-              </CardHeader>
-               <Separator />
-              <CardContent className="pt-6">
-                <p className="text-muted-foreground">
-                  Underwriting details, including risk assessments and decisions,
-                  will be displayed here.
-                </p>
-              </CardContent>
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                    <h3 className="font-medium uppercase text-sidebar-foreground">
+                    Existing Policies
+                    </h3>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-6 space-y-6">
+                    <div>
+                        <h4 className="font-semibold mb-2">Existing Life Insurance Policies</h4>
+                        <ExistingPoliciesDisplay policies={client.existingPoliciesDetails} />
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-2">Previously Declined Life Insurance Policies</h4>
+                        <DeclinedPoliciesDisplay policies={client.declinedPolicyDetails} />
+                    </div>
+                </CardContent>
             </Card>
           </div>
         </TabsContent>
