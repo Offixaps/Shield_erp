@@ -68,35 +68,36 @@ export default function NewBusinessTable() {
     }
   };
   
-  const getStatusBadgeColor = (status: string) => {
-    switch (status.toLowerCase()) {
-        case 'pending vetting':
-        case 'pending mandate':
-        case 'pending first premium':
-        case 'pending medicals':
-            return 'bg-yellow-500/80';
-        case 'vetting completed':
-        case 'mandate verified':
-        case 'first premium confirmed':
-        case 'medicals completed':
-            return 'bg-blue-500/80';
-        case 'accepted':
-        case 'active':
-        case 'policy issued':
-            return 'bg-green-500/80';
-        case 'ntu':
-        case 'deferred':
-            return 'bg-gray-500/80';
-        case 'declined':
-        case 'lapsed':
-        case 'cancelled':
-        case 'rework required':
-        case 'mandate rework required':
-            return 'bg-red-500/80';
-        default:
-            return 'bg-gray-500/80';
+  const getStatusBadgeStyling = (status: string) => {
+    const lowerCaseStatus = status.toLowerCase();
+    switch (lowerCaseStatus) {
+      case 'pending vetting':
+      case 'pending mandate':
+      case 'pending first premium':
+      case 'pending medicals':
+        return 'bg-yellow-500/80 text-black';
+      case 'vetting completed':
+      case 'mandate verified':
+      case 'first premium confirmed':
+      case 'medicals completed':
+        return 'bg-blue-500/80 text-white';
+      case 'accepted':
+      case 'active':
+      case 'policy issued':
+        return 'bg-green-500/80 text-white';
+      case 'ntu':
+      case 'deferred':
+        return 'bg-gray-500/80 text-white';
+      case 'declined':
+      case 'lapsed':
+      case 'cancelled':
+      case 'rework required':
+      case 'mandate rework required':
+        return 'bg-red-500/80 text-white';
+      default:
+        return 'bg-gray-500/80 text-white';
     }
-  }
+  };
 
 
   return (
@@ -151,7 +152,7 @@ export default function NewBusinessTable() {
                     </TableCell>
                     <TableCell>
                     <Badge
-                        className={cn('w-44 justify-center truncate', getStatusBadgeColor(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus), 'text-white')}
+                        className={cn('w-44 justify-center truncate', getStatusBadgeStyling(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus))}
                     >
                         {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
                     </Badge>

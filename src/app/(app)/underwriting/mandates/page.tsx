@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -103,8 +104,7 @@ export default function MandatesPage() {
                             <Badge
                             className={cn(
                                 'w-44 justify-center truncate',
-                                'bg-yellow-500/80',
-                                'text-white'
+                                'bg-yellow-500/80 text-black'
                             )}
                             >
                             {business.onboardingStatus}

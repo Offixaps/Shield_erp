@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -53,29 +54,31 @@ export default function NewBusinessPage() {
         setFilteredBusinessList(updatedList);
     };
 
-    const getStatusBadgeColor = (status: string) => {
-    switch (status.toLowerCase()) {
+    const getStatusBadgeStyling = (status: string) => {
+    const lowerCaseStatus = status.toLowerCase();
+    switch (lowerCaseStatus) {
+        case 'pending vetting':
         case 'pending mandate':
         case 'pending first premium':
         case 'pending medicals':
-            return 'bg-yellow-500/80';
+            return 'bg-yellow-500/80 text-black';
+        case 'vetting completed':
         case 'mandate verified':
         case 'first premium confirmed':
         case 'medicals completed':
-        case 'vetting completed':
-            return 'bg-blue-500/80';
+            return 'bg-blue-500/80 text-white';
         case 'accepted':
         case 'policy issued':
-            return 'bg-green-500/80';
+            return 'bg-green-500/80 text-white';
         case 'ntu':
         case 'deferred':
-            return 'bg-gray-500/80';
+            return 'bg-gray-500/80 text-white';
         case 'declined':
         case 'rework required':
         case 'mandate rework required':
-            return 'bg-red-500/80';
+            return 'bg-red-500/80 text-white';
         default:
-            return 'bg-gray-500/80';
+            return 'bg-gray-500/80 text-white';
     }
   }
 
@@ -137,8 +140,7 @@ export default function NewBusinessPage() {
                         <Badge
                         className={cn(
                             'w-44 justify-center truncate',
-                            getStatusBadgeColor(business.onboardingStatus),
-                            'text-white'
+                            getStatusBadgeStyling(business.onboardingStatus)
                         )}
                         >
                         {business.onboardingStatus}
