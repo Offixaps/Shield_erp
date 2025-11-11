@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { SidebarTrigger } from './ui/sidebar';
 import { Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function AppHeader() {
   const router = useRouter();
@@ -32,11 +33,11 @@ export default function AppHeader() {
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="md:hidden" />
-        <div className="hidden md:flex items-center gap-2">
+        <Link href="/business-development" className="hidden md:flex items-center gap-2">
           <SidebarTrigger />
-          <Shield className="h-6 w-6 text-primary" />
+          <Image src="/Shield app logo.svg" alt="SHIELD ERP Logo" width={24} height={24} className="h-6 w-6" />
           <h1 className="text-lg font-semibold">SHIELD ERP</h1>
-        </div>
+        </Link>
       </div>
 
       <div className="ml-auto flex items-center gap-4">

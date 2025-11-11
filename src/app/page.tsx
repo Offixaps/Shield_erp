@@ -14,7 +14,7 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-10 flex h-16 items-center border-b bg-background px-4 sm:px-6">
         <div className="flex items-center gap-2">
-          <Shield className="h-7 w-7 text-primary" />
+          <Image src="/Shield app logo.svg" alt="SHIELD ERP Logo" width={28} height={28} className="h-7 w-7" />
           <h1 className="text-xl font-bold tracking-tight text-foreground">
             SHIELD ERP
           </h1>
@@ -28,17 +28,10 @@ export default function HomePage() {
             <div className="flex justify-center">
               <div className="relative h-16 w-48">
                 <Image
-                    src="/logo - light.svg"
-                    alt="Company Logo"
+                    src="/Shield app logo.svg"
+                    alt="SHIELD ERP Logo"
                     fill
-                    className="object-contain dark:hidden"
-                    priority
-                />
-                 <Image
-                    src="/logo - dark.svg"
-                    alt="Company Logo"
-                    fill
-                    className="object-contain hidden dark:block"
+                    className="object-contain"
                     priority
                 />
               </div>

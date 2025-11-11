@@ -6,6 +6,9 @@ import { ThemeProvider } from '@/components/theme-provider';
 export const metadata: Metadata = {
   title: 'SHIELD ERP',
   description: 'Comprehensive ERP for Insurance Professionals',
+  icons: {
+    icon: '/Shield logo.ico',
+  },
 };
 
 export default function RootLayout({
