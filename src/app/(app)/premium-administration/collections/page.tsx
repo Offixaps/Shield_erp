@@ -22,11 +22,13 @@ import { format } from 'date-fns';
 import {
   AlertDialog,
   AlertDialogAction,
+  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription,
   AlertDialogFooter,
+  AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 
 const bankBrandData = [
@@ -63,52 +65,52 @@ const nonBankCollectionData = [
 
 export default function CollectionsPage() {
     const [selectedNonBankFilter, setSelectedNonBankFilter] = React.useState<string | null>(null);
-    const [dialogOpen, setDialogOpen] = React.useState(false);
-    const [dialogContent, setDialogContent] = React.useState({ title: '', description: '' });
+    const [resultDialogOpen, setResultDialogOpen] = React.useState(false);
+    const [resultDialogContent, setResultDialogContent] = React.useState({ title: '', description: '' });
 
-    const handleBillAll = () => {
+    const handleConfirmBillAll = () => {
         try {
             const count = billAllActivePolicies();
             const currentMonth = format(new Date(), 'MMMM yyyy');
-            setDialogContent({
+            setResultDialogContent({
                 title: 'Billing Process Complete',
                 description: `${count} active policies have been billed for ${currentMonth}.`,
             });
-            setDialogOpen(true);
+            setResultDialogOpen(true);
         } catch (error) {
             console.error("Failed to bill active policies:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-            setDialogContent({
+            setResultDialogContent({
                 title: 'Billing Failed',
                 description: errorMessage,
             });
-            setDialogOpen(true);
+            setResultDialogOpen(true);
         }
     };
     
-    const handleApplyIncreases = () => {
+    const handleConfirmApplyIncreases = () => {
         try {
             const count = applyAnnualIncreases();
             if (count > 0) {
-                 setDialogContent({
+                 setResultDialogContent({
                     title: 'Process Complete',
                     description: `Annual premium and benefit increases (API/ABI) have been applied to ${count} eligible active policies.`,
                 });
             } else {
-                setDialogContent({
+                setResultDialogContent({
                     title: 'Process Complete',
                     description: 'No policies were eligible for an annual increase at this time.',
                 });
             }
-            setDialogOpen(true);
+            setResultDialogOpen(true);
         } catch (error) {
             console.error("Failed to apply annual increases:", error);
             const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred.';
-            setDialogContent({
+            setResultDialogContent({
                 title: 'API/ABI Process Failed',
                 description: errorMessage,
             });
-            setDialogOpen(true);
+            setResultDialogOpen(true);
         }
     };
 
@@ -120,14 +122,46 @@ export default function CollectionsPage() {
           description="Select a collection method to view active policies."
         />
         <div className="flex flex-wrap gap-2">
-            <Button onClick={handleApplyIncreases} variant="outline">
-                <TrendingUp className="mr-2 h-4 w-4" />
-                Apply Annual Increases
-            </Button>
-            <Button onClick={handleBillAll}>
-                <Banknote className="mr-2 h-4 w-4" />
-                Bill All Active Policies
-            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    Apply Annual Increases
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirm Annual Increases</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to apply the annual premium and benefit increases (API/ABI) to all eligible active policies? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmApplyIncreases}>Confirm</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+            <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button>
+                        <Banknote className="mr-2 h-4 w-4" />
+                        Bill All Active Policies
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Billing</AlertDialogTitle>
+                        <AlertDialogDescription>
+                           Are you sure you want to bill all active policies for the current month? This will generate a new unpaid bill for each eligible policy.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleConfirmBillAll}>Confirm</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
       </div>
       <Tabs defaultValue="bank" className="w-full">
@@ -188,17 +222,18 @@ export default function CollectionsPage() {
             </div>
         </TabsContent>
       </Tabs>
-      {/* Policy table for non-bank methods can be implemented here */}
-      <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      
+      {/* Result Dialog */}
+      <AlertDialog open={resultDialogOpen} onOpenChange={setResultDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{dialogContent.title}</AlertDialogTitle>
+            <AlertDialogTitle>{resultDialogContent.title}</AlertDialogTitle>
             <AlertDialogDescription>
-              {dialogContent.description}
+              {resultDialogContent.description}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setDialogOpen(false)}>OK</AlertDialogAction>
+            <AlertDialogAction onClick={() => setResultDialogOpen(false)}>OK</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
