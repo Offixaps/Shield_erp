@@ -53,6 +53,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '..
 import LifestyleDetailTable from './lifestyle-detail-table';
 import SignaturePadComponent from './signature-pad';
 import ExistingPoliciesTable from './existing-policies-table';
+import DeclinedPoliciesTable from './declined-policies-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -127,6 +128,11 @@ const existingPolicySchema = z.object({
   premiumAmount: z.coerce.number().positive(),
   faceAmount: z.coerce.number().positive(),
   changedGrpOrInd: z.enum(['yes', 'no'], { required_error: "This field is required."}),
+});
+
+const declinedPolicySchema = z.object({
+    companyName: z.string().min(1, "Company name is required."),
+    details: z.string().min(1, "Details are required."),
 });
 
 const alcoholHabitsOptions = [
@@ -341,6 +347,8 @@ const formSchema = z
     // Existing Policies
     hasExistingPolicies: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     existingPoliciesDetails: z.array(existingPolicySchema).optional(),
+    declinedPolicy: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    declinedPolicyDetails: z.array(declinedPolicySchema).optional(),
     
     // Health
     height: z.coerce.number().positive('Height must be a positive number.').optional(),
@@ -633,6 +641,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           
           hasExistingPolicies: (data.existingPoliciesDetails && data.existingPoliciesDetails.length > 0) ? 'yes' : 'no',
           existingPoliciesDetails: parseMedicalDetails(data.existingPoliciesDetails),
+          declinedPolicy: (data.declinedPolicyDetails && data.declinedPolicyDetails.length > 0) ? 'yes' : 'no',
+          declinedPolicyDetails: data.declinedPolicyDetails,
 
           alcoholHabits: businessData.alcoholHabits,
           alcoholBeer: data.alcoholBeer,
@@ -780,6 +790,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       contingentBeneficiaries: [],
       hasExistingPolicies: 'no' as const,
       existingPoliciesDetails: [],
+      declinedPolicy: 'no' as const,
+      declinedPolicyDetails: [],
       height: 0,
       heightUnit: 'cm' as const,
       weight: 0,
@@ -943,6 +955,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const policyOwnerSignature = form.watch('policyOwnerSignature');
   const paymentAuthoritySignature = form.watch('paymentAuthoritySignature');
   const hasExistingPolicies = form.watch('hasExistingPolicies');
+  const declinedPolicy = form.watch('declinedPolicy');
 
 
   React.useEffect(() => {
@@ -1191,6 +1204,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             primaryBeneficiaries: (values.primaryBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
             contingentBeneficiaries: (values.contingentBeneficiaries || []).map(b => ({ ...b, dob: format(b.dob, 'yyyy-MM-dd') })),
             existingPoliciesDetails: (values.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: format(p.issueDate, 'yyyy-MM-dd') })),
+            declinedPolicyDetails: values.declinedPolicyDetails,
             medicalHistory: combinedMedicalHistory,
             familyMedicalHistory: values.familyMedicalHistory,
             familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
@@ -2484,14 +2498,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               </h3>
               <Separator className="my-0" />
             </div>
-            <div className="p-4 space-y-4">
+            <div className="p-4 space-y-6">
               <FormField
                 control={form.control}
                 name="hasExistingPolicies"
                 render={({ field }) => (
                   <FormItem className="flex flex-col rounded-lg border p-4">
                     <div className="flex flex-row items-center justify-between">
-                      <FormLabel className="max-w-[80%]">Do you have an existing Life Insurance policy with any Insurance Company in Ghana?</FormLabel>
+                      <FormLabel className="max-w-[80%]">1. Do you have an existing Life Insurance policy with any Insurance Company in Ghana?</FormLabel>
                       <FormControl>
                         <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
                           <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
@@ -2503,6 +2517,29 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     {hasExistingPolicies === 'yes' && (
                         <div className="pt-4">
                             <ExistingPoliciesTable form={form} fieldName="existingPoliciesDetails" />
+                        </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="declinedPolicy"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col rounded-lg border p-4">
+                    <div className="flex flex-row items-center justify-between">
+                      <FormLabel className="max-w-[80%]">2. Have you been declined any Life Insurance Policy in the Past?</FormLabel>
+                      <FormControl>
+                        <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                          <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                          <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                        </RadioGroup>
+                      </FormControl>
+                    </div>
+                    <FormMessage />
+                    {declinedPolicy === 'yes' && (
+                        <div className="pt-4">
+                            <DeclinedPoliciesTable form={form} fieldName="declinedPolicyDetails" />
                         </div>
                     )}
                   </FormItem>

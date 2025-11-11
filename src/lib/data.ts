@@ -5,6 +5,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -207,6 +208,22 @@ export type LifestyleDetail = {
     details?: string;
 }
 
+export type ExistingPolicyDetail = {
+    companyName: string;
+    personCovered: string;
+    policyType: string;
+    issueDate: string;
+    premiumAmount: number;
+    faceAmount: number;
+    changedGrpOrInd: 'yes' | 'no';
+};
+
+export type DeclinedPolicyDetail = {
+    companyName: string;
+    details: string;
+};
+
+
 export type NewBusiness = {
   id: number;
   client: string;
@@ -276,6 +293,9 @@ export type NewBusiness = {
   // Beneficiaries
   primaryBeneficiaries: Beneficiary[];
   contingentBeneficiaries: Beneficiary[];
+  // Existing & Declined Policies
+  existingPoliciesDetails: ExistingPolicyDetail[];
+  declinedPolicyDetails: DeclinedPolicyDetail[];
   // Health
   height?: number;
   heightUnit?: 'm' | 'cm' | 'ft';
@@ -375,6 +395,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: 'no',
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Accountant",
     natureOfBusiness: "Finance",
     employer: "Deloitte Ghana",
@@ -464,6 +486,8 @@ export const newBusinessData: NewBusiness[] = [
         { condition: "Heart disease", relation: "Father", ageOfOccurrence: 58, currentAgeOrAgeAtDeath: 65 }
     ],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Lecturer",
     natureOfBusiness: "Education",
     employer: "KNUST",
@@ -534,6 +558,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Teacher",
     natureOfBusiness: "Education",
     employer: "Ghana Education Service",
@@ -604,6 +630,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Trader",
     natureOfBusiness: "Retail",
     employer: "Self-Employed",
@@ -674,6 +702,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "yes",
     familyMedicalHistoryDetails: [{ condition: "Diabetes", relation: "Mother", ageOfOccurrence: 55, currentAgeOrAgeAtDeath: 75 }],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Doctor",
     natureOfBusiness: "Healthcare",
     employer: "Korle Bu Teaching Hospital",
@@ -744,6 +774,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [{ item: "Work outside", details: "Travel to USA for 2 weeks quarterly" }],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Software Developer",
     natureOfBusiness: "Technology",
     employer: "Andela",
@@ -814,6 +846,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Civil Engineer",
     natureOfBusiness: "Construction",
     employer: "Ghana Highway Authority",
@@ -884,6 +918,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Journalist",
     natureOfBusiness: "Media",
     employer: "Multimedia Group",
@@ -954,6 +990,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "yes",
     familyMedicalHistoryDetails: [{ condition: "High blood pressure", relation: "Father", ageOfOccurrence: 45, currentAgeOrAgeAtDeath: 70 }],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Banker",
     natureOfBusiness: "Finance",
     employer: "Access Bank (Ghana) Plc",
@@ -1024,6 +1062,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Nurse",
     natureOfBusiness: "Healthcare",
     employer: "Ho Teaching Hospital",
@@ -1094,6 +1134,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [{ item: "Motorcycles Racing", details: "Amateur weekend racing" }],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Mining Engineer",
     natureOfBusiness: "Mining",
     employer: "AngloGold Ashanti",
@@ -1164,6 +1206,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "yes",
     familyMedicalHistoryDetails: [{ condition: "Cancer", relation: "Mother", ageOfOccurrence: 59, currentAgeOrAgeAtDeath: 59 }],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Lawyer",
     natureOfBusiness: "Legal",
     employer: "Owusu & Associates",
@@ -1234,6 +1278,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "IT Consultant",
     natureOfBusiness: "Technology",
     employer: "Self-Employed",
@@ -1304,6 +1350,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "yes",
     familyMedicalHistoryDetails: [{ condition: "Diabetes", relation: "Mother", ageOfOccurrence: 50, currentAgeOrAgeAtDeath: 68 }],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Business Owner",
     natureOfBusiness: "Retail - Boutique",
     employer: "Brenda's Fashions",
@@ -1374,6 +1422,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [{ item: "Scuba diving", details: "Recreational diving, max 20m" }],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Fisherman",
     natureOfBusiness: "Fishing",
     employer: "Self-Employed",
@@ -1444,6 +1494,8 @@ export const newBusinessData: NewBusiness[] = [
     familyMedicalHistory: "no",
     familyMedicalHistoryDetails: [],
     lifestyleDetails: [],
+    existingPoliciesDetails: [],
+    declinedPolicyDetails: [],
     occupation: "Shipping Agent",
     natureOfBusiness: "Logistics",
     employer: "Maersk Ghana",
@@ -1455,4 +1507,5 @@ export const newBusinessData: NewBusiness[] = [
 ];
 
     
+
 
