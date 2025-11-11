@@ -420,6 +420,7 @@ export default function ClientDetailsView({
       case 'mandate verified':
       case 'first premium confirmed':
       case 'medicals completed':
+      case 'policy issued':
         return 'bg-blue-500/80';
       case 'accepted':
       case 'active':
@@ -427,7 +428,6 @@ export default function ClientDetailsView({
       case 'up to date':
       case 'first premium paid':
       case 'paid':
-      case 'policy issued':
         return 'bg-green-500/80';
       case 'ntu':
       case 'deferred':

@@ -4,6 +4,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -1454,3 +1455,4 @@ export const newBusinessData: NewBusiness[] = [
 ];
 
     
+

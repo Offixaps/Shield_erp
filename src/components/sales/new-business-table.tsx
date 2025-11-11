@@ -39,9 +39,13 @@ export default function NewBusinessTable() {
 
   React.useEffect(() => {
     let policies = getPolicies();
+    if (isAllPoliciesPage) {
+      const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
+      policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
+    }
     setAllData(policies);
     setFilteredData(policies);
-  }, [pathname]);
+  }, [pathname, isAllPoliciesPage]);
 
   React.useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -75,6 +79,7 @@ export default function NewBusinessTable() {
         case 'mandate verified':
         case 'first premium confirmed':
         case 'medicals completed':
+        case 'policy issued':
             return 'bg-blue-500/80';
         case 'accepted':
         case 'active':
