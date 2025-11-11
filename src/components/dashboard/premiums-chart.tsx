@@ -9,7 +9,6 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { premiumsChartData } from '@/lib/data';
 
 const chartConfig = {
   collected: {
@@ -22,10 +21,14 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function PremiumsChart() {
+type PremiumsChartProps = {
+  data: any[];
+};
+
+export default function PremiumsChart({ data }: PremiumsChartProps) {
   return (
     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-      <BarChart accessibilityLayer data={premiumsChartData}>
+      <BarChart accessibilityLayer data={data}>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="month"

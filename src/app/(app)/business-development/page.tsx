@@ -1,4 +1,7 @@
 
+'use client';
+
+import * as React from 'react';
 import {
   Card,
   CardContent,
@@ -8,51 +11,109 @@ import {
 import {
   Users,
   Banknote,
-  UserCheck,
-  UserX,
   Briefcase,
   CircleDollarSign,
 } from 'lucide-react';
 import PageHeader from '@/components/page-header';
-import { dashboardStats } from '@/lib/data';
 import PremiumsChart from '@/components/dashboard/premiums-chart';
 import PolicyDistributionChart from '@/components/dashboard/policy-distribution-chart';
 import RecentActivity from '@/components/dashboard/recent-activity';
+import { getPolicies } from '@/lib/policy-service';
+import type { NewBusiness } from '@/lib/data';
 
 const iconMap = {
   totalClients: Users,
   premiumsCollected: Banknote,
-  activeClients: UserCheck,
-  inactiveClients: UserX,
   newBusiness: Briefcase,
   outstandingPremiums: CircleDollarSign,
 };
 
 export default function BusinessDevelopmentPage() {
+  const [dashboardData, setDashboardData] = React.useState({
+    totalClients: 0,
+    premiumsCollected: 0,
+    newBusiness: 0,
+    outstandingPremiums: 0,
+    premiumsChartData: [],
+  });
+
+  React.useEffect(() => {
+    const policies = getPolicies();
+    const totalClients = policies.length;
+
+    const premiumsCollected = policies.reduce((acc, policy) => {
+      return acc + (policy.payments || []).reduce((sum, payment) => sum + payment.amount, 0);
+    }, 0);
+
+    const newBusiness = policies
+      .filter(p => p.onboardingStatus !== 'Policy Issued')
+      .reduce((acc, policy) => acc + policy.premium, 0);
+      
+    const outstandingPremiums = policies.reduce((acc, policy) => {
+        return acc + (policy.bills || [])
+            .filter(bill => bill.status === 'Unpaid')
+            .reduce((sum, bill) => sum + bill.amount, 0);
+    }, 0);
+
+    const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
+    
+    policies.forEach(policy => {
+      (policy.payments || []).forEach(payment => {
+        const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+        monthlyData[month].collected += payment.amount;
+      });
+
+      (policy.bills || []).filter(b => b.status === 'Unpaid').forEach(bill => {
+        const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+        monthlyData[month].outstanding += bill.amount;
+      });
+    });
+
+    const premiumsChartData = Object.entries(monthlyData)
+      .map(([month, data]) => ({
+        month: month.split(' ')[0], // Keep only month abbreviation
+        collected: data.collected,
+        outstanding: data.outstanding
+      }))
+      .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
+      .slice(-7);
+
+
+    setDashboardData({
+      totalClients,
+      premiumsCollected,
+      newBusiness,
+      outstandingPremiums,
+      premiumsChartData: premiumsChartData as any,
+    });
+  }, []);
+
   const stats = [
     {
       key: 'totalClients',
       title: 'Total Clients',
-      value: dashboardStats.totalClients.toLocaleString(),
-      change: '+2.5%',
+      value: dashboardData.totalClients.toLocaleString(),
+      change: 'All policies on book',
     },
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected',
-      value: `GHS${dashboardStats.premiumsCollected.toLocaleString()}`,
-      change: '+10.2%',
+      value: `GHS ${dashboardData.premiumsCollected.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: 'All-time collected',
     },
     {
       key: 'newBusiness',
-      title: 'New Business',
-      value: `GHS${dashboardStats.newBusiness.toLocaleString()}`,
-      change: '+5% this month',
+      title: 'New Business (Pending)',
+      value: `GHS ${dashboardData.newBusiness.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: 'Value of policies in onboarding',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `GHS${dashboardStats.outstandingPremiums.toLocaleString()}`,
-      change: '-3.1%',
+      value: `GHS ${dashboardData.outstandingPremiums.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      change: 'All unpaid bills',
     },
   ];
 
@@ -84,7 +145,7 @@ export default function BusinessDevelopmentPage() {
             <CardTitle>Premiums Overview</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
-            <PremiumsChart />
+            <PremiumsChart data={dashboardData.premiumsChartData} />
           </CardContent>
         </Card>
         <Card className="lg:col-span-3">
