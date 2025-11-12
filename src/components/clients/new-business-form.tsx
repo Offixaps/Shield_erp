@@ -659,8 +659,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           alcoholBeer: { consumed: data.alcoholBeer?.consumed || false, averagePerWeek: data.alcoholBeer?.averagePerWeek || '' },
           alcoholWine: { consumed: data.alcoholWine?.consumed || false, averagePerWeek: data.alcoholWine?.averagePerWeek || '' },
           alcoholSpirits: { consumed: data.alcoholSpirits?.consumed || false, averagePerWeek: data.alcoholSpirits?.averagePerWeek || '' },
-          reducedAlcoholMedicalAdvice: data.reducedAlcoholMedicalAdvice,
-          reducedAlcoholHealthProblems: data.reducedAlcoholHealthProblems,
+          reducedAlcoholMedicalAdvice: { reduced: data.reducedAlcoholMedicalAdvice?.reduced || 'no', notes: data.reducedAlcoholMedicalAdvice?.notes || '' },
+          reducedAlcoholHealthProblems: { reduced: data.reducedAlcoholHealthProblems?.reduced || 'no', notes: data.reducedAlcoholHealthProblems?.notes || '' },
 
           tobaccoHabits: businessData.tobaccoHabits,
           usedNicotineLast12Months: data.usedNicotineLast12Months,
@@ -4361,4 +4361,5 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
+
 
