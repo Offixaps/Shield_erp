@@ -2,14 +2,15 @@
 'use client';
 
 import * as React from 'react';
+import PageHeader from '@/components/page-header';
+import { Card, CardContent } from '@/components/ui/card';
+import NewBusinessForm from '@/components/clients/new-business-form';
 import { getPolicyById } from '@/lib/policy-service';
 import { notFound, useParams } from 'next/navigation';
-import ClientDetailsView from '@/components/clients/client-details-view';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EditBusinessPage() {
   const params = useParams();
-
   const [client, setClient] = React.useState(null);
   const [loading, setLoading] = React.useState(true);
 
@@ -29,11 +30,6 @@ export default function EditBusinessPage() {
     return (
         <div className="flex flex-col gap-6">
             <Skeleton className="h-10 w-1/2" />
-            <div className="flex gap-4">
-                <Skeleton className="h-8 w-36" />
-                <Skeleton className="h-8 w-36" />
-                <Skeleton className="h-8 w-36" />
-            </div>
             <Skeleton className="h-96 w-full" />
         </div>
     )
@@ -42,6 +38,18 @@ export default function EditBusinessPage() {
   if (!client) {
     notFound();
   }
-
-  return <ClientDetailsView client={client} from="business-development" isEditMode={true} />;
+  
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title={`Edit Policy for ${client.client}`}
+        description="Update policy details across the different sections."
+      />
+      <Card>
+        <CardContent className="pt-6">
+          <NewBusinessForm businessId={params.id as string} />
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

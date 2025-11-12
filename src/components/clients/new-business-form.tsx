@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -337,7 +336,7 @@ export const newBusinessFormSchema = z
     amountInWords: z.string().min(3, 'Amount in words is required.'),
     sortCode: z.string().min(6, 'Sort code must be at least 6 characters.'),
     accountType: z.enum(['Current', 'Savings', 'Other']),
-    bankAccountName: z.string().min(2, 'Bank account name is required.'),
+    bankAccountName: zstring().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
     paymentAuthoritySignature: z.string().optional(),
 
@@ -467,16 +466,26 @@ type NewBusinessFormProps = {
     businessId?: string;
 }
 
-const tabSequence = [
-    'coverage',
-    'beneficiaries',
-    'existing-policies',
-    'health',
-    'lifestyle',
-    'declaration',
-    'agent',
-    'payment-details',
-];
+type TabName = 
+    | 'coverage'
+    | 'beneficiaries'
+    | 'existing-policies'
+    | 'health'
+    | 'lifestyle'
+    | 'declaration'
+    | 'agent'
+    | 'payment-details';
+
+const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
+    coverage: ['title', 'lifeAssuredFirstName', 'lifeAssuredMiddleName', 'lifeAssuredSurname', 'lifeAssuredDob', 'placeOfBirth', 'email', 'phone', 'postalAddress', 'workTelephone', 'homeTelephone', 'residentialAddress', 'gpsAddress', 'ageNextBirthday', 'maritalStatus', 'dependents', 'gender', 'nationalIdType', 'idNumber', 'issueDate', 'expiryDate', 'placeOfIssue', 'country', 'region', 'religion', 'nationality', 'languages', 'contractType', 'serialNumber', 'policyNumber', 'commencementDate', 'policyTerm', 'premiumTerm', 'sumAssured', 'premiumAmount', 'paymentFrequency', 'increaseMonth', 'occupation', 'natureOfBusiness', 'employer', 'employerAddress', 'monthlyBasicIncome', 'otherIncome', 'totalMonthlyIncome'],
+    beneficiaries: ['primaryBeneficiaries', 'contingentBeneficiaries'],
+    'existing-policies': ['hasExistingPolicies', 'existingPoliciesDetails', 'declinedPolicy', 'declinedPolicyDetails'],
+    health: ['height', 'heightUnit', 'weight', 'alcoholHabits', 'alcoholBeer', 'alcoholWine', 'alcoholSpirits', 'reducedAlcoholMedicalAdvice', 'reducedAlcoholHealthProblems', 'tobaccoHabits', 'usedNicotineLast12Months', 'tobaccoCigarettes', 'tobaccoCigars', 'tobaccoPipe', 'tobaccoNicotineReplacement', 'tobaccoEcigarettes', 'tobaccoOther', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'testedPositiveFor', 'awaitingResultsFor', 'bloodTransfusionOrSurgery', 'bloodTransfusionOrSurgeryDetails', 'highBloodPressure', 'highBloodPressureDetails', 'cancer', 'cancerDetails', 'diabetes', 'diabetesDetails', 'colitisCrohns', 'colitisCrohnsDetails', 'paralysisEpilepsy', 'paralysisEpilepsyDetails', 'mentalIllness', 'mentalIllnessDetails', 'arthritis', 'arthritisDetails', 'chestPain', 'chestPainDetails', 'asthma', 'asthmaDetails', 'digestiveDisorder', 'digestiveDisorderDetails', 'bloodDisorder', 'bloodDisorderDetails', 'thyroidDisorder', 'thyroidDisorderDetails', 'kidneyDisorder', 'kidneyDisorderDetails', 'numbness', 'numbnessDetails', 'anxietyStress', 'anxietyStressDetails', 'earEyeDisorder', 'earEyeDisorderDetails', 'lumpGrowth', 'lumpGrowthDetails', 'hospitalAttendance', 'hospitalAttendanceDetails', 'criticalIllness', 'criticalIllnessDetails', 'sti', 'stiDetails', 'presentSymptoms', 'presentSymptomsDetails', 'presentWaitingConsultation', 'presentTakingMedication', 'familyMedicalHistory', 'familyMedicalHistoryDetails', 'currentDoctorName', 'currentDoctorPhone', 'currentDoctorHospital', 'previousDoctorName', 'previousDoctorPhone', 'previousDoctorHospital'],
+    lifestyle: ['flownAsPilot', 'flownAsPilotDetails', 'hazardousSports', 'hazardousSportsDetails', 'travelOutsideCountry', 'travelOutsideCountryDetails'],
+    declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
+    agent: ['agentName', 'agentCode', 'uplineName', 'uplineCode', 'introducerCode'],
+    payment: ['isPolicyHolderPayer', 'premiumPayerSurname', 'premiumPayerOtherNames', 'premiumPayerOccupation', 'premiumPayerRelationship', 'premiumPayerResidentialAddress', 'premiumPayerPostalAddress', 'premiumPayerDob', 'premiumPayerBusinessName', 'premiumPayerIdType', 'premiumPayerIdNumber', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'premiumPayerPlaceOfIssue', 'bankName', 'bankBranch', 'amountInWords', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'paymentAuthoritySignature']
+};
 
 const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> = {
     never_used: 'Have never used alcohol',
@@ -499,7 +508,7 @@ const tobaccoHabitsLabels: Record<typeof tobaccoHabitsOptions[number], string> =
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const [activeTab, setActiveTab] = React.useState(tabSequence[0]);
+  const [activeTab, setActiveTab] = React.useState<TabName>('coverage');
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
 
@@ -1040,19 +1049,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   }, [premiumAmount, form]);
 
-  const handleTabChange = (direction: 'next' | 'prev') => {
-    const currentIndex = tabSequence.indexOf(activeTab);
-    if (direction === 'next') {
-        if (currentIndex < tabSequence.length - 1) {
-            setActiveTab(tabSequence[currentIndex + 1]);
-        }
-    } else {
-        if (currentIndex > 0) {
-            setActiveTab(tabSequence[currentIndex - 1]);
-        }
-    }
-  };
-
   const handleSaveLifeInsuredSignature = (dataUrl: string) => {
     form.setValue('lifeInsuredSignature', dataUrl);
     toast({
@@ -1127,16 +1123,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
   const processSubmit = (values: z.infer<typeof newBusinessFormSchema>, redirectPath?: string) => {
-     if (!values.lifeInsuredSignature || (!isEditMode && !isLifeInsuredSignatureVerified)) {
+     if (!isEditMode && !values.lifeInsuredSignature) {
         toast({
             variant: "destructive",
             title: "Submission Error",
-            description: "Please ensure the Life Insured has signed and verified their identity before submitting.",
+            description: "Please ensure the Life Insured has signed before submitting.",
         });
         setActiveTab('declaration');
         return Promise.reject();
     }
-    if (!isPolicyHolderPayer && !values.policyOwnerSignature) {
+    if (!isEditMode && !isPolicyHolderPayer && !values.policyOwnerSignature) {
         toast({
             variant: "destructive",
             title: "Submission Error",
@@ -1145,11 +1141,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         setActiveTab('declaration');
         return Promise.reject();
     }
-     if (!values.paymentAuthoritySignature || (!isEditMode && !isPayerSignatureVerified)) {
+     if (!isEditMode && !values.paymentAuthoritySignature) {
         toast({
             variant: "destructive",
             title: "Submission Error",
-            description: "Please ensure the Premium Payer has signed and verified their identity for the mandate.",
+            description: "Please ensure the Premium Payer has signed the mandate.",
         });
         setActiveTab('payment-details');
         return Promise.reject();
@@ -1264,46 +1260,49 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
   
-  const handleSaveOnly = async () => {
-    const isValid = await form.trigger();
+  async function handleSaveSection() {
+    const fieldsToValidate = tabFields[activeTab];
+    const isValid = await form.trigger(fieldsToValidate as any);
+
     if (isValid) {
-      processSubmit(form.getValues(), `/business-development/clients/${businessId}?from=business-development`);
+      if (isEditMode && businessId) {
+        const policyId = parseInt(businessId, 10);
+        const values = form.getValues();
+        const sectionData = fieldsToValidate.reduce((acc, key) => {
+          (acc as any)[key] = values[key];
+          return acc;
+        }, {});
+        
+        updatePolicy(policyId, sectionData);
+        toast({
+          title: "Section Saved",
+          description: `The ${activeTab.replace('-', ' ')} section has been updated.`
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Save Failed",
+          description: "Cannot save sections in creation mode. Please submit the whole form."
+        });
+      }
     } else {
-        toast({
-            variant: "destructive",
-            title: "Validation Failed",
-            description: "Please check the form for errors before saving.",
-        });
+      toast({
+        variant: "destructive",
+        title: "Validation Error",
+        description: `Please correct the errors in the ${activeTab.replace('-', ' ')} section before saving.`
+      });
     }
-  };
-  
-  const handleSaveAndNext = async () => {
-     const isValid = await form.trigger();
-     if(isValid) {
-        await processSubmit(form.getValues());
-        handleTabChange('next');
-     } else {
-        toast({
-            variant: "destructive",
-            title: "Validation Failed",
-            description: "Please check the form for errors before proceeding.",
-        });
-     }
-  };
-  
+  }
+
   const onSubmit = (values: z.infer<typeof newBusinessFormSchema>) => {
     processSubmit(values, '/business-development/sales');
   }
-
-  const currentTabIndex = tabSequence.indexOf(activeTab);
-  const isFirstTab = currentTabIndex === 0;
-  const isLastTab = currentTabIndex === tabSequence.length - 1;
 
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             <TabsTrigger value="coverage">Coverage</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
@@ -1316,10 +1315,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsList>
           
           <TabsContent value="coverage" className="mt-6 space-y-8">
-             <div>
-              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Personal details of life insured</h3>
-              <Separator className="my-0" />
+             <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+              <h3>Personal details of life insured</h3>
+              {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
               <FormField
                 control={form.control}
@@ -2147,10 +2147,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
 
           <TabsContent value="agent" className="mt-6 space-y-8">
-            <div>
-              <h3 className="text-lg font-bold text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>DETAILS OF AGENT</h3>
-              <Separator className="my-0" />
+            <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>DETAILS OF AGENT</h3>
+                {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <div className="p-4 space-y-6">
                 <p>I am a duly authorized agent of First Insurance.</p>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -2237,10 +2238,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <div className="space-y-4">
                 <div className="flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
                     <h3>Primary Beneficiaries</h3>
-                    <Button type="button" size="sm" variant="secondary" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0, isIrrevocable: false })}>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add Primary
-                    </Button>
+                    <div className='flex gap-2'>
+                        {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
+                        <Button type="button" size="sm" variant="secondary" onClick={() => appendPrimary({ name: '', dob: new Date(), gender: 'Male', relationship: '', telephone: '', percentage: 0, isIrrevocable: false })}>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add Primary
+                        </Button>
+                    </div>
                 </div>
                 <Separator className="my-0" />
                 <div className="p-4 rounded-b-md border border-t-0">
@@ -2493,12 +2497,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
 
           <TabsContent value="existing-policies" className="mt-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
-                Existing Policies & Applications
-              </h3>
-              <Separator className="my-0" />
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+              <h3>Existing Policies & Applications</h3>
+              {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <div className="p-4 space-y-6">
               <FormField
                 control={form.control}
@@ -2550,10 +2553,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
 
           <TabsContent value="health" className="mt-6 space-y-6">
-            <div>
-                <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>HEALTH DETAILS</h3>
-                <Separator className="my-0" />
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>HEALTH DETAILS</h3>
+                {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <div className="p-4 space-y-8">
                 <Alert variant="destructive">
                     <AlertTitle className="font-black">WARNING</AlertTitle>
@@ -3673,10 +3677,11 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
             </div>
           </TabsContent>
           <TabsContent value="lifestyle" className="mt-6 space-y-6">
-            <div>
-                <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>LIFESTYLE DETAILS</h3>
-                <Separator className="my-0" />
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>LIFESTYLE DETAILS</h3>
+                {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <div className="p-4 space-y-8">
                  <FormField
                   control={form.control}
@@ -3762,10 +3767,11 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
             </div>
           </TabsContent>
           <TabsContent value="declaration" className="mt-6 space-y-6">
-             <div>
-              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>DECLARATION BY LIFE INSURED</h3>
-              <Separator className="my-0" />
+             <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+              <h3>DECLARATION BY LIFE INSURED</h3>
+              {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+            <Separator className="my-0" />
             <Card>
                 <CardContent className="pt-6 space-y-4 text-sm">
                     <p>1. I declare that the information provided by me in this application together with any additional statements or documents, whether in my own handwriting or not, are wholly true and accurate and shall form the basis of the life insurance contract between the Company and myself and shall be read together with the policy document.</p>
@@ -3782,7 +3788,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                         <h4 className="font-bold">Signature of Life Insured</h4>
                         <SignaturePadComponent onSave={handleSaveLifeInsuredSignature} initialUrl={lifeInsuredSignature}/>
                     </div>
-                     {lifeInsuredSignature && (
+                     {lifeInsuredSignature && !isEditMode && (
                         <div className="space-y-4 pt-4">
                             <Separator />
                             <h4 className="font-bold">Identity Verification</h4>
@@ -3841,10 +3847,11 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
             </Card>
           </TabsContent>
           <TabsContent value="payment-details" className="mt-6 space-y-8">
-            <div>
-              <h3 className="text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>Payment Details</h3>
-              <Separator className="my-0" />
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+              <h3>Payment Details</h3>
+              {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
+             <Separator className="my-0" />
              <div className="p-4 space-y-6">
                 <FormField
                     control={form.control}
@@ -4299,7 +4306,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
                     <h4 className="font-bold">Payment Authorization Signature</h4>
                     <p className="text-sm text-muted-foreground">The premium payer must sign here to authorize premium deductions.</p>
                     <SignaturePadComponent onSave={handleSavePaymentAuthoritySignature} initialUrl={paymentAuthoritySignature} />
-                    {paymentAuthoritySignature && (
+                    {paymentAuthoritySignature && !isEditMode && (
                     <div className="space-y-4 pt-4">
                         <Separator />
                         <h4 className="font-bold">Identity Verification</h4>
@@ -4342,29 +4349,13 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
 
         </Tabs>
         
-        <div className="flex justify-between p-4">
-            <Button type="button" variant="outline" onClick={() => handleTabChange('prev')} disabled={isFirstTab}>
-                Previous
+        {!isEditMode && (
+          <div className="flex justify-end p-4">
+             <Button type="submit" disabled={!isLifeInsuredSignatureVerified || !isPayerSignatureVerified}>
+                Submit Application
             </Button>
-           
-            <div className="flex gap-2">
-                {isEditMode && (
-                    <Button type="button" variant="secondary" onClick={handleSaveOnly}>
-                        Save Only
-                    </Button>
-                )}
-
-                {!isLastTab ? (
-                     <Button type="button" onClick={isEditMode ? handleSaveAndNext : () => handleTabChange('next')}>
-                        {isEditMode ? 'Save & Next' : 'Next'}
-                    </Button>
-                ) : (
-                     <Button type="submit" disabled={!isEditMode && !isLifeInsuredSignatureVerified}>
-                        {isEditMode ? 'Update Application' : 'Submit Application'}
-                    </Button>
-                )}
-            </div>
-        </div>
+          </div>
+        )}
       </form>
     </Form>
   );
