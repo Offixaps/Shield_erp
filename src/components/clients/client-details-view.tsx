@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -7,7 +6,7 @@ import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import { cn, numberToWords } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
   XCircle,
@@ -57,7 +56,16 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import CollectPremiumDialog from './collect-premium-dialog';
-
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { newBusinessFormSchema, illnessDetailSchema } from './new-business-form';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
+import { Input } from '../ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '../ui/calendar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 function DetailItem({
   label,
@@ -339,15 +347,22 @@ export default function ClientDetailsView({
   client: initialClient,
   from,
   defaultTab = 'overview',
+  isEditMode = false,
 }: {
   client: NewBusiness;
   from: string;
   defaultTab?: string;
+  isEditMode?: boolean;
 }) {
   const { toast } = useToast();
   const [client, setClient] = React.useState<NewBusiness | null>(initialClient);
   const [bmi, setBmi] = React.useState<number | null>(null);
   const [bmiStatus, setBmiStatus] = React.useState<{ text: string, color: string } | null>(null);
+
+  const form = useForm<z.infer<typeof newBusinessFormSchema>>({
+    resolver: zodResolver(newBusinessFormSchema),
+    defaultValues: initialClient as any,
+  });
 
   React.useEffect(() => {
     const freshClient = getPolicyById(initialClient.id);
@@ -534,6 +549,118 @@ export default function ClientDetailsView({
     { title: 'Policy Term', value: `${client.policyTerm} years` },
     { title: 'Premium Term', value: `${client.premiumTerm} years` },
   ];
+
+  const handleSectionSave = (section: keyof z.infer<typeof newBusinessFormSchema>) => {
+    // This is a placeholder for per-section saving.
+    // In a real scenario, you'd trigger validation for the specific section's fields
+    // and then call an API to update only those fields.
+    const values = form.getValues();
+    updatePolicy(client.id, values);
+    toast({
+      title: 'Section Saved',
+      description: `The ${section} section has been updated.`,
+    });
+  };
+
+  if (isEditMode) {
+    return (
+      <Form {...form}>
+      <div className="flex flex-col gap-6">
+        <PageHeader title={`Edit Policy: ${client.client}`} />
+        {/* The rest of the editable view will be built out here */}
+        <Tabs defaultValue={defaultTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 h-auto">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
+              <TabsTrigger value="health">Health</TabsTrigger>
+              <TabsTrigger value="claims">Claims History</TabsTrigger>
+              <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
+              <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
+              <TabsTrigger value="payment-history">Payment History</TabsTrigger>
+              <TabsTrigger value="mandate">Mandate</TabsTrigger>
+              <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
+            </TabsList>
+  
+            <TabsContent value="overview" className="mt-6 space-y-6">
+               <Card>
+                <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                   <h3 className="font-medium uppercase text-sidebar-foreground">
+                    Personal details of life insured
+                  </h3>
+                   <Button size="sm" onClick={() => handleSectionSave('lifeAssuredFirstName')}>Save Section</Button>
+                </CardHeader>
+                <Separator />
+                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
+                   <FormField
+                      control={form.control}
+                      name="lifeAssuredFirstName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>First Name</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lifeAssuredSurname"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Surname</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="lifeAssuredDob"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                          <FormLabel>Date of Birth</FormLabel>
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <FormControl>
+                                <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
+                                  {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                </Button>
+                              </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={new Date(field.value)} onSelect={field.onChange} /></PopoverContent>
+                          </Popover>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl><Input {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {/* Add other personal detail fields here */}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            {/* Other Tabs */}
+             <TabsContent value="payment-history" className="mt-6">
+                <PaymentHistoryTab client={client} />
+             </TabsContent>
+             <TabsContent value="activity-log" className="mt-6">
+                <ActivityLogTab client={client} />
+             </TabsContent>
+        </Tabs>
+      </div>
+      </Form>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6">
