@@ -26,7 +26,7 @@ export default function AppHeader() {
   );
 
   const handleLogout = () => {
-    router.push('/login');
+    router.push('/select-department');
   };
 
   return (

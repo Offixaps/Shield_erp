@@ -45,7 +45,7 @@ export default function DepartmentSelectionPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Link href="/business-development" className="group">
+                <Link href="/login" className="group">
                     <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center justify-between">
@@ -59,7 +59,7 @@ export default function DepartmentSelectionPage() {
                     </CardHeader>
                     </Card>
                 </Link>
-                <Link href="/premium-administration" className="group">
+                <Link href="/login" className="group">
                     <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center justify-between">
@@ -72,7 +72,7 @@ export default function DepartmentSelectionPage() {
                     </CardHeader>
                     </Card>
                 </Link>
-                <Link href="/underwriting" className="group">
+                <Link href="/login" className="group">
                     <Card className="transition-all hover:border-primary hover:shadow-lg h-full">
                     <CardHeader>
                         <CardTitle className="flex items-center justify-between">

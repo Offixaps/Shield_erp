@@ -65,7 +65,7 @@ export default function LoginPage() {
                 <Input id="password" type="password" required />
               </div>
               <Button type="submit" className="w-full asChild">
-                <Link href="/select-department">Sign in</Link>
+                <Link href="/business-development">Sign in</Link>
               </Button>
             </div>
           </CardContent>
