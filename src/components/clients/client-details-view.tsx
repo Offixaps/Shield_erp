@@ -996,8 +996,6 @@ export default function ClientDetailsView({
                         )
                     }
                 />
-                <DetailItem label="Alcohol Habits" value={client.alcoholHabits?.replace(/_/g, ' ')} />
-                <DetailItem label="Tobacco Habits" value={client.tobaccoHabits?.replace(/_/g, ' ')} />
               </CardContent>
             </Card>
 
@@ -1098,9 +1096,8 @@ export default function ClientDetailsView({
               </CardContent>
             </Card>
 
-
             <MedicalHistorySection
-                title="Medical History"
+                title="Have you ever had, received or been diagnosed with any of the following:"
                 icon={<Stethoscope className="text-primary" />}
                 data={client.medicalHistory}
             />
@@ -1253,5 +1250,6 @@ export default function ClientDetailsView({
 
 
     
+
 
 
