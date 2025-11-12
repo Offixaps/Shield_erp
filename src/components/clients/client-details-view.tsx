@@ -985,20 +985,20 @@ export default function ClientDetailsView({
               <CardContent className="space-y-4">
                 <LifestyleQuestionDisplay
                   question="Flown as a pilot, student pilot, or crew member?"
-                  value={client.flownAsPilot}
-                  details={client.flownAsPilotDetails}
+                  value={(client.lifestyleDetails || []).some(d => ['Pilot', 'Student Pilot', 'Crew Member'].includes(d.item)) ? 'yes' : 'no'}
+                  details={(client.lifestyleDetails || []).filter(d => ['Pilot', 'Student Pilot', 'Crew Member'].includes(d.item))}
                 />
                  <Separator />
                 <LifestyleQuestionDisplay
                   question="Engaged in hazardous sports?"
-                  value={client.hazardousSports}
-                  details={client.hazardousSportsDetails}
+                  value={(client.lifestyleDetails || []).some(d => ['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing'].includes(d.item)) ? 'yes' : 'no'}
+                  details={(client.lifestyleDetails || []).filter(d => ['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing'].includes(d.item))}
                 />
                  <Separator />
                  <LifestyleQuestionDisplay
                   question="Scheduled to travel outside country of residence?"
-                  value={client.travelOutsideCountry}
-                  details={client.travelOutsideCountryDetails}
+                  value={(client.lifestyleDetails || []).some(d => ['Live Outside', 'Work outside', 'Go on Holiday'].includes(d.item)) ? 'yes' : 'no'}
+                  details={(client.lifestyleDetails || []).filter(d => ['Live Outside', 'Work outside', 'Go on Holiday'].includes(d.item))}
                 />
               </CardContent>
             </Card>
