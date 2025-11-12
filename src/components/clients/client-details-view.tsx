@@ -508,7 +508,38 @@ export default function ClientDetailsView({
 
   React.useEffect(() => {
     const freshClient = getPolicyById(initialClient.id);
-    setClient(freshClient || initialClient);
+    if (freshClient) {
+      const combinedHistory = [
+        ...(freshClient.bloodTransfusionOrSurgeryDetails || []),
+        ...(freshClient.highBloodPressureDetails || []),
+        ...(freshClient.cancerDetails || []),
+        ...(freshClient.diabetesDetails || []),
+        ...(freshClient.colitisCrohnsDetails || []),
+        ...(freshClient.paralysisEpilepsyDetails || []),
+        ...(freshClient.mentalIllnessDetails || []),
+        ...(freshClient.arthritisDetails || []),
+        ...(freshClient.chestPainDetails || []),
+        ...(freshClient.asthmaDetails || []),
+        ...(freshClient.digestiveDisorderDetails || []),
+        ...(freshClient.bloodDisorderDetails || []),
+        ...(freshClient.thyroidDisorderDetails || []),
+        ...(freshClient.kidneyDisorderDetails || []),
+        ...(freshClient.numbnessDetails || []),
+        ...(freshClient.anxietyStressDetails || []),
+        ...(freshClient.earEyeDisorderDetails || []),
+        ...(freshClient.lumpGrowthDetails || []),
+        ...(freshClient.hospitalAttendanceDetails || []),
+        ...(freshClient.criticalIllnessDetails || []),
+        ...(freshClient.stiDetails || []),
+        ...(freshClient.presentSymptomsDetails || []),
+      ];
+      setClient({
+        ...freshClient,
+        medicalHistory: combinedHistory,
+      });
+    } else {
+      setClient(initialClient);
+    }
   }, [initialClient]);
 
    React.useEffect(() => {
@@ -974,6 +1005,22 @@ export default function ClientDetailsView({
                     </div>
                 </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
+                  <h3 className="font-medium uppercase text-sidebar-foreground">
+                  Agent Details
+                  </h3>
+              </CardHeader>
+              <Separator />
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 pt-6">
+                  <DetailItem label="Agent Name" value={client.agentName} />
+                  <DetailItem label="Agent Code" value={client.agentCode} />
+                  <DetailItem label="Upline Name" value={client.uplineName} />
+                  <DetailItem label="Upline Code" value={client.uplineCode} />
+                  <DetailItem label="Introducer's Code" value={client.introducerCode} />
+              </CardContent>
+            </Card>
           </div>
         </TabsContent>
 
@@ -1241,3 +1288,4 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
