@@ -492,9 +492,18 @@ export default function ClientDetailsView({
     defaultValues: initialClient as any,
   });
   
+  const everDiagnosedConditions = ['Blood transfusion', 'Surgery', 'High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease', 'Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor', 'Diabetes', "Crohn's disease", "Colitis", 'Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder', 'Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown'];
+  
+  const last5YearsConditions = ['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder', 'Chest pain', 'Irregular heart beat', 'Raised cholesterol', 'Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint', 'Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas', 'Blood disorder', 'Anemia', 'Thyroid disorder', 'Kidney disorder', 'Renal failure', 'Bladder disorder', 'Numbness', 'Anxiety', 'Stress', 'Depression', 'Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision', 'Lump', 'Growth', 'Mole', 'Freckle', 'X-ray', 'Scan', 'Checkup', 'Operation', "Alzheimer's Disease", 'Multiple Sclerosis', 'STI', 'Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush', 'Present Symptoms'];
+
   const medicalHistory = React.useMemo(() => {
     if (!client) return [];
-    return (client.medicalHistory || []);
+    return (client.medicalHistory || []).filter(h => everDiagnosedConditions.includes(h.illness));
+  }, [client]);
+
+  const medicalHistoryLast5Years = React.useMemo(() => {
+    if (!client) return [];
+    return (client.medicalHistory || []).filter(h => last5YearsConditions.includes(h.illness));
   }, [client]);
 
   React.useEffect(() => {
@@ -1101,6 +1110,12 @@ export default function ClientDetailsView({
                 title="Have you ever had, received or been diagnosed with any of the following:"
                 icon={<Stethoscope className="text-primary" />}
                 data={medicalHistory}
+            />
+
+             <MedicalHistorySection
+                title="In the past 5 years have you ever had:"
+                icon={<Stethoscope className="text-primary" />}
+                data={medicalHistoryLast5Years}
             />
 
             <Card>
