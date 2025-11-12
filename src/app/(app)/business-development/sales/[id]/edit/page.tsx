@@ -8,6 +8,9 @@ import NewBusinessForm from '@/components/clients/new-business-form';
 import { getPolicyById } from '@/lib/policy-service';
 import { notFound, useParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Eye } from 'lucide-react';
 
 export default function EditBusinessPage() {
   const params = useParams();
@@ -41,10 +44,18 @@ export default function EditBusinessPage() {
   
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={`Edit Policy for ${client.client}`}
-        description="Update policy details across the different sections."
-      />
+      <div className="flex items-center justify-between">
+        <PageHeader
+            title={`Edit Policy for ${client.client}`}
+            description="Update policy details across the different sections."
+        />
+        <Button asChild>
+            <Link href={`/business-development/clients/${params.id}`}>
+                <Eye className="mr-2 h-4 w-4" />
+                View Client Details
+            </Link>
+        </Button>
+      </div>
       <Card>
         <CardContent className="pt-6">
           <NewBusinessForm businessId={params.id as string} />
