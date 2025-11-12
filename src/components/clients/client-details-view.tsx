@@ -25,11 +25,11 @@ import {
   Users,
   Pill,
   Syringe,
-  Virus,
   Plane,
   Bike,
   Waves,
   GlassWater,
+  Biohazard,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail, ExistingPolicyDetail, DeclinedPolicyDetail, LifestyleDetail } from '@/lib/data';
@@ -1061,7 +1061,7 @@ export default function ClientDetailsView({
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Virus className="text-primary" /> Viral Co-infections
+                  <Biohazard className="text-primary" /> Viral Co-infections
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1250,3 +1250,6 @@ export default function ClientDetailsView({
     
 
 
+
+
+    
