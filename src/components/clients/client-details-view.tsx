@@ -509,34 +509,35 @@ export default function ClientDetailsView({
   React.useEffect(() => {
     const freshClient = getPolicyById(initialClient.id);
     if (freshClient) {
-      const combinedHistory = [
-        ...(freshClient.bloodTransfusionOrSurgeryDetails || []),
-        ...(freshClient.highBloodPressureDetails || []),
-        ...(freshClient.cancerDetails || []),
-        ...(freshClient.diabetesDetails || []),
-        ...(freshClient.colitisCrohnsDetails || []),
-        ...(freshClient.paralysisEpilepsyDetails || []),
-        ...(freshClient.mentalIllnessDetails || []),
-        ...(freshClient.arthritisDetails || []),
-        ...(freshClient.chestPainDetails || []),
-        ...(freshClient.asthmaDetails || []),
-        ...(freshClient.digestiveDisorderDetails || []),
-        ...(freshClient.bloodDisorderDetails || []),
-        ...(freshClient.thyroidDisorderDetails || []),
-        ...(freshClient.kidneyDisorderDetails || []),
-        ...(freshClient.numbnessDetails || []),
-        ...(freshClient.anxietyStressDetails || []),
-        ...(freshClient.earEyeDisorderDetails || []),
-        ...(freshClient.lumpGrowthDetails || []),
-        ...(freshClient.hospitalAttendanceDetails || []),
-        ...(freshClient.criticalIllnessDetails || []),
-        ...(freshClient.stiDetails || []),
-        ...(freshClient.presentSymptomsDetails || []),
-      ];
-      setClient({
-        ...freshClient,
-        medicalHistory: combinedHistory,
-      });
+        const combinedHistory = [
+            ...(freshClient.bloodTransfusionOrSurgeryDetails || []),
+            ...(freshClient.highBloodPressureDetails || []),
+            ...(freshClient.cancerDetails || []),
+            ...(freshClient.diabetesDetails || []),
+            ...(freshClient.colitisCrohnsDetails || []),
+            ...(freshClient.paralysisEpilepsyDetails || []),
+            ...(freshClient.mentalIllnessDetails || []),
+            ...(freshClient.arthritisDetails || []),
+            ...(freshClient.chestPainDetails || []),
+            ...(freshClient.asthmaDetails || []),
+            ...(freshClient.digestiveDisorderDetails || []),
+            ...(freshClient.bloodDisorderDetails || []),
+            ...(freshClient.thyroidDisorderDetails || []),
+            ...(freshClient.kidneyDisorderDetails || []),
+            ...(freshClient.numbnessDetails || []),
+            ...(freshClient.anxietyStressDetails || []),
+            ...(freshClient.earEyeDisorderDetails || []),
+            ...(freshClient.lumpGrowthDetails || []),
+            ...(freshClient.hospitalAttendanceDetails || []),
+            ...(freshClient.criticalIllnessDetails || []),
+            ...(freshClient.stiDetails || []),
+            ...(freshClient.presentSymptomsDetails || []),
+        ].filter(Boolean); // Filter out any undefined/null entries
+
+        setClient({
+            ...freshClient,
+            medicalHistory: combinedHistory,
+        });
     } else {
       setClient(initialClient);
     }
@@ -606,6 +607,8 @@ export default function ClientDetailsView({
   
   const canVerifyMandate = isFromPremiumAdmin && client.onboardingStatus === 'Pending Mandate';
   const canCollectPremium = isFromPremiumAdmin && client.policyStatus === 'Active';
+
+  const canEditPolicy = isFromBusinessDevelopment && !['Accepted', 'Policy Issued'].includes(client.onboardingStatus);
 
 
   const handleOnboardingStatusUpdate = (
@@ -725,7 +728,15 @@ export default function ClientDetailsView({
       <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <PageHeader title={client.client} />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {canEditPolicy && (
+                <Button asChild>
+                    <Link href={`/business-development/sales/${client.id}/edit`}>
+                        <FilePenLine className="mr-2 h-4 w-4" />
+                        Edit Policy
+                    </Link>
+                </Button>
+            )}
             {isPendingVetting && <CompleteVettingDialog client={client} onUpdate={handleOnboardingStatusUpdate} />}
             {(isReworkRequired || isMandateReworkRequired) && isFromBusinessDevelopment && (
                 <Button asChild>
@@ -1289,3 +1300,4 @@ export default function ClientDetailsView({
   );
 }
 
+    
