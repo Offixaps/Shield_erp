@@ -245,7 +245,6 @@ function MedicalHistorySection({
                   <DetailItem label="Duration" value={history.duration} />
                   <DetailItem label="Status" value={history.status} />
                 </div>
-                {/* Specific conditional details can be added here */}
                  {history.illness === 'High blood pressure' && (
                     <div className="p-4 mt-2 space-y-4 bg-blue-500/10 rounded-md border border-blue-500/20">
                         <h4 className="font-semibold text-primary">High Blood Pressure Specifics</h4>
@@ -492,6 +491,11 @@ export default function ClientDetailsView({
     resolver: zodResolver(newBusinessFormSchema),
     defaultValues: initialClient as any,
   });
+  
+  const medicalHistory = React.useMemo(() => {
+    if (!client) return [];
+    return (client.medicalHistory || []);
+  }, [client]);
 
   React.useEffect(() => {
     const freshClient = getPolicyById(initialClient.id);
@@ -526,16 +530,13 @@ export default function ClientDetailsView({
       const currentTime = new Date().getTime();
 
       if (currentTime - verificationTime > sixtySecondsInMillis) {
-        // If 60 seconds have passed, update the status
         handleOnboardingStatusUpdate('Policy Issued');
       } else {
-        // Otherwise, set a timeout to re-check and update
         const timeRemaining = sixtySecondsInMillis - (currentTime - verificationTime);
         const timer = setTimeout(() => {
           handleOnboardingStatusUpdate('Policy Issued');
         }, timeRemaining);
 
-        // Cleanup timer on component unmount
         return () => clearTimeout(timer);
       }
     }
@@ -1095,11 +1096,11 @@ export default function ClientDetailsView({
                 )}
               </CardContent>
             </Card>
-
+            
             <MedicalHistorySection
                 title="Have you ever had, received or been diagnosed with any of the following:"
                 icon={<Stethoscope className="text-primary" />}
-                data={client.medicalHistory}
+                data={medicalHistory}
             />
 
             <Card>
@@ -1241,15 +1242,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-    
-
-    
-
-
-
-
-    
-
-
-
