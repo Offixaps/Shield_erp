@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -30,7 +31,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, Trash2, Info, Send, ShieldCheck } from 'lucide-react';
+import { CalendarIcon, Plus, Trash2, Info, Send, ShieldCheck, FilePenLine } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn, numberToWords } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -484,7 +485,7 @@ const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]
     lifestyle: ['flownAsPilot', 'flownAsPilotDetails', 'hazardousSports', 'hazardousSportsDetails', 'travelOutsideCountry', 'travelOutsideCountryDetails'],
     declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
     agent: ['agentName', 'agentCode', 'uplineName', 'uplineCode', 'introducerCode'],
-    payment: ['isPolicyHolderPayer', 'premiumPayerSurname', 'premiumPayerOtherNames', 'premiumPayerOccupation', 'premiumPayerRelationship', 'premiumPayerResidentialAddress', 'premiumPayerPostalAddress', 'premiumPayerDob', 'premiumPayerBusinessName', 'premiumPayerIdType', 'premiumPayerIdNumber', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'premiumPayerPlaceOfIssue', 'bankName', 'bankBranch', 'amountInWords', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'paymentAuthoritySignature']
+    'payment-details': ['isPolicyHolderPayer', 'premiumPayerSurname', 'premiumPayerOtherNames', 'premiumPayerOccupation', 'premiumPayerRelationship', 'premiumPayerResidentialAddress', 'premiumPayerPostalAddress', 'premiumPayerDob', 'premiumPayerBusinessName', 'premiumPayerIdType', 'premiumPayerIdNumber', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'premiumPayerPlaceOfIssue', 'bankName', 'bankBranch', 'amountInWords', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'paymentAuthoritySignature']
 };
 
 const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> = {
@@ -655,20 +656,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           declinedPolicyDetails: data.declinedPolicyDetails,
 
           alcoholHabits: businessData.alcoholHabits,
-          alcoholBeer: data.alcoholBeer,
-          alcoholWine: data.alcoholWine,
-          alcoholSpirits: data.alcoholSpirits,
+          alcoholBeer: { consumed: data.alcoholBeer?.consumed || false, averagePerWeek: data.alcoholBeer?.averagePerWeek || '' },
+          alcoholWine: { consumed: data.alcoholWine?.consumed || false, averagePerWeek: data.alcoholWine?.averagePerWeek || '' },
+          alcoholSpirits: { consumed: data.alcoholSpirits?.consumed || false, averagePerWeek: data.alcoholSpirits?.averagePerWeek || '' },
           reducedAlcoholMedicalAdvice: data.reducedAlcoholMedicalAdvice,
           reducedAlcoholHealthProblems: data.reducedAlcoholHealthProblems,
 
           tobaccoHabits: businessData.tobaccoHabits,
           usedNicotineLast12Months: data.usedNicotineLast12Months,
-          tobaccoCigarettes: data.tobaccoCigarettes,
-          tobaccoCigars: data.tobaccoCigars,
-          tobaccoPipe: data.tobaccoPipe,
-          tobaccoNicotineReplacement: data.tobaccoNicotineReplacement,
-          tobaccoEcigarettes: data.tobaccoEcigarettes,
-          tobaccoOther: data.tobaccoOther,
+          tobaccoCigarettes: { smoked: data.tobaccoCigarettes?.smoked || false, avgPerDay: data.tobaccoCigarettes?.avgPerDay || '', avgPerWeek: data.tobaccoCigarettes?.avgPerWeek || '' },
+          tobaccoCigars: { smoked: data.tobaccoCigars?.smoked || false, avgPerDay: data.tobaccoCigars?.avgPerDay || '', avgPerWeek: data.tobaccoCigars?.avgPerWeek || '' },
+          tobaccoPipe: { smoked: data.tobaccoPipe?.smoked || false, avgPerDay: data.tobaccoPipe?.avgPerDay || '', avgPerWeek: data.tobaccoPipe?.avgPerWeek || '' },
+          tobaccoNicotineReplacement: { smoked: data.tobaccoNicotineReplacement?.smoked || false, avgPerDay: data.tobaccoNicotineReplacement?.avgPerDay || '', avgPerWeek: data.tobaccoNicotineReplacement?.avgPerWeek || '' },
+          tobaccoEcigarettes: { smoked: data.tobaccoEcigarettes?.smoked || false, avgPerDay: data.tobaccoEcigarettes?.avgPerDay || '', avgPerWeek: data.tobaccoEcigarettes?.avgPerWeek || '' },
+          tobaccoOther: { smoked: data.tobaccoOther?.smoked || false, avgPerDay: data.tobaccoOther?.avgPerDay || '', avgPerWeek: data.tobaccoOther?.avgPerWeek || '', otherType: data.tobaccoOther?.otherType || '' },
 
           usedRecreationalDrugs: data.usedRecreationalDrugs,
           injectedNonPrescribedDrugs: data.injectedNonPrescribedDrugs,
@@ -4360,3 +4361,4 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
+
