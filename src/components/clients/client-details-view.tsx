@@ -31,7 +31,7 @@ import {
   Waves,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
-import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail, ExistingPolicyDetail, DeclinedPolicyDetail } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail, ExistingPolicyDetail, DeclinedPolicyDetail, LifestyleDetail } from '@/lib/data';
 import { useToast } from '@/hooks/use-toast';
 import {
   Tabs,
@@ -160,13 +160,57 @@ function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiari
 }
 
 function YesNoDisplay({ value }: { value: 'yes' | 'no' | undefined | boolean }) {
-    const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : value || 'no';
+    const displayValue = typeof value === 'boolean' ? (value ? 'Yes' : 'No') : (value || 'no');
+    const isYes = displayValue.toLowerCase() === 'yes';
     return (
-      <Badge variant={displayValue === 'yes' ? 'destructive' : 'secondary'}>
-        {displayValue === 'yes' ? 'Yes' : 'No'}
+      <Badge variant={isYes ? 'destructive' : 'secondary'}>
+        {isYes ? 'Yes' : 'No'}
       </Badge>
     );
 }
+
+
+function LifestyleQuestionDisplay({
+  question,
+  value,
+  details,
+}: {
+  question: string;
+  value: 'yes' | 'no' | undefined;
+  details: LifestyleDetail[] | undefined;
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="font-medium">{question}</p>
+        <YesNoDisplay value={value} />
+      </div>
+      {value === 'yes' && details && details.length > 0 && (
+        <div className="pl-4">
+          <div className="rounded-md border bg-muted/50">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Activity</TableHead>
+                  <TableHead>Details</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {details.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{item.item}</TableCell>
+                    <TableCell>{item.details || 'N/A'}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function MedicalHistorySection({
   title,
@@ -348,12 +392,10 @@ export default function ClientDetailsView({
   client: initialClient,
   from,
   defaultTab = 'overview',
-  isEditMode = false,
 }: {
   client: NewBusiness;
   from: string;
   defaultTab?: string;
-  isEditMode?: boolean;
 }) {
   const { toast } = useToast();
   const [client, setClient] = React.useState<NewBusiness | null>(initialClient);
@@ -550,118 +592,6 @@ export default function ClientDetailsView({
     { title: 'Policy Term', value: `${client.policyTerm} years` },
     { title: 'Premium Term', value: `${client.premiumTerm} years` },
   ];
-
-  const handleSectionSave = (section: keyof z.infer<typeof newBusinessFormSchema>) => {
-    // This is a placeholder for per-section saving.
-    // In a real scenario, you'd trigger validation for the specific section's fields
-    // and then call an API to update only those fields.
-    const values = form.getValues();
-    updatePolicy(client.id, values);
-    toast({
-      title: 'Section Saved',
-      description: `The ${section} section has been updated.`,
-    });
-  };
-
-  if (isEditMode) {
-    return (
-      <Form {...form}>
-      <div className="flex flex-col gap-6">
-        <PageHeader title={`Edit Policy: ${client.client}`} />
-        {/* The rest of the editable view will be built out here */}
-        <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 h-auto">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
-              <TabsTrigger value="health">Health</TabsTrigger>
-              <TabsTrigger value="claims">Claims History</TabsTrigger>
-              <TabsTrigger value="underwriting-log">Underwriting</TabsTrigger>
-              <TabsTrigger value="enquiries">Enquiries</TabsTrigger>
-              <TabsTrigger value="payment-history">Payment History</TabsTrigger>
-              <TabsTrigger value="mandate">Mandate</TabsTrigger>
-              <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
-            </TabsList>
-  
-            <TabsContent value="overview" className="mt-6 space-y-6">
-               <Card>
-                <CardHeader className="flex flex-row items-center justify-between p-2 bg-sidebar rounded-t-md">
-                   <h3 className="font-medium uppercase text-sidebar-foreground">
-                    Personal details of life insured
-                  </h3>
-                   <Button size="sm" onClick={() => handleSectionSave('lifeAssuredFirstName')}>Save Section</Button>
-                </CardHeader>
-                <Separator />
-                <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-6">
-                   <FormField
-                      control={form.control}
-                      name="lifeAssuredFirstName"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>First Name</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lifeAssuredSurname"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Surname</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="lifeAssuredDob"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-col">
-                          <FormLabel>Date of Birth</FormLabel>
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <FormControl>
-                                <Button variant="outline" className={cn('pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}>
-                                  {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
-                                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                </Button>
-                              </FormControl>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={new Date(field.value)} onSelect={field.onChange} /></PopoverContent>
-                          </Popover>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                     <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl><Input {...field} /></FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {/* Add other personal detail fields here */}
-                </CardContent>
-              </Card>
-            </TabsContent>
-            {/* Other Tabs */}
-             <TabsContent value="payment-history" className="mt-6">
-                <PaymentHistoryTab client={client} />
-             </TabsContent>
-             <TabsContent value="activity-log" className="mt-6">
-                <ActivityLogTab client={client} />
-             </TabsContent>
-        </Tabs>
-      </div>
-      </Form>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -1047,33 +977,30 @@ export default function ClientDetailsView({
             </Card>
 
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Waves className="text-primary"/> Lifestyle Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                     {client.lifestyleDetails && client.lifestyleDetails.length > 0 ? (
-                        <div className="rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Activity</TableHead>
-                                        <TableHead>Details</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {client.lifestyleDetails.map((lifestyleItem, index) => (
-                                        <TableRow key={index}>
-                                            <TableCell>{lifestyleItem.item}</TableCell>
-                                            <TableCell>{lifestyleItem.details || 'N/A'}</TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
-                    ) : (
-                        <p className="text-muted-foreground">No special lifestyle details disclosed.</p>
-                    )}
-                </CardContent>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Waves className="text-primary" /> Lifestyle Details
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <LifestyleQuestionDisplay
+                  question="Flown as a pilot, student pilot, or crew member?"
+                  value={client.flownAsPilot}
+                  details={client.flownAsPilotDetails}
+                />
+                 <Separator />
+                <LifestyleQuestionDisplay
+                  question="Engaged in hazardous sports?"
+                  value={client.hazardousSports}
+                  details={client.hazardousSportsDetails}
+                />
+                 <Separator />
+                 <LifestyleQuestionDisplay
+                  question="Scheduled to travel outside country of residence?"
+                  value={client.travelOutsideCountry}
+                  details={client.travelOutsideCountryDetails}
+                />
+              </CardContent>
             </Card>
           </div>
         </TabsContent>
