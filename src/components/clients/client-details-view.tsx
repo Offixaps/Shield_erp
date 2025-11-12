@@ -428,6 +428,52 @@ function AlcoholConsumptionTable({ client }: { client: NewBusiness }) {
   );
 }
 
+const tobaccoHabitsLabels: Record<NewBusiness['tobaccoHabits'], string> = {
+    never_smoked: 'Have never smoked',
+    ex_smoker_over_5_years: 'Ex-smoker: last used over 5 years ago',
+    ex_smoker_1_to_5_years: 'Ex-smoker: last used 1 to 5 years ago',
+    ex_smoker_within_1_year: 'Ex-smoker: last used within the last year',
+    smoke_occasionally_socially: 'Smoke occasionally or socially only',
+    current_regular_smoker: 'Current regular smoker',
+};
+
+function TobaccoConsumptionTable({ client }: { client: NewBusiness }) {
+  const consumed = [
+    { type: 'Cigarettes', details: client.tobaccoCigarettes },
+    { type: 'Cigars', details: client.tobaccoCigars },
+    { type: 'Pipe', details: client.tobaccoPipe },
+    { type: 'Nicotine replacement products', details: client.tobaccoNicotineReplacement },
+    { type: 'E-cigarettes', details: client.tobaccoEcigarettes },
+    { type: client.tobaccoOther?.otherType || 'Other', details: client.tobaccoOther },
+  ].filter(item => item.details?.smoked);
+
+  if (consumed.length === 0) return null;
+
+  return (
+    <div className="rounded-md border bg-muted/50">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Type</TableHead>
+            <TableHead>Average per day</TableHead>
+            <TableHead>Average per week</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {consumed.map(item => (
+            <TableRow key={item.type}>
+              <TableCell>{item.type}</TableCell>
+              <TableCell>{item.details?.avgPerDay || 'N/A'}</TableCell>
+              <TableCell>{item.details?.avgPerWeek || 'N/A'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
+
 export default function ClientDetailsView({
   client: initialClient,
   from,
@@ -978,6 +1024,20 @@ export default function ClientDetailsView({
                              {client.reducedAlcoholHealthProblems?.notes && <p className="text-sm text-muted-foreground">({client.reducedAlcoholHealthProblems.notes})</p>}
                         </div>
                     </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-cigarette text-primary"><path d="M18 12H2v4h16"/><path d="M22 12v4"/><path d="M7 12v4"/><path d="M18 8c0-2.2-1.8-4-4-4"/><path d="M22 8c0-2.2-1.8-4-4-4"/></svg> Tobacco & Nicotine Use</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <DetailItem label="Smoking Habits" value={client.tobaccoHabits ? tobaccoHabitsLabels[client.tobaccoHabits] : 'N/A'} />
+                    <div className="space-y-2">
+                        <p className="font-medium">Used any tobacco or nicotine products in the last 12 months?</p>
+                        <YesNoDisplay value={client.usedNicotineLast12Months} />
+                    </div>
+                    <TobaccoConsumptionTable client={client} />
                 </CardContent>
             </Card>
 
