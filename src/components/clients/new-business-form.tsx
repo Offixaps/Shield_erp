@@ -551,6 +551,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             Object.keys(d).forEach(key => {
               if (key.toLowerCase().includes('date') && d[key]) {
                 parsed[key] = new Date(d[key]);
+              } else if (typeof d[key] === 'undefined' || d[key] === null) {
+                // Ensure optional string fields are at least empty strings
+                if (typeof illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] === 'object' && 'options' in (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.innerType) {
+                    // This is a ZodEnum, don't default it to empty string
+                } else if (typeof illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] === 'object' && (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.typeName === 'ZodDate') {
+                    // This is a ZodDate, leave as undefined
+                } else {
+                    parsed[key] = '';
+                }
               }
             });
             return parsed;
@@ -561,7 +570,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const illnesses = Array.isArray(illness) ? illness : [illness];
             return parseMedicalDetails((data.medicalHistory || []).filter((h:any) => illnesses.includes(h.illness)));
         }
-
+        
         const getLifestyleDetailsFor = (item: string) => {
             return (data.lifestyleDetails || []).filter((d: any) => d.item === item);
         }
@@ -4361,5 +4370,6 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
+
 
 
