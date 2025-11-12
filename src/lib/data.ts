@@ -6,6 +6,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -223,6 +224,16 @@ export type DeclinedPolicyDetail = {
     details: string;
 };
 
+export type AlcoholDetail = {
+    consumed: boolean;
+    averagePerWeek?: string;
+};
+
+export type ReducedAlcoholReason = {
+    reduced: 'yes' | 'no';
+    notes?: string;
+};
+
 
 export type NewBusiness = {
   id: number;
@@ -302,6 +313,11 @@ export type NewBusiness = {
   weight?: number;
   bmi?: number;
   alcoholHabits: 'never_used' | 'occasional_socially' | 'ex_drinker_over_5_years' | 'ex_drinker_1_to_5_years' | 'ex_drinker_within_1_year' | 'current_regular_drinker';
+  alcoholBeer?: AlcoholDetail;
+  alcoholWine?: AlcoholDetail;
+  alcoholSpirits?: AlcoholDetail;
+  reducedAlcoholMedicalAdvice?: ReducedAlcoholReason;
+  reducedAlcoholHealthProblems?: ReducedAlcoholReason;
   tobaccoHabits: 'never_smoked' | 'ex_smoker_over_5_years' | 'ex_smoker_1_to_5_years' | 'ex_smoker_within_1_year' | 'smoke_occasionally_socially' | 'current_regular_smoker';
   medicalHistory: IllnessDetail[];
   familyMedicalHistory: 'yes' | 'no';
@@ -390,6 +406,11 @@ export const newBusinessData: NewBusiness[] = [
     weight: 85,
     bmi: 26.2,
     alcoholHabits: 'occasional_socially',
+    alcoholBeer: { consumed: true, averagePerWeek: '2 bottles' },
+    alcoholWine: { consumed: false },
+    alcoholSpirits: { consumed: false },
+    reducedAlcoholMedicalAdvice: { reduced: 'no' },
+    reducedAlcoholHealthProblems: { reduced: 'no' },
     tobaccoHabits: 'never_smoked',
     medicalHistory: [],
     familyMedicalHistory: 'no',
@@ -462,6 +483,11 @@ export const newBusinessData: NewBusiness[] = [
     weight: 70,
     bmi: 25.7,
     alcoholHabits: 'never_used',
+    alcoholBeer: { consumed: false },
+    alcoholWine: { consumed: false },
+    alcoholSpirits: { consumed: false },
+    reducedAlcoholMedicalAdvice: { reduced: 'no' },
+    reducedAlcoholHealthProblems: { reduced: 'no' },
     tobaccoHabits: 'ex_smoker_over_5_years',
     medicalHistory: [
       {
@@ -1509,3 +1535,6 @@ export const newBusinessData: NewBusiness[] = [
     
 
 
+
+
+    

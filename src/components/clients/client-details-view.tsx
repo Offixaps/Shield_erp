@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -28,6 +29,7 @@ import {
   Plane,
   Bike,
   Waves,
+  GlassWater,
 } from 'lucide-react';
 import AcceptPolicyDialog from '@/components/clients/accept-policy-dialog';
 import type { NewBusiness, OnboardingStatus, Beneficiary, IllnessDetail, ExistingPolicyDetail, DeclinedPolicyDetail, LifestyleDetail } from '@/lib/data';
@@ -386,6 +388,45 @@ function DeclinedPoliciesDisplay({ policies }: { policies: DeclinedPolicyDetail[
   );
 }
 
+const alcoholHabitsLabels: Record<NewBusiness['alcoholHabits'], string> = {
+    never_used: 'Have never used alcohol',
+    occasional_socially: 'Drink occasionally or socially only',
+    ex_drinker_over_5_years: 'Ex-drinker; last drunk alcohol over 5 years ago',
+    ex_drinker_1_to_5_years: 'Ex-drinker: last drunk alcohol 1 to 5 years ago',
+    ex_drinker_within_1_year: 'Ex-drinker: last drunk alcohol within the last year',
+    current_regular_drinker: 'Current regular drinker',
+};
+
+function AlcoholConsumptionTable({ client }: { client: NewBusiness }) {
+  const consumed = [
+    { type: 'Beer', details: client.alcoholBeer },
+    { type: 'Wine', details: client.alcoholWine },
+    { type: 'Spirits', details: client.alcoholSpirits },
+  ].filter(item => item.details?.consumed);
+
+  if (consumed.length === 0) return null;
+
+  return (
+    <div className="rounded-md border bg-muted/50">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Type</TableHead>
+            <TableHead>Average per week</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {consumed.map(item => (
+            <TableRow key={item.type}>
+              <TableCell>{item.type}</TableCell>
+              <TableCell>{item.details?.averagePerWeek || 'N/A'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
 
 export default function ClientDetailsView({
   client: initialClient,
@@ -914,6 +955,32 @@ export default function ClientDetailsView({
               </CardContent>
             </Card>
 
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><GlassWater className="text-primary"/> Alcohol Consumption</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <DetailItem label="Drinking Habits" value={client.alcoholHabits ? alcoholHabitsLabels[client.alcoholHabits] : 'N/A'} />
+                    
+                    <AlcoholConsumptionTable client={client} />
+                    
+                    <div className="space-y-2">
+                        <p className="font-medium">Advised by medical professional to reduce alcohol?</p>
+                        <div className="flex items-center gap-2">
+                             <YesNoDisplay value={client.reducedAlcoholMedicalAdvice?.reduced} />
+                             {client.reducedAlcoholMedicalAdvice?.notes && <p className="text-sm text-muted-foreground">({client.reducedAlcoholMedicalAdvice.notes})</p>}
+                        </div>
+                    </div>
+                     <div className="space-y-2">
+                        <p className="font-medium">Reduced alcohol due to health problems?</p>
+                        <div className="flex items-center gap-2">
+                             <YesNoDisplay value={client.reducedAlcoholHealthProblems?.reduced} />
+                             {client.reducedAlcoholHealthProblems?.notes && <p className="text-sm text-muted-foreground">({client.reducedAlcoholHealthProblems.notes})</p>}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
             <MedicalHistorySection
                 title="Medical History"
                 icon={<Stethoscope className="text-primary" />}
@@ -1059,5 +1126,7 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    
 
     
