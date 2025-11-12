@@ -336,7 +336,7 @@ export const newBusinessFormSchema = z
     amountInWords: z.string().min(3, 'Amount in words is required.'),
     sortCode: z.string().min(6, 'Sort code must be at least 6 characters.'),
     accountType: z.enum(['Current', 'Savings', 'Other']),
-    bankAccountName: zstring().min(2, 'Bank account name is required.'),
+    bankAccountName: z.string().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
     paymentAuthoritySignature: z.string().optional(),
 
