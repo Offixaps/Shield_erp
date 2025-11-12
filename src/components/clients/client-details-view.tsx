@@ -1041,6 +1041,23 @@ export default function ClientDetailsView({
                 </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Pill className="text-primary"/> Recreational Drugs</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <p className="font-medium max-w-[80%]">Have you ever used recreational drugs (e.g. cocaine, heroin, weed) or taken drugs other than for medical purposes?</p>
+                    <YesNoDisplay value={client.usedRecreationalDrugs} />
+                </div>
+                <Separator />
+                 <div className="flex items-center justify-between">
+                    <p className="font-medium max-w-[80%]">Have you ever injected a non-prescribed drugs?</p>
+                    <YesNoDisplay value={client.injectedNonPrescribedDrugs} />
+                </div>
+              </CardContent>
+            </Card>
+
             <MedicalHistorySection
                 title="Medical History"
                 icon={<Stethoscope className="text-primary" />}
@@ -1190,3 +1207,4 @@ export default function ClientDetailsView({
     
 
     
+
