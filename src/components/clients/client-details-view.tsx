@@ -1058,6 +1058,47 @@ export default function ClientDetailsView({
               </CardContent>
             </Card>
 
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Virus className="text-primary" /> Viral Co-infections
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium max-w-[80%]">
+                    Have you ever been tested positive for HIV, Hepatitis B or C, or are you awaiting the results of such a test?
+                  </p>
+                  <YesNoDisplay value={client.testedPositiveViralInfection} />
+                </div>
+                {client.testedPositiveViralInfection === 'yes' && (
+                  <div className="space-y-4 rounded-md border bg-muted/50 p-4">
+                    {client.testedPositiveFor && (client.testedPositiveFor.hiv || client.testedPositiveFor.hepB || client.testedPositiveFor.hepC) && (
+                      <div className="flex items-start gap-4">
+                        <p className="font-semibold min-w-36">Tested positive for:</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                          {client.testedPositiveFor.hiv && <div>HIV</div>}
+                          {client.testedPositiveFor.hepB && <div>Hepatitis B</div>}
+                          {client.testedPositiveFor.hepC && <div>Hepatitis C</div>}
+                        </div>
+                      </div>
+                    )}
+                    {client.awaitingResultsFor && (client.awaitingResultsFor.hiv || client.awaitingResultsFor.hepB || client.awaitingResultsFor.hepC) && (
+                      <div className="flex items-start gap-4">
+                        <p className="font-semibold min-w-36">Awaiting results for:</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1">
+                          {client.awaitingResultsFor.hiv && <div>HIV</div>}
+                          {client.awaitingResultsFor.hepB && <div>Hepatitis B</div>}
+                          {client.awaitingResultsFor.hepC && <div>Hepatitis C</div>}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+
             <MedicalHistorySection
                 title="Medical History"
                 icon={<Stethoscope className="text-primary" />}
@@ -1207,4 +1248,5 @@ export default function ClientDetailsView({
     
 
     
+
 
