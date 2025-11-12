@@ -110,8 +110,8 @@ function AppSidebarHeader() {
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
-          <SidebarMenuButton asChild isActive={pathname === '/'} tooltip="Home">
-            <Link href="/">
+          <SidebarMenuButton asChild isActive={pathname === '/select-department'} tooltip="Home">
+            <Link href="/select-department">
               <Home />
               <span>Home</span>
             </Link>
@@ -132,7 +132,7 @@ export default function AppSidebar() {
   }, []);
 
   const handleLogout = () => {
-    router.push('/');
+    router.push('/login');
   };
 
 
