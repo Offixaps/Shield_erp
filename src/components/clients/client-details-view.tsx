@@ -497,13 +497,13 @@ export default function ClientDetailsView({
   const last5YearsConditions = ['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder', 'Chest pain', 'Irregular heart beat', 'Raised cholesterol', 'Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint', 'Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas', 'Blood disorder', 'Anemia', 'Thyroid disorder', 'Kidney disorder', 'Renal failure', 'Bladder disorder', 'Numbness', 'Anxiety', 'Stress', 'Depression', 'Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision', 'Lump', 'Growth', 'Mole', 'Freckle', 'X-ray', 'Scan', 'Checkup', 'Operation', "Alzheimer's Disease", 'Multiple Sclerosis', 'STI', 'Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush', 'Present Symptoms'];
 
   const medicalHistory = React.useMemo(() => {
-    if (!client) return [];
-    return (client.medicalHistory || []).filter(h => everDiagnosedConditions.includes(h.illness));
+    if (!client || !client.medicalHistory) return [];
+    return client.medicalHistory.filter(h => everDiagnosedConditions.includes(h.illness));
   }, [client]);
 
   const medicalHistoryLast5Years = React.useMemo(() => {
-    if (!client) return [];
-    return (client.medicalHistory || []).filter(h => last5YearsConditions.includes(h.illness));
+    if (!client || !client.medicalHistory) return [];
+    return client.medicalHistory.filter(h => last5YearsConditions.includes(h.illness));
   }, [client]);
 
   React.useEffect(() => {
@@ -1170,33 +1170,17 @@ export default function ClientDetailsView({
                     <DetailItem label="Hospital" value={client.currentDoctorHospital} />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Waves className="text-primary" /> Lifestyle Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <LifestyleQuestionDisplay
-                  question="Flown as a pilot, student pilot, or crew member?"
-                  value={(client.lifestyleDetails || []).some(d => ['Pilot', 'Student Pilot', 'Crew Member'].includes(d.item)) ? 'yes' : 'no'}
-                  details={(client.lifestyleDetails || []).filter(d => ['Pilot', 'Student Pilot', 'Crew Member'].includes(d.item))}
-                />
-                 <Separator />
-                <LifestyleQuestionDisplay
-                  question="Engaged in hazardous sports?"
-                  value={(client.lifestyleDetails || []).some(d => ['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing'].includes(d.item)) ? 'yes' : 'no'}
-                  details={(client.lifestyleDetails || []).filter(d => ['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing'].includes(d.item))}
-                />
-                 <Separator />
-                 <LifestyleQuestionDisplay
-                  question="Scheduled to travel outside country of residence?"
-                  value={(client.lifestyleDetails || []).some(d => ['Live Outside', 'Work outside', 'Go on Holiday'].includes(d.item)) ? 'yes' : 'no'}
-                  details={(client.lifestyleDetails || []).filter(d => ['Live Outside', 'Work outside', 'Go on Holiday'].includes(d.item))}
-                />
+                {(client.previousDoctorName || client.previousDoctorPhone || client.previousDoctorHospital) && (
+                    <div className="pt-4">
+                        <Separator className="my-4" />
+                        <h4 className="font-semibold">Previous Doctor (if changed in last 6 months)</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                            <DetailItem label="Name" value={client.previousDoctorName} />
+                            <DetailItem label="Phone" value={client.previousDoctorPhone} />
+                            <DetailItem label="Hospital" value={client.previousDoctorHospital} />
+                        </div>
+                    </div>
+                )}
               </CardContent>
             </Card>
           </div>
