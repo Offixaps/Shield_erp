@@ -499,9 +499,9 @@ const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> =
 
 const tobaccoHabitsLabels: Record<typeof tobaccoHabitsOptions[number], string> = {
     never_smoked: 'Have never smoked',
-    ex_smoker_over_5_years: 'Ex-smoker: last smoked or used nicotine products over 5 years ago',
-    ex_smoker_1_to_5_years: 'Ex-smoker: last smoked or used nicotine products 1 to 5 years ago',
-    ex_smoker_within_1_year: 'Ex-smoker: last smoked or used nicotine products within the last year',
+    ex_smoker_over_5_years: 'Ex-smoker: last used over 5 years ago',
+    ex_smoker_1_to_5_years: 'Ex-smoker: last used 1 to 5 years ago',
+    ex_smoker_within_1_year: 'Ex-smoker: last used within the last year',
     smoke_occasionally_socially: 'Smoke occasionally or socially only',
     current_regular_smoker: 'Current regular smoker',
 };
@@ -547,18 +547,17 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
         const parseMedicalDetails = (details: any[] | undefined) => {
           return (details || []).map(d => {
-            const parsed = {...d};
+            const parsed: any = {...d};
             Object.keys(d).forEach(key => {
               if (key.toLowerCase().includes('date') && d[key]) {
                 parsed[key] = new Date(d[key]);
               } else if (typeof d[key] === 'undefined' || d[key] === null) {
                 // Ensure optional string fields are at least empty strings
-                if (typeof illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] === 'object' && 'options' in (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.innerType) {
-                    // This is a ZodEnum, don't default it to empty string
-                } else if (typeof illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] === 'object' && (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.typeName === 'ZodDate') {
-                    // This is a ZodDate, leave as undefined
-                } else {
-                    parsed[key] = '';
+                if (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] &&
+                    illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape]._def.typeName === 'ZodOptional' &&
+                    (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.innerType._def.typeName === 'ZodString') 
+                {
+                   parsed[key] = '';
                 }
               }
             });
@@ -1131,6 +1130,32 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
+  const combineMedicalHistory = (values: z.infer<typeof newBusinessFormSchema>) => {
+    return [
+      ...(values.bloodTransfusionOrSurgeryDetails || []),
+      ...(values.highBloodPressureDetails || []),
+      ...(values.cancerDetails || []),
+      ...(values.diabetesDetails || []),
+      ...(values.colitisCrohnsDetails || []),
+      ...(values.paralysisEpilepsyDetails || []),
+      ...(values.mentalIllnessDetails || []),
+      ...(values.arthritisDetails || []),
+      ...(values.chestPainDetails || []),
+      ...(values.asthmaDetails || []),
+      ...(values.digestiveDisorderDetails || []),
+      ...(values.bloodDisorderDetails || []),
+      ...(values.thyroidDisorderDetails || []),
+      ...(values.kidneyDisorderDetails || []),
+      ...(values.numbnessDetails || []),
+      ...(values.anxietyStressDetails || []),
+      ...(values.earEyeDisorderDetails || []),
+      ...(values.lumpGrowthDetails || []),
+      ...(values.hospitalAttendanceDetails || []),
+      ...(values.criticalIllnessDetails || []),
+      ...(values.stiDetails || []),
+      ...(values.presentSymptomsDetails || []),
+    ];
+  };
 
   const processSubmit = (values: z.infer<typeof newBusinessFormSchema>, redirectPath?: string) => {
      if (!isEditMode && !values.lifeInsuredSignature) {
@@ -1170,30 +1195,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         } else {
             finalPayerName = [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' ');
         }
-        const combinedMedicalHistory = [
-            ...(values.bloodTransfusionOrSurgeryDetails || []),
-            ...(values.highBloodPressureDetails || []),
-            ...(values.cancerDetails || []),
-            ...(values.diabetesDetails || []),
-            ...(values.colitisCrohnsDetails || []),
-            ...(values.paralysisEpilepsyDetails || []),
-            ...(values.mentalIllnessDetails || []),
-            ...(values.arthritisDetails || []),
-            ...(values.chestPainDetails || []),
-            ...(values.asthmaDetails || []),
-            ...(values.digestiveDisorderDetails || []),
-            ...(values.bloodDisorderDetails || []),
-            ...(values.thyroidDisorderDetails || []),
-            ...(values.kidneyDisorderDetails || []),
-            ...(values.numbnessDetails || []),
-            ...(values.anxietyStressDetails || []),
-            ...(values.earEyeDisorderDetails || []),
-            ...(values.lumpGrowthDetails || []),
-            ...(values.hospitalAttendanceDetails || []),
-            ...(values.criticalIllnessDetails || []),
-            ...(values.stiDetails || []),
-            ...(values.presentSymptomsDetails || []),
-        ];
+        const combinedMedicalHistory = combineMedicalHistory(values);
 
         const combinedLifestyleDetails = [
             ...(values.flownAsPilotDetails || []),
@@ -1278,10 +1280,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       if (isEditMode && businessId) {
         const policyId = parseInt(businessId, 10);
         const values = form.getValues();
-        const sectionData = fieldsToValidate.reduce((acc, key) => {
+        
+        let sectionData: Partial<z.infer<typeof newBusinessFormSchema>> = fieldsToValidate.reduce((acc, key) => {
           (acc as any)[key] = values[key];
           return acc;
         }, {});
+
+        // Special handling for the health tab to combine all medical history details
+        if (activeTab === 'health') {
+            sectionData.medicalHistory = combineMedicalHistory(values);
+        }
         
         updatePolicy(policyId, sectionData);
         toast({
@@ -4370,6 +4378,7 @@ Heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease
     </Form>
   );
 }
+
 
 
 
