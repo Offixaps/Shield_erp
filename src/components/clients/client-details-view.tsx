@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -304,8 +305,8 @@ function ExistingPoliciesDisplay({ policies }: { policies: ExistingPolicyDetail[
               <TableCell>{policy.personCovered}</TableCell>
               <TableCell>{policy.policyType}</TableCell>
               <TableCell>{format(new Date(policy.issueDate), 'PPP')}</TableCell>
-              <TableCell>{policy.premiumAmount.toFixed(2)}</TableCell>
-              <TableCell>{policy.faceAmount.toFixed(2)}</TableCell>
+              <TableCell>{Number(policy.premiumAmount).toFixed(2)}</TableCell>
+              <TableCell>{Number(policy.faceAmount).toFixed(2)}</TableCell>
               <TableCell><YesNoDisplay value={policy.changedGrpOrInd} /></TableCell>
             </TableRow>
           ))}
