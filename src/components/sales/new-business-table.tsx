@@ -53,20 +53,17 @@ export default function NewBusinessTable() {
     if (isAllPoliciesPage) {
       const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
       policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
-    } else if (!pathname.includes('underwriting/page')) {
-      policies = policies.filter(p => p.onboardingStatus !== 'Policy Issued');
-    }
-    
-    if (pathname.startsWith('/underwriting') && !isAllPoliciesPage) {
+    } else if (isUnderwritingNewBusiness) {
         const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
         policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
+    } else {
+       policies = policies.filter(p => p.onboardingStatus !== 'Policy Issued' && p.onboardingStatus !== 'Accepted');
     }
-
-
+    
     setAllData(policies);
     setFilteredData(policies);
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [pathname, isAllPoliciesPage]);
+  }, [pathname, isAllPoliciesPage, isUnderwritingNewBusiness]);
 
   React.useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();

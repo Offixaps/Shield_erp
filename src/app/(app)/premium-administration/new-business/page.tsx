@@ -30,7 +30,7 @@ export default function NewBusinessPage() {
     const [searchTerm, setSearchTerm] = React.useState('');
 
     React.useEffect(() => {
-        const policies = getPolicies().filter(p => p.onboardingStatus !== 'Policy Issued');
+        const policies = getPolicies().filter(p => p.onboardingStatus !== 'Policy Issued' && p.onboardingStatus !== 'Accepted');
         setAllBusinessList(policies);
         setFilteredBusinessList(policies);
     }, []);
@@ -49,9 +49,8 @@ export default function NewBusinessPage() {
 
 
     const handlePolicyUpdate = (updatedPolicy: NewBusiness) => {
-        const updatedList = allBusinessList.map(p => p.id === updatedPolicy.id ? updatedPolicy : p).filter(p => p.onboardingStatus !== 'Policy Issued');
+        const updatedList = allBusinessList.map(p => p.id === updatedPolicy.id ? updatedPolicy : p).filter(p => p.onboardingStatus !== 'Policy Issued' && p.onboardingStatus !== 'Accepted');
         setAllBusinessList(updatedList);
-        setFilteredBusinessList(updatedList);
     };
 
     const getStatusBadgeStyling = (status: string) => {
