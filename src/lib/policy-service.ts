@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -17,6 +18,8 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const POLICIES_COLLECTION = 'policies';
 
@@ -96,68 +99,79 @@ function policyFromFirebase(docSnap: any): NewBusiness {
 // --- Firestore Service Functions ---
 
 export async function getPolicies(): Promise<NewBusiness[]> {
-  try {
-    const policiesCollection = collection(db, POLICIES_COLLECTION);
-    const policySnapshot = await getDocs(policiesCollection);
-    const policyList = policySnapshot.docs.map(doc => policyFromFirebase({ id: doc.id, data: () => doc.data() }));
-    return policyList;
-  } catch (error) {
-    console.error("Error getting policies: ", error);
-    return [];
-  }
+  const policiesCollection = collection(db, POLICIES_COLLECTION);
+  const policySnapshot = await getDocs(policiesCollection).catch(async (serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: policiesCollection.path,
+      operation: 'list',
+    });
+    errorEmitter.emit('permission-error', permissionError);
+    // Return an empty array or handle the error as appropriate for your UI
+    return { docs: [] };
+  });
+
+  const policyList = policySnapshot.docs.map(doc => policyFromFirebase({ id: doc.id, data: () => doc.data() }));
+  return policyList;
 }
 
 export async function getPolicyById(id: number): Promise<NewBusiness | undefined> {
-  try {
-    const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
-    const docSnap = await getDoc(policyDocRef);
-    if (docSnap.exists()) {
-      return policyFromFirebase(docSnap);
-    } else {
-      console.log("No such document!");
-      return undefined;
-    }
-  } catch (error) {
-    console.error("Error getting policy by ID: ", error);
+  const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
+  const docSnap = await getDoc(policyDocRef).catch(async (serverError) => {
+      const permissionError = new FirestorePermissionError({
+        path: policyDocRef.path,
+        operation: 'get',
+      });
+      errorEmitter.emit('permission-error', permissionError);
+      return null;
+  });
+
+  if (docSnap && docSnap.exists()) {
+    return policyFromFirebase(docSnap);
+  } else {
+    console.log("No such document or permission denied!");
     return undefined;
   }
 }
 
 export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
   const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
-  try {
-    const currentDoc = await getDoc(policyRef);
-    if (!currentDoc.exists()) {
-      throw new Error("Policy not found");
-    }
-    const originalPolicy = policyFromFirebase(currentDoc);
-
-    const updatedData = { ...originalPolicy, ...updates };
-    
-    if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
-        let user = 'System';
-        if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
-            user = 'Underwriting';
-        } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed', 'Policy Issued'].includes(updates.onboardingStatus)) {
-            user = 'Premium Admin';
-        }
-
-        const newLogEntry: ActivityLog = {
-            date: new Date().toISOString(),
-            user: user,
-            action: `Status changed to ${updates.onboardingStatus}`,
-            details: updates.vettingNotes || updates.mandateReworkNotes || undefined
-        };
-        updatedData.activityLog = [...(updatedData.activityLog || []), newLogEntry];
-    }
-    
-    await setDoc(policyRef, policyToFirebase(updatedData), { merge: true });
-
-    return updatedData;
-  } catch (error) {
-    console.error("Error updating policy: ", error);
-    return undefined;
+  
+  const currentDoc = await getDoc(policyRef);
+  if (!currentDoc.exists()) {
+    throw new Error("Policy not found");
   }
+  const originalPolicy = policyFromFirebase(currentDoc);
+
+  const updatedData = { ...originalPolicy, ...updates };
+  
+  if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
+      let user = 'System';
+      if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
+          user = 'Underwriting';
+      } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed', 'Policy Issued'].includes(updates.onboardingStatus)) {
+          user = 'Premium Admin';
+      }
+
+      const newLogEntry: ActivityLog = {
+          date: new Date().toISOString(),
+          user: user,
+          action: `Status changed to ${updates.onboardingStatus}`,
+          details: updates.vettingNotes || updates.mandateReworkNotes || undefined
+      };
+      updatedData.activityLog = [...(updatedData.activityLog || []), newLogEntry];
+  }
+
+  const firebaseData = policyToFirebase(updatedData);
+  setDoc(policyRef, firebaseData, { merge: true }).catch(async (serverError) => {
+    const permissionError = new FirestorePermissionError({
+        path: policyRef.path,
+        operation: 'update',
+        requestResourceData: firebaseData,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+  });
+  
+  return updatedData;
 }
 
 export async function createPolicy(values: any): Promise<NewBusiness> {
@@ -246,8 +260,19 @@ export async function createPolicy(values: any): Promise<NewBusiness> {
         ],
     };
     
-    const newDocRef = await addDoc(collection(db, POLICIES_COLLECTION), policyToFirebase(newPolicyData as NewBusiness));
-    
+    const firebaseData = policyToFirebase(newPolicyData as NewBusiness);
+    const newDocRef = await addDoc(collection(db, POLICIES_COLLECTION), firebaseData)
+        .catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: POLICIES_COLLECTION,
+                operation: 'create',
+                requestResourceData: firebaseData,
+            });
+            errorEmitter.emit('permission-error', permissionError);
+            // Return null or re-throw to indicate failure
+            throw serverError;
+        });
+
     const newPolicyWithId = { ...newPolicyData, id: parseInt(newDocRef.id, 10) };
 
     const firstBill: Bill = {
@@ -260,20 +285,27 @@ export async function createPolicy(values: any): Promise<NewBusiness> {
     };
     newPolicyWithId.bills.push(firstBill);
 
-    await setDoc(doc(db, POLICIES_COLLECTION, newDocRef.id), policyToFirebase(newPolicyWithId as NewBusiness));
+    // No need to await, let it run in the background with error handling
+    updatePolicy(newPolicyWithId.id, { bills: newPolicyWithId.bills });
     
     return newPolicyWithId as NewBusiness;
 }
 
 
 export async function deletePolicy(id: number): Promise<boolean> {
-  try {
-    await deleteDoc(doc(db, POLICIES_COLLECTION, id.toString()));
-    return true;
-  } catch (error) {
-    console.error("Error deleting policy: ", error);
-    return false;
-  }
+  const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
+  deleteDoc(policyRef)
+    .then(() => {
+        return true;
+    })
+    .catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: policyRef.path,
+            operation: 'delete',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+  return false; // The operation is async, the immediate return should be false.
 }
 
 export async function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
@@ -382,18 +414,25 @@ export async function billAllActivePolicies(): Promise<number> {
             }];
             
             const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-            batch.update(policyRef, { 
+            const updateData = { 
                 bills: updatedPolicy.bills, 
                 billingStatus: 'Outstanding', 
                 activityLog: updatedPolicy.activityLog 
-            });
+            };
 
+            batch.update(policyRef, updateData);
             billedCount++;
         }
     });
 
     if (billedCount > 0) {
-        await batch.commit();
+        await batch.commit().catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: `batch write to ${POLICIES_COLLECTION}`,
+                operation: 'update',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        });
     }
     return billedCount;
 }
@@ -442,18 +481,25 @@ export async function applyAnnualIncreases(): Promise<number> {
             }];
             
             const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-            batch.update(policyRef, {
+            const updateData = {
                 premium: newPremium,
                 sumAssured: newSumAssured,
                 activityLog: updatedPolicy.activityLog
-            });
-            
+            };
+
+            batch.update(policyRef, updateData);
             updatedCount++;
         }
     });
 
     if (updatedCount > 0) {
-        await batch.commit();
+        await batch.commit().catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: `batch write to ${POLICIES_COLLECTION}`,
+                operation: 'update',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        });
     }
     return updatedCount;
 }
@@ -540,16 +586,24 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
         }];
 
         const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-        batch.update(policyRef, { 
+        const updateData = { 
             payments: updatedPolicy.payments, 
             bills: updatedPolicy.bills, 
             billingStatus: updatedPolicy.billingStatus, 
             activityLog: updatedPolicy.activityLog 
-        });
+        };
+        batch.update(policyRef, updateData);
         successCount++;
     }
 
-    await batch.commit();
+    await batch.commit().catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: `batch write to ${POLICIES_COLLECTION}`,
+            operation: 'update',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+    
     return { successCount, failureCount };
 }
 

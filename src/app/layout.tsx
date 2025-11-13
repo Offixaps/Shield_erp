@@ -1,7 +1,9 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/components/theme-provider';
+import FirebaseErrorListener from '@/components/FirebaseErrorListener';
 
 export const metadata: Metadata = {
   title: 'SHIELD ERP',
@@ -34,6 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <FirebaseErrorListener />
         </ThemeProvider>
         <Toaster />
       </body>
