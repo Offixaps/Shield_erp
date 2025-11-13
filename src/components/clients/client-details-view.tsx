@@ -68,6 +68,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import DeclarationTab from './declaration-tab';
 
 function DetailItem({
   label,
@@ -507,35 +508,35 @@ export default function ClientDetailsView({
   }, [client]);
 
   React.useEffect(() => {
-    const freshClient = getPolicyById(initialClient.id);
-    if (freshClient) {
+    const freshClientData = getPolicyById(initialClient.id);
+    if (freshClientData) {
         const combinedHistory = [
-            ...(freshClient.bloodTransfusionOrSurgeryDetails || []),
-            ...(freshClient.highBloodPressureDetails || []),
-            ...(freshClient.cancerDetails || []),
-            ...(freshClient.diabetesDetails || []),
-            ...(freshClient.colitisCrohnsDetails || []),
-            ...(freshClient.paralysisEpilepsyDetails || []),
-            ...(freshClient.mentalIllnessDetails || []),
-            ...(freshClient.arthritisDetails || []),
-            ...(freshClient.chestPainDetails || []),
-            ...(freshClient.asthmaDetails || []),
-            ...(freshClient.digestiveDisorderDetails || []),
-            ...(freshClient.bloodDisorderDetails || []),
-            ...(freshClient.thyroidDisorderDetails || []),
-            ...(freshClient.kidneyDisorderDetails || []),
-            ...(freshClient.numbnessDetails || []),
-            ...(freshClient.anxietyStressDetails || []),
-            ...(freshClient.earEyeDisorderDetails || []),
-            ...(freshClient.lumpGrowthDetails || []),
-            ...(freshClient.hospitalAttendanceDetails || []),
-            ...(freshClient.criticalIllnessDetails || []),
-            ...(freshClient.stiDetails || []),
-            ...(freshClient.presentSymptomsDetails || []),
+            ...(freshClientData.bloodTransfusionOrSurgeryDetails || []),
+            ...(freshClientData.highBloodPressureDetails || []),
+            ...(freshClientData.cancerDetails || []),
+            ...(freshClientData.diabetesDetails || []),
+            ...(freshClientData.colitisCrohnsDetails || []),
+            ...(freshClientData.paralysisEpilepsyDetails || []),
+            ...(freshClientData.mentalIllnessDetails || []),
+            ...(freshClientData.arthritisDetails || []),
+            ...(freshClientData.chestPainDetails || []),
+            ...(freshClientData.asthmaDetails || []),
+            ...(freshClientData.digestiveDisorderDetails || []),
+            ...(freshClientData.bloodDisorderDetails || []),
+            ...(freshClientData.thyroidDisorderDetails || []),
+            ...(freshClientData.kidneyDisorderDetails || []),
+            ...(freshClientData.numbnessDetails || []),
+            ...(freshClientData.anxietyStressDetails || []),
+            ...(freshClientData.earEyeDisorderDetails || []),
+            ...(freshClientData.lumpGrowthDetails || []),
+            ...(freshClientData.hospitalAttendanceDetails || []),
+            ...(freshClientData.criticalIllnessDetails || []),
+            ...(freshClientData.stiDetails || []),
+            ...(freshClientData.presentSymptomsDetails || []),
         ].filter(Boolean); // Filter out any undefined/null entries
 
         setClient({
-            ...freshClient,
+            ...freshClientData,
             medicalHistory: combinedHistory,
         });
     } else {
@@ -843,7 +844,7 @@ export default function ClientDetailsView({
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-9 h-auto">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
@@ -853,6 +854,7 @@ export default function ClientDetailsView({
           <TabsTrigger value="payment-history">Payment History</TabsTrigger>
           <TabsTrigger value="mandate">Mandate</TabsTrigger>
           <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
+          <TabsTrigger value="declaration">Declaration</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6 space-y-6">
@@ -1295,9 +1297,11 @@ export default function ClientDetailsView({
         <TabsContent value="activity-log" className="mt-6">
           <ActivityLogTab client={client} />
         </TabsContent>
+
+        <TabsContent value="declaration" className="mt-6">
+          <DeclarationTab client={client} />
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-    
