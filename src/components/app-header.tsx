@@ -18,9 +18,11 @@ import { SidebarTrigger } from './ui/sidebar';
 import { Shield } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useSidebar } from '@/components/ui/sidebar';
 
 export default function AppHeader() {
   const router = useRouter();
+  const { isMobile } = useSidebar();
   const userAvatar = PlaceHolderImages.find(
     (image) => image.id === 'user-avatar-1'
   );
@@ -32,12 +34,13 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="md:hidden" />
-        <Link href="/business-development" className="hidden md:flex items-center gap-2">
-          <SidebarTrigger />
-          <Image src="/Shield app logo.svg" alt="SHIELD ERP Logo" width={24} height={24} className="h-6 w-6" />
-          <h1 className="text-lg font-semibold">SHIELD ERP</h1>
-        </Link>
+         <SidebarTrigger className={isMobile ? 'flex' : 'hidden md:flex'} />
+         {!isMobile && (
+            <Link href="/business-development" className="flex items-center gap-2">
+                <Image src="/Shield app logo.svg" alt="SHIELD ERP Logo" width={24} height={24} className="h-6 w-6" />
+                <h1 className="text-lg font-semibold">SHIELD ERP</h1>
+            </Link>
+         )}
       </div>
 
       <div className="ml-auto flex items-center gap-4">
