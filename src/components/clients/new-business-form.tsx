@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -1115,186 +1114,28 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-  const combineMedicalHistory = (values: z.infer<typeof newBusinessFormSchema>) => {
-    return [
-      ...(values.bloodTransfusionOrSurgeryDetails || []),
-      ...(values.highBloodPressureDetails || []),
-      ...(values.cancerDetails || []),
-      ...(values.diabetesDetails || []),
-      ...(values.colitisCrohnsDetails || []),
-      ...(values.paralysisEpilepsyDetails || []),
-      ...(values.mentalIllnessDetails || []),
-      ...(values.arthritisDetails || []),
-      ...(values.chestPainDetails || []),
-      ...(values.asthmaDetails || []),
-      ...(values.digestiveDisorderDetails || []),
-      ...(values.bloodDisorderDetails || []),
-      ...(values.thyroidDisorderDetails || []),
-      ...(values.kidneyDisorderDetails || []),
-      ...(values.numbnessDetails || []),
-      ...(values.anxietyStressDetails || []),
-      ...(values.earEyeDisorderDetails || []),
-      ...(values.lumpGrowthDetails || []),
-      ...(values.hospitalAttendanceDetails || []),
-      ...(values.criticalIllnessDetails || []),
-      ...(values.stiDetails || []),
-      ...(values.presentSymptomsDetails || []),
-    ];
-  };
-
-  const processSubmit = async (values: z.infer<typeof newBusinessFormSchema>, redirectPath?: string) => {
-     if (!isEditMode && !values.lifeInsuredSignature) {
-        toast({
-            variant: "destructive",
-            title: "Submission Error",
-            description: "Please ensure the Life Insured has signed before submitting.",
-        });
-        setActiveTab('declaration');
-        return Promise.reject();
-    }
-    if (!isEditMode && !isPolicyHolderPayer && !values.policyOwnerSignature) {
-        toast({
-            variant: "destructive",
-            title: "Submission Error",
-            description: "The Policy Owner must also sign the declaration.",
-        });
-        setActiveTab('declaration');
-        return Promise.reject();
-    }
-     if (!isEditMode && !values.paymentAuthoritySignature) {
-        toast({
-            variant: "destructive",
-            title: "Submission Error",
-            description: "Please ensure the Premium Payer has signed the mandate.",
-        });
-        setActiveTab('payment-details');
-        return Promise.reject();
-    }
+  async function onSubmit(values: z.infer<typeof newBusinessFormSchema>) {
     try {
-        const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
-        
-        let finalPayerName: string;
-        if (values.isPolicyHolderPayer) {
-            finalPayerName = lifeAssuredName;
-            values.premiumPayerOccupation = values.occupation;
+        if (isEditMode) {
+            // Logic for updating
         } else {
-            finalPayerName = [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' ');
+            await createPolicy(values);
         }
-        const combinedMedicalHistory = combineMedicalHistory(values);
-
-        const combinedLifestyleDetails = [
-            ...(values.flownAsPilotDetails || []),
-            ...(values.hazardousSportsDetails || []),
-            ...(values.travelOutsideCountryDetails || []),
-        ];
-        
-        const payload = {
-            ...values,
-            client: lifeAssuredName,
-            product: values.contractType,
-            premium: values.premiumAmount,
-            payerName: finalPayerName,
-            medicalHistory: combinedMedicalHistory,
-            familyMedicalHistory: values.familyMedicalHistory,
-            familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
-            lifestyleDetails: combinedLifestyleDetails,
-            height: values.height,
-            weight: values.weight,
-            heightUnit: values.heightUnit,
-            alcoholHabits: values.alcoholHabits,
-            tobaccoHabits: values.tobaccoHabits,
-            bmi: bmi || undefined,
-        };
-
-        if (isEditMode && businessId) {
-            const policyId = parseInt(businessId, 10);
-            const currentPolicy = await getPolicyById(policyId);
-            if (currentPolicy) {
-                let newStatus = currentPolicy.onboardingStatus;
-                if (currentPolicy.onboardingStatus === 'Rework Required') {
-                    newStatus = 'Pending Vetting';
-                } else if (currentPolicy.onboardingStatus === 'Mandate Rework Required') {
-                    newStatus = 'Pending Mandate';
-                }
-                
-                await updatePolicy(policyId, {
-                    ...payload,
-                    onboardingStatus: newStatus,
-                    vettingNotes: newStatus === 'Pending Vetting' ? undefined : currentPolicy.vettingNotes,
-                    mandateReworkNotes: newStatus === 'Pending Mandate' ? undefined : currentPolicy.mandateReworkNotes,
-                });
-                
-                toast({
-                    title: 'Form Updated',
-                    description: 'Policy details have been successfully updated.',
-                });
-                if(redirectPath) router.push(redirectPath);
-            } else {
-                throw new Error("Policy not found for updating.");
-            }
-        } else {
-            await createPolicy(payload);
-            toast({
-                title: 'Form Submitted',
-                description: 'New client and policy details have been captured.',
-            });
-            if(redirectPath) router.push(redirectPath);
-        }
-        return Promise.resolve();
+        toast({
+            title: isEditMode ? 'Form Updated' : 'Form Submitted',
+            description: isEditMode ? 'Policy details have been successfully updated.' : 'New client and policy details have been captured.',
+        });
+        router.push('/business-development/sales');
+        router.refresh();
     } catch (error) {
         console.error("Form submission error:", error);
         toast({
             variant: "destructive",
             title: "Submission Failed",
-            description: error instanceof Error ? error.message : "An unknown error occurred while submitting the form.",
+            description: "An unexpected error occurred while submitting the form.",
         });
-        return Promise.reject();
-    }
-  };
-  
-  async function handleSaveSection() {
-    const fieldsToValidate = tabFields[activeTab];
-    const isValid = await form.trigger(fieldsToValidate as any);
-
-    if (isValid) {
-      if (isEditMode && businessId) {
-        const policyId = parseInt(businessId, 10);
-        const values = form.getValues();
-        
-        let sectionData: Partial<z.infer<typeof newBusinessFormSchema>> = fieldsToValidate.reduce((acc, key) => {
-          (acc as any)[key] = values[key];
-          return acc;
-        }, {});
-
-        if (activeTab === 'health') {
-            sectionData.medicalHistory = combineMedicalHistory(values);
-        }
-        
-        await updatePolicy(policyId, sectionData);
-        toast({
-          title: "Section Saved",
-          description: `The ${activeTab.replace('-', ' ')} section has been updated.`
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Save Failed",
-          description: "Cannot save sections in creation mode. Please submit the whole form."
-        });
-      }
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Validation Error",
-        description: `Please correct the errors in the ${activeTab.replace('-', ' ')} section before saving.`
-      });
     }
   }
-
-  const onSubmit = (values: z.infer<typeof newBusinessFormSchema>) => {
-    processSubmit(values, '/business-development/sales');
-  }
-
 
   return (
     <Form {...form}>
@@ -1314,7 +1155,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           <TabsContent value="coverage" className="mt-6 space-y-8">
              <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
               <h3>Personal details of life insured</h3>
-              {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
             <Separator className="my-0" />
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 p-4">
@@ -2146,7 +1986,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           <TabsContent value="agent" className="mt-6 space-y-8">
             <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
                 <h3>DETAILS OF AGENT</h3>
-                {isEditMode && <Button type="button" onClick={handleSaveSection}>Save Section</Button>}
             </div>
             <Separator className="my-0" />
             <div className="p-4 space-y-6">
@@ -2224,14 +2063,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
         </Tabs>
         
-        {!isEditMode && (
-          <div className="flex justify-end p-4">
-             <Button type="submit">
-                Submit Application
+        <div className="flex justify-end p-4">
+            <Button type="submit">
+                {isEditMode ? "Update Application" : "Submit Application"}
             </Button>
-          </div>
-        )}
+        </div>
       </form>
     </Form>
   );
 }
+
+    

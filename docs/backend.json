@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -43,7 +44,7 @@
         "description": "Represents a single insurance policy for a client.",
         "type": "object",
         "properties": {
-            "id": {"type": "number", "description": "Unique identifier for the policy."},
+            "id": {"type": "string", "description": "Unique identifier for the policy."},
             "client": {"type": "string", "description": "Full name of the life insured."},
             "lifeAssuredDob": {"type": "string", "format": "date", "description": "Date of birth of the life insured."},
             "placeOfBirth": {"type": "string"},
@@ -131,3 +132,5 @@
     }
   }
 }
+
+    

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -83,13 +82,19 @@ function policyFromFirebase(docSnap: any): NewBusiness {
     }
     const fromTimestamp = (timestamp: any): string => {
         if (!timestamp) return '';
-        const date = timestamp.toDate();
-        return format(date, 'yyyy-MM-dd');
+        if (timestamp instanceof Timestamp) {
+            const date = timestamp.toDate();
+            return format(date, 'yyyy-MM-dd');
+        }
+        if (typeof timestamp === 'string') {
+            return timestamp;
+        }
+        return '';
     };
 
-    const newId = docSnap.id ? parseInt(docSnap.id, 10) : data.id;
+    const newId = docSnap.id;
 
-    return {
+    const result: NewBusiness = {
         ...data,
         id: newId,
         lifeAssuredDob: fromTimestamp(data.lifeAssuredDob),
@@ -105,10 +110,12 @@ function policyFromFirebase(docSnap: any): NewBusiness {
             ...b,
             dob: fromTimestamp(b.dob),
         })),
-         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: fromTimestamp(log.date) })),
+         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date) : new Date().toISOString() })),
          payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate) })),
          bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate) })),
     };
+
+    return result;
 }
 
 
@@ -130,7 +137,7 @@ export async function getPolicies(): Promise<NewBusiness[]> {
   return policyList;
 }
 
-export async function getPolicyById(id: number): Promise<NewBusiness | undefined> {
+export async function getPolicyById(id: number | string): Promise<NewBusiness | undefined> {
   const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
   const docSnap = await getDoc(policyDocRef).catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
@@ -143,10 +150,8 @@ export async function getPolicyById(id: number): Promise<NewBusiness | undefined
 
   if (docSnap && docSnap.exists()) {
     return policyFromFirebase({id: docSnap.id, data: ()=> docSnap.data()});
-  } else {
-    // Fallback to local data if not found in Firestore
-    return newBusinessData.find(p => p.id === id);
-  }
+  } 
+  return undefined;
 }
 
 export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
@@ -190,10 +195,10 @@ export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness
   return updatedData;
 }
 
-export async function createPolicy(values: any): Promise<NewBusiness> {
+export async function createPolicy(values: any): Promise<void> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
-    const newPolicyData: Omit<NewBusiness, 'id'> = {
+    const newPolicyData = {
         client: lifeAssuredName,
         lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : '',
         placeOfBirth: values.placeOfBirth,
@@ -276,27 +281,19 @@ export async function createPolicy(values: any): Promise<NewBusiness> {
         ],
     };
     
-    // Determine a numeric ID
-    const policies = await getPolicies();
-    const newId = policies.length > 0 ? Math.max(...policies.map(p => p.id)) + 1 : 1;
-
-    const newPolicyWithId = { ...newPolicyData, id: newId };
+    const firebaseData = policyToFirebase(newPolicyData as NewBusiness);
+    const policiesCollectionRef = collection(db, POLICIES_COLLECTION);
     
-    const firebaseData = policyToFirebase(newPolicyWithId as NewBusiness);
-    const docRef = doc(db, POLICIES_COLLECTION, newId.toString());
-
-    await setDoc(docRef, firebaseData)
+    addDoc(policiesCollectionRef, firebaseData)
         .catch(async (serverError) => {
             const permissionError = new FirestorePermissionError({
-                path: docRef.path,
+                path: policiesCollectionRef.path,
                 operation: 'create',
                 requestResourceData: firebaseData,
             });
             errorEmitter.emit('permission-error', permissionError);
-            throw serverError;
+            throw serverError; // Re-throw the original error after emitting our custom one
         });
-
-    return newPolicyWithId as NewBusiness;
 }
 
 
@@ -618,3 +615,5 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
 function newId() {
     return Math.random().toString(36).substr(2, 9);
 }
+
+    
