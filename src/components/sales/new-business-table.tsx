@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -48,22 +47,27 @@ export default function NewBusinessTable() {
     pageSize: 10,
   });
 
-  React.useEffect(() => {
-    let policies = getPolicies();
+  const loadPolicies = React.useCallback(async () => {
+    let policies = await getPolicies();
     if (isAllPoliciesPage) {
-      const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
-      policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
+       const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
+       policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
     } else if (isUnderwritingNewBusiness) {
         const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
         policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
     } else {
-       policies = policies.filter(p => p.onboardingStatus !== 'Policy Issued' && p.onboardingStatus !== 'Accepted');
+       const excludedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Policy Issued', 'Mandate Verified'];
+       policies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
     }
     
     setAllData(policies);
     setFilteredData(policies);
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [pathname, isAllPoliciesPage, isUnderwritingNewBusiness]);
+
+  React.useEffect(() => {
+    loadPolicies();
+  }, [loadPolicies]);
 
   React.useEffect(() => {
     const lowercasedFilter = searchTerm.toLowerCase();
@@ -79,11 +83,10 @@ export default function NewBusinessTable() {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [searchTerm, allData]);
 
-  const handleDelete = (id: number) => {
-    if (deletePolicyFromService(id)) {
-      const updatedData = allData.filter((item) => item.id !== id);
-      setAllData(updatedData);
-      setFilteredData(updatedData);
+  const handleDelete = async (id: number) => {
+    const success = await deletePolicyFromService(id);
+    if (success) {
+      loadPolicies(); // Reload data after deletion
     }
   };
   

@@ -11,20 +11,22 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Eye } from 'lucide-react';
+import type { NewBusiness } from '@/lib/data';
 
 export default function EditBusinessPage() {
   const params = useParams();
-  const [client, setClient] = React.useState(null);
+  const [client, setClient] = React.useState<NewBusiness | null>(null);
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const clientId = params.id;
     if (typeof clientId === 'string') {
-        const fetchedClient = getPolicyById(parseInt(clientId, 10));
+      getPolicyById(parseInt(clientId, 10)).then(fetchedClient => {
         if (fetchedClient) {
             setClient(fetchedClient);
         }
         setLoading(false);
+      });
     }
   }, [params.id]);
 

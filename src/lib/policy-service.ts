@@ -1,139 +1,169 @@
 
-
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter } from 'date-fns';
+import {
+  collection,
+  doc,
+  getDocs,
+  getDoc,
+  setDoc,
+  addDoc,
+  deleteDoc,
+  writeBatch,
+  query,
+  where,
+  Timestamp,
+} from 'firebase/firestore';
+import { db } from './firebase';
 
-const LOCAL_STORAGE_KEY = 'shield-erp-policies';
-const DATA_VERSION_KEY = 'shield-erp-data-version';
-const CURRENT_DATA_VERSION = 12; // Increment this version to force a data migration
+const POLICIES_COLLECTION = 'policies';
 
-// Helper function to get policies from localStorage
-function getPoliciesFromStorage(): NewBusiness[] {
-  if (typeof window === 'undefined') {
-    return [...newBusinessData]; // Return initial data during server-side rendering
+// --- Data Conversion Helpers ---
+
+function policyToFirebase(policy: NewBusiness): any {
+  const data = { ...policy };
+  // Convert Date objects to Timestamps for Firestore
+  const toTimestamp = (dateStr: string | undefined | null) =>
+    dateStr ? Timestamp.fromDate(new Date(dateStr)) : null;
+
+  data.lifeAssuredDob = toTimestamp(data.lifeAssuredDob) as any;
+  data.commencementDate = toTimestamp(data.commencementDate) as any;
+  data.expiryDate = toTimestamp(data.expiryDate) as any;
+  data.issueDate = toTimestamp(data.issueDate) as any;
+  data.expiryDateId = toTimestamp(data.expiryDateId) as any;
+
+  data.primaryBeneficiaries = (data.primaryBeneficiaries || []).map(b => ({
+    ...b,
+    dob: toTimestamp(b.dob)
+  }));
+  data.contingentBeneficiaries = (data.contingentBeneficiaries || []).map(b => ({
+    ...b,
+    dob: toTimestamp(b.dob)
+  }));
+  
+  if (data.activityLog) {
+      data.activityLog = data.activityLog.map(log => ({...log, date: toTimestamp(log.date)}));
+  }
+   if (data.payments) {
+      data.payments = data.payments.map(p => ({...p, paymentDate: toTimestamp(p.paymentDate)}));
+  }
+   if (data.bills) {
+      data.bills = data.bills.map(b => ({...b, dueDate: toTimestamp(b.dueDate)}));
   }
 
-  const storedVersionStr = localStorage.getItem(DATA_VERSION_KEY);
-  const storedVersion = storedVersionStr ? parseInt(storedVersionStr, 10) : 0;
-  const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
 
-  if (storedData && storedVersion === CURRENT_DATA_VERSION) {
-    try {
-      const parsedData = JSON.parse(storedData);
-      return Array.isArray(parsedData) ? parsedData : [...newBusinessData];
-    } catch (e) {
-      console.error("Failed to parse policies from localStorage", e);
-      // If parsing fails, fall back to default
+  return data;
+}
+
+function policyFromFirebase(docSnap: any): NewBusiness {
+    const data = docSnap.data();
+    if (!data) {
+        throw new Error("Document data is undefined.");
     }
+    const fromTimestamp = (timestamp: any): string => {
+        if (!timestamp) return '';
+        const date = timestamp.toDate();
+        return format(date, 'yyyy-MM-dd');
+    };
+
+    const newId = docSnap.id ? parseInt(docSnap.id, 10) : data.id;
+
+    return {
+        ...data,
+        id: newId,
+        lifeAssuredDob: fromTimestamp(data.lifeAssuredDob),
+        commencementDate: fromTimestamp(data.commencementDate),
+        expiryDate: fromTimestamp(data.expiryDate),
+        issueDate: fromTimestamp(data.issueDate),
+        expiryDateId: fromTimestamp(data.expiryDateId),
+        primaryBeneficiaries: (data.primaryBeneficiaries || []).map((b: any) => ({
+            ...b,
+            dob: fromTimestamp(b.dob),
+        })),
+        contingentBeneficiaries: (data.contingentBeneficiaries || []).map((b: any) => ({
+            ...b,
+            dob: fromTimestamp(b.dob),
+        })),
+         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: fromTimestamp(log.date) })),
+         payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate) })),
+         bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate) })),
+    };
+}
+
+
+// --- Firestore Service Functions ---
+
+export async function getPolicies(): Promise<NewBusiness[]> {
+  try {
+    const policiesCollection = collection(db, POLICIES_COLLECTION);
+    const policySnapshot = await getDocs(policiesCollection);
+    const policyList = policySnapshot.docs.map(doc => policyFromFirebase({ id: doc.id, data: () => doc.data() }));
+    return policyList;
+  } catch (error) {
+    console.error("Error getting policies: ", error);
+    return [];
   }
+}
 
-  // Handle data migration or initial load
-  let policiesToStore = [...newBusinessData];
-  if (storedData && storedVersion < CURRENT_DATA_VERSION) {
-    console.log(`Upgrading data from version ${storedVersion} to ${CURRENT_DATA_VERSION}`);
-    try {
-        const oldData = JSON.parse(storedData);
-        if (Array.isArray(oldData)) {
-            // This is the migration logic. It merges existing data with the default new data.
-            const migratedData = newBusinessData.map(defaultPolicy => {
-                const existingPolicy = oldData.find(p => p.id === defaultPolicy.id);
-                if (existingPolicy) {
-                    // Merge existing data over the new default structure
-                    return { ...defaultPolicy, ...existingPolicy };
-                }
-                return defaultPolicy; // Should not happen if IDs are stable
-            });
-            
-            // Add any policies that might exist in old data but not in newBusinessData (e.g. user created)
-            oldData.forEach(oldPolicy => {
-                if (!migratedData.some(p => p.id === oldPolicy.id)) {
-                    migratedData.push(oldPolicy);
-                }
-            });
-
-            policiesToStore = migratedData;
-        }
-    } catch(e) {
-        console.error("Failed to migrate old policy data", e);
-        // Fallback to default if migration fails
-        policiesToStore = [...newBusinessData];
+export async function getPolicyById(id: number): Promise<NewBusiness | undefined> {
+  try {
+    const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
+    const docSnap = await getDoc(policyDocRef);
+    if (docSnap.exists()) {
+      return policyFromFirebase(docSnap);
+    } else {
+      console.log("No such document!");
+      return undefined;
     }
-  }
-
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(policiesToStore));
-  localStorage.setItem(DATA_VERSION_KEY, CURRENT_DATA_VERSION.toString());
-  return policiesToStore;
-}
-
-
-function savePoliciesToStorage(policies: NewBusiness[]) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(policies));
-}
-
-
-export function getPolicies(): NewBusiness[] {
-  return getPoliciesFromStorage();
-}
-
-export function getPolicyById(id: number): NewBusiness | undefined {
-  const policies = getPoliciesFromStorage();
-  return policies.find((policy) => policy.id === id);
-}
-
-export function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): NewBusiness | undefined {
-    const policies = getPoliciesFromStorage();
-    const policyIndex = policies.findIndex(p => p.id === id);
-
-    if (policyIndex !== -1) {
-        const originalPolicy = { ...policies[policyIndex] };
-        
-        // Create the updated policy object
-        const updatedPolicy = { 
-            ...originalPolicy, 
-            ...updates 
-        };
-
-        // Ensure activityLog is an array
-        if (!Array.isArray(updatedPolicy.activityLog)) {
-            updatedPolicy.activityLog = [];
-        }
-
-        // Check if onboardingStatus has changed and add a log entry
-        if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
-            let user = 'System';
-            if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
-                user = 'Underwriting';
-            } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed', 'Policy Issued'].includes(updates.onboardingStatus)) {
-                user = 'Premium Admin';
-            }
-
-            const newLogEntry: ActivityLog = {
-                date: new Date().toISOString(),
-                user: user,
-                action: `Status changed to ${updates.onboardingStatus}`,
-                details: updates.vettingNotes || updates.mandateReworkNotes || undefined
-            };
-            updatedPolicy.activityLog.push(newLogEntry);
-        }
-        
-        policies[policyIndex] = updatedPolicy;
-        savePoliciesToStorage(policies);
-        return policies[policyIndex];
-    }
+  } catch (error) {
+    console.error("Error getting policy by ID: ", error);
     return undefined;
+  }
 }
 
+export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
+  const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
+  try {
+    const currentDoc = await getDoc(policyRef);
+    if (!currentDoc.exists()) {
+      throw new Error("Policy not found");
+    }
+    const originalPolicy = policyFromFirebase(currentDoc);
 
-export function createPolicy(values: any): NewBusiness {
-    const policies = getPoliciesFromStorage();
-    const newId = policies.length > 0 ? Math.max(...policies.map(b => b.id)) + 1 : 1;
+    const updatedData = { ...originalPolicy, ...updates };
+    
+    if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
+        let user = 'System';
+        if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
+            user = 'Underwriting';
+        } else if (['Pending Mandate', 'Mandate Verified', 'Mandate Rework Required', 'Pending First Premium', 'First Premium Confirmed', 'Policy Issued'].includes(updates.onboardingStatus)) {
+            user = 'Premium Admin';
+        }
+
+        const newLogEntry: ActivityLog = {
+            date: new Date().toISOString(),
+            user: user,
+            action: `Status changed to ${updates.onboardingStatus}`,
+            details: updates.vettingNotes || updates.mandateReworkNotes || undefined
+        };
+        updatedData.activityLog = [...(updatedData.activityLog || []), newLogEntry];
+    }
+    
+    await setDoc(policyRef, policyToFirebase(updatedData), { merge: true });
+
+    return updatedData;
+  } catch (error) {
+    console.error("Error updating policy: ", error);
+    return undefined;
+  }
+}
+
+export async function createPolicy(values: any): Promise<NewBusiness> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
-    const newPolicy: NewBusiness = {
-        id: newId,
+    const newPolicyData: Omit<NewBusiness, 'id'> = {
         client: lifeAssuredName,
         lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : '',
         placeOfBirth: values.placeOfBirth,
@@ -203,6 +233,8 @@ export function createPolicy(values: any): NewBusiness {
         familyMedicalHistory: values.familyMedicalHistory,
         familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
         lifestyleDetails: values.lifestyleDetails || [],
+        existingPoliciesDetails: (values.existingPoliciesDetails || []).map((p: any) => ({...p, issueDate: format(p.issueDate, 'yyyy-MM-dd')})),
+        declinedPolicyDetails: values.declinedPolicyDetails,
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
@@ -214,55 +246,49 @@ export function createPolicy(values: any): NewBusiness {
         ],
     };
     
+    const newDocRef = await addDoc(collection(db, POLICIES_COLLECTION), policyToFirebase(newPolicyData as NewBusiness));
+    
+    const newPolicyWithId = { ...newPolicyData, id: parseInt(newDocRef.id, 10) };
+
     const firstBill: Bill = {
         id: 1,
-        policyId: newId,
-        amount: newPolicy.premium,
-        dueDate: newPolicy.commencementDate,
+        policyId: newPolicyWithId.id,
+        amount: newPolicyWithId.premium,
+        dueDate: newPolicyWithId.commencementDate,
         status: 'Unpaid',
         description: 'First Premium'
     };
-    newPolicy.bills.push(firstBill);
+    newPolicyWithId.bills.push(firstBill);
 
-
-    const updatedPolicies = [...policies, newPolicy];
-    savePoliciesToStorage(updatedPolicies);
-    return newPolicy;
+    await setDoc(doc(db, POLICIES_COLLECTION, newDocRef.id), policyToFirebase(newPolicyWithId as NewBusiness));
+    
+    return newPolicyWithId as NewBusiness;
 }
 
-export function deletePolicy(id: number): boolean {
-    let policies = getPoliciesFromStorage();
-    const policyIndex = policies.findIndex(p => p.id === id);
-    if (policyIndex !== -1) {
-        policies.splice(policyIndex, 1);
-        savePoliciesToStorage(policies);
-        return true;
-    }
+
+export async function deletePolicy(id: number): Promise<boolean> {
+  try {
+    await deleteDoc(doc(db, POLICIES_COLLECTION, id.toString()));
+    return true;
+  } catch (error) {
+    console.error("Error deleting policy: ", error);
     return false;
+  }
 }
 
-export function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
-    const policies = getPoliciesFromStorage();
-    const policyIndex = policies.findIndex(p => p.id === policyId);
-    if (policyIndex === -1) return undefined;
+export async function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+    const policy = await getPolicyById(policyId);
+    if (!policy) return undefined;
 
-    const policy = policies[policyIndex];
     if (!policy.bills) policy.bills = [];
     if (!policy.payments) policy.payments = [];
     if (!policy.activityLog) policy.activityLog = [];
-    
-    const firstBill = policy.bills.find(b => b.description === 'First Premium');
 
+    const firstBill = policy.bills.find(b => b.description === 'First Premium');
     if (!firstBill || firstBill.status === 'Paid') return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    
-    const newPayment: Payment = {
-        id: newPaymentId,
-        policyId: policyId,
-        billId: firstBill.id,
-        ...paymentDetails
-    };
+    const newPayment: Payment = { id: newPaymentId, policyId, billId: firstBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     firstBill.status = 'Paid';
@@ -278,50 +304,29 @@ export function recordFirstPayment(policyId: number, paymentDetails: Omit<Paymen
         action: 'First Premium Confirmed',
         details: `Payment of GHS ${paymentDetails.amount.toFixed(2)} received via ${paymentDetails.method}.`
     });
+    policy.activityLog.push({ date: new Date().toISOString(), user: 'System', action: 'Status changed to Pending Vetting' });
 
-    policy.activityLog.push({
-        date: new Date().toISOString(),
-        user: 'System',
-        action: 'Status changed to Pending Vetting'
-    });
-
-    policies[policyIndex] = policy;
-    savePoliciesToStorage(policies);
-    return policy;
+    return updatePolicy(policyId, policy);
 }
 
-export function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
-    const policies = getPoliciesFromStorage();
-    const policyIndex = policies.findIndex(p => p.id === policyId);
-    if (policyIndex === -1) return undefined;
+export async function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+    const policy = await getPolicyById(policyId);
+    if (!policy) return undefined;
 
-    const policy = policies[policyIndex];
     if (!policy.bills) policy.bills = [];
     if (!policy.payments) policy.payments = [];
     if (!policy.activityLog) policy.activityLog = [];
-    
-    const unpaidBill = policy.bills.find(b => b.status === 'Unpaid');
 
-    if (!unpaidBill) {
-        // This case can be handled differently, e.g., by creating a credit.
-        // For now, we'll return undefined if there's no bill to pay against.
-        return undefined;
-    }
+    const unpaidBill = policy.bills.find(b => b.status === 'Unpaid');
+    if (!unpaidBill) return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    
-    const newPayment: Payment = {
-        id: newPaymentId,
-        policyId: policyId,
-        billId: unpaidBill.id,
-        ...paymentDetails
-    };
+    const newPayment: Payment = { id: newPaymentId, policyId, billId: unpaidBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     unpaidBill.status = 'Paid';
     unpaidBill.paymentId = newPaymentId;
-    
-    // Check if there are any other unpaid bills to determine the new billing status
+
     const hasOtherUnpaidBills = policy.bills.some(b => b.status === 'Unpaid');
     policy.billingStatus = hasOtherUnpaidBills ? 'Outstanding' : 'Up to Date';
 
@@ -332,38 +337,31 @@ export function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'i
         details: `Payment of GHS ${paymentDetails.amount.toFixed(2)} received via ${paymentDetails.method}.`
     });
 
-    policies[policyIndex] = policy;
-    savePoliciesToStorage(policies);
-    return policy;
+    return updatePolicy(policyId, policy);
 }
 
-export function billAllActivePolicies(): number {
-    const policies = getPoliciesFromStorage();
+
+export async function billAllActivePolicies(): Promise<number> {
+    const policies = await getPolicies();
+    const batch = writeBatch(db);
     let billedCount = 0;
     const today = new Date();
     const currentMonthBillingDate = startOfMonth(today);
 
     policies.forEach(policy => {
-        // Condition 1: Policy must be active
-        if (policy.policyStatus !== 'Active') {
-            return;
-        }
+        if (policy.policyStatus !== 'Active') return;
 
-        // Condition 2: Commencement date must be in the current month or a past month
         const commencementDate = startOfDay(new Date(policy.commencementDate));
-        if (isAfter(commencementDate, today)) {
-            return; // Don't bill if commencement date is in the future
-        }
+        if (isAfter(commencementDate, today)) return;
 
-        // Condition 3: Policy must not have been billed for the current month already
-        const hasBeenBilledThisMonth = policy.bills.some(bill => {
+        const hasBeenBilledThisMonth = (policy.bills || []).some(bill => {
             const billDate = new Date(bill.dueDate);
             return billDate.getFullYear() === currentMonthBillingDate.getFullYear() &&
                    billDate.getMonth() === currentMonthBillingDate.getMonth();
         });
 
         if (!hasBeenBilledThisMonth) {
-            const newBillId = (policy.bills.length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
+            const newBillId = ((policy.bills || []).length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
             const newBill: Bill = {
                 id: newBillId,
                 policyId: policy.id,
@@ -373,85 +371,81 @@ export function billAllActivePolicies(): number {
                 description: `${format(currentMonthBillingDate, 'MMMM yyyy')} Premium`,
             };
             
-            policy.bills.push(newBill);
-            policy.billingStatus = 'Outstanding';
-            
-            policy.activityLog.push({
+            const updatedPolicy = { ...policy };
+            updatedPolicy.bills = [...(updatedPolicy.bills || []), newBill];
+            updatedPolicy.billingStatus = 'Outstanding';
+            updatedPolicy.activityLog = [...(updatedPolicy.activityLog || []), {
                 date: new Date().toISOString(),
                 user: 'System',
                 action: 'Policy Billed',
                 details: `Billed GHS ${policy.premium.toFixed(2)} for ${format(currentMonthBillingDate, 'MMMM yyyy')}.`
+            }];
+            
+            const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
+            batch.update(policyRef, { 
+                bills: updatedPolicy.bills, 
+                billingStatus: 'Outstanding', 
+                activityLog: updatedPolicy.activityLog 
             });
 
             billedCount++;
         }
     });
 
-    savePoliciesToStorage(policies);
+    if (billedCount > 0) {
+        await batch.commit();
+    }
     return billedCount;
 }
 
-export function applyAnnualIncreases(): number {
-    const policies = getPoliciesFromStorage();
+export async function applyAnnualIncreases(): Promise<number> {
+    const policies = await getPolicies();
+    const batch = writeBatch(db);
     let updatedCount = 0;
     const today = startOfDay(new Date());
     const currentYear = getYear(today);
 
     policies.forEach(policy => {
-        if (policy.policyStatus !== 'Active') {
-            return;
-        }
+        if (policy.policyStatus !== 'Active') return;
 
         const commencementDate = startOfDay(new Date(policy.commencementDate));
         const policyAgeInYears = differenceInYears(today, commencementDate);
 
-        // Rule: Increases stop after the 10th year.
-        if (policyAgeInYears >= 10) {
-            return;
-        }
+        if (policyAgeInYears >= 10) return;
         
-        // Construct the anniversary date for the current year.
         const anniversaryThisYear = new Date(commencementDate);
         anniversaryThisYear.setFullYear(currentYear);
 
-        // Check if the anniversary is today or has passed, but we are still in the same year.
         if (isBefore(anniversaryThisYear, today) || anniversaryThisYear.getTime() === today.getTime()) {
-             // IDEMPOTENCY CHECK: This is the preventative measure.
-             // It checks the activity log to ensure an increase hasn't already been applied this calendar year.
-            const alreadyIncreasedThisYear = policy.activityLog.some(log => 
+            const alreadyIncreasedThisYear = (policy.activityLog || []).some(log => 
                 log.action === 'API/ABI Applied' && getYear(new Date(log.date)) === currentYear
             );
 
-            if (alreadyIncreasedThisYear) {
-                return;
-            }
+            if (alreadyIncreasedThisYear) return;
 
-            let premiumIncreaseRate: number;
-            let sumAssuredIncreaseRate: number;
-            
-            // Determine which rule to apply
-            if (policy.sumAssured >= 500000) {
-                premiumIncreaseRate = 0.07; // 7%
-                sumAssuredIncreaseRate = 0.03; // 3%
-            } else {
-                premiumIncreaseRate = 0.05; // 5%
-                sumAssuredIncreaseRate = 0.02; // 2%
-            }
+            const premiumIncreaseRate = policy.sumAssured >= 500000 ? 0.07 : 0.05;
+            const sumAssuredIncreaseRate = policy.sumAssured >= 500000 ? 0.03 : 0.02;
             
             const oldPremium = policy.premium;
             const oldSumAssured = policy.sumAssured;
-
             const newPremium = oldPremium * (1 + premiumIncreaseRate);
             const newSumAssured = oldSumAssured * (1 + sumAssuredIncreaseRate);
 
-            policy.premium = newPremium;
-            policy.sumAssured = newSumAssured;
-
-            policy.activityLog.push({
+            const updatedPolicy = { ...policy };
+            updatedPolicy.premium = newPremium;
+            updatedPolicy.sumAssured = newSumAssured;
+            updatedPolicy.activityLog = [...(updatedPolicy.activityLog || []), {
                 date: new Date().toISOString(),
                 user: 'System',
                 action: 'API/ABI Applied',
                 details: `Year ${policyAgeInYears + 1}. Premium increased from GHS ${oldPremium.toFixed(2)} to GHS ${newPremium.toFixed(2)}. Sum assured increased from GHS ${oldSumAssured.toFixed(2)} to GHS ${newSumAssured.toFixed(2)}.`,
+            }];
+            
+            const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
+            batch.update(policyRef, {
+                premium: newPremium,
+                sumAssured: newSumAssured,
+                activityLog: updatedPolicy.activityLog
             });
             
             updatedCount++;
@@ -459,9 +453,8 @@ export function applyAnnualIncreases(): number {
     });
 
     if (updatedCount > 0) {
-        savePoliciesToStorage(policies);
+        await batch.commit();
     }
-
     return updatedCount;
 }
 
@@ -473,98 +466,93 @@ type BankReportPayment = {
     'Transaction ID': string;
 };
 
-export function recordBulkPayments(payments: BankReportPayment[]): { successCount: number; failureCount: number; } {
-    const policies = getPoliciesFromStorage();
+export async function recordBulkPayments(payments: BankReportPayment[]): Promise<{ successCount: number; failureCount: number; }> {
+    const policies = await getPolicies();
+    const batch = writeBatch(db);
     let successCount = 0;
     let failureCount = 0;
-
     const successfulPaymentStatuses = ['paid', 'success', 'processed'];
 
-    payments.forEach(payment => {
+    for (const payment of payments) {
         if (!payment['Policy Number'] || !payment['Status'] || !successfulPaymentStatuses.includes(payment['Status'].toLowerCase())) {
             failureCount++;
-            return;
+            continue;
         }
 
         const policy = policies.find(p => p.policy === payment['Policy Number']);
-
         if (!policy) {
             failureCount++;
-            return;
+            continue;
         }
 
         const paymentAmount = payment['Amount'] ? Number(payment['Amount']) : policy.premium;
         let paymentDate: Date;
         
-        // Handle Excel's numeric date format
-        if (typeof payment['Payment Date'] === 'number') {
-            // Excel stores dates as number of days since 1900-01-01.
-            // The following formula converts it to a JS Date.
-            // Subtract 25569 to convert from Excel's epoch (1900) to Unix epoch (1970) and account for leap year bug.
-            paymentDate = new Date((payment['Payment Date'] - 25569) * 86400 * 1000);
-        } else {
-            // Attempt to parse various string date formats
-            try {
+        try {
+            if (typeof payment['Payment Date'] === 'number') {
+                paymentDate = new Date((payment['Payment Date'] - 25569) * 86400 * 1000);
+            } else {
                  paymentDate = parse(payment['Payment Date'], 'yyyy-MM-dd', new Date());
-                 if (isNaN(paymentDate.getTime())) {
-                    paymentDate = parse(payment['Payment Date'], 'dd/MM/yyyy', new Date());
-                 }
-                 if (isNaN(paymentDate.getTime())) {
-                     paymentDate = new Date(payment['Payment Date']);
-                 }
+                 if (isNaN(paymentDate.getTime())) paymentDate = parse(payment['Payment Date'], 'dd/MM/yyyy', new Date());
+                 if (isNaN(paymentDate.getTime())) paymentDate = new Date(payment['Payment Date']);
                  if (isNaN(paymentDate.getTime())) throw new Error("Invalid date format");
-            } catch {
-                failureCount++;
-                return;
             }
+        } catch {
+            failureCount++;
+            continue;
         }
         
-        // Find an unpaid bill to match this payment to.
-        const unpaidBill = policy.bills.find(b => b.status === 'Unpaid' && Math.abs(b.amount - paymentAmount) < 0.01);
-        
+        const unpaidBill = (policy.bills || []).find(b => b.status === 'Unpaid' && Math.abs(b.amount - paymentAmount) < 0.01);
         if (!unpaidBill) {
-            // Optional: Handle overpayments or payments without a bill by creating a new payment record anyway
-            // For now, we'll count it as a failure if no matching bill is found.
             failureCount++;
-            return;
+            continue;
         }
 
-        const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
+        const newPaymentId = ((policy.payments || []).length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
         const newPayment: Payment = {
             id: newPaymentId,
             policyId: policy.id,
             billId: unpaidBill.id,
             amount: paymentAmount,
             paymentDate: format(paymentDate, 'yyyy-MM-dd'),
-            method: 'Bank Transfer', // Assuming since it's a bank report
+            method: 'Bank Transfer',
             transactionId: payment['Transaction ID'] || `BANK-${newId()}`,
         };
 
-        policy.payments.push(newPayment);
-        unpaidBill.status = 'Paid';
-        unpaidBill.paymentId = newPaymentId;
-
-        // Update billing status if all bills are paid
-        const allBillsPaid = policy.bills.every(b => b.status === 'Paid');
-        if (allBillsPaid) {
-            policy.billingStatus = 'Up to Date';
+        const updatedPolicy = { ...policy };
+        updatedPolicy.payments = [...(updatedPolicy.payments || []), newPayment];
+        const billIndex = updatedPolicy.bills.findIndex(b => b.id === unpaidBill.id);
+        if (billIndex > -1) {
+            updatedPolicy.bills[billIndex].status = 'Paid';
+            updatedPolicy.bills[billIndex].paymentId = newPaymentId;
         }
 
-        policy.activityLog.push({
+        const allBillsPaid = updatedPolicy.bills.every(b => b.status === 'Paid');
+        if (allBillsPaid) {
+            updatedPolicy.billingStatus = 'Up to Date';
+        }
+
+        updatedPolicy.activityLog = [...(updatedPolicy.activityLog || []), {
             date: new Date().toISOString(),
             user: 'System',
             action: 'Payment Recorded',
             details: `Bulk upload: GHS ${paymentAmount.toFixed(2)} paid on ${format(paymentDate, 'PPP')}.`,
+        }];
+
+        const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
+        batch.update(policyRef, { 
+            payments: updatedPolicy.payments, 
+            bills: updatedPolicy.bills, 
+            billingStatus: updatedPolicy.billingStatus, 
+            activityLog: updatedPolicy.activityLog 
         });
-
         successCount++;
-    });
+    }
 
-    savePoliciesToStorage(policies);
+    await batch.commit();
     return { successCount, failureCount };
 }
 
-// Simple unique ID generator for transactions without one
 function newId() {
     return Math.random().toString(36).substr(2, 9);
 }
