@@ -38,56 +38,62 @@ export default function BusinessDevelopmentPage() {
   });
 
   React.useEffect(() => {
-    const policies = getPolicies();
-    const totalClients = policies.length;
+    async function fetchData() {
+        const policies = await getPolicies();
+        if (!policies) return;
 
-    const premiumsCollected = policies.reduce((acc, policy) => {
-      return acc + (policy.payments || []).reduce((sum, payment) => sum + payment.amount, 0);
-    }, 0);
+        const totalClients = policies.length;
 
-    const newBusiness = policies
-      .filter(p => p.onboardingStatus !== 'Policy Issued')
-      .reduce((acc, policy) => acc + policy.premium, 0);
-      
-    const outstandingPremiums = policies.reduce((acc, policy) => {
-        return acc + (policy.bills || [])
-            .filter(bill => bill.status === 'Unpaid')
-            .reduce((sum, bill) => sum + bill.amount, 0);
-    }, 0);
+        const premiumsCollected = policies.reduce((acc, policy) => {
+        return acc + (policy.payments || []).reduce((sum, payment) => sum + payment.amount, 0);
+        }, 0);
 
-    const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
+        const newBusiness = policies
+        .filter(p => p.onboardingStatus !== 'Policy Issued')
+        .reduce((acc, policy) => acc + policy.premium, 0);
+        
+        const outstandingPremiums = policies.reduce((acc, policy) => {
+            return acc + (policy.bills || [])
+                .filter(bill => bill.status === 'Unpaid')
+                .reduce((sum, bill) => sum + bill.amount, 0);
+        }, 0);
+
+        const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
+        
+        policies.forEach(policy => {
+        (policy.payments || []).forEach(payment => {
+            const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+            if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+            monthlyData[month].collected += payment.amount;
+        });
+
+        (policy.bills || []).filter(b => b.status === 'Unpaid').forEach(bill => {
+            const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+            if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+            monthlyData[month].outstanding += bill.amount;
+        });
+        });
+
+        const premiumsChartData = Object.entries(monthlyData)
+        .map(([month, data]) => ({
+            month: month.split(' ')[0], // Keep only month abbreviation
+            collected: data.collected,
+            outstanding: data.outstanding
+        }))
+        .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
+        .slice(-7);
+
+
+        setDashboardData({
+        totalClients,
+        premiumsCollected,
+        newBusiness,
+        outstandingPremiums,
+        premiumsChartData: premiumsChartData as any,
+        });
+    }
     
-    policies.forEach(policy => {
-      (policy.payments || []).forEach(payment => {
-        const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
-        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
-        monthlyData[month].collected += payment.amount;
-      });
-
-      (policy.bills || []).filter(b => b.status === 'Unpaid').forEach(bill => {
-        const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
-        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
-        monthlyData[month].outstanding += bill.amount;
-      });
-    });
-
-    const premiumsChartData = Object.entries(monthlyData)
-      .map(([month, data]) => ({
-        month: month.split(' ')[0], // Keep only month abbreviation
-        collected: data.collected,
-        outstanding: data.outstanding
-      }))
-      .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
-      .slice(-7);
-
-
-    setDashboardData({
-      totalClients,
-      premiumsCollected,
-      newBusiness,
-      outstandingPremiums,
-      premiumsChartData: premiumsChartData as any,
-    });
+    fetchData();
   }, []);
 
   const stats = [
