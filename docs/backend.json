@@ -1,0 +1,51 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile information.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Authentication."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "phone": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
+        "role": {
+          "type": "string",
+          "description": "The user's role within the application."
+        },
+        "department": {
+            "type": "string",
+            "description": "The department the user belongs to.",
+            "enum": ["Business Development", "Premium Administration", "Underwriting", "Administrator"]
+        }
+      },
+      "required": ["uid", "email", "firstName", "lastName", "role", "department"]
+    }
+  },
+  "auth": {
+    "providers": ["email"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Stores public user profile information, keyed by user ID."
+    }
+  }
+}

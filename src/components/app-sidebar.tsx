@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
@@ -42,8 +41,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { useAuth } from '@/firebase';
+import { getDoc, doc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Skeleton } from './ui/skeleton';
 
-const navItems = {
+
+const allNavItems = {
   'Business Development': [
     { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
@@ -125,51 +129,47 @@ function AppSidebarHeader() {
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [isMounted, setIsMounted] = React.useState(false);
+  const { user, signOutUser } = useAuth();
+  const [navItems, setNavItems] = React.useState<typeof allNavItems | null>(null);
+  
+  React.useEffect(() => {
+      const fetchUserDepartment = async () => {
+          if (user) {
+              const userDoc = await getDoc(doc(db, 'users', user.uid));
+              if (userDoc.exists()) {
+                  const userData = userDoc.data();
+                  if (userData.department === 'Administrator') {
+                      setNavItems(allNavItems);
+                  } else if (userData.department) {
+                      setNavItems({ [userData.department]: allNavItems[userData.department as keyof typeof allNavItems] } as typeof allNavItems);
+                  }
+              }
+          }
+      };
+      fetchUserDepartment();
+  }, [user]);
 
-   React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOutUser();
     router.push('/login');
   };
 
-
   const getActiveDepartment = () => {
-    if (pathname.startsWith('/business-development')) {
-      return 'Business Development';
-    }
-    if (pathname.startsWith('/premium-administration')) {
-      return 'Premium Administration';
-    }
-    if (pathname.startsWith('/underwriting')) {
-        return 'Underwriting';
-    }
-    return '';
+    if (pathname.startsWith('/business-development')) return 'Business Development';
+    if (pathname.startsWith('/premium-administration')) return 'Premium Administration';
+    if (pathname.startsWith('/underwriting')) return 'Underwriting';
+    return null;
   }
 
   const activeDepartment = getActiveDepartment();
   
   const renderContent = () => {
-    if (!isMounted) {
+    if (!navItems) {
         return (
              <div className="p-2 space-y-4">
-                <div className="space-y-1">
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                </div>
-                <div className="space-y-1">
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                </div>
-                 <div className="space-y-1">
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                    <SidebarMenuSkeleton showIcon />
-                </div>
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
             </div>
         )
     }
@@ -178,6 +178,7 @@ export default function AppSidebar() {
         <Accordion type="single" collapsible defaultValue={activeDepartment || Object.keys(navItems)[0]} className="w-full">
             {Object.entries(navItems).map(([department, items]) => {
                 const DepartmentIcon = departmentIcons[department as keyof typeof departmentIcons];
+                if (!items) return null;
                 return (
                     <AccordionItem value={department} key={department} className="border-none">
                         <AccordionTrigger className="hover:no-underline text-sidebar-foreground/70 hover:text-sidebar-foreground text-sm font-medium px-2 rounded-md hover:bg-sidebar-accent [&[data-state=open]]:text-sidebar-accent-foreground">
