@@ -25,11 +25,15 @@ const POLICIES_COLLECTION = 'policies';
 
 // --- Data Conversion Helpers ---
 
-function policyToFirebase(policy: NewBusiness): any {
+export function policyToFirebase(policy: NewBusiness): any {
   const data = { ...policy };
   // Convert Date objects to Timestamps for Firestore
-  const toTimestamp = (dateStr: string | undefined | null) =>
-    dateStr ? Timestamp.fromDate(new Date(dateStr)) : null;
+  const toTimestamp = (dateStr: string | Date | undefined | null) => {
+    if (!dateStr) return null;
+    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
+    if (isNaN(date.getTime())) return null;
+    return Timestamp.fromDate(date);
+  }
 
   data.lifeAssuredDob = toTimestamp(data.lifeAssuredDob) as any;
   data.commencementDate = toTimestamp(data.commencementDate) as any;
@@ -56,6 +60,18 @@ function policyToFirebase(policy: NewBusiness): any {
       data.bills = data.bills.map(b => ({...b, dueDate: toTimestamp(b.dueDate)}));
   }
 
+  // Handle nested medical details
+  if (data.medicalHistory) {
+      data.medicalHistory = data.medicalHistory.map(mh => {
+          const newMh = {...mh};
+          Object.keys(newMh).forEach(key => {
+              if (key.toLowerCase().includes('date') && newMh[key as keyof typeof newMh]) {
+                  (newMh as any)[key] = toTimestamp((newMh as any)[key]);
+              }
+          });
+          return newMh;
+      });
+  }
 
   return data;
 }
@@ -126,10 +142,10 @@ export async function getPolicyById(id: number): Promise<NewBusiness | undefined
   });
 
   if (docSnap && docSnap.exists()) {
-    return policyFromFirebase(docSnap);
+    return policyFromFirebase({id: docSnap.id, data: ()=> docSnap.data()});
   } else {
-    console.log("No such document or permission denied!");
-    return undefined;
+    // Fallback to local data if not found in Firestore
+    return newBusinessData.find(p => p.id === id);
   }
 }
 
@@ -260,34 +276,26 @@ export async function createPolicy(values: any): Promise<NewBusiness> {
         ],
     };
     
-    const firebaseData = policyToFirebase(newPolicyData as NewBusiness);
-    const newDocRef = await addDoc(collection(db, POLICIES_COLLECTION), firebaseData)
+    // Determine a numeric ID
+    const policies = await getPolicies();
+    const newId = policies.length > 0 ? Math.max(...policies.map(p => p.id)) + 1 : 1;
+
+    const newPolicyWithId = { ...newPolicyData, id: newId };
+    
+    const firebaseData = policyToFirebase(newPolicyWithId as NewBusiness);
+    const docRef = doc(db, POLICIES_COLLECTION, newId.toString());
+
+    await setDoc(docRef, firebaseData)
         .catch(async (serverError) => {
             const permissionError = new FirestorePermissionError({
-                path: POLICIES_COLLECTION,
+                path: docRef.path,
                 operation: 'create',
                 requestResourceData: firebaseData,
             });
             errorEmitter.emit('permission-error', permissionError);
-            // Return null or re-throw to indicate failure
             throw serverError;
         });
 
-    const newPolicyWithId = { ...newPolicyData, id: parseInt(newDocRef.id, 10) };
-
-    const firstBill: Bill = {
-        id: 1,
-        policyId: newPolicyWithId.id,
-        amount: newPolicyWithId.premium,
-        dueDate: newPolicyWithId.commencementDate,
-        status: 'Unpaid',
-        description: 'First Premium'
-    };
-    newPolicyWithId.bills.push(firstBill);
-
-    // No need to await, let it run in the background with error handling
-    updatePolicy(newPolicyWithId.id, { bills: newPolicyWithId.bills });
-    
     return newPolicyWithId as NewBusiness;
 }
 
@@ -415,9 +423,9 @@ export async function billAllActivePolicies(): Promise<number> {
             
             const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
             const updateData = { 
-                bills: updatedPolicy.bills, 
+                bills: updatedPolicy.bills.map(b => ({...b, dueDate: Timestamp.fromDate(new Date(b.dueDate))})), 
                 billingStatus: 'Outstanding', 
-                activityLog: updatedPolicy.activityLog 
+                activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
             };
 
             batch.update(policyRef, updateData);
@@ -484,7 +492,7 @@ export async function applyAnnualIncreases(): Promise<number> {
             const updateData = {
                 premium: newPremium,
                 sumAssured: newSumAssured,
-                activityLog: updatedPolicy.activityLog
+                activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
             };
 
             batch.update(policyRef, updateData);
@@ -587,10 +595,10 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
 
         const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
         const updateData = { 
-            payments: updatedPolicy.payments, 
-            bills: updatedPolicy.bills, 
+            payments: updatedPolicy.payments.map(p => ({...p, paymentDate: Timestamp.fromDate(new Date(p.paymentDate))})), 
+            bills: updatedPolicy.bills.map(b => ({...b, dueDate: Timestamp.fromDate(new Date(b.dueDate))})), 
             billingStatus: updatedPolicy.billingStatus, 
-            activityLog: updatedPolicy.activityLog 
+            activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
         };
         batch.update(policyRef, updateData);
         successCount++;

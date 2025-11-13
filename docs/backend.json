@@ -37,6 +37,80 @@
         }
       },
       "required": ["uid", "email", "firstName", "lastName", "role", "department"]
+    },
+    "Policy": {
+        "title": "Insurance Policy",
+        "description": "Represents a single insurance policy for a client.",
+        "type": "object",
+        "properties": {
+            "id": {"type": "number", "description": "Unique identifier for the policy."},
+            "client": {"type": "string", "description": "Full name of the life insured."},
+            "lifeAssuredDob": {"type": "string", "format": "date", "description": "Date of birth of the life insured."},
+            "placeOfBirth": {"type": "string"},
+            "ageNextBirthday": {"type": "number"},
+            "gender": {"type": "string", "enum": ["Male", "Female"]},
+            "maritalStatus": {"type": "string", "enum": ["Single", "Married", "Divorced", "Widowed"]},
+            "dependents": {"type": "number"},
+            "nationality": {"type": "string"},
+            "country": {"type": "string"},
+            "religion": {"type": "string", "enum": ["Christian", "Muslim", "Traditional", "Other"]},
+            "languages": {"type": "string"},
+            "email": {"type": "string", "format": "email"},
+            "phone": {"type": "string"},
+            "workTelephone": {"type": "string"},
+            "homeTelephone": {"type": "string"},
+            "postalAddress": {"type": "string"},
+            "residentialAddress": {"type": "string"},
+            "gpsAddress": {"type": "string"},
+            "nationalIdType": {"type": "string"},
+            "idNumber": {"type": "string"},
+            "placeOfIssue": {"type": "string"},
+            "issueDate": {"type": "string", "format": "date"},
+            "expiryDateId": {"type": "string", "format": "date"},
+            "policy": {"type": "string", "description": "The policy number."},
+            "product": {"type": "string", "description": "The name of the insurance product."},
+            "premium": {"type": "number", "description": "The premium amount."},
+            "initialSumAssured": {"type": "number"},
+            "sumAssured": {"type": "number"},
+            "commencementDate": {"type": "string", "format": "date"},
+            "expiryDate": {"type": "string", "format": "date"},
+            "policyTerm": {"type": "number"},
+            "premiumTerm": {"type": "number"},
+            "serial": {"type": "string"},
+            "paymentFrequency": {"type": "string", "enum": ["Monthly", "Annually", "Quarterly", "Bi-Annually"]},
+            "onboardingStatus": {"type": "string"},
+            "billingStatus": {"type": "string"},
+            "policyStatus": {"type": "string"},
+            "occupation": {"type": "string"},
+            "natureOfBusiness": {"type": "string"},
+            "employer": {"type": "string"},
+            "employerAddress": {"type": "string"},
+            "monthlyBasicIncome": {"type": "number"},
+            "otherIncome": {"type": "number"},
+            "totalMonthlyIncome": {"type": "number"},
+            "payerName": {"type": "string"},
+            "bankName": {"type": "string"},
+            "bankBranch": {"type": "string"},
+            "bankAccountNumber": {"type": "string"},
+            "sortCode": {"type": "string"},
+            "narration": {"type": "string"},
+            "accountType": {"type": "string", "enum": ["Current", "Savings", "Other"]},
+            "bankAccountName": {"type": "string"},
+            "amountInWords": {"type": "string"}
+        }
+    },
+    "Role": {
+        "title": "User Role",
+        "description": "Defines a set of permissions for a user.",
+        "type": "object",
+        "properties": {
+            "id": {"type": "number"},
+            "name": {"type": "string"},
+            "permissions": {
+                "type": "array",
+                "items": {"type": "string"}
+            }
+        }
     }
   },
   "auth": {
@@ -46,6 +120,14 @@
     "/users/{userId}": {
       "schema": { "$ref": "#/entities/UserProfile" },
       "description": "Stores public user profile information, keyed by user ID."
+    },
+    "/policies/{policyId}": {
+      "schema": { "$ref": "#/entities/Policy" },
+      "description": "Stores all insurance policy documents."
+    },
+    "/roles/{roleId}": {
+        "schema": { "$ref": "#/entities/Role" },
+        "description": "Stores user roles and their associated permissions."
     }
   }
 }

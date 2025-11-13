@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -2225,7 +2226,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         
         {!isEditMode && (
           <div className="flex justify-end p-4">
-             <Button type="submit" disabled={!isLifeInsuredSignatureVerified || !isPayerSignatureVerified}>
+             <Button type="submit">
                 Submit Application
             </Button>
           </div>
