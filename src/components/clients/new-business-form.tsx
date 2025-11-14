@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -2146,7 +2147,82 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 </CardContent>
               </Card>
 
-              {/* Other health sections to be added here */}
+              <Card>
+                <CardHeader><CardTitle>Alcohol Consumption</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="alcoholHabits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Which statement best describes your drinking habits?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                          >
+                            {alcoholHabitsOptions.map((option) => (
+                              <FormItem key={option} className="flex items-center space-x-3 space-y-0">
+                                <FormControl><RadioGroupItem value={option} /></FormControl>
+                                <FormLabel className="font-normal">{alcoholHabitsLabels[option]}</FormLabel>
+                              </FormItem>
+                            ))}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {alcoholHabits === 'current_regular_drinker' && (
+                    <div className="space-y-4 rounded-md border p-4">
+                      <h4 className="font-medium">Please provide details of your current regular consumption:</h4>
+                      <Table>
+                        <TableHeader><TableRow><TableHead>Type</TableHead><TableHead>Consumed?</TableHead><TableHead>Average per week</TableHead></TableRow></TableHeader>
+                        <TableBody>
+                          {['Beer', 'Wine', 'Spirits'].map((type) => (
+                            <TableRow key={type}>
+                              <TableCell>{type}</TableCell>
+                              <TableCell>
+                                <FormField control={form.control} name={`alcohol${type}` as 'alcoholBeer' | 'alcoholWine' | 'alcoholSpirits'} render={({ field }: any) => (
+                                    <FormItem className="flex items-center"><FormControl><Checkbox checked={field.value?.consumed} onCheckedChange={(checked) => field.onChange({ ...field.value, consumed: checked })} /></FormControl></FormItem>
+                                )}/>
+                              </TableCell>
+                              <TableCell>
+                                <FormField control={form.control} name={`alcohol${type}` as 'alcoholBeer' | 'alcoholWine' | 'alcoholSpirits'} render={({ field }: any) => (
+                                    <Input {...field} value={field.value?.averagePerWeek || ''} onChange={(e) => field.onChange({ ...field.value, averagePerWeek: e.target.value })} disabled={!field.value?.consumed} />
+                                )}/>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+
+                  <FormField control={form.control} name="reducedAlcoholMedicalAdvice" render={({ field }) => (
+                      <FormItem><FormLabel>Have you ever been advised by a medical professional to reduce your alcohol consumption?</FormLabel>
+                        <FormControl><RadioGroup onValueChange={(val) => field.onChange({...field.value, reduced: val})} value={field.value.reduced} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                        </RadioGroup></FormControl>
+                        {field.value.reduced === 'yes' && <FormControl><Textarea placeholder="Please provide details" value={field.value.notes} onChange={(e) => field.onChange({...field.value, notes: e.target.value})} /></FormControl>}
+                        <FormMessage />
+                      </FormItem>
+                  )}/>
+                  <FormField control={form.control} name="reducedAlcoholHealthProblems" render={({ field }) => (
+                      <FormItem><FormLabel>Have you ever reduced your alcohol consumption because of health problems?</FormLabel>
+                        <FormControl><RadioGroup onValueChange={(val) => field.onChange({...field.value, reduced: val})} value={field.value.reduced} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                        </RadioGroup></FormControl>
+                        {field.value.reduced === 'yes' && <FormControl><Textarea placeholder="Please provide details" value={field.value.notes} onChange={(e) => field.onChange({...field.value, notes: e.target.value})} /></FormControl>}
+                        <FormMessage />
+                      </FormItem>
+                  )}/>
+                </CardContent>
+              </Card>
+
             </div>
           </TabsContent>
 
@@ -2239,3 +2315,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
