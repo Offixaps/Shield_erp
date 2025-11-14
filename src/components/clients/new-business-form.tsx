@@ -2087,8 +2087,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
+             <Alert>
+              <Info className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                The information you provide in this section is crucial for underwriting your policy. Please answer all questions truthfully and completely. Failure to disclose material facts may result in your policy being voided.
+              </AlertDescription>
+            </Alert>
             <div className="p-4 border rounded-md space-y-6">
-               <div>
+              <div>
                 <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4 -mt-4' style={{ backgroundColor: '#023ea3' }}>
                     <h3>Physical Measurements</h3>
                 </div>
@@ -2497,6 +2504,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
