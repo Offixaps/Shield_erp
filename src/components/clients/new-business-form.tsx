@@ -2083,6 +2083,71 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               </div>
             </div>
           </TabsContent>
+          
+          <TabsContent value="health" className="mt-6 space-y-8">
+            <div className="flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
+              <h3>Health Details</h3>
+            </div>
+            <Separator className="my-0" />
+            <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+              <Card>
+                <CardHeader><CardTitle>Physical Measurements</CardTitle></CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="height"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Height</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="heightUnit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Unit</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="cm">cm</SelectItem>
+                            <SelectItem value="m">m</SelectItem>
+                            <SelectItem value="ft">ft</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="weight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Weight (kg)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {bmi && bmiStatus && (
+                    <div className="space-y-2">
+                        <Label>BMI</Label>
+                        <div className="flex items-center gap-2 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                            <span>{bmi.toFixed(1)}</span>
+                            <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
+                        </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Other health sections to be added here */}
+            </div>
+          </TabsContent>
 
           <TabsContent value="agent" className="mt-6 space-y-8">
             <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
