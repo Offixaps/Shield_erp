@@ -62,6 +62,12 @@ export default function StaffPage() {
     }
   };
 
+  const getInitials = (staff: StaffMember) => {
+    const firstNameInitial = staff.firstName ? staff.firstName[0] : '';
+    const lastNameInitial = staff.lastName ? staff.lastName[0] : '';
+    return `${firstNameInitial}${lastNameInitial}` || 'U';
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -91,7 +97,7 @@ export default function StaffPage() {
                     {userAvatar && (
                         <AvatarImage src={userAvatar.imageUrl} alt={`${staff.firstName} ${staff.lastName}`} />
                     )}
-                    <AvatarFallback>{staff.firstName[0]}{staff.lastName[0]}</AvatarFallback>
+                    <AvatarFallback>{getInitials(staff)}</AvatarFallback>
                 </Avatar>
                 <CardTitle className="text-lg">{staff.firstName} {staff.lastName}</CardTitle>
                 <CardDescription>{staff.email}</CardDescription>
