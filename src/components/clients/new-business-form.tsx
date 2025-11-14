@@ -3138,6 +3138,91 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
             </div>
           </TabsContent>
+          
+          <TabsContent value="lifestyle" className="mt-6 space-y-8">
+            <div className="p-4 border rounded-md space-y-6">
+              <FormField
+                control={form.control}
+                name="flownAsPilot"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>1. Have you ever flown, or do you intend to fly as a pilot or crew member?</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                    {flownAsPilot === 'yes' && (
+                      <div className="pt-4">
+                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                        <LifestyleDetailTable
+                          form={form}
+                          fieldName="flownAsPilotDetails"
+                          itemOptions={['Pilot', 'Crew Member']}
+                        />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+              <Separator />
+              <FormField
+                control={form.control}
+                name="hazardousSports"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>2. Do you take part, or do you intend to take part, in any hazardous sports or pastimes?</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                    {hazardousSports === 'yes' && (
+                      <div className="pt-4">
+                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                        <LifestyleDetailTable
+                          form={form}
+                          fieldName="hazardousSportsDetails"
+                          itemOptions={['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing']}
+                        />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+              <Separator />
+              <FormField
+                control={form.control}
+                name="travelOutsideCountry"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>3. Do you travel, or do you intend to travel or reside outside your present country of residence?</FormLabel>
+                    <FormControl>
+                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                      </RadioGroup>
+                    </FormControl>
+                    <FormMessage />
+                    {travelOutsideCountry === 'yes' && (
+                      <div className="pt-4">
+                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                        <LifestyleDetailTable
+                          form={form}
+                          fieldName="travelOutsideCountryDetails"
+                          itemOptions={['Live Outside', 'Work outside', 'Go on Holiday']}
+                        />
+                      </div>
+                    )}
+                  </FormItem>
+                )}
+              />
+            </div>
+          </TabsContent>
 
           <TabsContent value="agent" className="mt-6 space-y-8">
             <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
