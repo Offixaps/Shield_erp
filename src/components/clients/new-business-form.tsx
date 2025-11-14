@@ -55,6 +55,7 @@ import SignaturePadComponent from './signature-pad';
 import ExistingPoliciesTable from './existing-policies-table';
 import DeclinedPoliciesTable from './declined-policies-table';
 import BeneficiaryTable from './beneficiary-table';
+import { Label } from '@/components/ui/label';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
