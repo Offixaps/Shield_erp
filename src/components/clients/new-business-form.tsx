@@ -2087,14 +2087,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-            <div className="flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase" style={{ backgroundColor: '#023ea3' }}>
-              <h3>Health Details</h3>
-            </div>
-            <Separator className="my-0" />
-            <div className="p-4 border border-t-0 rounded-b-md space-y-6">
-              <Card>
-                <CardHeader><CardTitle>Physical Measurements</CardTitle></CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="p-4 border rounded-b-md space-y-6">
+               <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4 -mt-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Physical Measurements</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
                   <FormField
                     control={form.control}
                     name="height"
@@ -2144,12 +2142,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              <Card>
-                <CardHeader><CardTitle>Alcohol Consumption</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
+              <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Alcohol Consumption</h3>
+                </div>
+                <div className="space-y-6 pt-6">
                   <FormField
                     control={form.control}
                     name="alcoholHabits"
@@ -2220,12 +2220,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <FormMessage />
                       </FormItem>
                   )}/>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader><CardTitle>Tobacco & Nicotine Use</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
+                </div>
+              </div>
+              
+              <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Tobacco & Nicotine Use</h3>
+                </div>
+                 <div className="space-y-6 pt-6">
                   <FormField
                     control={form.control}
                     name="tobaccoHabits"
@@ -2313,12 +2315,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                       </Table>
                     </div>
                   )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader><CardTitle>Recreational Drugs</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
+                </div>
+              </div>
+              
+              <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Recreational Drugs</h3>
+                </div>
+                <div className="space-y-6 pt-6">
                   <FormField
                     control={form.control}
                     name="usedRecreationalDrugs"
@@ -2352,12 +2356,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                       </FormItem>
                     )}
                   />
-                </CardContent>
-              </Card>
-              
-               <Card>
-                <CardHeader><CardTitle>Viral Co-infections</CardTitle></CardHeader>
-                <CardContent className="space-y-6">
+                </div>
+              </div>
+
+               <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Viral Co-infections</h3>
+                </div>
+                <div className="space-y-6 pt-6">
                    <FormField
                     control={form.control}
                     name="testedPositiveViralInfection"
@@ -2395,8 +2401,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                       </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
             </div>
           </TabsContent>
@@ -2490,6 +2496,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
