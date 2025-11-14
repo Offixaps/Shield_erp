@@ -27,10 +27,11 @@ export default function RolesPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
-    const roles = getRoles();
+    // Filter out the 'Super Admin' role
+    const rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
     const staffMembers = getStaff();
-    setAllRoles(roles);
-    setFilteredRoles(roles);
+    setAllRoles(rolesFromService);
+    setFilteredRoles(rolesFromService);
     setStaff(staffMembers);
   }, []);
 

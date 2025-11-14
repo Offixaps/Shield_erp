@@ -83,11 +83,11 @@ export async function getStaff(): Promise<StaffMember[]> {
     return { docs: [] };
   });
 
-  const staffList = userSnapshot.docs.map(doc => {
-      const data = doc.data();
+  const staffList = userSnapshot.docs.map(docSnap => {
+      const data = docSnap.data();
       return {
-          id: data.id, // Assuming 'id' field exists
-          uid: doc.id,
+          id: docSnap.id, // Use the unique document ID as the key
+          uid: docSnap.id,
           ...data
       } as StaffMember & { uid: string };
   });
@@ -118,11 +118,11 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
 
     console.warn("Client-side user creation is not secure. This is for simulation only.");
 
-    const staff = await getStaff();
-    const newId = staff.length > 0 ? Math.max(...staff.map(r => r.id)) + 1 : 1;
+    // This is just a simulation for client side. The real ID will be from Firestore Auth UID.
+    const tempId = new Date().getTime(); 
 
     const newStaffMemberData = {
-        id: newId,
+        id: tempId,
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
@@ -141,20 +141,28 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
             errorEmitter.emit('permission-error', permissionError);
             throw serverError;
         });
+    
+    // Update the local object with the real doc ID
+    const finalData = { ...newStaffMemberData, id: docRef.id };
+    await setDoc(docRef, { uid: docRef.id }, { merge: true });
 
-    return { id: newId, ...newStaffMemberData } as StaffMember;
+    return finalData as StaffMember;
 }
 
 export async function updateStaff(id: number, values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember | undefined> {
-    const staffQuery = query(collection(db, USERS_COLLECTION), where("id", "==", id));
-    const querySnapshot = await getDocs(staffQuery);
-
-    if (querySnapshot.empty) {
-        throw new Error("Staff member not found.");
-    }
+    // In Firestore, the document ID (uid) is the true unique identifier
+    // 'id' is a legacy field from the local data model.
+    // The correct way is to use the uid which we assume is passed as `staffId` in the component.
     
-    const staffDoc = querySnapshot.docs[0];
-    const staffRef = doc(db, USERS_COLLECTION, staffDoc.id);
+    const staffId = id.toString(); // Assuming the numeric id is not the firestore id. A proper app would pass the uid.
+    const staffRef = doc(db, USERS_COLLECTION, staffId);
+
+    const docSnap = await getDoc(staffRef);
+
+    if (!docSnap.exists()) {
+        console.error("Staff member not found with ID:", staffId);
+        return undefined;
+    }
 
     const updatedData = {
         firstName: values.firstName,
@@ -174,28 +182,26 @@ export async function updateStaff(id: number, values: z.infer<typeof newStaffFor
         errorEmitter.emit('permission-error', permissionError);
     });
 
-    return { id, ...staffDoc.data(), ...updatedData } as StaffMember;
+    return { id, ...docSnap.data(), ...updatedData } as StaffMember;
 }
 
-export async function deleteStaffMember(id: number): Promise<boolean> {
-    const staffQuery = query(collection(db, USERS_COLLECTION), where("id", "==", id));
-    const querySnapshot = await getDocs(staffQuery);
-     if (querySnapshot.empty) {
-       return false;
-    }
-
-    const staffDoc = querySnapshot.docs[0];
-    const staffRef = doc(db, USERS_COLLECTION, staffDoc.id);
+export async function deleteStaffMember(id: number | string): Promise<boolean> {
+    // The ID passed here should be the Firestore document UID.
+    const staffRef = doc(db, USERS_COLLECTION, id.toString());
     
-    await deleteDoc(staffRef).catch(async (serverError) => {
+    try {
+        await deleteDoc(staffRef);
+        return true;
+    } catch (serverError) {
         const permissionError = new FirestorePermissionError({
             path: staffRef.path,
             operation: 'delete',
         });
         errorEmitter.emit('permission-error', permissionError);
-    });
-    return true;
+        return false;
+    }
 }
+
 
 // Legacy functions using local storage (to be deprecated)
 export function getStaffById(id: number): StaffMember | undefined {
