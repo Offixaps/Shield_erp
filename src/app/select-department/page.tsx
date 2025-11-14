@@ -66,7 +66,7 @@ export default function DepartmentSelectionPage() {
             );
         }
 
-        if (userDepartment === 'Administrator') {
+        if (userDepartment === 'Administrator' || userDepartment === 'Super Admin') {
             return (
                 <>
                     <DepartmentCard href="/business-development" title="Business Development" description="Access the main dashboard for analytics and client management." />
@@ -84,7 +84,7 @@ export default function DepartmentSelectionPage() {
         
         const userDeptCardInfo = departmentMap[userDepartment];
 
-        return userDeptCardInfo ? <DepartmentCard {...userDeptCardInfo} /> : <p>No department assigned.</p>;
+        return userDeptCardInfo ? <DepartmentCard {...userDeptCardInfo} /> : <p className="text-center text-muted-foreground">No department assigned.</p>;
     }
 
 
