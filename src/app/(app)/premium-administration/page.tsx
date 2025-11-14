@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -36,57 +37,63 @@ export default function PremiumAdministrationPage() {
   });
 
   React.useEffect(() => {
-    const policies = getPolicies();
-    const now = new Date();
-    const monthStart = startOfMonth(now);
-    const monthEnd = endOfMonth(now);
+    async function fetchData() {
+        const policies = await getPolicies();
+        const now = new Date();
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
 
-    let premiumsCollectedMonth = 0;
-    let outstandingPremiums = 0;
-    let reconciledPaymentsCount = 0;
-    let pendingReconciliationCount = 0;
-    const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
+        let premiumsCollectedMonth = 0;
+        let outstandingPremiums = 0;
+        let reconciledPaymentsCount = 0;
+        let pendingReconciliationCount = 0;
+        const monthlyData: { [key: string]: { collected: number; outstanding: number } } = {};
 
-    policies.forEach(policy => {
-      (policy.payments || []).forEach(payment => {
-        reconciledPaymentsCount++;
-        const paymentDate = new Date(payment.paymentDate);
-        if (isWithinInterval(paymentDate, { start: monthStart, end: monthEnd })) {
-          premiumsCollectedMonth += payment.amount;
+        if (policies) {
+            policies.forEach(policy => {
+            (policy.payments || []).forEach(payment => {
+                reconciledPaymentsCount++;
+                const paymentDate = new Date(payment.paymentDate);
+                if (isWithinInterval(paymentDate, { start: monthStart, end: monthEnd })) {
+                premiumsCollectedMonth += payment.amount;
+                }
+                const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+                if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+                monthlyData[month].collected += payment.amount;
+            });
+
+            (policy.bills || []).forEach(bill => {
+                if (bill.status === 'Unpaid') {
+                outstandingPremiums += bill.amount;
+                pendingReconciliationCount++;
+                
+                const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
+                if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
+                monthlyData[month].outstanding += bill.amount;
+                }
+            });
+            });
         }
-        const month = new Date(payment.paymentDate).toLocaleString('default', { month: 'short', year: '2-digit' });
-        if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
-        monthlyData[month].collected += payment.amount;
-      });
 
-      (policy.bills || []).forEach(bill => {
-        if (bill.status === 'Unpaid') {
-          outstandingPremiums += bill.amount;
-          pendingReconciliationCount++;
-          
-          const month = new Date(bill.dueDate).toLocaleString('default', { month: 'short', year: '2-digit' });
-          if (!monthlyData[month]) monthlyData[month] = { collected: 0, outstanding: 0 };
-          monthlyData[month].outstanding += bill.amount;
-        }
-      });
-    });
+        const premiumsChartData = Object.entries(monthlyData)
+        .map(([month, data]) => ({
+            month: month.split(' ')[0],
+            collected: data.collected,
+            outstanding: data.outstanding
+        }))
+        .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
+        .slice(-7);
 
-    const premiumsChartData = Object.entries(monthlyData)
-      .map(([month, data]) => ({
-        month: month.split(' ')[0],
-        collected: data.collected,
-        outstanding: data.outstanding
-      }))
-      .sort((a,b) => new Date(`1 ${a.month} 2000`).getMonth() - new Date(`1 ${b.month} 2000`).getMonth())
-      .slice(-7);
+        setDashboardData({
+        premiumsCollectedMonth,
+        outstandingPremiums,
+        reconciledPaymentsCount,
+        pendingReconciliationCount,
+        premiumsChartData: premiumsChartData as any,
+        });
+    }
 
-    setDashboardData({
-      premiumsCollectedMonth,
-      outstandingPremiums,
-      reconciledPaymentsCount,
-      pendingReconciliationCount,
-      premiumsChartData: premiumsChartData as any,
-    });
+    fetchData();
   }, []);
 
   const stats = [

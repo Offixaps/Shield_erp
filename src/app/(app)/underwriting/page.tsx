@@ -40,54 +40,57 @@ export default function UnderwritingPage() {
   });
 
   React.useEffect(() => {
-    const policies = getPolicies();
-    const now = new Date();
-    const monthStart = startOfMonth(now);
-    const monthEnd = endOfMonth(now);
-    
-    const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
-    const pending = policies.filter(p => pendingStatuses.includes(p.onboardingStatus)).length;
+    async function fetchData() {
+        const policies = await getPolicies();
+        const now = new Date();
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
+        
+        const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
+        const pending = policies.filter(p => pendingStatuses.includes(p.onboardingStatus)).length;
 
-    let approvedMonth = 0;
-    let declinedMonth = 0;
-    const turnaroundTimes: number[] = [];
+        let approvedMonth = 0;
+        let declinedMonth = 0;
+        const turnaroundTimes: number[] = [];
 
-    policies.forEach(policy => {
-      const acceptedLog = policy.activityLog.find(log => log.action === 'Status changed to Accepted');
-      const declinedLog = policy.activityLog.find(log => log.action === 'Status changed to Declined');
-      const creationLog = policy.activityLog.find(log => log.action === 'Policy Created');
+        policies.forEach(policy => {
+        const acceptedLog = policy.activityLog?.find(log => log.action === 'Status changed to Accepted');
+        const declinedLog = policy.activityLog?.find(log => log.action === 'Status changed to Declined');
+        const creationLog = policy.activityLog?.find(log => log.action === 'Policy Created');
 
-      if (acceptedLog) {
-        const acceptedDate = new Date(acceptedLog.date);
-        if (isWithinInterval(acceptedDate, { start: monthStart, end: monthEnd })) {
-          approvedMonth++;
+        if (acceptedLog) {
+            const acceptedDate = new Date(acceptedLog.date);
+            if (isWithinInterval(acceptedDate, { start: monthStart, end: monthEnd })) {
+            approvedMonth++;
+            }
+            if (creationLog) {
+                turnaroundTimes.push(differenceInDays(acceptedDate, new Date(creationLog.date)));
+            }
         }
-        if (creationLog) {
-            turnaroundTimes.push(differenceInDays(acceptedDate, new Date(creationLog.date)));
-        }
-      }
 
-      if (declinedLog) {
-        const declinedDate = new Date(declinedLog.date);
-        if (isWithinInterval(declinedDate, { start: monthStart, end: monthEnd })) {
-          declinedMonth++;
+        if (declinedLog) {
+            const declinedDate = new Date(declinedLog.date);
+            if (isWithinInterval(declinedDate, { start: monthStart, end: monthEnd })) {
+            declinedMonth++;
+            }
+            if (creationLog) {
+                turnaroundTimes.push(differenceInDays(declinedDate, new Date(creationLog.date)));
+            }
         }
-        if (creationLog) {
-            turnaroundTimes.push(differenceInDays(declinedDate, new Date(creationLog.date)));
-        }
-      }
-    });
-    
-    const avgTurnaroundTime = turnaroundTimes.length > 0
-      ? (turnaroundTimes.reduce((a, b) => a + b, 0) / turnaroundTimes.length).toFixed(1) + ' days'
-      : 'N/A';
+        });
+        
+        const avgTurnaroundTime = turnaroundTimes.length > 0
+        ? (turnaroundTimes.reduce((a, b) => a + b, 0) / turnaroundTimes.length).toFixed(1) + ' days'
+        : 'N/A';
 
-    setStats({
-      pending,
-      approvedMonth,
-      declinedMonth,
-      avgTurnaroundTime,
-    });
+        setStats({
+        pending,
+        approvedMonth,
+        declinedMonth,
+        avgTurnaroundTime,
+        });
+    }
+    fetchData();
   }, []);
 
   const statsCards = [
