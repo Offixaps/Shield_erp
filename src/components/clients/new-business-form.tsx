@@ -2354,6 +2354,49 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                   />
                 </CardContent>
               </Card>
+              
+               <Card>
+                <CardHeader><CardTitle>Viral Co-infections</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                   <FormField
+                    control={form.control}
+                    name="testedPositiveViralInfection"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Have you ever been tested positive for HIV, Hepatitis B or C, or are you awaiting the results of such a test?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {testedPositiveViralInfection === 'yes' && (
+                    <div className="space-y-6 rounded-md border p-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Tested positive for:</h4>
+                        <div className="flex flex-col gap-2">
+                           <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                           <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                           <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                        </div>
+                      </div>
+                      <Separator />
+                       <div>
+                        <h4 className="font-medium mb-2">Awaiting results for:</h4>
+                        <div className="flex flex-col gap-2">
+                           <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                           <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                           <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
             </div>
           </TabsContent>
@@ -2447,5 +2490,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
