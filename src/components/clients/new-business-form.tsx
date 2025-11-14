@@ -3078,6 +3078,36 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     />
                  </div>
                </div>
+
+                <div>
+                    <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                        <h3>Family Medical History</h3>
+                    </div>
+                    <div className="space-y-6 pt-6">
+                        <FormField
+                            control={form.control}
+                            name="familyMedicalHistory"
+                            render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>29. Have any of your close relatives (parents, brothers, or sisters) suffered from heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease, multiple sclerosis, polyposis of colon, glaucoma or any other hereditary disorder before age 60?</FormLabel>
+                                <FormControl>
+                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                </RadioGroup>
+                                </FormControl>
+                                <FormMessage />
+                                {familyMedicalHistory === 'yes' && (
+                                    <div className="pt-4">
+                                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                        <FamilyMedicalHistoryTable form={form} fieldName="familyMedicalHistoryDetails" />
+                                    </div>
+                                )}
+                            </FormItem>
+                            )}
+                        />
+                    </div>
+               </div>
             </div>
           </TabsContent>
 
@@ -3170,5 +3200,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
