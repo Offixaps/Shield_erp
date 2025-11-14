@@ -2,7 +2,7 @@
 'use client';
 
 import * as React from 'react';
-import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { SidebarProvider, SidebarInset, SidebarRail } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/app-sidebar';
 import AppHeader from '@/components/app-header';
 import { useAuth } from '@/firebase';
@@ -68,6 +68,7 @@ export default function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
+      <SidebarRail />
       <SidebarInset>
         <AppHeader />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
