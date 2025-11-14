@@ -2174,9 +2174,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                       </FormItem>
                     )}
                   />
-                  {alcoholHabits === 'current_regular_drinker' && (
+                  {(alcoholHabits === 'current_regular_drinker' || alcoholHabits === 'occasional_socially') && (
                     <div className="space-y-4 rounded-md border p-4">
-                      <h4 className="font-medium">Please provide details of your current regular consumption:</h4>
+                      <h4 className="font-medium">Please provide details of your current consumption:</h4>
                       <Table>
                         <TableHeader><TableRow><TableHead>Type</TableHead><TableHead>Consumed?</TableHead><TableHead>Average per week</TableHead></TableRow></TableHeader>
                         <TableBody>
