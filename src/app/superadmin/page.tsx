@@ -42,11 +42,19 @@ export default function SuperAdminLoginPage() {
         router.push('/select-department');
       }
     } catch (error: any) {
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: error.message || 'An unexpected error occurred.',
-      });
+        if (error.code === 'auth/popup-closed-by-user') {
+            toast({
+                variant: 'destructive',
+                title: 'Login Cancelled',
+                description: 'The sign-in window was closed. Please try again. Ensure popups are not blocked.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Login Failed',
+                description: error.message || 'An unexpected error occurred.',
+            });
+        }
     }
   };
 
