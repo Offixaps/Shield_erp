@@ -34,7 +34,7 @@
         "department": {
             "type": "string",
             "description": "The department the user belongs to.",
-            "enum": ["Business Development", "Premium Administration", "Underwriting", "Administrator"]
+            "enum": ["Business Development", "Premium Administration", "Underwriting", "Administrator", "Super Admin"]
         }
       },
       "required": ["uid", "email", "firstName", "lastName", "role", "department"]
@@ -115,7 +115,7 @@
     }
   },
   "auth": {
-    "providers": ["email"]
+    "providers": ["email", "google"]
   },
   "firestore": {
     "/users/{userId}": {
@@ -132,5 +132,3 @@
     }
   }
 }
-
-    

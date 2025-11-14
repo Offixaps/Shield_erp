@@ -12,7 +12,9 @@ import {
   onAuthStateChanged,
   type User,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import * as React from 'react';
@@ -49,6 +51,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithEmail: typeof signInWithEmailAndPassword;
+  signInWithGoogle: () => Promise<any>;
   signOutUser: () => Promise<void>;
 }
 
@@ -56,6 +59,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signInWithEmail: (auth, email, password) => Promise.resolve({} as any),
+  signInWithGoogle: () => Promise.resolve({} as any),
   signOutUser: () => Promise.resolve(),
 });
 
@@ -77,12 +81,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return signInWithEmailAndPassword(auth, email, password);
   }
 
+  const signInWithGoogle = () => {
+    const provider = new GoogleAuthProvider();
+    return signInWithPopup(auth, provider);
+  };
+
   const signOutUser = () => {
     return signOut(auth);
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithEmail: signInWithEmail as any, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, signInWithEmail: signInWithEmail as any, signInWithGoogle, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );

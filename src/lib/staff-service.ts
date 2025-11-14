@@ -19,23 +19,62 @@ import {
 import { db } from './firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import type { User } from 'firebase/auth';
 
 
 const USERS_COLLECTION = 'users';
 
 const getDepartmentForRole = (role: string): string => {
-    if (role === 'Administrator') return 'Administrator';
+    if (role === 'Administrator' || role === 'Super Admin') return 'Administrator';
     if (['Sales Agent', 'Business Development Manager'].includes(role)) return 'Business Development';
     if (role === 'Premium Administrator') return 'Premium Administration';
     if (role === 'Underwriter') return 'Underwriting';
     return 'General';
 };
 
+export async function setSuperAdminUser(user: User): Promise<void> {
+  const userRef = doc(db, USERS_COLLECTION, user.uid);
+  const userDoc = await getDoc(userRef);
+
+  if (!userDoc.exists()) {
+    const [firstName, ...lastName] = user.displayName?.split(' ') || ['Super', 'Admin'];
+    const superAdminData = {
+        uid: user.uid,
+        email: user.email,
+        firstName: firstName,
+        lastName: lastName.join(' '),
+        phone: user.phoneNumber || '',
+        role: 'Super Admin',
+        department: 'Super Admin',
+    };
+    await setDoc(userRef, superAdminData).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'create',
+            requestResourceData: superAdminData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+  } else {
+    // If user exists, ensure they have the Super Admin role
+    await setDoc(userRef, { role: 'Super Admin', department: 'Super Admin' }, { merge: true }).catch(async (serverError) => {
+        const permissionError = new FirestorePermissionError({
+            path: userRef.path,
+            operation: 'update',
+            requestResourceData: { role: 'Super Admin' },
+        });
+        errorEmitter.emit('permission-error', permissionError);
+    });
+  }
+}
+
 // --- Firestore Service Functions ---
 
 export async function getStaff(): Promise<StaffMember[]> {
   const usersCollection = collection(db, USERS_COLLECTION);
-  const userSnapshot = await getDocs(usersCollection).catch(async (serverError) => {
+  // Filter out the Super Admin
+  const q = query(usersCollection, where("role", "!=", "Super Admin"));
+  const userSnapshot = await getDocs(q).catch(async (serverError) => {
     const permissionError = new FirestorePermissionError({
       path: usersCollection.path,
       operation: 'list',
@@ -47,7 +86,7 @@ export async function getStaff(): Promise<StaffMember[]> {
   const staffList = userSnapshot.docs.map(doc => {
       const data = doc.data();
       return {
-          id: parseInt(doc.id, 10), // Assuming you want a number ID
+          id: data.id, // Assuming 'id' field exists
           uid: doc.id,
           ...data
       } as StaffMember & { uid: string };
@@ -57,12 +96,12 @@ export async function getStaff(): Promise<StaffMember[]> {
 }
 
 
-export async function getStaffById(id: number): Promise<StaffMember | undefined> {
-    const usersQuery = query(collection(db, USERS_COLLECTION), where("id", "==", id));
-    const querySnapshot = await getDocs(usersQuery);
-    if (!querySnapshot.empty) {
-        const docSnap = querySnapshot.docs[0];
-        return { id: parseInt(docSnap.id, 10), ...docSnap.data() } as StaffMember;
+export async function getStaffByUid(uid: string): Promise<StaffMember | undefined> {
+    const userDocRef = doc(db, USERS_COLLECTION, uid);
+    const docSnap = await getDoc(userDocRef);
+    if (docSnap.exists()) {
+        const data = docSnap.data();
+        return { ...data, uid: docSnap.id, id: data.id } as StaffMember;
     }
     return undefined;
 }
@@ -83,7 +122,7 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
     const newId = staff.length > 0 ? Math.max(...staff.map(r => r.id)) + 1 : 1;
 
     const newStaffMemberData = {
-        // id: newId, // Firestore generates the ID (UID)
+        id: newId,
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
@@ -107,12 +146,15 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
 }
 
 export async function updateStaff(id: number, values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember | undefined> {
-    const staffMember = await getStaffById(id);
-    if (!staffMember || !(staffMember as any).uid) {
-        throw new Error("Staff member not found or UID is missing.");
+    const staffQuery = query(collection(db, USERS_COLLECTION), where("id", "==", id));
+    const querySnapshot = await getDocs(staffQuery);
+
+    if (querySnapshot.empty) {
+        throw new Error("Staff member not found.");
     }
     
-    const staffRef = doc(db, USERS_COLLECTION, (staffMember as any).uid);
+    const staffDoc = querySnapshot.docs[0];
+    const staffRef = doc(db, USERS_COLLECTION, staffDoc.id);
 
     const updatedData = {
         firstName: values.firstName,
@@ -132,15 +174,19 @@ export async function updateStaff(id: number, values: z.infer<typeof newStaffFor
         errorEmitter.emit('permission-error', permissionError);
     });
 
-    return { ...staffMember, ...updatedData };
+    return { id, ...staffDoc.data(), ...updatedData } as StaffMember;
 }
 
 export async function deleteStaffMember(id: number): Promise<boolean> {
-    const staffMember = await getStaffById(id);
-    if (!staffMember || !(staffMember as any).uid) {
+    const staffQuery = query(collection(db, USERS_COLLECTION), where("id", "==", id));
+    const querySnapshot = await getDocs(staffQuery);
+     if (querySnapshot.empty) {
        return false;
     }
-    const staffRef = doc(db, USERS_COLLECTION, (staffMember as any).uid);
+
+    const staffDoc = querySnapshot.docs[0];
+    const staffRef = doc(db, USERS_COLLECTION, staffDoc.id);
+    
     await deleteDoc(staffRef).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
             path: staffRef.path,
@@ -149,4 +195,11 @@ export async function deleteStaffMember(id: number): Promise<boolean> {
         errorEmitter.emit('permission-error', permissionError);
     });
     return true;
+}
+
+// Legacy functions using local storage (to be deprecated)
+export function getStaffById(id: number): StaffMember | undefined {
+    // This is now a mock. In a real scenario, this would be an async DB call.
+    const allStaff = staffData;
+    return allStaff.find(s => s.id === id);
 }

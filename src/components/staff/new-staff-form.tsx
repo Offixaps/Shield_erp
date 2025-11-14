@@ -29,7 +29,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
-import { createStaffMember, getStaffById, updateStaff } from '@/lib/staff-service';
+import { createStaffMember, getStaffById, updateStaff, getStaffByUid } from '@/lib/staff-service';
 
 export const newStaffFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
@@ -72,13 +72,16 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   
   React.useEffect(() => {
     if (isEditMode && staffId) {
-      const staffData = getStaffById(parseInt(staffId, 10));
-      if (staffData) {
-        form.reset({
-          ...staffData,
-          password: '',
-        });
-      }
+        const fetchStaff = async () => {
+            const staffData = await getStaffByUid(staffId);
+            if (staffData) {
+                form.reset({
+                ...staffData,
+                password: '',
+                });
+            }
+        };
+        fetchStaff();
     }
   }, [isEditMode, staffId, form]);
 
@@ -96,9 +99,9 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
     })
   };
   
-  function onSubmit(values: z.infer<typeof newStaffFormSchema>) {
+  async function onSubmit(values: z.infer<typeof newStaffFormSchema>) {
     if (isEditMode && staffId) {
-      updateStaff(parseInt(staffId, 10), values);
+      await updateStaff(parseInt(staffId, 10), values);
       toast({
         title: 'Staff Member Updated',
         description: `${values.firstName} ${values.lastName}'s details have been updated.`,
@@ -108,7 +111,7 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
             form.setError('password', { message: 'Password is required for new staff members.' });
             return;
         }
-      createStaffMember(values);
+      await createStaffMember(values);
       toast({
         title: 'Staff Member Added',
         description: `${values.firstName} ${values.lastName} has been added to the system.`,

@@ -131,6 +131,7 @@ export default function AppSidebar() {
   const router = useRouter();
   const { user, signOutUser } = useAuth();
   const [navItems, setNavItems] = React.useState<typeof allNavItems | null>(null);
+  const [isSuperAdmin, setIsSuperAdmin] = React.useState(false);
   
   React.useEffect(() => {
       const fetchUserDepartment = async () => {
@@ -138,7 +139,10 @@ export default function AppSidebar() {
               const userDoc = await getDoc(doc(db, 'users', user.uid));
               if (userDoc.exists()) {
                   const userData = userDoc.data();
-                  if (userData.department === 'Administrator') {
+                  if (userData.department === 'Super Admin' || userData.role === 'Super Admin') {
+                      setIsSuperAdmin(true);
+                      setNavItems(allNavItems);
+                  } else if (userData.department === 'Administrator') {
                       setNavItems(allNavItems);
                   } else if (userData.department) {
                       setNavItems({ [userData.department]: allNavItems[userData.department as keyof typeof allNavItems] } as typeof allNavItems);
@@ -221,12 +225,14 @@ export default function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip="Settings">
-              <Settings />
-              <span>Settings</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {isSuperAdmin && (
+            <SidebarMenuItem>
+              <SidebarMenuButton tooltip="Settings">
+                <Settings />
+                <span>Settings</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
           <SidebarMenuItem>
             <SidebarMenuButton tooltip="Logout" onClick={handleLogout}>
               <LogOut />
