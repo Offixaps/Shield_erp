@@ -177,7 +177,10 @@ export default function ConfirmFirstPremiumDialog({
                 <Calendar
                   mode="single"
                   selected={paymentDate}
-                  onSelect={setPaymentDate}
+                  onSelect={(date) => {
+                    setPaymentDate(date);
+                    // This won't close the popover by itself, need to manage open state
+                  }}
                   initialFocus
                 />
               </PopoverContent>

@@ -64,6 +64,131 @@ const insuranceCompanyOptions = [
     'Vanguard Life Assurance Company Limited',
 ];
 
+function ExistingPolicyRow({ form, field, index, fieldName, remove }: { form: UseFormReturn<FormValues>, field: any, index: number, fieldName: string, remove: (index: number) => void }) {
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+
+  return (
+    <TableRow>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.companyName`}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select company" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {insuranceCompanyOptions.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.personCovered`}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g., John Doe" />
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.policyType`}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g., Term Life" />
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.issueDate`}
+          render={({ field }) => (
+             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                  <FormControl>
+                  <Button
+                      variant={'outline'}
+                      className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
+                  >
+                      {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                  </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar 
+                      mode="single" 
+                      selected={field.value ? new Date(field.value) : undefined} 
+                      onSelect={(date) => {
+                        field.onChange(date);
+                        setIsCalendarOpen(false);
+                      }}
+                      initialFocus 
+                      captionLayout="dropdown-buttons"
+                      fromYear={1950}
+                      toYear={new Date().getFullYear()}
+                      disabled={(date) => date > new Date()}
+                  />
+              </PopoverContent>
+          </Popover>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+          <FormField
+              control={form.control}
+              name={`${fieldName}.${index}.premiumAmount`}
+              render={({ field }) => (
+                  <Input type="number" {...field} placeholder="e.g., 250" />
+              )}
+          />
+      </TableCell>
+      <TableCell>
+           <FormField
+              control={form.control}
+              name={`${fieldName}.${index}.faceAmount`}
+              render={({ field }) => (
+                  <Input type="number" {...field} placeholder="e.g., 100000" />
+              )}
+          />
+      </TableCell>
+      <TableCell>
+           <FormField
+              control={form.control}
+              name={`${fieldName}.${index}.changedGrpOrInd`}
+              render={({ field }) => (
+                 <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                      <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><Label className="font-normal">Yes</Label></FormItem>
+                      <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><Label className="font-normal">No</Label></FormItem>
+                  </RadioGroup>
+              )}
+          />
+      </TableCell>
+      <TableCell>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => remove(index)}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export default function ExistingPoliciesTable({
   form,
   fieldName,
@@ -91,121 +216,14 @@ export default function ExistingPoliciesTable({
           </TableHeader>
           <TableBody>
             {fields.map((field, index) => (
-              <TableRow key={field.id}>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.companyName`}
-                    render={({ field }) => (
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select company" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {insuranceCompanyOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.personCovered`}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="e.g., John Doe" />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.policyType`}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="e.g., Term Life" />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.issueDate`}
-                    render={({ field }) => (
-                       <Popover>
-                        <PopoverTrigger asChild>
-                            <FormControl>
-                            <Button
-                                variant={'outline'}
-                                className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
-                            >
-                                {field.value ? format(field.value, 'PPP') : <span>Pick a date</span>}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                            </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar 
-                                mode="single" 
-                                selected={field.value} 
-                                onSelect={field.onChange} 
-                                initialFocus 
-                                captionLayout="dropdown-buttons"
-                                fromYear={1950}
-                                toYear={new Date().getFullYear()}
-                                disabled={(date) => date > new Date()}
-                            />
-                        </PopoverContent>
-                    </Popover>
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                    <FormField
-                        control={form.control}
-                        name={`${fieldName}.${index}.premiumAmount`}
-                        render={({ field }) => (
-                            <Input type="number" {...field} placeholder="e.g., 250" />
-                        )}
-                    />
-                </TableCell>
-                <TableCell>
-                     <FormField
-                        control={form.control}
-                        name={`${fieldName}.${index}.faceAmount`}
-                        render={({ field }) => (
-                            <Input type="number" {...field} placeholder="e.g., 100000" />
-                        )}
-                    />
-                </TableCell>
-                <TableCell>
-                     <FormField
-                        control={form.control}
-                        name={`${fieldName}.${index}.changedGrpOrInd`}
-                        render={({ field }) => (
-                           <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><Label className="font-normal">Yes</Label></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><Label className="font-normal">No</Label></FormItem>
-                            </RadioGroup>
-                        )}
-                    />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(index)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <ExistingPolicyRow 
+                key={field.id}
+                form={form}
+                field={field}
+                index={index}
+                fieldName={fieldName}
+                remove={remove}
+              />
             ))}
           </TableBody>
         </Table>

@@ -39,6 +39,145 @@ type BeneficiaryTableProps = {
   fieldName: 'primaryBeneficiaries' | 'contingentBeneficiaries';
 };
 
+function BeneficiaryRow({ form, fieldName, field, index, remove }: { form: UseFormReturn<FormValues>, fieldName: BeneficiaryTableProps['fieldName'], field: any, index: number, remove: (index: number) => void }) {
+  const [isCalendarOpen, setIsCalendarOpen] = React.useState(false);
+
+  return (
+    <TableRow>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.name`}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g., Jane Doe" />
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.dob`}
+          render={({ field }) => (
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={'outline'}
+                    className={cn(
+                      'w-full pl-3 text-left font-normal',
+                      !field.value && 'text-muted-foreground'
+                    )}
+                  >
+                    {field.value ? (
+                      format(new Date(field.value), 'PPP')
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    field.onChange(date);
+                    setIsCalendarOpen(false);
+                  }}
+                  initialFocus
+                   disabled={(date) =>
+                      date > new Date() || date < new Date('1900-01-01')
+                  }
+                  captionLayout="dropdown-buttons"
+                  fromYear={1900}
+                  toYear={new Date().getFullYear()}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.gender`}
+          render={({ field }) => (
+            <Select
+              onValueChange={field.onChange}
+              value={field.value}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Gender" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+      </TableCell>
+      <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.relationship`}
+          render={({ field }) => (
+            <Input {...field} placeholder="e.g., Spouse" />
+          )}
+        />
+      </TableCell>
+       <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.telephone`}
+          render={({ field }) => (
+            <Input {...field} placeholder="024..." />
+          )}
+        />
+      </TableCell>
+       <TableCell>
+        <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.percentage`}
+          render={({ field }) => (
+            <Input type="number" {...field} placeholder="e.g., 100" />
+          )}
+        />
+      </TableCell>
+      <TableCell className="text-center">
+         <FormField
+          control={form.control}
+          name={`${fieldName}.${index}.isIrrevocable`}
+          render={({ field }) => (
+              <FormItem className="flex h-full items-center justify-center">
+                   <FormControl>
+                      <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                      />
+                  </FormControl>
+              </FormItem>
+          )}
+          />
+      </TableCell>
+      <TableCell>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => remove(index)}
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
+
 export default function BeneficiaryTable({
   form,
   fieldName,
@@ -66,134 +205,14 @@ export default function BeneficiaryTable({
           </TableHeader>
           <TableBody>
             {fields.map((field, index) => (
-              <TableRow key={field.id}>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.name`}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="e.g., Jane Doe" />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.dob`}
-                    render={({ field }) => (
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={'outline'}
-                              className={cn(
-                                'w-full pl-3 text-left font-normal',
-                                !field.value && 'text-muted-foreground'
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, 'PPP')
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            initialFocus
-                             disabled={(date) =>
-                                date > new Date() || date < new Date('1900-01-01')
-                            }
-                            captionLayout="dropdown-buttons"
-                            fromYear={1900}
-                            toYear={new Date().getFullYear()}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.gender`}
-                    render={({ field }) => (
-                      <Select
-                        onValueChange={field.onChange}
-                        value={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Gender" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="Male">Male</SelectItem>
-                          <SelectItem value="Female">Female</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.relationship`}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="e.g., Spouse" />
-                    )}
-                  />
-                </TableCell>
-                 <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.telephone`}
-                    render={({ field }) => (
-                      <Input {...field} placeholder="024..." />
-                    )}
-                  />
-                </TableCell>
-                 <TableCell>
-                  <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.percentage`}
-                    render={({ field }) => (
-                      <Input type="number" {...field} placeholder="e.g., 100" />
-                    )}
-                  />
-                </TableCell>
-                <TableCell className="text-center">
-                   <FormField
-                    control={form.control}
-                    name={`${fieldName}.${index}.isIrrevocable`}
-                    render={({ field }) => (
-                        <FormItem className="flex h-full items-center justify-center">
-                             <FormControl>
-                                <Checkbox
-                                    checked={field.value}
-                                    onCheckedChange={field.onChange}
-                                />
-                            </FormControl>
-                        </FormItem>
-                    )}
-                    />
-                </TableCell>
-                <TableCell>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove(index)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <BeneficiaryRow 
+                key={field.id}
+                form={form}
+                fieldName={fieldName}
+                field={field}
+                index={index}
+                remove={remove}
+              />
             ))}
           </TableBody>
         </Table>

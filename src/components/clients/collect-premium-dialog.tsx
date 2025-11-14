@@ -178,7 +178,10 @@ export default function CollectPremiumDialog({
                 <Calendar
                   mode="single"
                   selected={paymentDate}
-                  onSelect={setPaymentDate}
+                  onSelect={(date) => {
+                    setPaymentDate(date);
+                    setOpen(false);
+                  }}
                   initialFocus
                 />
               </PopoverContent>
