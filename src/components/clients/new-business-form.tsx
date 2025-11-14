@@ -2484,6 +2484,60 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                         )}
                     />
+                     <Separator />
+                    <FormField
+                        control={form.control}
+                        name="cancer"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>7. Have you ever had or been told that you have cancer, leukemia, Hodgkin's disease, lymphoma, or any other tumor?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {cancer === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                        form={form} 
+                                        fieldName="cancerDetails"
+                                        illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="diabetes"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>8. Have you ever had or been told you have diabetes?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {diabetes === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                        form={form} 
+                                        fieldName="diabetesDetails"
+                                        illnessOptions={['Diabetes']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
                  </div>
               </div>
 
@@ -2580,14 +2634,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
