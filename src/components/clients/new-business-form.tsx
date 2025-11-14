@@ -2087,12 +2087,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-             <Alert>
-              <Info className="h-4 w-4" />
-              <AlertTitle>Important</AlertTitle>
-              <AlertDescription>
-                The information you provide in this section is crucial for underwriting your policy. Please answer all questions truthfully and completely. Failure to disclose material facts may result in your policy being voided.
-              </AlertDescription>
+             <Alert variant="destructive">
+                <Info className="h-4 w-4" />
+                <AlertTitle>WARNING</AlertTitle>
+                <AlertDescription>
+                    The answers you give to these questions are material. If you fail to give accurate answers, it may affect the terms of your contract and we may decline a claim. In some cases the Company may check these answers by obtaining a report from your doctor/hospital.
+                </AlertDescription>
             </Alert>
             <div className="p-4 border rounded-md space-y-6">
               <div>
@@ -2504,6 +2504,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
