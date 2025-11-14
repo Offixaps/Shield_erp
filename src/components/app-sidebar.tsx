@@ -139,7 +139,7 @@ export default function AppSidebar() {
               const userDoc = await getDoc(doc(db, 'users', user.uid));
               if (userDoc.exists()) {
                   const userData = userDoc.data();
-                  if (userData.department === 'Super Admin' || userData.role === 'Super Admin') {
+                  if (userData.role === 'Super Admin') {
                       setIsSuperAdmin(true);
                       setNavItems(allNavItems);
                   } else if (userData.department === 'Administrator') {
@@ -162,6 +162,12 @@ export default function AppSidebar() {
     if (pathname.startsWith('/business-development')) return 'Business Development';
     if (pathname.startsWith('/premium-administration')) return 'Premium Administration';
     if (pathname.startsWith('/underwriting')) return 'Underwriting';
+    // For general routes like /staff or /roles, we need to decide on a default or check user role
+    // For a Super Admin, it doesn't matter, but for others, it might.
+    // Let's default to the first department they have access to if not in a specific one.
+    if (navItems && Object.keys(navItems).length > 0) {
+      return Object.keys(navItems)[0];
+    }
     return null;
   }
 
@@ -187,7 +193,7 @@ export default function AppSidebar() {
                     <AccordionItem value={department} key={department} className="border-none">
                         <AccordionTrigger className="hover:no-underline text-sidebar-foreground/70 hover:text-sidebar-foreground text-sm font-medium px-2 rounded-md hover:bg-sidebar-accent [&[data-state=open]]:text-sidebar-accent-foreground">
                            <div className="flex items-center gap-2">
-                             <DepartmentIcon className="h-4 w-4" />
+                             {DepartmentIcon && <DepartmentIcon className="h-4 w-4" />}
                              <span>{department}</span>
                            </div>
                         </AccordionTrigger>

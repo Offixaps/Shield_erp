@@ -34,6 +34,12 @@ export default function AppLayout({
             if (userDoc.exists()) {
                 const userData = userDoc.data();
                 const userDepartment = userData.department;
+                const userRole = userData.role;
+
+                // Super Admins should bypass department checks
+                if (userRole === 'Super Admin') {
+                    return; 
+                }
 
                 const requiredDepartments = Object.entries(departmentAccess).find(
                     ([path]) => pathname.startsWith(path)
