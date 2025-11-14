@@ -54,6 +54,7 @@ import LifestyleDetailTable from './lifestyle-detail-table';
 import SignaturePadComponent from './signature-pad';
 import ExistingPoliciesTable from './existing-policies-table';
 import DeclinedPoliciesTable from './declined-policies-table';
+import BeneficiaryTable from './beneficiary-table';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -1983,6 +1984,28 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             </div>
           </TabsContent>
 
+          <TabsContent value="beneficiaries" className="mt-6 space-y-8">
+            <div>
+              <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>Primary Beneficiaries</h3>
+              </div>
+              <Separator className="my-0" />
+              <div className="p-4 border border-t-0 rounded-b-md">
+                <BeneficiaryTable form={form} fieldName="primaryBeneficiaries" />
+              </div>
+            </div>
+
+            <div>
+              <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>Contingent Beneficiaries</h3>
+              </div>
+              <Separator className="my-0" />
+              <div className="p-4 border border-t-0 rounded-b-md">
+                <BeneficiaryTable form={form} fieldName="contingentBeneficiaries" />
+              </div>
+            </div>
+          </TabsContent>
+
           <TabsContent value="agent" className="mt-6 space-y-8">
             <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
                 <h3>DETAILS OF AGENT</h3>
@@ -2072,5 +2095,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
