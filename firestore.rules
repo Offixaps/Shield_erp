@@ -24,10 +24,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isSuperAdmin() || isAdministrator(getUserData(userId).department) || isOwner(userId);
 
-      allow create: if isOwner(userId) && (
-        request.resource.data.role != 'Super Admin' ||
-        request.auth.token.email == 'offixaps@gmail.com'
-      );
+      allow create: if (isOwner(userId) && request.resource.data.role != 'Super Admin') || (request.auth.token.email == 'offixaps@gmail.com');
       
       allow update: if isSuperAdmin() || (isAdministrator(getUserData(userId).department) && request.resource.data.department == getUserData(request.auth.uid).department) || isOwner(userId);
       
@@ -35,12 +32,13 @@ service cloud.firestore {
     }
 
     match /policies/{policyId} {
-      allow read, write: if isSuperAdmin() || isAdministrator(resource.data.department) || request.auth != null;
+      allow read: if request.auth != null;
+      allow write: if isSuperAdmin() || isAdministrator(resource.data.department);
     }
 
     match /roles/{roleId} {
         allow read: if isSuperAdmin() || request.auth != null;
-        allow write: if isSuperAdmin() || isAdministrator();
+        allow write: if isSuperAdmin() || isAdministrator('System');
     }
   }
 }
