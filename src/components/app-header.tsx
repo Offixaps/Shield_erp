@@ -45,7 +45,7 @@ export default function AppHeader() {
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-4 border-b bg-card px-4 sm:px-6">
       <div className="flex items-center gap-2">
-        <SidebarTrigger className="flex md:hidden" />
+        <SidebarTrigger />
          {!isMobile && (
             <Link href="/business-development" className="flex items-center gap-2">
                 <Image src="/Shield app logo.svg" alt="SHIELD ERP Logo" width={24} height={24} className="h-6 w-6" />
