@@ -21,10 +21,22 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
+      // Any authenticated user can read other user profiles if they are an admin. They can always read their own.
       allow read: if isSuperAdmin() || isAdministrator() || isOwner(userId);
-      allow create: if isOwner(userId); // Allow any user to create their own user document
-      allow update: if isSuperAdmin() || isAdministrator() || isOwner(userId); // Allow user to update their own profile
-      allow delete: if isSuperAdmin() || isAdministrator(); // Only admins can delete users
+
+      // A user can only be created if:
+      // 1. It's for themselves (isOwner).
+      // 2. If they are trying to create a "Super Admin" role, their email MUST be 'offixaps@gmail.com'.
+      // 3. Otherwise, they can create a non-Super Admin user for themselves.
+      allow create: if isOwner(userId) && (
+        request.resource.data.role == 'Super Admin' ? request.auth.token.email == 'offixaps@gmail.com' : true
+      );
+      
+      // An admin or the user themselves can update a profile.
+      allow update: if isSuperAdmin() || isAdministrator() || isOwner(userId);
+      
+      // Only admins can delete users.
+      allow delete: if isSuperAdmin() || isAdministrator();
     }
 
     match /policies/{policyId} {

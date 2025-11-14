@@ -33,6 +33,11 @@ const getDepartmentForRole = (role: string): string => {
 };
 
 export async function setSuperAdminUser(user: User): Promise<void> {
+  // Hardcoded check for the allowed Super Admin email.
+  if (user.email !== 'offixaps@gmail.com') {
+    throw new Error('This account is not authorized for Super Admin access.');
+  }
+  
   const userRef = doc(db, USERS_COLLECTION, user.uid);
   const userDoc = await getDoc(userRef);
 
@@ -86,7 +91,7 @@ export async function getStaff(): Promise<StaffMember[]> {
   const staffList = userSnapshot.docs.map(docSnap => {
       const data = docSnap.data();
       return {
-          id: docSnap.id, // Use the unique document ID as the key
+          id: docSnap.id, 
           uid: docSnap.id,
           ...data
       } as StaffMember & { uid: string };
@@ -139,7 +144,7 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
                 requestResourceData: newStaffMemberData,
             });
             errorEmitter.emit('permission-error', permissionError);
-            throw serverError;
+            throw serverError; // Re-throw the original error after emitting our custom one
         });
     
     // Update the local object with the real doc ID
