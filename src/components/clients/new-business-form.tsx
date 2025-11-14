@@ -400,7 +400,7 @@ export const newBusinessFormSchema = z
     asthmaDetails: z.array(illnessDetailSchema).optional(),
     digestiveDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
     digestiveDisorderDetails: z.array(illnessDetailSchema).optional(),
-    bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.'}),
+    bloodDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     bloodDisorderDetails: z.array(illnessDetailSchema).optional(),
     thyroidDisorder: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     thyroidDisorderDetails: z.array(illnessDetailSchema).optional(),
@@ -1144,6 +1144,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [dobOpen, setDobOpen] = React.useState(false);
   const [issueDateOpen, setIssueDateOpen] = React.useState(false);
   const [expiryDateOpen, setExpiryDateOpen] = React.useState(false);
+  const [payerDobOpen, setPayerDobOpen] = React.useState(false);
+  const [payerIssueDateOpen, setPayerIssueDateOpen] = React.useState(false);
+  const [payerExpiryDateOpen, setPayerExpiryDateOpen] = React.useState(false);
+
 
   return (
     <Form {...form}>
@@ -2450,7 +2454,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                     <MedicalConditionDetailsTable 
                                       form={form} 
                                       fieldName="bloodTransfusionOrSurgeryDetails"
-                                      illnessOptions={['Blood Transfusion', 'Surgery']}
+                                      illnessOptions={['Blood transfusion', 'Surgery']}
                                     />
                                 </div>
                             )}
@@ -2680,6 +2684,60 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                         )}
                     />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="asthma"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>14. Asthma, bronchitis, shortness of breath or any other chest complaint?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {asthma === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="asthmaDetails"
+                                      illnessOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="digestiveDisorder"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>15. Duodenal Ulcer, Gastric Ulcer, or any other disorder of the Digestive System, Liver, or Pancreas?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {digestiveDisorder === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="digestiveDisorderDetails"
+                                      illnessOptions={['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
                  </div>
               </div>
 
@@ -2776,3 +2834,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
