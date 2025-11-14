@@ -2411,6 +2411,64 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                   )}
                 </div>
               </div>
+              
+              <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Medical History Questions</h3>
+                </div>
+                 <div className="space-y-6 pt-6">
+                    <FormField
+                        control={form.control}
+                        name="bloodTransfusionOrSurgery"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>5. Have you ever had a blood transfusion or undergone surgery of any kind?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {bloodTransfusionOrSurgery === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable form={form} fieldName="bloodTransfusionOrSurgeryDetails" />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="highBloodPressure"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>6. Have you ever had or been told that you have High blood pressure, angina, heart attack, stroke, coma or any other disease of the heart, arteries or circulation?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {highBloodPressure === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                        form={form} 
+                                        fieldName="highBloodPressureDetails"
+                                        illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                 </div>
+              </div>
+
 
             </div>
           </TabsContent>
@@ -2504,6 +2562,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
