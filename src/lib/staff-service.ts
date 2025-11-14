@@ -20,6 +20,8 @@ import { db } from './firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
+import { app } from './firebase-config';
 
 
 const USERS_COLLECTION = 'users';
@@ -76,9 +78,29 @@ export async function setSuperAdminUser(user: User): Promise<void> {
 // --- Firestore Service Functions ---
 
 export async function getStaff(): Promise<StaffMember[]> {
+  const auth = getAuth(app);
+  const currentUser = auth.currentUser;
+
+  if (!currentUser) return [];
+
+  const currentUserDoc = await getDoc(doc(db, USERS_COLLECTION, currentUser.uid));
+  if (!currentUserDoc.exists()) return [];
+  
+  const currentUserData = currentUserDoc.data();
   const usersCollection = collection(db, USERS_COLLECTION);
-  // Filter out the Super Admin
-  const q = query(usersCollection, where("role", "!=", "Super Admin"));
+  let q;
+
+  if (currentUserData.role === 'Super Admin') {
+    // Super Admin sees everyone except themselves
+    q = query(usersCollection, where("role", "!=", "Super Admin"));
+  } else if (currentUserData.role === 'Administrator') {
+    // Administrator sees everyone in their own department
+    q = query(usersCollection, where("department", "==", currentUserData.department));
+  } else {
+    // Other roles see no one for now, or just themselves if needed
+    q = query(usersCollection, where("uid", "==", '')); // No results
+  }
+
   const userSnapshot = await getDocs(q).catch(async (serverError) => {
     const permissionError = new FirestorePermissionError({
       path: usersCollection.path,
@@ -122,18 +144,14 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
     // 3. The function would then create the Firestore document.
 
     console.warn("Client-side user creation is not secure. This is for simulation only.");
-
-    // This is just a simulation for client side. The real ID will be from Firestore Auth UID.
-    const tempId = new Date().getTime(); 
-
+    
     const newStaffMemberData = {
-        id: tempId,
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
         phone: values.phone,
         role: values.role,
-        department: getDepartmentForRole(values.role),
+        department: values.department || getDepartmentForRole(values.role),
     };
 
     const docRef = await addDoc(collection(db, USERS_COLLECTION), newStaffMemberData)
@@ -148,8 +166,9 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
         });
     
     // Update the local object with the real doc ID
-    const finalData = { ...newStaffMemberData, id: docRef.id };
     await setDoc(docRef, { uid: docRef.id }, { merge: true });
+    const finalData = { ...newStaffMemberData, id: docRef.id };
+
 
     return finalData as StaffMember;
 }

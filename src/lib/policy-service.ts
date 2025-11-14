@@ -200,6 +200,7 @@ export async function createPolicy(values: any): Promise<void> {
 
     const newPolicyData = {
         client: lifeAssuredName,
+        department: "Business Development",
         lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : '',
         placeOfBirth: values.placeOfBirth,
         ageNextBirthday: values.ageNextBirthday,

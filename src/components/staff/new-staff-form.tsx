@@ -30,6 +30,9 @@ import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
 import { createStaffMember, getStaffById, updateStaff, getStaffByUid } from '@/lib/staff-service';
+import { useAuth } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export const newStaffFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
@@ -37,6 +40,7 @@ export const newStaffFormSchema = z.object({
   email: z.string().email('Invalid email address.'),
   phone: z.string().min(10, 'Telephone number must be at least 10 digits.'),
   role: z.string({ required_error: 'Please select a role.' }),
+  department: z.string().optional(),
   profileImage: z.any().optional(),
   sendWelcomeEmail: z.boolean().default(false),
   password: z.string().min(8, 'Password must be at least 8 characters.').optional(),
@@ -49,13 +53,28 @@ type NewStaffFormProps = {
 export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useAuth();
   const [showPassword, setShowPassword] = React.useState(false);
   const [roles, setRoles] = React.useState<Role[]>([]);
+  const [currentUserDepartment, setCurrentUserDepartment] = React.useState('');
   const isEditMode = !!staffId;
 
   React.useEffect(() => {
-    setRoles(getRoles());
-  }, []);
+    async function fetchInitialData() {
+        setRoles(getRoles());
+        if (user) {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                setCurrentUserDepartment(userData.department);
+                if (!isEditMode) {
+                    form.setValue('department', userData.department);
+                }
+            }
+        }
+    }
+    fetchInitialData();
+  }, [user, isEditMode]);
 
   const form = useForm<z.infer<typeof newStaffFormSchema>>({
     resolver: zodResolver(newStaffFormSchema),
@@ -65,6 +84,7 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
       email: '',
       phone: '',
       role: '',
+      department: '',
       sendWelcomeEmail: true,
       password: '',
     },
@@ -197,6 +217,31 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <FormField
+                control={form.control}
+                name="department"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Department</FormLabel>
+                     <Select onValueChange={field.onChange} value={field.value} disabled={currentUserDepartment !== 'Super Admin' && currentUserDepartment !== 'Administrator'}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a department" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Business Development">Business Development</SelectItem>
+                        <SelectItem value="Premium Administration">Premium Administration</SelectItem>
+                        <SelectItem value="Underwriting">Underwriting</SelectItem>
+                      </SelectContent>
+                    </Select>
+                     <FormDescription>
+                      The staff member will be assigned to this department.
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

@@ -45,6 +45,7 @@
         "type": "object",
         "properties": {
             "id": {"type": "string", "description": "Unique identifier for the policy."},
+            "department": {"type": "string", "description": "The department associated with this policy."},
             "client": {"type": "string", "description": "Full name of the life insured."},
             "lifeAssuredDob": {"type": "string", "format": "date", "description": "Date of birth of the life insured."},
             "placeOfBirth": {"type": "string"},

@@ -12,8 +12,9 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
-    function isAdministrator() {
-      return getUserData(request.auth.uid).role == 'Administrator';
+    function isAdministrator(department) {
+      let userData = getUserData(request.auth.uid);
+      return userData.role == 'Administrator' && userData.department == department;
     }
     
     function isSuperAdmin() {
@@ -21,24 +22,20 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isSuperAdmin() || isAdministrator() || isOwner(userId);
+      allow read: if isSuperAdmin() || isAdministrator(getUserData(userId).department) || isOwner(userId);
 
-      // A user can create their own user document.
-      // Super Admin role creation is restricted to a specific email.
       allow create: if isOwner(userId) && (
         request.resource.data.role != 'Super Admin' ||
         request.auth.token.email == 'offixaps@gmail.com'
       );
       
-      // An admin or the user themselves can update a profile.
-      allow update: if isSuperAdmin() || isAdministrator() || isOwner(userId);
+      allow update: if isSuperAdmin() || (isAdministrator(getUserData(userId).department) && request.resource.data.department == getUserData(request.auth.uid).department) || isOwner(userId);
       
-      // Only admins can delete users.
-      allow delete: if isSuperAdmin() || isAdministrator();
+      allow delete: if isSuperAdmin() || isAdministrator(getUserData(userId).department);
     }
 
     match /policies/{policyId} {
-      allow read, write: if isSuperAdmin() || request.auth != null;
+      allow read, write: if isSuperAdmin() || isAdministrator(resource.data.department) || request.auth != null;
     }
 
     match /roles/{roleId} {
