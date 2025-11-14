@@ -2316,6 +2316,45 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 </CardContent>
               </Card>
 
+              <Card>
+                <CardHeader><CardTitle>Recreational Drugs</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="usedRecreationalDrugs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Have you ever used recreational drugs (e.g. cocaine, heroin, weed) or taken drugs other than for medical purposes?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Separator />
+                  <FormField
+                    control={form.control}
+                    name="injectedNonPrescribedDrugs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Have you ever injected a non-prescribed drug?</FormLabel>
+                        <FormControl>
+                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+
             </div>
           </TabsContent>
 
@@ -2408,4 +2447,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
