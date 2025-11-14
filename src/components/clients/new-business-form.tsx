@@ -2087,7 +2087,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-            <div className="p-4 border rounded-b-md space-y-6">
+            <div className="p-4 border rounded-md space-y-6">
                <div>
                 <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4 -mt-4' style={{ backgroundColor: '#023ea3' }}>
                     <h3>Physical Measurements</h3>
@@ -2382,21 +2382,22 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                   />
                   {testedPositiveViralInfection === 'yes' && (
                     <div className="space-y-6 rounded-md border p-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Tested positive for:</h4>
-                        <div className="flex flex-col gap-2">
-                           <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
-                           <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
-                           <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="font-medium mb-2">Tested positive for:</h4>
+                          <div className="flex flex-col gap-2">
+                             <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                             <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                             <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                          </div>
                         </div>
-                      </div>
-                      <Separator />
-                       <div>
-                        <h4 className="font-medium mb-2">Awaiting results for:</h4>
-                        <div className="flex flex-col gap-2">
-                           <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
-                           <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
-                           <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                        <div>
+                          <h4 className="font-medium mb-2">Awaiting results for:</h4>
+                          <div className="flex flex-col gap-2">
+                             <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
+                             <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
+                             <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2496,6 +2497,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
