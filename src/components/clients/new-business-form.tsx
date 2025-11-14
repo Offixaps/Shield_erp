@@ -895,7 +895,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               criticalIllnessDetails: getMedicalDetailsFor(["Alzheimer's Disease", 'Multiple Sclerosis']),
               sti: (data.medicalHistory || []).some((h:any) => ['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush'].includes(h.illness)) ? 'yes' : 'no',
               stiDetails: getMedicalDetailsFor(['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']),
-              presentSymptoms: (data.medicalHistory || []).some((h:any) => h.illness === 'Present Symptoms') ? 'yes' : 'no',
+              presentSymptoms: data.presentSymptoms,
               presentSymptomsDetails: getMedicalDetailsFor('Present Symptoms'),
               presentWaitingConsultation: data.presentWaitingConsultation,
               presentTakingMedication: data.presentTakingMedication,
@@ -3010,8 +3010,74 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                     />
                  </div>
               </div>
-
-
+              
+               <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                    <h3>Are you presently:</h3>
+                </div>
+                 <div className="space-y-6 pt-6">
+                   <FormField
+                        control={form.control}
+                        name="presentSymptoms"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>26. suffering from any symptoms of ill health, injury or disease?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {presentSymptoms === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="presentSymptomsDetails"
+                                      illnessOptions={['Present Symptoms']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="presentWaitingConsultation"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>27. waiting for a consultation, investigation, or for the results of any tests or investigations?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="presentTakingMedication"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>28. taking any tablets, medicines, alternative or complementary remedies (other than for a cold or influenza)?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                 </div>
+               </div>
             </div>
           </TabsContent>
 
@@ -3104,4 +3170,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
