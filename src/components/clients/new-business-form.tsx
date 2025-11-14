@@ -2087,7 +2087,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-             <Alert variant="destructive">
+            <Alert variant="destructive">
                 <Info className="h-4 w-4" />
                 <AlertTitle>WARNING</AlertTitle>
                 <AlertDescription>
@@ -2433,7 +2433,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                             {bloodTransfusionOrSurgery === 'yes' && (
                                 <div className="pt-4">
                                     <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable form={form} fieldName="bloodTransfusionOrSurgeryDetails" />
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="bloodTransfusionOrSurgeryDetails"
+                                      illnessOptions={['Blood Transfusion', 'Surgery']}
+                                    />
                                 </div>
                             )}
                         </FormItem>
@@ -2562,6 +2566,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
 
