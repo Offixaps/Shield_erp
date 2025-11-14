@@ -2899,6 +2899,87 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                         )}
                     />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="lumpGrowth"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>22. Any lump, growth, mole, or freckle that has changed in size or shape?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {lumpGrowth === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="lumpGrowthDetails"
+                                      illnessOptions={['Lump', 'Growth', 'Mole', 'Freckle']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                     <Separator />
+                     <FormField
+                        control={form.control}
+                        name="hospitalAttendance"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>23. Attended any hospital or clinic for an x-ray, scan, checkup, or operation?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {hospitalAttendance === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="hospitalAttendanceDetails"
+                                      illnessOptions={['X-ray', 'Scan', 'Checkup', 'Operation']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                     <Separator />
+                     <FormField
+                        control={form.control}
+                        name="criticalIllness"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>24. Been diagnosed with Alzheimer's Disease or Multiple Sclerosis?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {criticalIllness === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="criticalIllnessDetails"
+                                      illnessOptions={["Alzheimer's Disease", 'Multiple Sclerosis']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
                  </div>
               </div>
 
@@ -2995,4 +3076,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
