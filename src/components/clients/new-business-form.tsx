@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -2765,7 +2764,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                         )}
                     />
-                    <Separator />
+                     <Separator />
                      <FormField
                         control={form.control}
                         name="thyroidDisorder"
@@ -2813,6 +2812,87 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                                       form={form} 
                                       fieldName="kidneyDisorderDetails"
                                       illnessOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="numbness"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>19. Numbness or any other disorder of the nervous system?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {numbness === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="numbnessDetails"
+                                      illnessOptions={['Numbness']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="anxietyStress"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>20. Anxiety, Stress, Depression, or nervous complaint?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {anxietyStress === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="anxietyStressDetails"
+                                      illnessOptions={['Anxiety', 'Stress', 'Depression']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
+                    <Separator />
+                     <FormField
+                        control={form.control}
+                        name="earEyeDisorder"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>21. Any disorder of the Ears or Eyes, e.g. Blindness, blurred vision, or double vision?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {earEyeDisorder === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="earEyeDisorderDetails"
+                                      illnessOptions={['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision']}
                                     />
                                 </div>
                             )}
@@ -2915,5 +2995,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
 
