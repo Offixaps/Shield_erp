@@ -27,12 +27,18 @@ export default function RolesPage() {
   const [searchTerm, setSearchTerm] = React.useState('');
 
   React.useEffect(() => {
-    // Filter out the 'Super Admin' role
-    const rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
-    const staffMembers = getStaff();
-    setAllRoles(rolesFromService);
-    setFilteredRoles(rolesFromService);
-    setStaff(staffMembers);
+    async function fetchData() {
+        // Filter out the 'Super Admin' role from local data
+        const rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
+        
+        // Fetch staff members asynchronously
+        const staffMembers = await getStaff();
+
+        setAllRoles(rolesFromService);
+        setFilteredRoles(rolesFromService);
+        setStaff(staffMembers);
+    }
+    fetchData();
   }, []);
 
   React.useEffect(() => {
