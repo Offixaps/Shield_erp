@@ -21,11 +21,14 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      // Any authenticated user can read other user profiles if they are an admin. They can always read their own.
       allow read: if isSuperAdmin() || isAdministrator() || isOwner(userId);
 
       // A user can create their own user document.
-      allow create: if isOwner(userId);
+      // Super Admin role creation is restricted to a specific email.
+      allow create: if isOwner(userId) && (
+        request.resource.data.role != 'Super Admin' ||
+        request.auth.token.email == 'offixaps@gmail.com'
+      );
       
       // An admin or the user themselves can update a profile.
       allow update: if isSuperAdmin() || isAdministrator() || isOwner(userId);
