@@ -1140,6 +1140,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   }
 
+  // State for popovers
+  const [dobOpen, setDobOpen] = React.useState(false);
+  const [issueDateOpen, setIssueDateOpen] = React.useState(false);
+  const [expiryDateOpen, setExpiryDateOpen] = React.useState(false);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -1231,7 +1236,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Date of Birth</FormLabel>
-                    <Popover>
+                    <Popover open={dobOpen} onOpenChange={setDobOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -1254,7 +1259,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setDobOpen(false);
+                          }}
                           initialFocus
                           disabled={(date) =>
                             date > new Date() || date < new Date('1900-01-01')
@@ -1513,7 +1521,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Issue Date</FormLabel>
-                    <Popover>
+                    <Popover open={issueDateOpen} onOpenChange={setIssueDateOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -1536,7 +1544,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setIssueDateOpen(false);
+                          }}
                           initialFocus
                           disabled={(date) => date > new Date()}
                           captionLayout="dropdown-buttons"
@@ -1555,7 +1566,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 render={({ field }) => (
                   <FormItem className="flex flex-col">
                     <FormLabel>Expiry Date</FormLabel>
-                    <Popover>
+                    <Popover open={expiryDateOpen} onOpenChange={setExpiryDateOpen}>
                       <PopoverTrigger asChild>
                         <FormControl>
                           <Button
@@ -1578,7 +1589,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         <Calendar
                           mode="single"
                           selected={field.value}
-                          onSelect={field.onChange}
+                          onSelect={(date) => {
+                            field.onChange(date);
+                            setExpiryDateOpen(false);
+                          }}
                           initialFocus
                           disabled={(date) => date < new Date()}
                           captionLayout="dropdown-buttons"
@@ -2566,6 +2580,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+
 
 
 
