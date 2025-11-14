@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -892,8 +893,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               hospitalAttendanceDetails: getMedicalDetailsFor(['X-ray', 'Scan', 'Checkup', 'Operation']),
               criticalIllness: (data.medicalHistory || []).some((h:any) => ["Alzheimer's Disease", 'Multiple Sclerosis'].includes(h.illness)) ? 'yes' : 'no',
               criticalIllnessDetails: getMedicalDetailsFor(["Alzheimer's Disease", 'Multiple Sclerosis']),
-              sti: (data.medicalHistory || []).some((h:any) => h.illness === 'STI') ? 'yes' : 'no',
-              stiDetails: getMedicalDetailsFor('STI'),
+              sti: (data.medicalHistory || []).some((h:any) => ['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush'].includes(h.illness)) ? 'yes' : 'no',
+              stiDetails: getMedicalDetailsFor(['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']),
               presentSymptoms: (data.medicalHistory || []).some((h:any) => h.illness === 'Present Symptoms') ? 'yes' : 'no',
               presentSymptomsDetails: getMedicalDetailsFor('Present Symptoms'),
               presentWaitingConsultation: data.presentWaitingConsultation,
@@ -2104,7 +2105,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="dark:text-white text-red-600">
                 <Info className="h-4 w-4" />
                 <AlertTitle>WARNING</AlertTitle>
                 <AlertDescription>
@@ -2980,6 +2981,33 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         </FormItem>
                         )}
                     />
+                    <Separator />
+                    <FormField
+                        control={form.control}
+                        name="sti"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>25. Have you ever had a sexually transmitted infection (STI), e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge, vaginal trush etc?</FormLabel>
+                            <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                            </FormControl>
+                            <FormMessage />
+                            {sti === 'yes' && (
+                                <div className="pt-4">
+                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
+                                    <MedicalConditionDetailsTable 
+                                      form={form} 
+                                      fieldName="stiDetails"
+                                      illnessOptions={['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']}
+                                    />
+                                </div>
+                            )}
+                        </FormItem>
+                        )}
+                    />
                  </div>
               </div>
 
@@ -3076,3 +3104,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
