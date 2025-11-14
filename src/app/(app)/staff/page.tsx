@@ -30,14 +30,21 @@ export default function StaffPage() {
     (image) => image.id === 'user-avatar-1'
   );
 
+  const fetchStaff = async () => {
+    const staff = await getStaff();
+    if (staff) {
+      setStaffList(staff);
+    }
+  }
+
   React.useEffect(() => {
-    setStaffList(getStaff());
+    fetchStaff();
   }, []);
 
   const handleDelete = (id: number) => {
-    if (deleteStaffMember(id)) {
-      setStaffList(getStaff());
-    }
+    deleteStaffMember(id).then(() => {
+        fetchStaff();
+    });
   };
 
   const getRoleBadgeColor = (role: string) => {
