@@ -3108,6 +3108,34 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                         />
                     </div>
                </div>
+
+                <div>
+                    <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
+                        <h3>Doctor's Details</h3>
+                    </div>
+                    <div className="space-y-6 pt-6">
+                        <div>
+                            <h4 className="font-semibold mb-4">Current Doctor</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormField control={form.control} name="currentDoctorName" render={({ field }) => ( <FormItem> <FormLabel>Name</FormLabel> <FormControl><Input {...field} placeholder="e.g., Dr. Ama Adjei" /></FormControl> <FormMessage /> </FormItem> )} />
+                                <FormField control={form.control} name="currentDoctorPhone" render={({ field }) => ( <FormItem> <FormLabel>Phone Number</FormLabel> <FormControl><Input {...field} placeholder="e.g., 020 123 4567" /></FormControl> <FormMessage /> </FormItem> )} />
+                                <FormField control={form.control} name="currentDoctorHospital" render={({ field }) => ( <FormItem> <FormLabel>Hospital/Clinic</FormLabel> <FormControl><Input {...field} placeholder="e.g., Ridge Hospital" /></FormControl> <FormMessage /> </FormItem> )} />
+                            </div>
+                        </div>
+                        <Separator />
+                        <div>
+                            <h4 className="font-semibold mb-1">Previous Doctor</h4>
+                            <p className="text-sm text-muted-foreground mb-4">Only provide details if you have changed doctors in the last 6 months.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <FormField control={form.control} name="previousDoctorName" render={({ field }) => ( <FormItem> <FormLabel>Name</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                                <FormField control={form.control} name="previousDoctorPhone" render={({ field }) => ( <FormItem> <FormLabel>Phone Number</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                                <FormField control={form.control} name="previousDoctorHospital" render={({ field }) => ( <FormItem> <FormLabel>Hospital/Clinic</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
           </TabsContent>
 
@@ -3203,3 +3231,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
 
+
+
+    
