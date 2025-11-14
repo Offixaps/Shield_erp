@@ -22,8 +22,9 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow read: if isSuperAdmin() || isAdministrator() || isOwner(userId);
-      allow write: if isSuperAdmin() || isAdministrator();
-      allow create, update: if isSuperAdmin(); // Allow SA to create/update user docs
+      allow create: if isOwner(userId); // Allow any user to create their own user document
+      allow update: if isSuperAdmin() || isAdministrator() || isOwner(userId); // Allow user to update their own profile
+      allow delete: if isSuperAdmin() || isAdministrator(); // Only admins can delete users
     }
 
     match /policies/{policyId} {
