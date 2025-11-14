@@ -2223,6 +2223,99 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 </CardContent>
               </Card>
 
+              <Card>
+                <CardHeader><CardTitle>Tobacco & Nicotine Use</CardTitle></CardHeader>
+                <CardContent className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="tobaccoHabits"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Which statement best describes your smoking habits?</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                          >
+                            {tobaccoHabitsOptions.map((option) => (
+                              <FormItem key={option} className="flex items-center space-x-3 space-y-0">
+                                <FormControl><RadioGroupItem value={option} /></FormControl>
+                                <FormLabel className="font-normal">{tobaccoHabitsLabels[option]}</FormLabel>
+                              </FormItem>
+                            ))}
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="usedNicotineLast12Months"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Have you used any other tobacco or nicotine-containing products in the last 12 months?</FormLabel>
+                        <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {usedNicotineLast12Months === 'yes' && (
+                    <div className="space-y-4 rounded-md border p-4">
+                      <h4 className="font-medium">Please provide details of your consumption:</h4>
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Used?</TableHead>
+                            <TableHead>Average per day</TableHead>
+                            <TableHead>Average per week</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {['Cigarettes', 'Cigars', 'Pipe', 'NicotineReplacement', 'Ecigarettes', 'Other'].map((type) => (
+                            <TableRow key={type}>
+                              <TableCell>
+                                {type === 'Other' ? (
+                                    <FormField control={form.control} name="tobaccoOther.otherType" render={({ field }) => ( <Input placeholder="Specify other type" {...field} /> )}/>
+                                ) : (
+                                    type.replace('NicotineReplacement', 'Nicotine Replacement')
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
+                                    <FormItem className="flex items-center justify-center">
+                                        <FormControl><Checkbox checked={field.value?.smoked} onCheckedChange={(checked) => field.onChange({ ...field.value, smoked: checked })} /></FormControl>
+                                    </FormItem>
+                                )}/>
+                              </TableCell>
+                              <TableCell>
+                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
+                                    <Input {...field} value={field.value?.avgPerDay || ''} onChange={(e) => field.onChange({ ...field.value, avgPerDay: e.target.value })} disabled={!field.value?.smoked} />
+                                )}/>
+                              </TableCell>
+                              <TableCell>
+                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
+                                    <Input {...field} value={field.value?.avgPerWeek || ''} onChange={(e) => field.onChange({ ...field.value, avgPerWeek: e.target.value })} disabled={!field.value?.smoked} />
+                                )}/>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
             </div>
           </TabsContent>
 
