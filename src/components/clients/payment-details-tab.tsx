@@ -74,24 +74,19 @@ type FormValues = any; // Replace with your form schema type
 
 type PaymentDetailsTabProps = {
   form: UseFormReturn<FormValues>;
-  payerDobOpen: boolean;
-  setPayerDobOpen: (open: boolean) => void;
-  payerIssueDateOpen: boolean;
-  setPayerIssueDateOpen: (open: boolean) => void;
-  payerExpiryDateOpen: boolean;
-  setPayerExpiryDateOpen: (open: boolean) => void;
 };
 
 export default function PaymentDetailsTab({
-  form,
-  payerDobOpen,
-  setPayerDobOpen,
-  payerIssueDateOpen,
-  setPayerIssueDateOpen,
-  payerExpiryDateOpen,
-  setPayerExpiryDateOpen,
+  form
 }: PaymentDetailsTabProps) {
   const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
+  const [payerDobOpen, setPayerDobOpen] = React.useState(false);
+  const [payerIssueDateOpen, setPayerIssueDateOpen] = React.useState(false);
+  const [payerExpiryDateOpen, setPayerExpiryDateOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    form.trigger();
+  }, [isPolicyHolderPayer, form]);
 
   return (
     <div className="space-y-8">
