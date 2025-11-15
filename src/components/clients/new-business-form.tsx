@@ -109,6 +109,7 @@ export const illnessDetailSchema = z.object({
   hospital: z.string().optional(),
   duration: z.string().optional(),
   status: z.string().optional(),
+  // High Blood Pressure
   diagnosisDate: z.date().optional(),
   bpReadingAtDiagnosis: z.string().optional(),
   causeOfHighBp: z.string().optional(),
@@ -118,6 +119,7 @@ export const illnessDetailSchema = z.object({
   lastMonitoredDate: z.date().optional(),
   lastBpReading: z.string().optional(),
   sugarCholesterolChecked: z.string().optional(),
+  // Diabetes
   diabetesFirstSignsDate: z.date().optional(),
   diabetesSymptoms: z.string().optional(),
   diabetesConsulted: z.enum(['yes', 'no']).optional(),
@@ -132,6 +134,7 @@ export const illnessDetailSchema = z.object({
   diabetesComplications: z.string().optional(),
   diabetesOtherExams: z.string().optional(),
   diabetesOtherConsultations: z.string().optional(),
+  // Asthma
   asthmaFirstSignsAge: z.coerce.number().optional(),
   asthmaSymptomDuration: z.string().optional(),
   asthmaSymptomFrequency: z.string().optional(),
@@ -145,6 +148,7 @@ export const illnessDetailSchema = z.object({
   asthmaFunctionalLimitation: z.string().optional(),
   asthmaChestXRay: z.string().optional(),
   asthmaComplicatingFeatures: z.string().optional(),
+  // Digestive Disorders
   digestiveSymptoms: z.string().optional(),
   digestiveSymptomFrequency: z.string().optional(),
   digestiveConditionStartDate: z.date().optional(),
@@ -354,7 +358,7 @@ export const newBusinessFormSchema = z
     currentDoctorPhone: z.string().optional(),
     currentDoctorHospital: z.string().optional(),
     previousDoctorName: z.string().optional(),
-    previousDoctorPhone: zstring().optional(),
+    previousDoctorPhone: z.string().optional(),
     previousDoctorHospital: z.string().optional(),
 
     // Lifestyle
