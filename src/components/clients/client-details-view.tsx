@@ -68,7 +68,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '../ui/calendar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import DeclarationTab from './declaration-tab';
 
 function DetailItem({
   label,
@@ -844,7 +843,7 @@ export default function ClientDetailsView({
       </div>
       
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-10 h-auto">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 h-auto">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
           <TabsTrigger value="health">Health</TabsTrigger>
@@ -854,7 +853,6 @@ export default function ClientDetailsView({
           <TabsTrigger value="payment-history">Payment History</TabsTrigger>
           <TabsTrigger value="mandate">Mandate</TabsTrigger>
           <TabsTrigger value="activity-log">Activity Log</TabsTrigger>
-          <TabsTrigger value="declaration">Declaration</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="mt-6 space-y-6">
@@ -1298,9 +1296,6 @@ export default function ClientDetailsView({
           <ActivityLogTab client={client} />
         </TabsContent>
 
-        <TabsContent value="declaration" className="mt-6">
-          <DeclarationTab client={client} />
-        </TabsContent>
       </Tabs>
     </div>
   );

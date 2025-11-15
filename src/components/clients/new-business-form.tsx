@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, useFieldArray } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,14 +24,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { CalendarIcon, Plus, Trash2, Info, Send, ShieldCheck, FilePenLine } from 'lucide-react';
+import { CalendarIcon, Send, ShieldCheck, FilePenLine } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn, numberToWords } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -39,25 +38,16 @@ import { useRouter } from 'next/navigation';
 import { countries } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
 import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
-import type { ActivityLog } from '@/lib/data';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Switch } from '../ui/switch';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Checkbox } from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Badge } from '../ui/badge';
-import MedicalConditionDetailsTable from './medical-condition-details-table';
-import FamilyMedicalHistoryTable from './family-medical-history-table';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
-import LifestyleDetailTable from './lifestyle-detail-table';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import SignaturePadComponent from './signature-pad';
 import ExistingPoliciesTable from './existing-policies-table';
 import DeclinedPoliciesTable from './declined-policies-table';
 import BeneficiaryTable from './beneficiary-table';
-import { Label } from '@/components/ui/label';
-import Image from 'next/image';
+import MedicalHistoryTabs from './medical-history-tabs';
+import LifestyleTab from './lifestyle-tab';
+import PaymentDetailsTab from './payment-details-tab';
 
 const bankNames = [
   'Absa Bank Ghana Limited',
@@ -343,6 +333,8 @@ export const newBusinessFormSchema = z
     bankAccountName: z.string().min(2, 'Bank account name is required.'),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
     paymentAuthoritySignature: z.string().optional(),
+    lifeInsuredSignature: z.string().optional(),
+    policyOwnerSignature: z.string().optional(),
 
     // Beneficiaries
     primaryBeneficiaries: z.array(beneficiarySchema).optional(),
@@ -444,9 +436,6 @@ export const newBusinessFormSchema = z
     travelOutsideCountry: z.enum(['yes', 'no'], { required_error: 'You must select Yes or No.' }),
     travelOutsideCountryDetails: z.array(lifestyleDetailSchema).optional(),
     
-    // Declaration
-    lifeInsuredSignature: z.string().optional(),
-    policyOwnerSignature: z.string().optional(),
   })
   .superRefine((data, ctx) => {
     // Total percentage for primary beneficiaries should be 100% if there are any
@@ -475,39 +464,9 @@ type TabName =
     | 'beneficiaries'
     | 'existing-policies'
     | 'health'
-    | 'lifestyle'
-    | 'declaration'
     | 'agent'
-    | 'payment-details';
-
-const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
-    coverage: ['title', 'lifeAssuredFirstName', 'lifeAssuredMiddleName', 'lifeAssuredSurname', 'lifeAssuredDob', 'placeOfBirth', 'email', 'phone', 'postalAddress', 'workTelephone', 'homeTelephone', 'residentialAddress', 'gpsAddress', 'ageNextBirthday', 'maritalStatus', 'dependents', 'gender', 'nationalIdType', 'idNumber', 'issueDate', 'expiryDate', 'placeOfIssue', 'country', 'region', 'religion', 'nationality', 'languages', 'contractType', 'serialNumber', 'policyNumber', 'commencementDate', 'policyTerm', 'premiumTerm', 'sumAssured', 'premiumAmount', 'paymentFrequency', 'increaseMonth', 'occupation', 'natureOfBusiness', 'employer', 'employerAddress', 'monthlyBasicIncome', 'otherIncome', 'totalMonthlyIncome'],
-    beneficiaries: ['primaryBeneficiaries', 'contingentBeneficiaries'],
-    'existing-policies': ['hasExistingPolicies', 'existingPoliciesDetails', 'declinedPolicy', 'declinedPolicyDetails'],
-    health: ['height', 'heightUnit', 'weight', 'alcoholHabits', 'alcoholBeer', 'alcoholWine', 'alcoholSpirits', 'reducedAlcoholMedicalAdvice', 'reducedAlcoholHealthProblems', 'tobaccoHabits', 'usedNicotineLast12Months', 'tobaccoCigarettes', 'tobaccoCigars', 'tobaccoPipe', 'tobaccoNicotineReplacement', 'tobaccoEcigarettes', 'tobaccoOther', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'testedPositiveFor', 'awaitingResultsFor', 'bloodTransfusionOrSurgery', 'bloodTransfusionOrSurgeryDetails', 'highBloodPressure', 'highBloodPressureDetails', 'cancer', 'cancerDetails', 'diabetes', 'diabetesDetails', 'colitisCrohns', 'colitisCrohnsDetails', 'paralysisEpilepsy', 'paralysisEpilepsyDetails', 'mentalIllness', 'mentalIllnessDetails', 'arthritis', 'arthritisDetails', 'chestPain', 'chestPainDetails', 'asthma', 'asthmaDetails', 'digestiveDisorder', 'digestiveDisorderDetails', 'bloodDisorder', 'bloodDisorderDetails', 'thyroidDisorder', 'thyroidDisorderDetails', 'kidneyDisorder', 'kidneyDisorderDetails', 'numbness', 'numbnessDetails', 'anxietyStress', 'anxietyStressDetails', 'earEyeDisorder', 'earEyeDisorderDetails', 'lumpGrowth', 'lumpGrowthDetails', 'hospitalAttendance', 'hospitalAttendanceDetails', 'criticalIllness', 'criticalIllnessDetails', 'sti', 'stiDetails', 'presentSymptoms', 'presentSymptomsDetails', 'presentWaitingConsultation', 'presentTakingMedication', 'familyMedicalHistory', 'familyMedicalHistoryDetails', 'currentDoctorName', 'currentDoctorPhone', 'currentDoctorHospital', 'previousDoctorName', 'previousDoctorPhone', 'previousDoctorHospital'],
-    lifestyle: ['flownAsPilot', 'flownAsPilotDetails', 'hazardousSports', 'hazardousSportsDetails', 'travelOutsideCountry', 'travelOutsideCountryDetails'],
-    declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
-    agent: ['agentName', 'agentCode', 'uplineName', 'uplineCode', 'introducerCode'],
-    'payment-details': ['isPolicyHolderPayer', 'premiumPayerSurname', 'premiumPayerOtherNames', 'premiumPayerOccupation', 'premiumPayerRelationship', 'premiumPayerResidentialAddress', 'premiumPayerPostalAddress', 'premiumPayerDob', 'premiumPayerBusinessName', 'premiumPayerIdType', 'premiumPayerIdNumber', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'premiumPayerPlaceOfIssue', 'bankName', 'bankBranch', 'amountInWords', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'paymentAuthoritySignature']
-};
-
-const alcoholHabitsLabels: Record<typeof alcoholHabitsOptions[number], string> = {
-    never_used: 'Have never used alcohol',
-    occasional_socially: 'Drink occasionally or socially only',
-    ex_drinker_over_5_years: 'Ex-drinker; last drunk alcohol over 5 years ago',
-    ex_drinker_1_to_5_years: 'Ex-drinker: last drunk alcohol 1 to 5 years ago',
-    ex_drinker_within_1_year: 'Ex-drinker: last drunk alcohol within the last year',
-    current_regular_drinker: 'Current regular drinker',
-};
-
-const tobaccoHabitsLabels: Record<typeof tobaccoHabitsOptions[number], string> = {
-    never_smoked: 'Have never smoked',
-    ex_smoker_over_5_years: 'Ex-smoker: last used over 5 years ago',
-    ex_smoker_1_to_5_years: 'Ex-smoker: last used 1 to 5 years ago',
-    ex_smoker_within_1_year: 'Ex-smoker: last used within the last year',
-    smoke_occasionally_socially: 'Smoke occasionally or socially only',
-    current_regular_smoker: 'Current regular smoker',
-};
+    | 'payment-details'
+    | 'declaration';
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
@@ -678,9 +637,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       hazardousSportsDetails: [],
       travelOutsideCountry: 'no' as const,
       travelOutsideCountryDetails: [],
+      paymentAuthoritySignature: '',
       lifeInsuredSignature: '',
       policyOwnerSignature: '',
-      paymentAuthoritySignature: '',
       agentName: '',
       agentCode: '',
       uplineName: '',
@@ -693,6 +652,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       premiumPayerPlaceOfIssue: '',
     }
   });
+
+  const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
+
+  React.useEffect(() => {
+    form.trigger();
+  }, [isPolicyHolderPayer, form]);
+
 
   React.useEffect(() => {
     if (isEditMode && businessId) {
@@ -801,9 +767,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               height: businessData.height,
               heightUnit: businessData.heightUnit,
               weight: businessData.weight,
+              paymentAuthoritySignature: data.paymentAuthoritySignature || '',
               lifeInsuredSignature: data.lifeInsuredSignature || '',
               policyOwnerSignature: data.policyOwnerSignature || '',
-              paymentAuthoritySignature: data.paymentAuthoritySignature || '',
               postalAddress: data.postalAddress,
               currentDoctorName: data.currentDoctorName || '',
               currentDoctorPhone: data.currentDoctorPhone || '',
@@ -920,47 +886,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const commencementDate = form.watch('commencementDate');
   const lifeAssuredDob = form.watch('lifeAssuredDob');
   const premiumAmount = form.watch('premiumAmount');
-  const paymentFrequency = form.watch('paymentFrequency');
   const monthlyBasicIncome = form.watch('monthlyBasicIncome');
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
-  const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
-  const alcoholHabits = form.watch('alcoholHabits');
-  const tobaccoHabits = form.watch('tobaccoHabits');
-  const usedNicotineLast12Months = form.watch('usedNicotineLast12Months');
   const height = form.watch('height');
   const heightUnit = form.watch('heightUnit');
   const weight = form.watch('weight');
-  const testedPositiveViralInfection = form.watch('testedPositiveViralInfection');
-  const bloodTransfusionOrSurgery = form.watch('bloodTransfusionOrSurgery');
-  const highBloodPressure = form.watch('highBloodPressure');
-  const cancer = form.watch('cancer');
-  const diabetes = form.watch('diabetes');
-  const colitisCrohns = form.watch('colitisCrohns');
-  const paralysisEpilepsy = form.watch('paralysisEpilepsy');
-  const mentalIllness = form.watch('mentalIllness');
-  const arthritis = form.watch('arthritis');
-  const chestPain = form.watch('chestPain');
-  const asthma = form.watch('asthma');
-  const digestiveDisorder = form.watch('digestiveDisorder');
-  const bloodDisorder = form.watch('bloodDisorder');
-  const thyroidDisorder = form.watch('thyroidDisorder');
-  const kidneyDisorder = form.watch('kidneyDisorder');
-  const numbness = form.watch('numbness');
-  const anxietyStress = form.watch('anxietyStress');
-  const earEyeDisorder = form.watch('earEyeDisorder');
-  const lumpGrowth = form.watch('lumpGrowth');
-  const hospitalAttendance = form.watch('hospitalAttendance');
-  const criticalIllness = form.watch('criticalIllness');
-  const sti = form.watch('sti');
-  const presentSymptoms = form.watch('presentSymptoms');
-  const familyMedicalHistory = form.watch('familyMedicalHistory');
-  const flownAsPilot = form.watch('flownAsPilot');
-  const hazardousSports = form.watch('hazardousSports');
-  const travelOutsideCountry = form.watch('travelOutsideCountry');
-  const lifeInsuredSignature = form.watch('lifeInsuredSignature');
-  const policyOwnerSignature = form.watch('policyOwnerSignature');
-  const paymentAuthoritySignature = form.watch('paymentAuthoritySignature');
   const hasExistingPolicies = form.watch('hasExistingPolicies');
   const declinedPolicy = form.watch('declinedPolicy');
 
@@ -1021,18 +952,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       const calculatedBmi = Number(weight) / (heightInMeters * heightInMeters);
       setBmi(calculatedBmi);
 
-      if (calculatedBmi < 18.5) {
-        setBmiStatus({ text: 'Underweight', color: 'bg-blue-500' });
-      } else if (calculatedBmi >= 18.5 && calculatedBmi < 25) {
-        setBmiStatus({ text: 'Healthy Weight', color: 'bg-green-500' });
-      } else if (calculatedBmi >= 25 && calculatedBmi < 30) {
-        setBmiStatus({ text: 'Overweight', color: 'bg-yellow-500' });
-      } else {
-        setBmiStatus({ text: 'Obesity', color: 'bg-red-500' });
-      }
     } else {
       setBmi(null);
-      setBmiStatus(null);
     }
   }, [height, heightUnit, weight]);
   
@@ -1045,30 +966,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         form.setValue('amountInWords', '');
     }
   }, [premiumAmount, form]);
-
-  const handleSaveLifeInsuredSignature = (dataUrl: string) => {
-    form.setValue('lifeInsuredSignature', dataUrl);
-    toast({
-        title: "Signature Saved",
-        description: "The life insured's signature has been captured. Please proceed to verify identity.",
-    });
-  };
-
-  const handleSavePolicyOwnerSignature = (dataUrl: string) => {
-    form.setValue('policyOwnerSignature', dataUrl);
-    toast({
-        title: "Signature Saved",
-        description: "The policy owner's signature has been captured.",
-    });
-  };
-
-  const handleSavePaymentAuthoritySignature = (dataUrl: string) => {
-    form.setValue('paymentAuthoritySignature', dataUrl);
-    toast({
-        title: "Signature Saved",
-        description: "The payment authority signature has been captured.",
-    });
-  };
   
   const handleSendLifeInsuredCode = () => {
     setIsLifeInsuredCodeSent(true);
@@ -1121,7 +1018,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   async function onSubmit(values: z.infer<typeof newBusinessFormSchema>) {
     try {
         if (isEditMode) {
-            // Logic for updating
+            await updatePolicy(parseInt(businessId!), values);
         } else {
             await createPolicy(values);
         }
@@ -1154,15 +1051,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
             <TabsTrigger value="coverage">Coverage</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="existing-policies">Existing Policies</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
-            <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
-            <TabsTrigger value="declaration">Declaration</TabsTrigger>
             <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
+            <TabsTrigger value="declaration">Declaration</TabsTrigger>
           </TabsList>
           
           <TabsContent value="coverage" className="mt-6 space-y-8">
@@ -2106,1170 +2002,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
           
           <TabsContent value="health" className="mt-6 space-y-8">
-            <Alert variant="destructive" className="dark:text-white text-red-600">
-                <Info className="h-4 w-4" />
-                <AlertTitle>WARNING</AlertTitle>
-                <AlertDescription>
-                    The answers you give to these questions are material. If you fail to give accurate answers, it may affect the terms of your contract and we may decline a claim. In some cases the Company may check these answers by obtaining a report from your doctor/hospital.
-                </AlertDescription>
-            </Alert>
-            <div className="p-4 border rounded-md space-y-6">
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4 -mt-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Physical Measurements</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-6">
-                  <FormField
-                    control={form.control}
-                    name="height"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Height</FormLabel>
-                        <FormControl><Input type="number" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="heightUnit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Unit</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
-                          <SelectContent>
-                            <SelectItem value="cm">cm</SelectItem>
-                            <SelectItem value="m">m</SelectItem>
-                            <SelectItem value="ft">ft</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="weight"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Weight (kg)</FormLabel>
-                        <FormControl><Input type="number" {...field} /></FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {bmi && bmiStatus && (
-                    <div className="space-y-2">
-                        <Label>BMI</Label>
-                        <div className="flex items-center gap-2 h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                            <span>{bmi.toFixed(1)}</span>
-                            <Badge className={cn('text-white', bmiStatus.color)}>{bmiStatus.text}</Badge>
-                        </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Alcohol Consumption</h3>
-                </div>
-                <div className="space-y-6 pt-6">
-                  <FormField
-                    control={form.control}
-                    name="alcoholHabits"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Which statement best describes your drinking habits?</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                          >
-                            {alcoholHabitsOptions.map((option) => (
-                              <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                <FormControl><RadioGroupItem value={option} /></FormControl>
-                                <FormLabel className="font-normal">{alcoholHabitsLabels[option]}</FormLabel>
-                              </FormItem>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {(alcoholHabits === 'current_regular_drinker' || alcoholHabits === 'occasional_socially') && (
-                    <div className="space-y-4 rounded-md border p-4">
-                      <h4 className="font-medium">Please provide details of your current consumption:</h4>
-                      <Table>
-                        <TableHeader><TableRow><TableHead>Type</TableHead><TableHead>Consumed?</TableHead><TableHead>Average per week</TableHead></TableRow></TableHeader>
-                        <TableBody>
-                          {['Beer', 'Wine', 'Spirits'].map((type) => (
-                            <TableRow key={type}>
-                              <TableCell>{type}</TableCell>
-                              <TableCell>
-                                <FormField control={form.control} name={`alcohol${type}` as 'alcoholBeer' | 'alcoholWine' | 'alcoholSpirits'} render={({ field }: any) => (
-                                    <FormItem className="flex items-center"><FormControl><Checkbox checked={field.value?.consumed} onCheckedChange={(checked) => field.onChange({ ...field.value, consumed: checked })} /></FormControl></FormItem>
-                                )}/>
-                              </TableCell>
-                              <TableCell>
-                                <FormField control={form.control} name={`alcohol${type}` as 'alcoholBeer' | 'alcoholWine' | 'alcoholSpirits'} render={({ field }: any) => (
-                                    <Input {...field} value={field.value?.averagePerWeek || ''} onChange={(e) => field.onChange({ ...field.value, averagePerWeek: e.target.value })} disabled={!field.value?.consumed} />
-                                )}/>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-
-                  <FormField control={form.control} name="reducedAlcoholMedicalAdvice" render={({ field }) => (
-                      <FormItem><FormLabel>Have you ever been advised by a medical professional to reduce your alcohol consumption?</FormLabel>
-                        <FormControl><RadioGroup onValueChange={(val) => field.onChange({...field.value, reduced: val})} value={field.value.reduced} className="flex gap-4">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                        </RadioGroup></FormControl>
-                        {field.value.reduced === 'yes' && <FormControl><Textarea placeholder="Please provide details" value={field.value.notes} onChange={(e) => field.onChange({...field.value, notes: e.target.value})} /></FormControl>}
-                        <FormMessage />
-                      </FormItem>
-                  )}/>
-                  <FormField control={form.control} name="reducedAlcoholHealthProblems" render={({ field }) => (
-                      <FormItem><FormLabel>Have you ever reduced your alcohol consumption because of health problems?</FormLabel>
-                        <FormControl><RadioGroup onValueChange={(val) => field.onChange({...field.value, reduced: val})} value={field.value.reduced} className="flex gap-4">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                        </RadioGroup></FormControl>
-                        {field.value.reduced === 'yes' && <FormControl><Textarea placeholder="Please provide details" value={field.value.notes} onChange={(e) => field.onChange({...field.value, notes: e.target.value})} /></FormControl>}
-                        <FormMessage />
-                      </FormItem>
-                  )}/>
-                </div>
-              </div>
-              
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Tobacco & Nicotine Use</h3>
-                </div>
-                 <div className="space-y-6 pt-6">
-                  <FormField
-                    control={form.control}
-                    name="tobaccoHabits"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Which statement best describes your smoking habits?</FormLabel>
-                        <FormControl>
-                          <RadioGroup
-                            onValueChange={field.onChange}
-                            value={field.value}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-4"
-                          >
-                            {tobaccoHabitsOptions.map((option) => (
-                              <FormItem key={option} className="flex items-center space-x-3 space-y-0">
-                                <FormControl><RadioGroupItem value={option} /></FormControl>
-                                <FormLabel className="font-normal">{tobaccoHabitsLabels[option]}</FormLabel>
-                              </FormItem>
-                            ))}
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="usedNicotineLast12Months"
-                    render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Have you used any other tobacco or nicotine-containing products in the last 12 months?</FormLabel>
-                        <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  {usedNicotineLast12Months === 'yes' && (
-                    <div className="space-y-4 rounded-md border p-4">
-                      <h4 className="font-medium">Please provide details of your consumption:</h4>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Used?</TableHead>
-                            <TableHead>Average per day</TableHead>
-                            <TableHead>Average per week</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {['Cigarettes', 'Cigars', 'Pipe', 'NicotineReplacement', 'Ecigarettes', 'Other'].map((type) => (
-                            <TableRow key={type}>
-                              <TableCell>
-                                {type === 'Other' ? (
-                                    <FormField control={form.control} name="tobaccoOther.otherType" render={({ field }) => ( <Input placeholder="Specify other type" {...field} /> )}/>
-                                ) : (
-                                    type.replace('NicotineReplacement', 'Nicotine Replacement')
-                                )}
-                              </TableCell>
-                              <TableCell>
-                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
-                                    <FormItem className="flex items-center justify-center">
-                                        <FormControl><Checkbox checked={field.value?.smoked} onCheckedChange={(checked) => field.onChange({ ...field.value, smoked: checked })} /></FormControl>
-                                    </FormItem>
-                                )}/>
-                              </TableCell>
-                              <TableCell>
-                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
-                                    <Input {...field} value={field.value?.avgPerDay || ''} onChange={(e) => field.onChange({ ...field.value, avgPerDay: e.target.value })} disabled={!field.value?.smoked} />
-                                )}/>
-                              </TableCell>
-                              <TableCell>
-                                <FormField control={form.control} name={`tobacco${type}` as any} render={({ field }: any) => (
-                                    <Input {...field} value={field.value?.avgPerWeek || ''} onChange={(e) => field.onChange({ ...field.value, avgPerWeek: e.target.value })} disabled={!field.value?.smoked} />
-                                )}/>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Recreational Drugs</h3>
-                </div>
-                <div className="space-y-6 pt-6">
-                  <FormField
-                    control={form.control}
-                    name="usedRecreationalDrugs"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Have you ever used recreational drugs (e.g. cocaine, heroin, weed) or taken drugs other than for medical purposes?</FormLabel>
-                        <FormControl>
-                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Separator />
-                  <FormField
-                    control={form.control}
-                    name="injectedNonPrescribedDrugs"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Have you ever injected a non-prescribed drug?</FormLabel>
-                        <FormControl>
-                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
-
-               <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Viral Co-infections</h3>
-                </div>
-                <div className="space-y-6 pt-6">
-                   <FormField
-                    control={form.control}
-                    name="testedPositiveViralInfection"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Have you ever been tested positive for HIV, Hepatitis B or C, or are you awaiting the results of such a test?</FormLabel>
-                        <FormControl>
-                          <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                            <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                          </RadioGroup>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {testedPositiveViralInfection === 'yes' && (
-                    <div className="space-y-6 rounded-md border p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-medium mb-2">Tested positive for:</h4>
-                          <div className="flex flex-col gap-2">
-                             <FormField control={form.control} name="testedPositiveFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
-                             <FormField control={form.control} name="testedPositiveFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
-                             <FormField control={form.control} name="testedPositiveFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-medium mb-2">Awaiting results for:</h4>
-                          <div className="flex flex-col gap-2">
-                             <FormField control={form.control} name="awaitingResultsFor.hiv" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">HIV</FormLabel></FormItem>)} />
-                             <FormField control={form.control} name="awaitingResultsFor.hepB" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis B</FormLabel></FormItem>)} />
-                             <FormField control={form.control} name="awaitingResultsFor.hepC" render={({ field }) => (<FormItem className="flex items-center space-x-2"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Hepatitis C</FormLabel></FormItem>)} />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Medical History Questions</h3>
-                </div>
-                 <div className="space-y-6 pt-6">
-                    <FormField
-                        control={form.control}
-                        name="bloodTransfusionOrSurgery"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>5. Have you ever had a blood transfusion or undergone surgery of any kind?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {bloodTransfusionOrSurgery === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="bloodTransfusionOrSurgeryDetails"
-                                      illnessOptions={['Blood transfusion', 'Surgery']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="highBloodPressure"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>6. Have you ever had or been told that you have High blood pressure, angina, heart attack, stroke, coma or any other disease of the heart, arteries or circulation?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {highBloodPressure === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="highBloodPressureDetails"
-                                        illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                     <Separator />
-                    <FormField
-                        control={form.control}
-                        name="cancer"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>7. Have you ever had or been told that you have cancer, leukemia, Hodgkin's disease, lymphoma, or any other tumor?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {cancer === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="cancerDetails"
-                                        illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="diabetes"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>8. Have you ever had or been told you have diabetes?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {diabetes === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="diabetesDetails"
-                                        illnessOptions={['Diabetes']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="colitisCrohns"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>9. Have you ever had or been told that you have Crohn's disease or colitis?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {colitisCrohns === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="colitisCrohnsDetails"
-                                        illnessOptions={["Crohn's disease", "Colitis"]}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="paralysisEpilepsy"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>10. Have you ever had or been told that you have paralysis, multiple sclerosis, epilepsy, dementia or any other disorder of the central nervous system?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {paralysisEpilepsy === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="paralysisEpilepsyDetails"
-                                        illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="mentalIllness"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>11. Have you ever required hospital or psychiatric treatment for mental illness, depression or a nervous breakdown?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {mentalIllness === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                        form={form} 
-                                        fieldName="mentalIllnessDetails"
-                                        illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                 </div>
-              </div>
-                
-              <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>In the past 5 years have you ever had:</h3>
-                </div>
-                 <div className="space-y-6 pt-6">
-                   <FormField
-                        control={form.control}
-                        name="arthritis"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>12. Arthritis, neck or back pain, gout or any other disorder of the muscles, joints, or bones?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {arthritis === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="arthritisDetails"
-                                      illnessOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="chestPain"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>13. Chest pain, irregular heart beat or raised cholesterol?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {chestPain === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="chestPainDetails"
-                                      illnessOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="asthma"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>14. Asthma, bronchitis, shortness of breath or any other chest complaint?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {asthma === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="asthmaDetails"
-                                      illnessOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="digestiveDisorder"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>15. Duodenal Ulcer, Gastric Ulcer, or any other disorder of the Digestive System, Liver, or Pancreas?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {digestiveDisorder === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="digestiveDisorderDetails"
-                                      illnessOptions={['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="bloodDisorder"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>16. Any blood disorder or anemia?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {bloodDisorder === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="bloodDisorderDetails"
-                                      illnessOptions={['Blood disorder', 'Anemia']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                     <Separator />
-                     <FormField
-                        control={form.control}
-                        name="thyroidDisorder"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>17. Any thyroid disorder?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {thyroidDisorder === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="thyroidDisorderDetails"
-                                      illnessOptions={['Thyroid disorder']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                     <Separator />
-                     <FormField
-                        control={form.control}
-                        name="kidneyDisorder"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>18. Any kidney disorder, renal failure, or bladder disorder?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {kidneyDisorder === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="kidneyDisorderDetails"
-                                      illnessOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="numbness"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>19. Numbness or any other disorder of the nervous system?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {numbness === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="numbnessDetails"
-                                      illnessOptions={['Numbness']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="anxietyStress"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>20. Anxiety, Stress, Depression, or nervous complaint?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {anxietyStress === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="anxietyStressDetails"
-                                      illnessOptions={['Anxiety', 'Stress', 'Depression']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="earEyeDisorder"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>21. Any disorder of the Ears or Eyes, e.g. Blindness, blurred vision, or double vision?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {earEyeDisorder === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="earEyeDisorderDetails"
-                                      illnessOptions={['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="lumpGrowth"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>22. Any lump, growth, mole, or freckle that has changed in size or shape?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {lumpGrowth === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="lumpGrowthDetails"
-                                      illnessOptions={['Lump', 'Growth', 'Mole', 'Freckle']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                     <Separator />
-                     <FormField
-                        control={form.control}
-                        name="hospitalAttendance"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>23. Attended any hospital or clinic for an x-ray, scan, checkup, or operation?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {hospitalAttendance === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="hospitalAttendanceDetails"
-                                      illnessOptions={['X-ray', 'Scan', 'Checkup', 'Operation']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                     <Separator />
-                     <FormField
-                        control={form.control}
-                        name="criticalIllness"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>24. Been diagnosed with Alzheimer's Disease or Multiple Sclerosis?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {criticalIllness === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="criticalIllnessDetails"
-                                      illnessOptions={["Alzheimer's Disease", 'Multiple Sclerosis']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="sti"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>25. Have you ever had a sexually transmitted infection (STI), e.g. urethral discharge, chancroid, gonorrhoea, syphilis, urethritis, genital sores, HIV infection, balanitis, genital warts, vaginal discharge, vaginal trush etc?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {sti === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="stiDetails"
-                                      illnessOptions={['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                 </div>
-              </div>
-              
-               <div>
-                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                    <h3>Are you presently:</h3>
-                </div>
-                 <div className="space-y-6 pt-6">
-                   <FormField
-                        control={form.control}
-                        name="presentSymptoms"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>26. suffering from any symptoms of ill health, injury or disease?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                            {presentSymptoms === 'yes' && (
-                                <div className="pt-4">
-                                    <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                    <MedicalConditionDetailsTable 
-                                      form={form} 
-                                      fieldName="presentSymptomsDetails"
-                                      illnessOptions={['Present Symptoms']}
-                                    />
-                                </div>
-                            )}
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                    <FormField
-                        control={form.control}
-                        name="presentWaitingConsultation"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>27. waiting for a consultation, investigation, or for the results of any tests or investigations?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                    <Separator />
-                     <FormField
-                        control={form.control}
-                        name="presentTakingMedication"
-                        render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>28. taking any tablets, medicines, alternative or complementary remedies (other than for a cold or influenza)?</FormLabel>
-                            <FormControl>
-                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                            </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                        )}
-                    />
-                 </div>
-               </div>
-
-                <div>
-                    <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                        <h3>Family Medical History</h3>
-                    </div>
-                    <div className="space-y-6 pt-6">
-                        <FormField
-                            control={form.control}
-                            name="familyMedicalHistory"
-                            render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>29. Have any of your close relatives (parents, brothers, or sisters) suffered from heart disease, diabetes, cancer, Huntington's disease, polycystic kidney disease, multiple sclerosis, polyposis of colon, glaucoma or any other hereditary disorder before age 60?</FormLabel>
-                                <FormControl>
-                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                    <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                </RadioGroup>
-                                </FormControl>
-                                <FormMessage />
-                                {familyMedicalHistory === 'yes' && (
-                                    <div className="pt-4">
-                                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                                        <FamilyMedicalHistoryTable form={form} fieldName="familyMedicalHistoryDetails" />
-                                    </div>
-                                )}
-                            </FormItem>
-                            )}
-                        />
-                    </div>
-               </div>
-
-                <div>
-                    <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase -mx-4' style={{ backgroundColor: '#023ea3' }}>
-                        <h3>Doctor's Details</h3>
-                    </div>
-                    <div className="space-y-6 pt-6">
-                        <div>
-                            <h4 className="font-semibold mb-4">Current Doctor</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <FormField control={form.control} name="currentDoctorName" render={({ field }) => ( <FormItem> <FormLabel>Name</FormLabel> <FormControl><Input {...field} placeholder="e.g., Dr. Ama Adjei" /></FormControl> <FormMessage /> </FormItem> )} />
-                                <FormField control={form.control} name="currentDoctorPhone" render={({ field }) => ( <FormItem> <FormLabel>Phone Number</FormLabel> <FormControl><Input {...field} placeholder="e.g., 020 123 4567" /></FormControl> <FormMessage /> </FormItem> )} />
-                                <FormField control={form.control} name="currentDoctorHospital" render={({ field }) => ( <FormItem> <FormLabel>Hospital/Clinic</FormLabel> <FormControl><Input {...field} placeholder="e.g., Ridge Hospital" /></FormControl> <FormMessage /> </FormItem> )} />
-                            </div>
-                        </div>
-                        <Separator />
-                        <div>
-                            <h4 className="font-semibold mb-1">Previous Doctor</h4>
-                            <p className="text-sm text-muted-foreground mb-4">Only provide details if you have changed doctors in the last 6 months.</p>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <FormField control={form.control} name="previousDoctorName" render={({ field }) => ( <FormItem> <FormLabel>Name</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                                <FormField control={form.control} name="previousDoctorPhone" render={({ field }) => ( <FormItem> <FormLabel>Phone Number</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                                <FormField control={form.control} name="previousDoctorHospital" render={({ field }) => ( <FormItem> <FormLabel>Hospital/Clinic</FormLabel> <FormControl><Input {...field} /></FormControl> <FormMessage /> </FormItem> )} />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-            </div>
+            <LifestyleTab form={form} bmi={bmi} />
+            <MedicalHistoryTabs form={form} />
           </TabsContent>
           
-          <TabsContent value="lifestyle" className="mt-6 space-y-8">
-            <div className="p-4 border rounded-md space-y-6">
-              <FormField
-                control={form.control}
-                name="flownAsPilot"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>1. Have you ever flown, or do you intend to fly as a pilot or crew member?</FormLabel>
-                    <FormControl>
-                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                    {flownAsPilot === 'yes' && (
-                      <div className="pt-4">
-                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                        <LifestyleDetailTable
-                          form={form}
-                          fieldName="flownAsPilotDetails"
-                          itemOptions={['Pilot', 'Crew Member']}
-                        />
-                      </div>
-                    )}
-                  </FormItem>
-                )}
-              />
-              <Separator />
-              <FormField
-                control={form.control}
-                name="hazardousSports"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>2. Do you take part, or do you intend to take part, in any hazardous sports or pastimes?</FormLabel>
-                    <FormControl>
-                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                    {hazardousSports === 'yes' && (
-                      <div className="pt-4">
-                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                        <LifestyleDetailTable
-                          form={form}
-                          fieldName="hazardousSportsDetails"
-                          itemOptions={['Scuba diving', 'Mountain Climbing', 'Parachuting', 'Hang gliding', 'Paragliding', 'Automobile racing', 'Motorcycles Racing', 'Boat racing']}
-                        />
-                      </div>
-                    )}
-                  </FormItem>
-                )}
-              />
-              <Separator />
-              <FormField
-                control={form.control}
-                name="travelOutsideCountry"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>3. Do you travel, or do you intend to travel or reside outside your present country of residence?</FormLabel>
-                    <FormControl>
-                      <RadioGroup onValueChange={field.onChange} value={field.value} className="flex gap-4">
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                        <FormItem className="flex items-center space-x-2"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                    {travelOutsideCountry === 'yes' && (
-                      <div className="pt-4">
-                        <FormLabel className="mb-2 block">If yes, please provide full details</FormLabel>
-                        <LifestyleDetailTable
-                          form={form}
-                          fieldName="travelOutsideCountryDetails"
-                          itemOptions={['Live Outside', 'Work outside', 'Go on Holiday']}
-                        />
-                      </div>
-                    )}
-                  </FormItem>
-                )}
-              />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="declaration" className="mt-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Declarations & Signatures</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-8">
-                    <div>
-                        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-                            <h3>DECLARATION BY LIFE INSURED</h3>
-                        </div>
-                        <Separator className="my-0" />
-                        <div className="p-4 border border-t-0 rounded-b-md space-y-4 text-sm">
-                            <p>1. I declare that the information provided by me in this application together with any additional statements or documents, whether in my own handwriting or not, are wholly true and accurate and shall form the basis of the life insurance contract between the Company and myself and shall be read together with the policy document.</p>
-                            <p>2. I have read over my responses to the questions in this application and I declare that all the answers are true and correct.</p>
-                            <p>3. I understand that if any information is found to be false, misleading or incorrect, this policy shall be rendered void and the position of any payments made shall be at the discretion of the Company.</p>
-                            <div className="pt-4 space-y-4">
-                                <h4 className="font-bold uppercase">INFORMED CONSENT BY LIFE INSURED</h4>
-                                <p>4. I hereby consent and irrevocably authorize FIRST INSURANCE COMPANY LIMITED to elicit relevant and necessary information from any certified medical Officer who has attended to me, or any insurance office to which an application for insurance has been made on my life, or any other person who may be in possession or hereafter acquire information concerning my state or health up to the present time to disclose such information to the Company First Insurance and agree that this authority shall remain in force prior to or after my death.</p>
-                                <p>5. I understand that i may be required to undergo medical examination and/or tests where necessary and I give consent to a certified Medical Officer or any other appointed health provider to take sample of my blood, urine or other bodily fluid for the purpose of conducting such test.</p>
-                                <p>6. I understand that it is my responsibility to avail myself for any necessary re-testing and that, if i choose not to do so, the Company may consider my inaction as a request to withdraw this application.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-                            <h3>DECLARATION OF CONDITIONAL COVERAGE BY POLICY OWNER</h3>
-                        </div>
-                        <Separator className="my-0" />
-                        <div className="p-4 border border-t-0 rounded-b-md space-y-4 text-sm">
-                            <p className="font-bold">I understand and agree that the insurance coverage I am applying for is subject to all the following conditions being met:</p>
-                            <ol className="list-decimal list-outside space-y-2 pl-5">
-                                <li>I submit this application with the intention of entering into a contract with FIRST INSURANCE COMPANY LIMITED for the benefit set out in its policy and on its terms and conditions.</li>
-                                <li>All the information provided in this application together with any additional statement or documents are wholly true and accurate.</li>
-                                <li>All information concerning the insurability of the Life Insured (including but not limited to, the result of medical examinations or body fluid studies and certified Medical Officer's statements) is received by the Company.</li>
-                                <li>The Company's underwriters have accepted this application for life insurance.</li>
-                                <li>The Company has received the first premium in full.</li>
-                                <li>The final premium will be determined by the Company's underwriters.</li>
-                            </ol>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="agent" className="mt-6 space-y-8">
             <div className='flex items-center justify-between text-lg font-bold text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
                 <h3>DETAILS OF AGENT</h3>
@@ -3348,21 +2084,155 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 />
             </div>
           </TabsContent>
+
+          <TabsContent value="payment-details" className="mt-6">
+            <PaymentDetailsTab
+                form={form}
+                payerDobOpen={payerDobOpen}
+                setPayerDobOpen={setPayerDobOpen}
+                payerIssueDateOpen={payerIssueDateOpen}
+                setPayerIssueDateOpen={setPayerIssueDateOpen}
+                payerExpiryDateOpen={payerExpiryDateOpen}
+                setPayerExpiryDateOpen={setPayerExpiryDateOpen}
+            />
+          </TabsContent>
+
+          <TabsContent value="declaration" className="mt-6 space-y-8">
+            <div>
+              <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>Declaration and Authorisation by Life Insured</h3>
+              </div>
+              <Separator className="my-0" />
+              <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+                <p className="text-sm text-justify">
+                  I, the life to be insured, hereby declare that all the foregoing statements and answers are true, complete and correct and I agree that this proposal and declaration, together with any other declarations by me, shall be the basis of the contract between me and First Insurance Company Ltd. I further agree that in the event of any untrue or incorrect statement or any suppression or misrepresentation of material information, the policy to be issued shall be void and all monies which shall have been paid in respect thereof, shall be forfeited to the company. I agree to First Insurance Company Ltd processing my personal data including my sensitive personal data for the purpose of this insurance. I further agree to First Insurance Company Ltd transferring my personal data including my sensitive personal data outside Ghana where it is necessary to do so for the purpose of this insurance.
+                </p>
+                <Separator />
+                <FormField
+                  control={form.control}
+                  name="lifeInsuredSignature"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Life Insured's Signature</FormLabel>
+                      <FormControl>
+                        <SignaturePadComponent
+                          initialUrl={field.value}
+                          onSave={(dataUrl) => field.onChange(dataUrl)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="space-y-4">
+                  <AlertTitle>Signature Verification</AlertTitle>
+                  <Alert>
+                    <ShieldCheck className="h-4 w-4" />
+                    <AlertTitle>Verify your identity to confirm your signature</AlertTitle>
+                    <AlertDescription>
+                      We will send a one-time verification code to your email address ({form.getValues('email') || 'not provided'}) to confirm your signature.
+                    </AlertDescription>
+                  </Alert>
+                  {!isLifeInsuredCodeSent ? (
+                    <Button type="button" onClick={handleSendLifeInsuredCode} className="w-full sm:w-auto">
+                      <Send className="mr-2" /> Send Verification Code
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Input
+                        placeholder="Enter 6-digit code"
+                        value={lifeInsuredVerificationCode}
+                        onChange={(e) => setLifeInsuredVerificationCode(e.target.value)}
+                        maxLength={6}
+                        className="w-full sm:w-48"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyLifeInsuredCode}
+                        disabled={isLifeInsuredSignatureVerified}
+                        className="w-full sm:w-auto"
+                      >
+                        <ShieldCheck className="mr-2" /> {isLifeInsuredSignatureVerified ? 'Verified' : 'Verify'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {!isPolicyHolderPayer && (
+              <div>
+                <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                  <h3>Declaration of Conditional Coverage by Policy Owner</h3>
+                </div>
+                <Separator className="my-0" />
+                <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+                  <p className="text-sm text-justify">
+                    I, the policy owner, hereby declare that all the foregoing statements and answers are true, complete and correct and I agree that this proposal and declaration, together with any other declarations by me, shall be the basis of the contract between me and First Insurance Company Ltd.
+                  </p>
+                  <Separator />
+                   <FormField
+                    control={form.control}
+                    name="policyOwnerSignature"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Policy Owner's Signature</FormLabel>
+                        <FormControl>
+                          <SignaturePadComponent
+                            initialUrl={field.value}
+                            onSave={(dataUrl) => field.onChange(dataUrl)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="space-y-4">
+                  <AlertTitle>Signature Verification</AlertTitle>
+                  <Alert>
+                    <ShieldCheck className="h-4 w-4" />
+                    <AlertTitle>Verify Policy Owner's identity to confirm signature</AlertTitle>
+                    <AlertDescription>
+                        We will send a one-time verification code to the policy owner's contact details to confirm their signature.
+                    </AlertDescription>
+                  </Alert>
+                   {!isPayerCodeSent ? (
+                    <Button type="button" onClick={handleSendPayerCode} className="w-full sm:w-auto">
+                      <Send className="mr-2" /> Send Verification Code
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <Input
+                        placeholder="Enter 6-digit code"
+                        value={payerVerificationCode}
+                        onChange={(e) => setPayerVerificationCode(e.target.value)}
+                        maxLength={6}
+                        className="w-full sm:w-48"
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyPayerCode}
+                        disabled={isPayerSignatureVerified}
+                        className="w-full sm:w-auto"
+                      >
+                        <ShieldCheck className="mr-2" /> {isPayerSignatureVerified ? 'Verified' : 'Verify'}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                </div>
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
         
         <div className="flex justify-end p-4">
             <Button type="submit">
-                {isEditMode ? "Update Application" : "Submit Application"}
+                {isEditMode ? <><FilePenLine className="mr-2" />Update Application</> : <><Send className="mr-2" />Submit Application</>}
             </Button>
         </div>
       </form>
     </Form>
   );
 }
-
-
-
-
-
-    
 
