@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -67,7 +68,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 label="Have you ever had a blood transfusion or surgery?" 
                 detailsFieldName="bloodTransfusionOrSurgeryDetails" 
             />
-             <MedicalQuestion 
+            <MedicalQuestion 
                 form={form} 
                 name="heartAndCirculation" 
                 label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
@@ -75,11 +76,11 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
             />
         </div>
-      <MedicalQuestion form={form} name="cancer" label="Cancer / Tumor" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
-      <MedicalQuestion form={form} name="diabetes" label="Diabetes" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
-      <MedicalQuestion form={form} name="colitisCrohns" label="Colitis / Crohn's Disease" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
-      <MedicalQuestion form={form} name="paralysisEpilepsy" label="Central Nervous System" detailsFieldName="paralysisEpilepsyDetails" illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
-      <MedicalQuestion form={form} name="mentalIllness" label="Mental Illness" detailsFieldName="mentalIllnessDetails" illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']} />
+      <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
+      <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
+      <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
+      <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
+      <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']} />
 
        <div>
         <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
