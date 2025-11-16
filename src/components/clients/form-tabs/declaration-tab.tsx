@@ -28,11 +28,9 @@ export default function DeclarationTab({ form }: DeclarationTabProps) {
   const [lifeInsuredVerificationCode, setLifeInsuredVerificationCode] = React.useState('');
   const [isLifeInsuredCodeSent, setIsLifeInsuredCodeSent] = React.useState(false);
 
-  const [isPayerSignatureVerified, setIsPayerSignatureVerified] = React.useState(false);
-  const [payerVerificationCode, setPayerVerificationCode] = React.useState('');
-  const [isPayerCodeSent, setIsPayerCodeSent] = React.useState(false);
-
-  const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
+  const [isPolicyOwnerSignatureVerified, setIsPolicyOwnerSignatureVerified] = React.useState(false);
+  const [policyOwnerVerificationCode, setPolicyOwnerVerificationCode] = React.useState('');
+  const [isPolicyOwnerCodeSent, setIsPolicyOwnerCodeSent] = React.useState(false);
 
   const handleSendLifeInsuredCode = () => {
     setIsLifeInsuredCodeSent(true);
@@ -58,20 +56,20 @@ export default function DeclarationTab({ form }: DeclarationTabProps) {
     }
   };
 
-  const handleSendPayerCode = () => {
-    setIsPayerCodeSent(true);
+  const handleSendPolicyOwnerCode = () => {
+    setIsPolicyOwnerCodeSent(true);
     toast({
       title: "Verification Code Sent",
-      description: `A verification code has been sent to the premium payer's contact. (This is a simulation).`,
+      description: `A verification code has been sent to the policy owner's contact. (This is a simulation).`,
     });
   };
 
-  const handleVerifyPayerCode = () => {
-    if (payerVerificationCode === "123456") {
-      setIsPayerSignatureVerified(true);
+  const handleVerifyPolicyOwnerCode = () => {
+    if (policyOwnerVerificationCode === "123456") {
+      setIsPolicyOwnerSignatureVerified(true);
       toast({
         title: "Identity Verified",
-        description: "The premium payer's signature has been successfully verified.",
+        description: "The policy owner's signature has been successfully verified.",
       });
     } else {
       toast({
@@ -146,69 +144,67 @@ export default function DeclarationTab({ form }: DeclarationTabProps) {
         </div>
       </div>
 
-      {!isPolicyHolderPayer && (
-        <div>
-          <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-            <h3>Declaration of Conditional Coverage by Policy Owner</h3>
-          </div>
-          <Separator className="my-0" />
-          <div className="p-4 border border-t-0 rounded-b-md space-y-6">
-            <p className="text-sm text-justify">
-              I, the policy owner, hereby declare that all the foregoing statements and answers are true, complete and correct and I agree that this proposal and declaration, together with any other declarations by me, shall be the basis of the contract between me and First Insurance Company Ltd.
-            </p>
-            <Separator />
-            <FormField
-              control={form.control}
-              name="policyOwnerSignature"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Policy Owner's Signature</FormLabel>
-                  <FormControl>
-                    <SignaturePadComponent
-                      initialUrl={field.value}
-                      onSave={(dataUrl) => field.onChange(dataUrl)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="space-y-4">
-              <AlertTitle>Signature Verification</AlertTitle>
-              <Alert>
-                <ShieldCheck className="h-4 w-4" />
-                <AlertTitle>Verify Policy Owner's identity to confirm signature</AlertTitle>
-                <AlertDescription>
-                  We will send a one-time verification code to the policy owner's contact details to confirm their signature.
-                </AlertDescription>
-              </Alert>
-              {!isPayerCodeSent ? (
-                <Button type="button" onClick={handleSendPayerCode} className="w-full sm:w-auto">
-                  <Send className="mr-2" /> Send Verification Code
-                </Button>
-              ) : (
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <Input
-                    placeholder="Enter 6-digit code"
-                    value={payerVerificationCode}
-                    onChange={(e) => setPayerVerificationCode(e.target.value)}
-                    maxLength={6}
-                    className="w-full sm:w-48"
+      <div>
+        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+          <h3>Declaration of Conditional Coverage by Policy Owner</h3>
+        </div>
+        <Separator className="my-0" />
+        <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+          <p className="text-sm text-justify">
+            I, the policy owner, hereby declare that all the foregoing statements and answers are true, complete and correct and I agree that this proposal and declaration, together with any other declarations by me, shall be the basis of the contract between me and First Insurance Company Ltd.
+          </p>
+          <Separator />
+          <FormField
+            control={form.control}
+            name="policyOwnerSignature"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Policy Owner's Signature</FormLabel>
+                <FormControl>
+                  <SignaturePadComponent
+                    initialUrl={field.value}
+                    onSave={(dataUrl) => field.onChange(dataUrl)}
                   />
-                  <Button
-                    type="button"
-                    onClick={handleVerifyPayerCode}
-                    disabled={isPayerSignatureVerified}
-                    className="w-full sm:w-auto"
-                  >
-                    <ShieldCheck className="mr-2" /> {isPayerSignatureVerified ? 'Verified' : 'Verify'}
-                  </Button>
-                </div>
-              )}
-            </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="space-y-4">
+            <AlertTitle>Signature Verification</AlertTitle>
+            <Alert>
+              <ShieldCheck className="h-4 w-4" />
+              <AlertTitle>Verify Policy Owner's identity to confirm signature</AlertTitle>
+              <AlertDescription>
+                We will send a one-time verification code to the policy owner's contact details to confirm their signature.
+              </AlertDescription>
+            </Alert>
+            {!isPolicyOwnerCodeSent ? (
+              <Button type="button" onClick={handleSendPolicyOwnerCode} className="w-full sm:w-auto">
+                <Send className="mr-2" /> Send Verification Code
+              </Button>
+            ) : (
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Input
+                  placeholder="Enter 6-digit code"
+                  value={policyOwnerVerificationCode}
+                  onChange={(e) => setPolicyOwnerVerificationCode(e.target.value)}
+                  maxLength={6}
+                  className="w-full sm:w-48"
+                />
+                <Button
+                  type="button"
+                  onClick={handleVerifyPolicyOwnerCode}
+                  disabled={isPolicyOwnerSignatureVerified}
+                  className="w-full sm:w-auto"
+                >
+                  <ShieldCheck className="mr-2" /> {isPolicyOwnerSignatureVerified ? 'Verified' : 'Verify'}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
