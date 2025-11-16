@@ -360,7 +360,7 @@ export default function HealthTab({ form }: HealthTabProps) {
       </div>
        <div>
         <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-          <h3>Other Health Questions</h3>
+          <h3>Recreational drugs Usage</h3>
         </div>
         <Separator className="my-0" />
         <div className="p-4 border border-t-0 rounded-b-md space-y-6">
