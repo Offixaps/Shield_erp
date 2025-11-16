@@ -100,9 +100,9 @@ export default function HealthTab({ form }: HealthTabProps) {
     <div className="space-y-8">
        <Alert variant="destructive">
         <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Important: Full Disclosure Required</AlertTitle>
-        <AlertDescription>
-          Failure to disclose any material information (any information that may influence the assessment of your application) may lead to the rejection of a claim or the cancellation of your policy. If you are unsure whether information is material, please disclose it.
+        <AlertTitle>WARNING</AlertTitle>
+        <AlertDescription className="text-destructive dark:text-white">
+          The answers you give to these questions are material. If you fail to give accurate answers, it may affect the terms of your contract and we may decline a claim. In some cases the Company may check these answers by obtaining a report from your doctor/hospital.
         </AlertDescription>
       </Alert>
 
