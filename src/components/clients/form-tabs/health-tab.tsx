@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const alcoholHabitsLabels: Record<string, string> = {
     'never_used': 'Have never used alcohol',
@@ -80,9 +81,9 @@ export default function HealthTab({ form }: HealthTabProps) {
     }
   }, [height, heightUnit, weight, form]);
   
-  const alcoholBeerConsumed = form.watch('alcoholBeer.consumed');
-  const alcoholWineConsumed = form.watch('alcoholWine.consumed');
-  const alcoholSpiritsConsumed = form.watch('alcoholSpirits.consumed');
+  const alcoholHabits = form.watch('alcoholHabits');
+  const showAlcoholDetails = alcoholHabits === 'occasional_socially' || alcoholHabits === 'current_regular_drinker';
+  
   const reducedAlcoholMedicalAdvice = form.watch('reducedAlcoholMedicalAdvice.reduced');
   const reducedAlcoholHealthProblems = form.watch('reducedAlcoholHealthProblems.reduced');
   
@@ -204,20 +205,60 @@ export default function HealthTab({ form }: HealthTabProps) {
                 </FormItem>
               )}
             />
-            <Separator />
-            <div className="space-y-4">
-                <FormLabel>If you drink alcohol, what do you consume?</FormLabel>
-                <div className="space-y-4 rounded-md border p-4">
-                    <FormField control={form.control} name="alcoholBeer.consumed" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Beer</FormLabel></div></FormItem>)} />
-                    {alcoholBeerConsumed && <FormField control={form.control} name="alcoholBeer.averagePerWeek" render={({ field }) => (<FormItem><FormLabel>Average per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />}
-                    <Separator />
-                    <FormField control={form.control} name="alcoholWine.consumed" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Wine</FormLabel></div></FormItem>)} />
-                    {alcoholWineConsumed && <FormField control={form.control} name="alcoholWine.averagePerWeek" render={({ field }) => (<FormItem><FormLabel>Average per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />}
-                    <Separator />
-                    <FormField control={form.control} name="alcoholSpirits.consumed" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Spirits</FormLabel></div></FormItem>)} />
-                    {alcoholSpiritsConsumed && <FormField control={form.control} name="alcoholSpirits.averagePerWeek" render={({ field }) => (<FormItem><FormLabel>Average per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} />}
+            {showAlcoholDetails && (
+              <>
+                <Separator />
+                <div className="space-y-4">
+                    <FormLabel>If you drink alcohol, what do you consume?</FormLabel>
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-48">Description</TableHead>
+                            <TableHead>Average per week</TableHead>
+                            <TableHead>Notes (if any)</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>
+                               <FormField control={form.control} name="alcoholBeer.consumed" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Beer</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell>
+                              <FormField control={form.control} name="alcoholBeer.averagePerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholBeer.consumed')} />)} />
+                            </TableCell>
+                             <TableCell>
+                              <FormField control={form.control} name="alcoholBeer.notes" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholBeer.consumed')} />)} />
+                            </TableCell>
+                          </TableRow>
+                           <TableRow>
+                            <TableCell>
+                               <FormField control={form.control} name="alcoholWine.consumed" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Wine</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell>
+                              <FormField control={form.control} name="alcoholWine.averagePerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholWine.consumed')} />)} />
+                            </TableCell>
+                             <TableCell>
+                              <FormField control={form.control} name="alcoholWine.notes" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholWine.consumed')} />)} />
+                            </TableCell>
+                          </TableRow>
+                           <TableRow>
+                            <TableCell>
+                               <FormField control={form.control} name="alcoholSpirits.consumed" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Spirits</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell>
+                              <FormField control={form.control} name="alcoholSpirits.averagePerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholSpirits.consumed')} />)} />
+                            </TableCell>
+                             <TableCell>
+                              <FormField control={form.control} name="alcoholSpirits.notes" render={({ field }) => (<Input {...field} disabled={!form.watch('alcoholSpirits.consumed')} />)} />
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
                 </div>
-            </div>
+              </>
+            )}
              <Separator />
              <div className="space-y-4">
                 <FormField control={form.control} name="reducedAlcoholMedicalAdvice.reduced" render={({ field }) => (<FormItem className="space-y-3"><FormLabel>Have you ever been advised by a medical professional to reduce your alcohol consumption?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4"><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />

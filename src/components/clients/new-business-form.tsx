@@ -76,6 +76,7 @@ const alcoholHabitsOptions = [
 const alcoholDetailSchema = z.object({
     consumed: z.boolean().default(false),
     averagePerWeek: z.string().optional(),
+    notes: z.string().optional(),
 });
 
 const reducedAlcoholReasonSchema = z.object({
@@ -285,6 +286,7 @@ export const newBusinessFormSchema = z
     height: z.coerce.number().positive('Height must be a positive number.').optional(),
     heightUnit: z.enum(['m', 'cm', 'ft']).default('cm'),
     weight: z.coerce.number().positive('Weight must be a positive number.').optional(),
+    bmi: z.coerce.number().optional(),
     alcoholHabits: z.enum(alcoholHabitsOptions),
     alcoholBeer: alcoholDetailSchema.optional(),
     alcoholWine: alcoholDetailSchema.optional(),
@@ -478,6 +480,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         height: 0,
         heightUnit: 'cm',
         weight: 0,
+        bmi: 0,
         alcoholHabits: 'never_used',
         alcoholBeer: { consumed: false, averagePerWeek: '' },
         alcoholWine: { consumed: false, averagePerWeek: '' },
