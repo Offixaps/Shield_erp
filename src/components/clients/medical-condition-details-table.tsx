@@ -25,10 +25,10 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { FormField, FormControl } from '../ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import HighBloodPressureDetails from './health/high-blood-pressure-details';
-import DiabetesDetails from './health/diabetes-details';
-import AsthmaDetails from './health/asthma-details';
-import DigestiveDisorderDetails from './health/digestive-disorder-details';
+import HighBloodPressureDetails from './form-tabs/health/high-blood-pressure-details';
+import DiabetesDetails from './form-tabs/health/diabetes-details';
+import AsthmaDetails from './form-tabs/health/asthma-details';
+import DigestiveDisorderDetails from './form-tabs/health/digestive-disorder-details';
 
 type FormValues = any;
 
