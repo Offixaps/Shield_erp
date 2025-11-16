@@ -88,12 +88,6 @@ export default function HealthTab({ form }: HealthTabProps) {
   const reducedAlcoholHealthProblems = form.watch('reducedAlcoholHealthProblems.reduced');
   
   const usedNicotineLast12Months = form.watch('usedNicotineLast12Months');
-  const tobaccoCigarettesSmoked = form.watch('tobaccoCigarettes.smoked');
-  const tobaccoCigarsSmoked = form.watch('tobaccoCigars.smoked');
-  const tobaccoPipeSmoked = form.watch('tobaccoPipe.smoked');
-  const tobaccoNicotineReplacementUsed = form.watch('tobaccoNicotineReplacement.smoked');
-  const tobaccoEcigarettesUsed = form.watch('tobaccoEcigarettes.smoked');
-  const tobaccoOtherUsed = form.watch('tobaccoOther.smoked');
 
   const testedPositiveViralInfection = form.watch('testedPositiveViralInfection');
   
@@ -305,24 +299,60 @@ export default function HealthTab({ form }: HealthTabProps) {
              {usedNicotineLast12Months === 'yes' && (
                 <div className="space-y-4">
                     <FormLabel>If yes, which products have you used?</FormLabel>
-                    <div className="space-y-4 rounded-md border p-4">
-                        <FormField control={form.control} name="tobaccoCigarettes.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Cigarettes</FormLabel></div></FormItem>)} />
-                        {tobaccoCigarettesSmoked && <div className="grid grid-cols-2 gap-4 pl-8"><FormField control={form.control} name="tobaccoCigarettes.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoCigarettes.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
-                        <Separator />
-                        <FormField control={form.control} name="tobaccoCigars.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Cigars</FormLabel></div></FormItem>)} />
-                        {tobaccoCigarsSmoked && <div className="grid grid-cols-2 gap-4 pl-8"><FormField control={form.control} name="tobaccoCigars.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoCigars.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
-                        <Separator />
-                        <FormField control={form.control} name="tobaccoPipe.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Pipe</FormLabel></div></FormItem>)} />
-                        {tobaccoPipeSmoked && <div className="grid grid-cols-2 gap-4 pl-8"><FormField control={form.control} name="tobaccoPipe.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoPipe.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
-                        <Separator />
-                        <FormField control={form.control} name="tobaccoNicotineReplacement.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Nicotine replacement products</FormLabel></div></FormItem>)} />
-                        {tobaccoNicotineReplacementUsed && <div className="grid grid-cols-2 gap-4 pl-8"><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
-                        <Separator />
-                        <FormField control={form.control} name="tobaccoEcigarettes.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>E-cigarettes</FormLabel></div></FormItem>)} />
-                        {tobaccoEcigarettesUsed && <div className="grid grid-cols-2 gap-4 pl-8"><FormField control={form.control} name="tobaccoEcigarettes.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoEcigarettes.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
-                        <Separator />
-                        <FormField control={form.control} name="tobaccoOther.smoked" render={({ field }) => (<FormItem className="flex flex-row items-start space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="space-y-1 leading-none"><FormLabel>Other</FormLabel></div></FormItem>)} />
-                        {tobaccoOtherUsed && <div className="grid grid-cols-3 gap-4 pl-8"><FormField control={form.control} name="tobaccoOther.otherType" render={({ field }) => (<FormItem><FormLabel>Specify type</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoOther.avgPerDay" render={({ field }) => (<FormItem><FormLabel>Avg per day</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /><FormField control={form.control} name="tobaccoOther.avgPerWeek" render={({ field }) => (<FormItem><FormLabel>Avg per week</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)} /></div>}
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-64">Description</TableHead>
+                            <TableHead>Average per day</TableHead>
+                            <TableHead>Average per week</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoCigarettes.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Cigarettes</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoCigarettes.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoCigarettes.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoCigarettes.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoCigarettes.smoked')} />)} /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoCigars.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Cigars</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoCigars.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoCigars.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoCigars.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoCigars.smoked')} />)} /></TableCell>
+                          </TableRow>
+                           <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoPipe.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Pipe</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoPipe.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoPipe.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoPipe.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoPipe.smoked')} />)} /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoNicotineReplacement.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">Nicotine replacement products</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoNicotineReplacement.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoNicotineReplacement.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoNicotineReplacement.smoked')} />)} /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoEcigarettes.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><FormLabel className="font-normal">E-cigarettes</FormLabel></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoEcigarettes.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoEcigarettes.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoEcigarettes.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoEcigarettes.smoked')} />)} /></TableCell>
+                          </TableRow>
+                          <TableRow>
+                            <TableCell>
+                                <FormField control={form.control} name="tobaccoOther.smoked" render={({ field }) => (<FormItem className="flex flex-row items-center space-x-3 space-y-0"><FormControl><Checkbox checked={field.value} onCheckedChange={field.onChange} /></FormControl><div className="flex-1"><FormField control={form.control} name="tobaccoOther.otherType" render={({ field }) => (<Input placeholder="Specify other" {...field} disabled={!form.watch('tobaccoOther.smoked')} />)} /></div></FormItem>)} />
+                            </TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoOther.avgPerDay" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoOther.smoked')} />)} /></TableCell>
+                            <TableCell><FormField control={form.control} name="tobaccoOther.avgPerWeek" render={({ field }) => (<Input {...field} disabled={!form.watch('tobaccoOther.smoked')} />)} /></TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
                     </div>
                 </div>
             )}
