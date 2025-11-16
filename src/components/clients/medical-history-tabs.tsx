@@ -63,7 +63,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
 
   return (
     <div className="space-y-8">
-      <MedicalQuestion form={form} name="bloodTransfusionOrSurgery" label="Blood Transfusion / Surgery" detailsFieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery']} />
+      <MedicalQuestion form={form} name="bloodTransfusionOrSurgery" label="Past & Present Medical Diagnosis" detailsFieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery']} />
       <MedicalQuestion form={form} name="highBloodPressure" label="Heart and Circulation" detailsFieldName="highBloodPressureDetails" illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']} />
       <MedicalQuestion form={form} name="cancer" label="Cancer / Tumor" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
       <MedicalQuestion form={form} name="diabetes" label="Diabetes" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
