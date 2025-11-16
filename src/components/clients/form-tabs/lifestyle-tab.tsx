@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import LifestyleDetailTable from './lifestyle-detail-table';
+import LifestyleDetailTable from '../lifestyle-detail-table';
 
 type FormValues = any; // Replace with z.infer<typeof yourSchema>
 
