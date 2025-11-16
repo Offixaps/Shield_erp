@@ -190,12 +190,14 @@ export default function HealthTab({ form }: HealthTabProps) {
                   <FormLabel>Select the statement that best describes your drinking habits</FormLabel>
                   <FormControl>
                     <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
-                      {Object.entries(alcoholHabitsLabels).map(([value, label]) => (
-                         <FormItem key={value} className="flex items-center space-x-3 space-y-0">
-                            <FormControl><RadioGroupItem value={value} /></FormControl>
-                            <FormLabel className="font-normal">{label}</FormLabel>
-                        </FormItem>
-                      ))}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                        {Object.entries(alcoholHabitsLabels).map(([value, label]) => (
+                          <FormItem key={value} className="flex items-center space-x-3 space-y-0">
+                              <FormControl><RadioGroupItem value={value} /></FormControl>
+                              <FormLabel className="font-normal">{label}</FormLabel>
+                          </FormItem>
+                        ))}
+                      </div>
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />
