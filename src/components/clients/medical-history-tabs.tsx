@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -63,8 +62,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
 
   return (
     <div className="space-y-8">
-      <MedicalQuestion form={form} name="bloodTransfusionOrSurgery" label="Past & Present Medical Diagnosis" detailsFieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery']} />
-      <MedicalQuestion form={form} name="highBloodPressure" label="Heart and Circulation" detailsFieldName="highBloodPressureDetails" illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']} />
+      <MedicalQuestion form={form} name="bloodTransfusionOrSurgery" label="Past & Present Medical Diagnosis" detailsFieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery', 'High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']} />
       <MedicalQuestion form={form} name="cancer" label="Cancer / Tumor" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
       <MedicalQuestion form={form} name="diabetes" label="Diabetes" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
       <MedicalQuestion form={form} name="colitisCrohns" label="Colitis / Crohn's Disease" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
@@ -172,7 +170,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="currentDoctorName" render={({ field }) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                         <FormField control={form.control} name="currentDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                        <FormField control={form.control} name="currentDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic & Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={form.control} name="currentDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic &amp; Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                     </div>
                 </div>
                  <Separator />
@@ -181,7 +179,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="previousDoctorName" render={({ field }) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                         <FormField control={form.control} name="previousDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                        <FormField control={form.control} name="previousDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic & Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={form.control} name="previousDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic &amp; Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                     </div>
                 </div>
             </div>
