@@ -26,6 +26,7 @@ import HealthTab from './form-tabs/health-tab';
 import AgentTab from './form-tabs/agent-tab';
 import PaymentDetailsTab from './form-tabs/payment-details-tab';
 import DeclarationTab from './form-tabs/declaration-tab';
+import LifestyleTab from './form-tabs/lifestyle-tab';
 
 
 const idTypes = [
@@ -397,6 +398,7 @@ type TabName =
     | 'beneficiaries'
     | 'existing-policies'
     | 'health'
+    | 'lifestyle'
     | 'declaration'
     | 'agent'
     | 'payment-details';
@@ -586,11 +588,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               return (details || []).map(d => {
                 const parsed: any = {...d};
                 Object.keys(d).forEach(key => {
-                  if (key.toLowerCase().includes('date') && d[key]) {
-                    parsed[key] = new Date(d[key]);
-                  } else if (typeof d[key] === 'undefined' || d[key] === null) {
+                  if (key.toLowerCase().includes('date') && d[key as keyof typeof d]) {
+                    (parsed as any)[key] = new Date((d as any)[key]);
+                  } else if (typeof d[key as keyof typeof d] === 'undefined' || d[key as keyof typeof d] === null) {
                     if (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] &&
-                        (illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape] as any)._def.innerType._def.typeName === 'ZodString') 
+                        ((illnessDetailSchema.shape[key as keyof typeof illnessDetailSchema.shape]) as any)._def.innerType._def.typeName === 'ZodString') 
                     {
                        parsed[key] = '';
                     }
@@ -704,11 +706,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             <TabsTrigger value="coverage">Coverage</TabsTrigger>
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="existing-policies">Existing Policies</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
+            <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
             <TabsTrigger value="declaration">Declaration</TabsTrigger>
             <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
@@ -728,6 +731,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           
           <TabsContent value="health" className="mt-6 space-y-8">
             <HealthTab form={form} />
+          </TabsContent>
+
+          <TabsContent value="lifestyle" className="mt-6 space-y-8">
+            <LifestyleTab form={form} bmi={null} />
           </TabsContent>
           
           <TabsContent value="declaration" className="mt-6 space-y-8">
