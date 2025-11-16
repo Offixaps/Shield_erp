@@ -397,9 +397,9 @@ type TabName =
     | 'beneficiaries'
     | 'existing-policies'
     | 'health'
+    | 'declaration'
     | 'agent'
-    | 'payment-details'
-    | 'declaration';
+    | 'payment-details';
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
@@ -709,9 +709,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
             <TabsTrigger value="existing-policies">Existing Policies</TabsTrigger>
             <TabsTrigger value="health">Health</TabsTrigger>
+            <TabsTrigger value="declaration">Declaration</TabsTrigger>
             <TabsTrigger value="agent">Agent</TabsTrigger>
             <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
-            <TabsTrigger value="declaration">Declaration</TabsTrigger>
           </TabsList>
           
           <TabsContent value="coverage" className="mt-6 space-y-8">
@@ -730,6 +730,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <HealthTab form={form} />
           </TabsContent>
           
+          <TabsContent value="declaration" className="mt-6 space-y-8">
+            <DeclarationTab form={form} />
+          </TabsContent>
+
           <TabsContent value="agent" className="mt-6 space-y-8">
             <AgentTab form={form} />
           </TabsContent>
@@ -738,9 +742,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <PaymentDetailsTab form={form} />
           </TabsContent>
 
-          <TabsContent value="declaration" className="mt-6 space-y-8">
-            <DeclarationTab form={form} />
-          </TabsContent>
         </Tabs>
         
         <div className="flex justify-end p-4">
