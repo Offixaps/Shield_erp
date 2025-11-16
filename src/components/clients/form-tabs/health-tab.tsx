@@ -367,7 +367,14 @@ export default function HealthTab({ form }: HealthTabProps) {
             <FormField control={form.control} name="usedRecreationalDrugs" render={({ field }) => (<FormItem><FormLabel>Have you ever used recreational drugs (e.g. cocaine, heroin, weed) or taken drugs other than for medical purposes?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4"><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
             <Separator />
             <FormField control={form.control} name="injectedNonPrescribedDrugs" render={({ field }) => (<FormItem><FormLabel>Have you ever injected a non-prescribed drugs?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4"><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
-            <Separator />
+        </div>
+      </div>
+      <div>
+        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+          <h3>Viral Co-infections</h3>
+        </div>
+        <Separator className="my-0" />
+        <div className="p-4 border border-t-0 rounded-b-md space-y-6">
             <FormField control={form.control} name="testedPositiveViralInfection" render={({ field }) => (<FormItem><FormLabel>Have you ever been tested positive for HIV, Hepatitis B or C, or are you awaiting the results of such a test?</FormLabel><FormControl><RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4"><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem><FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem></RadioGroup></FormControl><FormMessage /></FormItem>)} />
             {testedPositiveViralInfection === 'yes' && (
                 <div className="space-y-4 rounded-md border p-4">
