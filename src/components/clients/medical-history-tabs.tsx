@@ -20,38 +20,32 @@ function MedicalQuestion({ form, name, label, detailsFieldName, detailsOptions, 
     const watchValue = useWatch({ control: form.control, name });
 
     return (
-        <div>
-            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-                <h3>{label}</h3>
-            </div>
-            <Separator className="my-0" />
-            <div className="p-4 border border-t-0 rounded-b-md space-y-6">
-                <FormField
-                    control={form.control}
-                    name={name}
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Have you ever had, received or been diagnosed with any of the following?</FormLabel>
-                            <FormControl>
-                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="yes" /></FormControl>
-                                        <FormLabel className="font-normal">Yes</FormLabel>
-                                    </FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl><RadioGroupItem value="no" /></FormControl>
-                                        <FormLabel className="font-normal">No</FormLabel>
-                                    </FormItem>
-                                </RadioGroup>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                {watchValue === 'yes' && (
-                    children || <MedicalConditionDetailsTable form={form} fieldName={detailsFieldName} illnessOptions={detailsOptions} />
+        <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+            <FormField
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>{label}</FormLabel>
+                        <FormControl>
+                            <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl><RadioGroupItem value="yes" /></FormControl>
+                                    <FormLabel className="font-normal">Yes</FormLabel>
+                                </FormItem>
+                                <FormItem className="flex items-center space-x-2 space-y-0">
+                                    <FormControl><RadioGroupItem value="no" /></FormControl>
+                                    <FormLabel className="font-normal">No</FormLabel>
+                                </FormItem>
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
                 )}
-            </div>
+            />
+            {watchValue === 'yes' && (
+                children || <MedicalConditionDetailsTable form={form} fieldName={detailsFieldName} illnessOptions={detailsOptions} />
+            )}
         </div>
     );
 }
@@ -62,7 +56,25 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
 
   return (
     <div className="space-y-8">
-      <MedicalQuestion form={form} name="bloodTransfusionOrSurgery" label="Past & Present Medical Diagnosis" detailsFieldName="bloodTransfusionOrSurgeryDetails" illnessOptions={['Blood transfusion', 'Surgery', 'High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']} />
+        <div>
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>Past & Present Medical Diagnosis</h3>
+            </div>
+             <Separator className="my-0" />
+            <MedicalQuestion 
+                form={form} 
+                name="bloodTransfusionOrSurgery" 
+                label="Have you ever had a blood transfusion or surgery?" 
+                detailsFieldName="bloodTransfusionOrSurgeryDetails" 
+            />
+             <MedicalQuestion 
+                form={form} 
+                name="heartAndCirculation" 
+                label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
+                detailsFieldName="heartAndCirculationDetails"
+                illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
+            />
+        </div>
       <MedicalQuestion form={form} name="cancer" label="Cancer / Tumor" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
       <MedicalQuestion form={form} name="diabetes" label="Diabetes" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
       <MedicalQuestion form={form} name="colitisCrohns" label="Colitis / Crohn's Disease" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
