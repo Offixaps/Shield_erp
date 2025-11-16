@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 const alcoholHabitsLabels: Record<string, string> = {
     'never_used': 'Have never used alcohol',
@@ -60,6 +62,7 @@ export default function HealthTab({ form }: HealthTabProps) {
       }
       
       const calculatedBmi = w / (heightInMeters * heightInMeters);
+      form.setValue('bmi', calculatedBmi);
       setBmi(calculatedBmi);
 
       if (calculatedBmi < 18.5) {
@@ -75,7 +78,7 @@ export default function HealthTab({ form }: HealthTabProps) {
       setBmi(null);
       setBmiStatus(null);
     }
-  }, [height, heightUnit, weight]);
+  }, [height, heightUnit, weight, form]);
   
   const alcoholBeerConsumed = form.watch('alcoholBeer.consumed');
   const alcoholWineConsumed = form.watch('alcoholWine.consumed');
@@ -95,6 +98,14 @@ export default function HealthTab({ form }: HealthTabProps) {
   
   return (
     <div className="space-y-8">
+       <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Important: Full Disclosure Required</AlertTitle>
+        <AlertDescription>
+          Failure to disclose any material information (any information that may influence the assessment of your application) may lead to the rejection of a claim or the cancellation of your policy. If you are unsure whether information is material, please disclose it.
+        </AlertDescription>
+      </Alert>
+
       <div>
         <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
           <h3>Health Details</h3>
