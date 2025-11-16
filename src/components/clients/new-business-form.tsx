@@ -734,7 +734,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
 
           <TabsContent value="lifestyle" className="mt-6 space-y-8">
-            <LifestyleTab form={form} bmi={null} />
+            <LifestyleTab form={form} />
           </TabsContent>
           
           <TabsContent value="declaration" className="mt-6 space-y-8">
