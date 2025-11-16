@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import type { UseFormReturn } from 'react-hook-form';
-import MedicalHistoryTabs from '../medical-history-tabs';
 import { FormField, FormControl, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -15,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import MedicalHistoryTabs from '../medical-history-tabs';
 
 const alcoholHabitsLabels: Record<string, string> = {
     'never_used': 'Have never used alcohol',
@@ -286,12 +286,14 @@ export default function HealthTab({ form }: HealthTabProps) {
                   <FormLabel>Select the statement that best describes your smoking habits</FormLabel>
                   <FormControl>
                     <RadioGroup onValueChange={field.onChange} value={field.value} className="space-y-2">
-                       {Object.entries(tobaccoHabitsLabels).map(([value, label]) => (
-                         <FormItem key={value} className="flex items-center space-x-3 space-y-0">
-                            <FormControl><RadioGroupItem value={value} /></FormControl>
-                            <FormLabel className="font-normal">{label}</FormLabel>
-                        </FormItem>
-                      ))}
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                          {Object.entries(tobaccoHabitsLabels).map(([value, label]) => (
+                            <FormItem key={value} className="flex items-center space-x-3 space-y-0">
+                                <FormControl><RadioGroupItem value={value} /></FormControl>
+                                <FormLabel className="font-normal">{label}</FormLabel>
+                            </FormItem>
+                          ))}
+                       </div>
                     </RadioGroup>
                   </FormControl>
                   <FormMessage />
