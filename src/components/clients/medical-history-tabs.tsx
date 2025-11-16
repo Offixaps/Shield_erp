@@ -62,24 +62,32 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 <h3>Past & Present Medical Diagnosis</h3>
             </div>
             <Separator className="my-0" />
-            <MedicalQuestion 
-                form={form} 
-                name="bloodTransfusionOrSurgery" 
-                label="Have you ever had a blood transfusion or surgery?" 
-                detailsFieldName="bloodTransfusionOrSurgeryDetails" 
-            />
-             <MedicalQuestion 
-                form={form} 
-                name="highBloodPressure" 
-                label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
-                detailsFieldName="highBloodPressureDetails"
-                illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
-            />
-            <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
-            <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
-            <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
-            <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
-            <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']} />
+            <div className="p-4 border border-t-0 rounded-b-md space-y-6">
+                 <MedicalQuestion 
+                    form={form} 
+                    name="bloodTransfusionOrSurgery" 
+                    label="Have you ever had a blood transfusion or surgery?" 
+                    detailsFieldName="bloodTransfusionOrSurgeryDetails" 
+                />
+                <Separator />
+                <MedicalQuestion 
+                    form={form} 
+                    name="highBloodPressure" 
+                    label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
+                    detailsFieldName="highBloodPressureDetails"
+                    illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
+                />
+                <Separator />
+                <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
+                <Separator />
+                <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
+                <Separator />
+                <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
+                <Separator />
+                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
+                <Separator />
+                <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']} />
+            </div>
         </div>
 
        <div>
@@ -103,6 +111,14 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
       <MedicalQuestion form={form} name="hospitalAttendance" label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" detailsFieldName="hospitalAttendanceDetails" illnessOptions={['X-ray', 'Scan', 'Checkup', 'Operation']} />
       <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" illnessOptions={["Alzheimer's Disease", 'Multiple Sclerosis']} />
       <MedicalQuestion form={form} name="sti" label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" detailsFieldName="stiDetails" illnessOptions={['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']} />
+      
+      <div>
+        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+          <h3>Are you presently</h3>
+        </div>
+        <Separator className="my-0" />
+      </div>
+      
       <MedicalQuestion form={form} name="presentSymptoms" label="Do you currently have any symptoms for which you have not yet sought medical advice?" detailsFieldName="presentSymptomsDetails" illnessOptions={['Present Symptoms']} />
 
        {watchPresentSymptoms === 'yes' && (
