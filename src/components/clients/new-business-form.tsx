@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/form';
 
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import { format, differenceInYears } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -76,6 +76,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         idNumber: '',
         placeOfIssue: '',
         country: 'Ghana',
+        region: '',
+        religion: undefined,
         nationality: 'Ghanaian',
         languages: '',
         serial: '',
@@ -233,8 +235,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
 
+            // Sanitize data before resetting the form
+            const sanitizedData = { ...businessData };
+            for (const key in sanitizedData) {
+                if (sanitizedData[key as keyof typeof sanitizedData] === null) {
+                    (sanitizedData as any)[key] = '';
+                }
+            }
+
             const defaultValues = {
-              ...businessData,
+              ...sanitizedData,
               lifeAssuredFirstName: firstName,
               lifeAssuredMiddleName: middleName,
               lifeAssuredSurname: surname,
@@ -257,7 +267,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     fetchPolicy();
   }, [isEditMode, currentBusinessId, form]);
 
-  const commencementDate = form.watch('commencementDate');
   const lifeAssuredDob = form.watch('lifeAssuredDob');
   const premiumAmount = form.watch('premiumAmount');
   const monthlyBasicIncome = form.watch('monthlyBasicIncome');
@@ -265,10 +274,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const ageNextBirthday = form.watch('ageNextBirthday');
 
   React.useEffect(() => {
-    if (commencementDate) {
-      form.setValue('increaseMonth', format(commencementDate, 'MMMM'));
+    const dob = form.getValues('lifeAssuredDob');
+    if (dob) {
+        form.setValue('increaseMonth', format(new Date(dob), 'MMMM'));
     }
-  }, [commencementDate, form]);
+  }, [lifeAssuredDob, form]);
 
   React.useEffect(() => {
     if (lifeAssuredDob) {
@@ -447,5 +457,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
 
