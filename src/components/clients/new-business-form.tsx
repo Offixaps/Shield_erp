@@ -413,6 +413,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
     defaultValues: {
         title: 'Mr',
         lifeAssuredFirstName: '',
