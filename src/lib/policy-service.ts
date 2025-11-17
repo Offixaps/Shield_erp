@@ -213,6 +213,10 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   const originalPolicy = policyFromFirebase(currentDoc);
 
   const updatedData = { ...originalPolicy, ...updates };
+
+  if (updates.serialNumber === undefined) {
+    updatedData.serialNumber = originalPolicy.serial || '';
+  }
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
       let user = 'System';
@@ -690,3 +694,6 @@ function newId() {
 
 
 
+
+
+    
