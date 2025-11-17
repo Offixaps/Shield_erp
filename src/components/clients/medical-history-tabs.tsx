@@ -235,9 +235,9 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
       <MedicalQuestion 
         form={form} 
         name="hospitalAttendance" 
-        label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" 
+        label="Attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?" 
         detailsFieldName="hospitalAttendanceDetails" 
-        detailsOptions={['Checkup', 'X-ray', 'Scan', 'Other medical investigation']}
+        detailsOptions={['Investigation', 'X-ray', 'Scan', 'Checkup', 'Operation']}
       />
       <MedicalQuestion 
         form={form} 
