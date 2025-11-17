@@ -228,9 +228,9 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
       <MedicalQuestion 
         form={form} 
         name="lumpGrowth" 
-        label="A lump, growth, or change in a mole or freckle?" 
+        label="A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed color or increased in size?" 
         detailsFieldName="lumpGrowthDetails" 
-        detailsOptions={['Lump', 'Growth', 'Change in a mole or freckle']}
+        detailsOptions={['Lump or growth', 'Mole or freckle change']}
       />
       <MedicalQuestion 
         form={form} 
