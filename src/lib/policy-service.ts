@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -138,7 +137,7 @@ export async function getPolicies(): Promise<NewBusiness[]> {
   return policyList;
 }
 
-export async function getPolicyById(id: number | string): Promise<NewBusiness | undefined> {
+export async function getPolicyById(id: string): Promise<NewBusiness | undefined> {
   const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
   const docSnap = await getDoc(policyDocRef).catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
@@ -155,7 +154,7 @@ export async function getPolicyById(id: number | string): Promise<NewBusiness | 
   return undefined;
 }
 
-export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
+export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
   const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
   
   const currentDoc = await getDoc(policyRef);
@@ -202,7 +201,7 @@ export async function createPolicy(values: any): Promise<string> {
     const newPolicyData = {
         client: lifeAssuredName,
         department: "Business Development",
-        lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : '',
+        lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : null,
         placeOfBirth: values.placeOfBirth || null,
         ageNextBirthday: values.ageNextBirthday || 0,
         gender: values.gender || null,
@@ -213,9 +212,9 @@ export async function createPolicy(values: any): Promise<string> {
         religion: values.religion || null,
         languages: values.languages || null,
         email: values.email || null,
-        phone: values.phone || null,
-        workTelephone: values.workTelephone || null,
-        homeTelephone: values.homeTelephone || null,
+        phone: values.phone || '',
+        workTelephone: values.workTelephone || '',
+        homeTelephone: values.homeTelephone || '',
         postalAddress: values.postalAddress || null,
         residentialAddress: values.residentialAddress || null,
         gpsAddress: values.gpsAddress || null,
@@ -304,7 +303,7 @@ export async function createPolicy(values: any): Promise<string> {
 }
 
 
-export async function deletePolicy(id: number): Promise<boolean> {
+export async function deletePolicy(id: string): Promise<boolean> {
   const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
   deleteDoc(policyRef)
     .then(() => {
@@ -320,7 +319,7 @@ export async function deletePolicy(id: number): Promise<boolean> {
   return false; // The operation is async, the immediate return should be false.
 }
 
-export async function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policy = await getPolicyById(policyId);
     if (!policy) return undefined;
 
@@ -332,7 +331,7 @@ export async function recordFirstPayment(policyId: number, paymentDetails: Omit<
     if (!firstBill || firstBill.status === 'Paid') return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    const newPayment: Payment = { id: newPaymentId, policyId, billId: firstBill.id, ...paymentDetails };
+    const newPayment: Payment = { id: newPaymentId, policyId: policy.id, billId: firstBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     firstBill.status = 'Paid';
@@ -353,7 +352,7 @@ export async function recordFirstPayment(policyId: number, paymentDetails: Omit<
     return updatePolicy(policyId, policy);
 }
 
-export async function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+export async function recordPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policy = await getPolicyById(policyId);
     if (!policy) return undefined;
 
@@ -365,7 +364,7 @@ export async function recordPayment(policyId: number, paymentDetails: Omit<Payme
     if (!unpaidBill) return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    const newPayment: Payment = { id: newPaymentId, policyId, billId: unpaidBill.id, ...paymentDetails };
+    const newPayment: Payment = { id: newPaymentId, policyId: policy.id, billId: unpaidBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     unpaidBill.status = 'Paid';
@@ -626,3 +625,6 @@ function newId() {
     
 
 
+
+
+    
