@@ -87,7 +87,12 @@ function policyFromFirebase(docSnap: any): NewBusiness {
             return format(date, 'yyyy-MM-dd');
         }
         if (typeof timestamp === 'string') {
-            return timestamp;
+            // Handle cases where date is already a string
+             try {
+                return format(new Date(timestamp), 'yyyy-MM-dd');
+            } catch (e) {
+                return ''; // Return empty string for invalid date strings
+            }
         }
         return '';
     };
@@ -173,6 +178,10 @@ export async function getPolicies(): Promise<NewBusiness[]> {
 }
 
 export async function getPolicyById(id: string): Promise<NewBusiness | undefined> {
+  if (!id || typeof id !== 'string') {
+    console.error("Invalid ID passed to getPolicyById:", id);
+    return undefined;
+  }
   const policyDocRef = doc(db, POLICIES_COLLECTION, id);
   const docSnap = await getDoc(policyDocRef).catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
@@ -190,7 +199,7 @@ export async function getPolicyById(id: string): Promise<NewBusiness | undefined
 }
 
 export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness | undefined> {
-  const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
+  const policyRef = doc(db, POLICIES_COLLECTION, id);
   
   const currentDoc = await getDoc(policyRef);
   if (!currentDoc.exists()) {
@@ -670,4 +679,5 @@ function newId() {
 
 
     
+
 

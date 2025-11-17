@@ -56,7 +56,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: {
         onboardingStatus: 'Incomplete Policy',
         title: 'Mr',
@@ -78,8 +78,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         country: 'Ghana',
         nationality: 'Ghanaian',
         languages: '',
-        serialNumber: '',
-        policyNumber: '',
+        serial: '',
+        policy: '',
         policyTerm: 0,
         premiumTerm: 0,
         sumAssured: 0,
@@ -227,10 +227,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
             
             const data: any = { ...businessData };
-            const parseDate = (dateString: string | undefined) => dateString ? new Date(dateString) : undefined;
+            const parseDate = (dateString: string | undefined | null) => dateString ? new Date(dateString) : undefined;
             
             const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
-                return (beneficiaries || []).map(b => ({...b, dob: new Date(b.dob)}));
+                return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
 
             const defaultValues = {
@@ -327,7 +327,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     try {
       const values = form.getValues();
       if (isEditMode && currentBusinessId) {
-        await updatePolicy(parseInt(currentBusinessId, 10), values as any);
+        await updatePolicy(currentBusinessId, values as any);
         toast({
           title: 'Progress Saved',
           description: 'Your application has been updated successfully.',
@@ -371,7 +371,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         onboardingStatus: 'Pending First Premium' as const,
       };
 
-      await updatePolicy(parseInt(currentBusinessId, 10), finalValues as any);
+      await updatePolicy(currentBusinessId, finalValues as any);
 
       toast({
         title: 'Application Submitted',
@@ -447,4 +447,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
 
