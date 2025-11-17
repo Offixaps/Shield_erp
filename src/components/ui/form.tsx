@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -147,10 +148,16 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
+  const { formState } = useFormContext()
   const body = error ? String(error?.message) : children
 
   if (!body) {
     return null
+  }
+
+  // Only show the message if the form has been submitted
+  if (!formState.isSubmitted) {
+      return null;
   }
 
   return (
