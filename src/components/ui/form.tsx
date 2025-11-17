@@ -94,12 +94,12 @@ const FormLabel = React.forwardRef<
   const { error, formItemId } = useFormField()
   const { formState } = useFormContext()
 
-  const shouldShowError = formState.isSubmitted || formState.touchedFields[formItemId];
+  const shouldShowError = formState.isSubmitted || formState.touchedFields[error?.ref?.name as string] || error;
 
   return (
     <Label
       ref={ref}
-      className={cn(error && shouldShowError && "text-destructive", className)}
+      className={cn(error && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
@@ -151,17 +151,10 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  const { formState } = useFormContext()
-  const fieldState = formState.touchedFields[error?.ref?.name as string]
   const body = error ? String(error?.message) : children
 
   if (!body) {
     return null
-  }
-
-  // Show message if form is submitted OR field has been touched
-  if (!formState.isSubmitted && !fieldState) {
-      return null;
   }
 
   return (
