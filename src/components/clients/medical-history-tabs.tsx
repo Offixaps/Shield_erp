@@ -71,11 +71,14 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
-                <MedicalQuestion 
+                 <MedicalQuestion 
                     form={form} 
                     name="highBloodPressure" 
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
                     detailsFieldName="highBloodPressureDetails"
+                    detailsOptions={[
+                        'High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease'
+                    ]}
                 />
                 <Separator />
                 <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" />
