@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { numberToWords } from '@/lib/utils';
-import { FilePenLine, Send, Save, XCircle } from 'lucide-react';
+import { FilePenLine, Send, Save, XCircle, AlertCircle } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
@@ -30,6 +30,7 @@ import DeclarationTab from './form-tabs/declaration-tab';
 import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
 import type { NewBusiness } from '@/lib/data';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -54,6 +55,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
+  const [submissionError, setSubmissionError] = React.useState<string | null>(null);
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
@@ -87,6 +89,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         premiumTerm: 0,
         sumAssured: 0,
         premiumAmount: 0,
+        paymentFrequency: undefined,
         increaseMonth: format(new Date(), 'MMMM'),
         agentName: '',
         agentCode: '',
@@ -209,6 +212,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         travelOutsideCountryDetails: [],
     }
   });
+
+  // Watch for any form changes to clear the top-level error
+  const formValues = form.watch();
+  React.useEffect(() => {
+    if (submissionError) {
+      setSubmissionError(null);
+    }
+  }, [formValues, submissionError]);
 
   React.useEffect(() => {
     async function fetchPolicy() {
@@ -398,6 +409,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   
   const handleSaveAndNext = async () => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     const currentTabFields = tabFields[activeTab];
     const isValid = await form.trigger(currentTabFields as any);
 
@@ -438,12 +450,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       if (currentIndex < TABS.length - 1) {
         setActiveTab(TABS[currentIndex + 1]);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save and Next error:', error);
+      const errorMessage = error.message || 'An unexpected error occurred while saving your progress.';
+      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'An unexpected error occurred while saving your progress.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -452,6 +466,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const handleSaveAndClose = async () => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     const values = form.getValues();
     let policyId = currentBusinessId;
 
@@ -466,12 +481,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         description: 'Your application has been saved.',
       });
       router.push('/business-development/sales');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Save and Close error:', error);
+      const errorMessage = error.message || 'An unexpected error occurred while saving.';
+      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: 'An unexpected error occurred while saving.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -481,9 +498,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
     setIsSubmitting(true);
+    setSubmissionError(null);
     try {
       if (!currentBusinessId) {
-        throw new Error('No business ID found for final submission.');
+        throw new Error('No business ID found for final submission. Please save the form first.');
       }
       
       const finalValues = {
@@ -499,12 +517,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       });
       router.push('/business-development/sales');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Form submission error:', error);
+      const errorMessage = error.message || 'An unexpected error occurred. Please review all tabs for errors.';
+      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Submission Failed',
-        description: 'An unexpected error occurred. Please review all tabs for errors.',
+        description: errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -517,6 +537,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        {submissionError && (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{submissionError}</AlertDescription>
+            </Alert>
+        )}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             {TABS.map(tab => (
