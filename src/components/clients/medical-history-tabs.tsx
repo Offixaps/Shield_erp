@@ -62,86 +62,84 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 <h3>Past & Present Medical Diagnosis</h3>
             </div>
             <Separator className="my-0" />
-            <div className="p-4 border border-t-0 rounded-b-md space-y-6">
-                <MedicalQuestion 
-                    form={form} 
-                    name="bloodTransfusionOrSurgery" 
-                    label="Have you ever had a blood transfusion or surgery?" 
-                    detailsFieldName="bloodTransfusionOrSurgeryDetails"
-                    detailsOptions={['Blood Transfusion', 'Surgery']}
-                />
-                <Separator />
-                <MedicalQuestion 
-                    form={form} 
-                    name="highBloodPressure" 
-                    label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
-                    detailsFieldName="highBloodPressureDetails"
-                    detailsOptions={[
-                        'High blood pressure',
-                        'Angina',
-                        'Heart attack',
-                        'Stroke',
-                        'Coma',
-                        'Other heart/artery/circulation disease'
-                    ]}
-                />
-                <Separator />
-                <MedicalQuestion 
-                    form={form} 
-                    name="cancer" 
-                    label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" 
-                    detailsFieldName="cancerDetails" 
-                    detailsOptions={[
-                        'Cancer',
-                        'Leukemia',
-                        "Hodgkin's disease",
-                        'Lymphoma',
-                        'Other tumor'
-                    ]}
-                />
-                <Separator />
-                <MedicalQuestion 
-                    form={form} 
-                    name="diabetes" 
-                    label="Have you ever had or been told you had Diabetes?" 
-                    detailsFieldName="diabetesDetails"
-                    detailsOptions={['Diabetes']}
-                />
-                <Separator />
-                 <MedicalQuestion 
-                    form={form} 
-                    name="colitisCrohns" 
-                    label="Have you ever had or been told you had Colitis or Crohn's disease?" 
-                    detailsFieldName="colitisCrohnsDetails" 
-                    detailsOptions={["Colitis", "Crohn's disease"]}
-                />
-                <Separator />
-                <MedicalQuestion 
-                    form={form} 
-                    name="paralysisEpilepsy" 
-                    label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" 
-                    detailsFieldName="paralysisEpilepsyDetails" 
-                    detailsOptions={[
-                        'Paralysis', 
-                        'Multiple sclerosis', 
-                        'Epilepsy', 
-                        'Dementia', 
-                        'Other central nervous system disorder'
-                    ]}
-                />
-                <Separator />
-                <MedicalQuestion 
-                    form={form} 
-                    name="mentalIllness" 
-                    label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" 
-                    detailsFieldName="mentalIllnessDetails"
-                    detailsOptions={[
-                        'Hospital/psychiatric treatment for mental illness',
-                        'Depression',
-                        'Nervous breakdown'
-                    ]}
-                />
-            </div>
+             <MedicalQuestion 
+                form={form} 
+                name="bloodTransfusionOrSurgery" 
+                label="Have you ever had a blood transfusion or surgery?" 
+                detailsFieldName="bloodTransfusionOrSurgeryDetails"
+                detailsOptions={['Blood Transfusion', 'Surgery']}
+            />
+            <Separator />
+            <MedicalQuestion 
+                form={form} 
+                name="highBloodPressure" 
+                label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
+                detailsFieldName="highBloodPressureDetails"
+                detailsOptions={[
+                    'High blood pressure',
+                    'Angina',
+                    'Heart attack',
+                    'Stroke',
+                    'Coma',
+                    'Other heart/artery/circulation disease'
+                ]}
+            />
+            <Separator />
+             <MedicalQuestion 
+                form={form} 
+                name="cancer" 
+                label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" 
+                detailsFieldName="cancerDetails" 
+                detailsOptions={[
+                    'Cancer',
+                    'Leukemia',
+                    "Hodgkin's disease",
+                    'Lymphoma',
+                    'Other tumor'
+                ]}
+            />
+            <Separator />
+             <MedicalQuestion 
+                form={form} 
+                name="diabetes" 
+                label="Have you ever had or been told you had Diabetes?" 
+                detailsFieldName="diabetesDetails"
+                detailsOptions={['Diabetes']}
+            />
+            <Separator />
+             <MedicalQuestion 
+                form={form} 
+                name="colitisCrohns" 
+                label="Have you ever had or been told you had Colitis or Crohn's disease?" 
+                detailsFieldName="colitisCrohnsDetails" 
+                detailsOptions={["Colitis", "Crohn's disease"]}
+            />
+            <Separator />
+             <MedicalQuestion 
+                form={form} 
+                name="paralysisEpilepsy" 
+                label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" 
+                detailsFieldName="paralysisEpilepsyDetails" 
+                detailsOptions={[
+                    'Paralysis', 
+                    'Multiple sclerosis', 
+                    'Epilepsy', 
+                    'Dementia', 
+                    'Other central nervous system disorder'
+                ]}
+            />
+            <Separator />
+            <MedicalQuestion 
+                form={form} 
+                name="mentalIllness" 
+                label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" 
+                detailsFieldName="mentalIllnessDetails"
+                detailsOptions={[
+                    'Hospital/psychiatric treatment for mental illness',
+                    'Depression',
+                    'Nervous breakdown'
+                ]}
+            />
         </div>
 
        <div>
@@ -172,7 +170,19 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         detailsFieldName="asthmaDetails" 
         detailsOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']}
        />
-      <MedicalQuestion form={form} name="digestiveDisorder" label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" detailsFieldName="digestiveDisorderDetails" />
+      <MedicalQuestion 
+        form={form} 
+        name="digestiveDisorder" 
+        label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" 
+        detailsFieldName="digestiveDisorderDetails" 
+        detailsOptions={[
+            'Duodenal Ulcer',
+            'Gastric Ulcer',
+            'Digestive System Disorder',
+            'Liver Disorder',
+            'Disorder of Pancreas'
+        ]}
+      />
       <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" />
       <MedicalQuestion form={form} name="thyroidDisorder" label="Thyroid disorder?" detailsFieldName="thyroidDisorderDetails" />
       <MedicalQuestion form={form} name="kidneyDisorder" label="Kidney disorder, renal failure or bladder disorder?" detailsFieldName="kidneyDisorderDetails" />
