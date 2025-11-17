@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -29,6 +28,7 @@ import PaymentDetailsTab from './form-tabs/payment-details-tab';
 import DeclarationTab from './form-tabs/declaration-tab';
 import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
+import type { NewBusiness } from '@/lib/data';
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -214,7 +214,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            const nameParts = businessData.client.split(' ');
+            
+            const nameParts = (businessData.client || '').split(' ');
             const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
             const nameWithoutTitle = nameParts[0] === title ? nameParts.slice(1).join(' ') : businessData.client;
             const nameOnlyParts = nameWithoutTitle.split(' ');
@@ -223,42 +224,101 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const surname = nameOnlyParts.length > 1 ? nameOnlyParts[nameOnlyParts.length - 1] : '';
             const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
             
-            const data: any = { ...businessData };
-            const parseDate = (dateString: string | undefined | null) => dateString ? new Date(dateString) : undefined;
-            
+            const parseDate = (dateString: string | undefined | null): Date | undefined => {
+                return dateString ? new Date(dateString) : undefined;
+            }
+
             const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
                 return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
-
-            const defaultValues = {
-              ...form.getValues(), // Start with form defaults
-              ...businessData, // Overwrite with fetched data
-              lifeAssuredFirstName: firstName,
-              lifeAssuredMiddleName: middleName,
-              lifeAssuredSurname: surname,
-              policyNumber: businessData.policy || '',
-              contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
-              premiumAmount: businessData.premium,
-              commencementDate: new Date(businessData.commencementDate),
-              expiryDate: parseDate(data.expiryDate),
-              lifeAssuredDob: parseDate(data.lifeAssuredDob),
-              issueDate: parseDate(data.issueDate),
-              isPolicyHolderPayer: businessData.client === businessData.payerName,
-              primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
-              contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
-              existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: new Date(p.issueDate) })),
+            
+            // Create a sanitized object that matches the form's expected structure and types
+            const sanitizedData: Partial<z.infer<typeof newBusinessFormSchema>> = {
+                ...form.getValues(), // Start with form defaults to ensure all keys are present
+                ...businessData, // Overwrite with fetched data
+                 // Ensure all numeric fields have a default value of 0 if null/undefined
+                ageNextBirthday: businessData.ageNextBirthday || 0,
+                dependents: businessData.dependents || 0,
+                policyTerm: businessData.policyTerm || 0,
+                premiumTerm: businessData.premiumTerm || 0,
+                sumAssured: businessData.sumAssured || 0,
+                premiumAmount: businessData.premium || 0,
+                monthlyBasicIncome: businessData.monthlyBasicIncome || 0,
+                otherIncome: businessData.otherIncome || 0,
+                totalMonthlyIncome: businessData.totalMonthlyIncome || 0,
+                height: businessData.height || 0,
+                weight: businessData.weight || 0,
+                bmi: businessData.bmi || 0,
+                // Ensure all string fields have a default of ''
+                lifeAssuredFirstName: firstName,
+                lifeAssuredMiddleName: middleName,
+                lifeAssuredSurname: surname,
+                placeOfBirth: businessData.placeOfBirth || '',
+                email: businessData.email || '',
+                phone: businessData.phone || '',
+                postalAddress: businessData.postalAddress || '',
+                workTelephone: businessData.workTelephone || '',
+                homeTelephone: businessData.homeTelephone || '',
+                residentialAddress: businessData.residentialAddress || '',
+                gpsAddress: businessData.gpsAddress || '',
+                idNumber: businessData.idNumber || '',
+                placeOfIssue: businessData.placeOfIssue || '',
+                country: businessData.country || 'Ghana',
+                nationality: businessData.nationality || 'Ghanaian',
+                languages: businessData.languages || '',
+                serial: businessData.serial || '',
+                policy: businessData.policy || '',
+                agentName: businessData.agentName || '',
+                agentCode: businessData.agentCode || '',
+                uplineName: businessData.uplineName || '',
+                uplineCode: businessData.uplineCode || '',
+                introducerCode: businessData.introducerCode || '',
+                occupation: businessData.occupation || '',
+                natureOfBusiness: businessData.natureOfBusiness || '',
+                employer: businessData.employer || '',
+                employerAddress: businessData.employerAddress || '',
+                bankName: businessData.bankName || '',
+                bankBranch: businessData.bankBranch || '',
+                amountInWords: businessData.amountInWords || '',
+                sortCode: businessData.sortCode || '',
+                bankAccountName: businessData.bankAccountName || '',
+                bankAccountNumber: businessData.bankAccountNumber || '',
+                paymentAuthoritySignature: businessData.paymentAuthoritySignature || '',
+                lifeInsuredSignature: businessData.lifeInsuredSignature || '',
+                policyOwnerSignature: businessData.policyOwnerSignature || '',
+                premiumPayerSurname: businessData.premiumPayerSurname || '',
+                premiumPayerOtherNames: businessData.premiumPayerOtherNames || '',
+                premiumPayerOccupation: businessData.premiumPayerOccupation || '',
+                premiumPayerRelationship: businessData.premiumPayerRelationship || '',
+                premiumPayerResidentialAddress: businessData.premiumPayerResidentialAddress || '',
+                premiumPayerPostalAddress: businessData.premiumPayerPostalAddress || '',
+                premiumPayerBusinessName: businessData.premiumPayerBusinessName || '',
+                premiumPayerIdNumber: businessData.premiumPayerIdNumber || '',
+                premiumPayerPlaceOfIssue: businessData.premiumPayerPlaceOfIssue || '',
+                currentDoctorName: businessData.currentDoctorName || '',
+                currentDoctorPhone: businessData.currentDoctorPhone || '',
+                currentDoctorHospital: businessData.currentDoctorHospital || '',
+                previousDoctorName: businessData.previousDoctorName || '',
+                previousDoctorPhone: businessData.previousDoctorPhone || '',
+                previousDoctorHospital: businessData.previousDoctorHospital || '',
+                // Map product to contractType
+                contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
+                // Handle dates
+                lifeAssuredDob: parseDate(businessData.lifeAssuredDob),
+                commencementDate: parseDate(businessData.commencementDate),
+                expiryDate: parseDate(businessData.expiryDate),
+                issueDate: parseDate(businessData.issueDate),
+                expiryDateId: parseDate(businessData.expiryDateId),
+                premiumPayerDob: parseDate((businessData as any).premiumPayerDob),
+                premiumPayerIssueDate: parseDate((businessData as any).premiumPayerIssueDate),
+                premiumPayerExpiryDate: parseDate((businessData as any).premiumPayerExpiryDate),
+                // Handle arrays
+                primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
+                contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
+                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: new Date(p.issueDate) })),
             };
 
-            // Ensure no null/undefined values are passed for controlled string inputs
-             Object.keys(defaultValues).forEach(key => {
-                if (defaultValues[key as keyof typeof defaultValues] === null || defaultValues[key as keyof typeof defaultValues] === undefined) {
-                    if (typeof form.getValues()[key as keyof typeof defaultValues] === 'string') {
-                        (defaultValues as any)[key] = '';
-                    }
-                }
-            });
-
-            form.reset(defaultValues as any);
+            form.reset(sanitizedData as any);
         }
       }
     }
@@ -492,4 +552,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-

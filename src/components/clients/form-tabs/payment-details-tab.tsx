@@ -32,6 +32,8 @@ import { format } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import SignaturePadComponent from '../signature-pad';
+import { TelephoneInput } from '@/components/ui/telephone-input';
+
 
 const idTypes = [
   "Driver's License",
