@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -151,8 +152,8 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         <Separator className="my-0" />
       </div>
 
-      <MedicalQuestion form={form} name="arthritis" label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" detailsFieldName="arthritisDetails" />
-      <MedicalQuestion form={form} name="chestPain" label="Chest pain, irregular heart beat or raised cholesterol?" detailsFieldName="chestPainDetails" />
+      <MedicalQuestion form={form} name="arthritis" label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" detailsFieldName="arthritisDetails" detailsOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']} />
+      <MedicalQuestion form={form} name="chestPain" label="Chest pain, irregular heart beat or raised cholesterol?" detailsFieldName="chestPainDetails" detailsOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']} />
       <MedicalQuestion form={form} name="asthma" label="Asthma, bronchitis, shortness of breath or any other chest complaint?" detailsFieldName="asthmaDetails" />
       <MedicalQuestion form={form} name="digestiveDisorder" label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" detailsFieldName="digestiveDisorderDetails" />
       <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" />
