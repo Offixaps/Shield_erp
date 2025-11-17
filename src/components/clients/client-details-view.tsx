@@ -507,40 +507,43 @@ export default function ClientDetailsView({
   }, [client]);
 
   React.useEffect(() => {
-    const freshClientData = getPolicyById(initialClient.id);
-    if (freshClientData) {
-        const combinedHistory = [
-            ...(freshClientData.bloodTransfusionOrSurgeryDetails || []),
-            ...(freshClientData.highBloodPressureDetails || []),
-            ...(freshClientData.cancerDetails || []),
-            ...(freshClientData.diabetesDetails || []),
-            ...(freshClientData.colitisCrohnsDetails || []),
-            ...(freshClientData.paralysisEpilepsyDetails || []),
-            ...(freshClientData.mentalIllnessDetails || []),
-            ...(freshClientData.arthritisDetails || []),
-            ...(freshClientData.chestPainDetails || []),
-            ...(freshClientData.asthmaDetails || []),
-            ...(freshClientData.digestiveDisorderDetails || []),
-            ...(freshClientData.bloodDisorderDetails || []),
-            ...(freshClientData.thyroidDisorderDetails || []),
-            ...(freshClientData.kidneyDisorderDetails || []),
-            ...(freshClientData.numbnessDetails || []),
-            ...(freshClientData.anxietyStressDetails || []),
-            ...(freshClientData.earEyeDisorderDetails || []),
-            ...(freshClientData.lumpGrowthDetails || []),
-            ...(freshClientData.hospitalAttendanceDetails || []),
-            ...(freshClientData.criticalIllnessDetails || []),
-            ...(freshClientData.stiDetails || []),
-            ...(freshClientData.presentSymptomsDetails || []),
-        ].filter(Boolean); // Filter out any undefined/null entries
+    async function fetchData() {
+        const freshClientData = await getPolicyById(initialClient.id);
+        if (freshClientData) {
+            const combinedHistory = [
+                ...(freshClientData.bloodTransfusionOrSurgeryDetails || []),
+                ...(freshClientData.highBloodPressureDetails || []),
+                ...(freshClientData.cancerDetails || []),
+                ...(freshClientData.diabetesDetails || []),
+                ...(freshClientData.colitisCrohnsDetails || []),
+                ...(freshClientData.paralysisEpilepsyDetails || []),
+                ...(freshClientData.mentalIllnessDetails || []),
+                ...(freshClientData.arthritisDetails || []),
+                ...(freshClientData.chestPainDetails || []),
+                ...(freshClientData.asthmaDetails || []),
+                ...(freshClientData.digestiveDisorderDetails || []),
+                ...(freshClientData.bloodDisorderDetails || []),
+                ...(freshClientData.thyroidDisorderDetails || []),
+                ...(freshClientData.kidneyDisorderDetails || []),
+                ...(freshClientData.numbnessDetails || []),
+                ...(freshClientData.anxietyStressDetails || []),
+                ...(freshClientData.earEyeDisorderDetails || []),
+                ...(freshClientData.lumpGrowthDetails || []),
+                ...(freshClientData.hospitalAttendanceDetails || []),
+                ...(freshClientData.criticalIllnessDetails || []),
+                ...(freshClientData.stiDetails || []),
+                ...(freshClientData.presentSymptomsDetails || []),
+            ].filter(Boolean); // Filter out any undefined/null entries
 
-        setClient({
-            ...freshClientData,
-            medicalHistory: combinedHistory,
-        });
-    } else {
-      setClient(initialClient);
+            setClient({
+                ...freshClientData,
+                medicalHistory: combinedHistory,
+            });
+        } else {
+          setClient(initialClient);
+        }
     }
+    fetchData();
   }, [initialClient]);
 
    React.useEffect(() => {
@@ -611,12 +614,12 @@ export default function ClientDetailsView({
   const canEditPolicy = isFromBusinessDevelopment && !['Accepted', 'Policy Issued'].includes(client.onboardingStatus);
 
 
-  const handleOnboardingStatusUpdate = (
+  const handleOnboardingStatusUpdate = async (
     newStatus: NewBusiness['onboardingStatus'],
     updates?: Partial<NewBusiness>
   ) => {
     try {
-      const updatedPolicy = updatePolicy(client.id, {
+      const updatedPolicy = await updatePolicy(client.id, {
         onboardingStatus: newStatus,
         ...updates
       });

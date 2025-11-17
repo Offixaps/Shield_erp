@@ -69,6 +69,14 @@ export default function NewBusinessTable() {
 
   React.useEffect(() => {
     loadPolicies();
+    
+    // Add event listener for storage changes to refresh data
+    const handleStorageChange = () => loadPolicies();
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+
   }, [loadPolicies]);
 
   React.useEffect(() => {
@@ -85,11 +93,9 @@ export default function NewBusinessTable() {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [searchTerm, allData]);
 
-  const handleDelete = async (id: number) => {
-    const success = await deletePolicyFromService(id);
-    if (success) {
-      loadPolicies(); // Reload data after deletion
-    }
+  const handleDelete = async (id: number | string) => {
+    await deletePolicyFromService(id);
+    loadPolicies(); // Reload data after deletion
   };
   
   const getStatusBadgeStyling = (status: string) => {

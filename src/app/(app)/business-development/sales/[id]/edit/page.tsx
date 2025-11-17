@@ -19,15 +19,19 @@ export default function EditBusinessPage() {
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
-    const clientId = params.id;
-    if (typeof clientId === 'string') {
-      getPolicyById(parseInt(clientId, 10)).then(fetchedClient => {
-        if (fetchedClient) {
-            setClient(fetchedClient);
+    const fetchClient = async () => {
+        const clientId = params.id;
+        if (typeof clientId === 'string') {
+            const fetchedClient = await getPolicyById(clientId);
+            if (fetchedClient) {
+                setClient(fetchedClient);
+            }
+            setLoading(false);
+        } else {
+            setLoading(false);
         }
-        setLoading(false);
-      });
-    }
+    };
+    fetchClient();
   }, [params.id]);
 
 

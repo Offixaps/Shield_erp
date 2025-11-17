@@ -213,8 +213,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
   React.useEffect(() => {
-    if (isEditMode && currentBusinessId) {
-      getPolicyById(currentBusinessId).then(businessData => {
+    async function fetchPolicy() {
+        if (isEditMode && currentBusinessId) {
+          const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
             const nameParts = businessData.client.split(' ');
             const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
@@ -251,8 +252,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             };
             form.reset(defaultValues as any);
         }
-      });
+      }
     }
+    fetchPolicy();
   }, [isEditMode, currentBusinessId, form]);
 
   const commencementDate = form.watch('commencementDate');
