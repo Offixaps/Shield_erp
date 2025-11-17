@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -130,9 +131,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         weight: 0,
         bmi: 0,
         alcoholHabits: 'never_used',
-        alcoholBeer: { consumed: false, averagePerWeek: '' },
-        alcoholWine: { consumed: false, averagePerWeek: '' },
-        alcoholSpirits: { consumed: false, averagePerWeek: '' },
+        alcoholBeer: { consumed: false, averagePerWeek: '', notes: '' },
+        alcoholWine: { consumed: false, averagePerWeek: '', notes: '' },
+        alcoholSpirits: { consumed: false, averagePerWeek: '', notes: '' },
         reducedAlcoholMedicalAdvice: { reduced: 'no', notes: '' },
         reducedAlcoholHealthProblems: { reduced: 'no', notes: '' },
         tobaccoHabits: 'never_smoked',

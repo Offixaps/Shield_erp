@@ -52,13 +52,13 @@ const alcoholHabitsOptions = [
 
 const alcoholDetailSchema = z.object({
     consumed: z.boolean().default(false),
-    averagePerWeek: z.string().optional(),
-    notes: z.string().optional(),
+    averagePerWeek: z.string().optional().default(''),
+    notes: z.string().optional().default(''),
 });
 
 const reducedAlcoholReasonSchema = z.object({
     reduced: z.enum(['yes', 'no']),
-    notes: z.string().optional(),
+    notes: z.string().optional().default(''),
 }).optional();
 
 const tobaccoHabitsOptions = [
@@ -72,9 +72,9 @@ const tobaccoHabitsOptions = [
 
 const tobaccoDetailSchema = z.object({
     smoked: z.boolean().default(false),
-    avgPerDay: z.string().optional(),
-    avgPerWeek: z.string().optional(),
-    otherType: z.string().optional(),
+    avgPerDay: z.string().optional().default(''),
+    avgPerWeek: z.string().optional().default(''),
+    otherType: z.string().optional().default(''),
 });
 
 const viralInfectionDetailSchema = z.object({
