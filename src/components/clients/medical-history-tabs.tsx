@@ -81,7 +81,19 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     ]}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" />
+                <MedicalQuestion 
+                    form={form} 
+                    name="cancer" 
+                    label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" 
+                    detailsFieldName="cancerDetails" 
+                    detailsOptions={[
+                        'Cancer',
+                        'Leukemia',
+                        "Hodgkin's disease",
+                        'Lymphoma',
+                        'Other tumor'
+                    ]}
+                />
                 <Separator />
                 <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" />
                 <Separator />
@@ -115,12 +127,12 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
       <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" />
       <MedicalQuestion form={form} name="sti" label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" detailsFieldName="stiDetails" />
       
-      <div>
-        <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-          <h3>Are you presently</h3>
+        <div>
+            <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
+                <h3>Are you presently</h3>
+            </div>
+            <Separator className="my-0" />
         </div>
-        <Separator className="my-0" />
-      </div>
       
       <MedicalQuestion form={form} name="presentSymptoms" label="Do you currently have any symptoms for which you have not yet sought medical advice?" detailsFieldName="presentSymptomsDetails" />
 
