@@ -60,7 +60,7 @@ import {
 import CollectPremiumDialog from './collect-premium-dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { newBusinessFormSchema, illnessDetailSchema } from './new-business-form';
+import { newBusinessFormSchema, illnessDetailSchema } from './new-business-form-schema';
 import { z } from 'zod';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '../ui/form';
 import { Input } from '../ui/input';
@@ -1300,3 +1300,5 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
+    
