@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -282,7 +283,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     name="presentWaitingConsultation"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Are you waiting for a consultation, test or result?</FormLabel>
+                            <FormLabel>Waiting to have any consultation, investigation, test, or follow up on any condition not previously disclosed?</FormLabel>
                             <FormControl>
                                 <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
                                     <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
@@ -297,7 +298,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     name="presentTakingMedication"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Are you currently taking any medication (prescribed or otherwise)?</FormLabel>
+                            <FormLabel>Taking any medication or any other form of medical treatment for any condition not previously disclosed?</FormLabel>
                             <FormControl>
                                 <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
                                     <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
@@ -371,4 +372,5 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
     </div>
   );
 }
+
 
