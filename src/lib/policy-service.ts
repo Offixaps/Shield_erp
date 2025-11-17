@@ -28,11 +28,6 @@ const POLICIES_COLLECTION = 'policies';
 export function policyToFirebase(policy: NewBusiness): any {
   const data = { ...policy };
 
-  // Ensure serial is never undefined
-  if (data.serial === null || data.serial === undefined) {
-      data.serial = 'Error-Fix'; 
-  }
-
   // Convert Date objects to Timestamps for Firestore
   const toTimestamp = (dateStr: string | Date | undefined | null) => {
     if (!dateStr) return null;
@@ -46,6 +41,10 @@ export function policyToFirebase(policy: NewBusiness): any {
   data.expiryDate = toTimestamp(data.expiryDate) as any;
   data.issueDate = toTimestamp(data.issueDate) as any;
   data.expiryDateId = toTimestamp(data.expiryDateId) as any;
+  (data as any).premiumPayerDob = toTimestamp((data as any).premiumPayerDob);
+  (data as any).premiumPayerIssueDate = toTimestamp((data as any).premiumPayerIssueDate);
+  (data as any).premiumPayerExpiryDate = toTimestamp((data as any).premiumPayerExpiryDate);
+
 
   data.primaryBeneficiaries = (data.primaryBeneficiaries || []).map(b => ({
     ...b,
@@ -710,3 +709,4 @@ function newId() {
     
 
     
+
