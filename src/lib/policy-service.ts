@@ -94,9 +94,42 @@ function policyFromFirebase(docSnap: any): NewBusiness {
 
     const newId = docSnap.id;
 
+    // Ensure string fields are not null/undefined
+    const ensureString = (val: any) => val || '';
+
     const result: NewBusiness = {
         ...data,
         id: newId,
+        client: ensureString(data.client),
+        placeOfBirth: ensureString(data.placeOfBirth),
+        email: ensureString(data.email),
+        phone: ensureString(data.phone),
+        workTelephone: ensureString(data.workTelephone),
+        homeTelephone: ensureString(data.homeTelephone),
+        postalAddress: ensureString(data.postalAddress),
+        residentialAddress: ensureString(data.residentialAddress),
+        gpsAddress: ensureString(data.gpsAddress),
+        idNumber: ensureString(data.idNumber),
+        placeOfIssue: ensureString(data.placeOfIssue),
+        policy: ensureString(data.policy),
+        serial: ensureString(data.serial),
+        occupation: ensureString(data.occupation),
+        natureOfBusiness: ensureString(data.natureOfBusiness),
+        employer: ensureString(data.employer),
+        employerAddress: ensureString(data.employerAddress),
+        payerName: ensureString(data.payerName),
+        bankName: ensureString(data.bankName),
+        bankBranch: ensureString(data.bankBranch),
+        bankAccountNumber: ensureString(data.bankAccountNumber),
+        sortCode: ensureString(data.sortCode),
+        narration: ensureString(data.narration),
+        bankAccountName: ensureString(data.bankAccountName),
+        amountInWords: ensureString(data.amountInWords),
+        agentName: ensureString(data.agentName),
+        agentCode: ensureString(data.agentCode),
+        uplineName: ensureString(data.uplineName),
+        uplineCode: ensureString(data.uplineCode),
+        introducerCode: ensureString(data.introducerCode),
         lifeAssuredDob: fromTimestamp(data.lifeAssuredDob),
         commencementDate: fromTimestamp(data.commencementDate),
         expiryDate: fromTimestamp(data.expiryDate),
@@ -105,10 +138,12 @@ function policyFromFirebase(docSnap: any): NewBusiness {
         primaryBeneficiaries: (data.primaryBeneficiaries || []).map((b: any) => ({
             ...b,
             dob: fromTimestamp(b.dob),
+            telephone: ensureString(b.telephone)
         })),
         contingentBeneficiaries: (data.contingentBeneficiaries || []).map((b: any) => ({
             ...b,
             dob: fromTimestamp(b.dob),
+            telephone: ensureString(b.telephone)
         })),
          activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date) : new Date().toISOString() })),
          payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate) })),
@@ -138,7 +173,7 @@ export async function getPolicies(): Promise<NewBusiness[]> {
 }
 
 export async function getPolicyById(id: string): Promise<NewBusiness | undefined> {
-  const policyDocRef = doc(db, POLICIES_COLLECTION, id.toString());
+  const policyDocRef = doc(db, POLICIES_COLLECTION, id);
   const docSnap = await getDoc(policyDocRef).catch(async (serverError) => {
       const permissionError = new FirestorePermissionError({
         path: policyDocRef.path,
@@ -407,7 +442,7 @@ export async function billAllActivePolicies(): Promise<number> {
             const newBillId = ((policy.bills || []).length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
             const newBill: Bill = {
                 id: newBillId,
-                policyId: policy.id,
+                policyId: policy.id as number,
                 amount: policy.premium,
                 dueDate: format(currentMonthBillingDate, 'yyyy-MM-dd'),
                 status: 'Unpaid',
@@ -568,7 +603,7 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
         const newPaymentId = ((policy.payments || []).length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
         const newPayment: Payment = {
             id: newPaymentId,
-            policyId: policy.id,
+            policyId: policy.id as number,
             billId: unpaidBill.id,
             amount: paymentAmount,
             paymentDate: format(paymentDate, 'yyyy-MM-dd'),
