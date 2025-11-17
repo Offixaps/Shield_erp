@@ -50,57 +50,38 @@ export function policyToFirebase(policy: NewBusiness): any {
   // Convert all undefined values to null BEFORE any other processing.
   data = undefinedToNull(data);
 
-  // Convert Date objects to Timestamps for Firestore
-  const toTimestamp = (dateStr: string | Date | undefined | null) => {
-    if (!dateStr) return null;
-    const date = typeof dateStr === 'string' ? new Date(dateStr) : dateStr;
-    if (isNaN(date.getTime())) return null;
-    return Timestamp.fromDate(date);
-  }
-
-  data.lifeAssuredDob = toTimestamp(data.lifeAssuredDob) as any;
-  data.commencementDate = toTimestamp(data.commencementDate) as any;
-  data.expiryDate = toTimestamp(data.expiryDate) as any;
-  data.issueDate = toTimestamp(data.issueDate) as any;
-  data.expiryDateId = toTimestamp(data.expiryDateId) as any;
-  (data as any).premiumPayerDob = toTimestamp((data as any).premiumPayerDob);
-  (data as any).premiumPayerIssueDate = toTimestamp((data as any).premiumPayerIssueDate);
-  (data as any).premiumPayerExpiryDate = toTimestamp((data as any).premiumPayerExpiryDate);
-
-
-  data.primaryBeneficiaries = (data.primaryBeneficiaries || []).map(b => ({
-    ...b,
-    dob: toTimestamp(b.dob)
-  }));
-  data.contingentBeneficiaries = (data.contingentBeneficiaries || []).map(b => ({
-    ...b,
-    dob: toTimestamp(b.dob)
-  }));
+  // Convert all date-like fields to Timestamps for Firestore
+  const toTimestamp = (value: any): any => {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+        try {
+            const date = new Date(value);
+            if (!isNaN(date.getTime())) {
+                return Timestamp.fromDate(date);
+            }
+        } catch (e) {
+            // Not a valid date string, return as is
+            return value;
+        }
+    }
+    if (value instanceof Date && !isNaN(value.getTime())) {
+        return Timestamp.fromDate(value);
+    }
+    if (Array.isArray(value)) {
+        return value.map(toTimestamp);
+    }
+    if (value !== null && typeof value === 'object') {
+        const newObj: { [key: string]: any } = {};
+        for (const key in value) {
+            if (Object.prototype.hasOwnProperty.call(value, key)) {
+                newObj[key] = toTimestamp(value[key]);
+            }
+        }
+        return newObj;
+    }
+    return value;
+  };
   
-  if (data.activityLog) {
-      data.activityLog = data.activityLog.map(log => ({...log, date: toTimestamp(log.date)}));
-  }
-   if (data.payments) {
-      data.payments = data.payments.map(p => ({...p, paymentDate: toTimestamp(p.paymentDate)}));
-  }
-   if (data.bills) {
-      data.bills = data.bills.map(b => ({...b, dueDate: toTimestamp(b.dueDate)}));
-  }
-
-  // Handle nested medical details
-  if (data.medicalHistory) {
-      data.medicalHistory = data.medicalHistory.map(mh => {
-          const newMh = {...mh};
-          Object.keys(newMh).forEach(key => {
-              if (key.toLowerCase().includes('date') && newMh[key as keyof typeof newMh]) {
-                  (newMh as any)[key] = toTimestamp((newMh as any)[key]);
-              }
-          });
-          return newMh;
-      });
-  }
-
-  return data;
+  return toTimestamp(data);
 }
 
 function policyFromFirebase(docSnap: any): NewBusiness {
@@ -730,5 +711,6 @@ function newId() {
     
 
     
+
 
 
