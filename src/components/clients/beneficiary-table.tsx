@@ -31,6 +31,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { TelephoneInput } from '@/components/ui/telephone-input';
 
 type FormValues = any; // Replace with z.infer<typeof yourSchema>
 
@@ -134,7 +135,7 @@ function BeneficiaryRow({ form, fieldName, field, index, remove }: { form: UseFo
           control={form.control}
           name={`${fieldName}.${index}.telephone`}
           render={({ field }) => (
-            <Input {...field} placeholder="024..." />
+            <TelephoneInput {...field} placeholder="55..." />
           )}
         />
       </TableCell>

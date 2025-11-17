@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { countries } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
+import { TelephoneInput } from '@/components/ui/telephone-input';
 
 const ghanaRegions = [
   'Ahafo',
@@ -543,7 +544,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
             <FormItem>
               <FormLabel>Telephone Number</FormLabel>
               <FormControl>
-                <Input placeholder="024 123 4567" {...field} />
+                <TelephoneInput placeholder="55 123 4567" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -556,7 +557,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
             <FormItem>
               <FormLabel>Work Telephone</FormLabel>
               <FormControl>
-                <Input placeholder="030 123 4567" {...field} />
+                <TelephoneInput placeholder="30 123 4567" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -569,7 +570,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
             <FormItem>
               <FormLabel>Home Telephone</FormLabel>
               <FormControl>
-                <Input placeholder="030 765 4321" {...field} />
+                <TelephoneInput placeholder="30 765 4321" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -12,12 +12,15 @@ const idTypes = [
   'TIN',
 ] as const;
 
+const phoneRegex = /^[0-9]{9}$/;
+const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
+
 const beneficiarySchema = z.object({
     name: z.string().min(1, "Name is required."),
     dob: z.date({ required_error: 'Date of birth is required.' }),
     gender: z.enum(['Male', 'Female']),
     relationship: z.string().min(1, "Relationship is required."),
-    telephone: z.string().optional(),
+    telephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100."),
     isIrrevocable: z.boolean().optional().default(false),
 });
@@ -163,10 +166,10 @@ export const newBusinessFormSchema = z
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
     placeOfBirth: z.string().min(2, 'Place of birth is required.'),
     email: z.string().email('Invalid email address.'),
-    phone: z.string().min(10, 'Telephone Number must be at least 10 digits.'),
+    phone: z.string().regex(phoneRegex, phoneError),
     postalAddress: z.string().min(5, 'Postal address is required.'),
-    workTelephone: z.string().optional(),
-    homeTelephone: z.string().optional(),
+    workTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
+    homeTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     residentialAddress: z.string().optional(),
     gpsAddress: z.string().optional(),
     ageNextBirthday: z.coerce.number().optional(),
@@ -332,10 +335,10 @@ export const newBusinessFormSchema = z
 
     // Doctor's Details
     currentDoctorName: z.string().optional(),
-    currentDoctorPhone: z.string().optional(),
+    currentDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     currentDoctorHospital: z.string().optional(),
     previousDoctorName: z.string().optional(),
-    previousDoctorPhone: z.string().optional(),
+    previousDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     previousDoctorHospital: z.string().optional(),
 
     // Lifestyle

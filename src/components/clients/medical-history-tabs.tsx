@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -11,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Input } from '../ui/input';
+import { TelephoneInput } from '@/components/ui/telephone-input';
 
 type FormValues = any; // Replace with z.infer<typeof yourSchema>
 
@@ -233,7 +233,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         detailsFieldName="lumpGrowthDetails" 
         detailsOptions={['Lump or growth', 'Mole or freckle change']}
       />
-      <MedicalQuestion 
+       <MedicalQuestion 
         form={form} 
         name="hospitalAttendance" 
         label="Attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?" 
@@ -280,42 +280,42 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             label="Experiencing any symptom, condition or disability not mentioned above?" 
             detailsFieldName="presentSymptomsDetails"
             detailsOptions={['Symptoms', 'Conditions or Disability']}
-        />
-
-       {watchPresentSymptoms === 'yes' && (
-           <div className="space-y-6 -mt-8 pt-4 p-4 border border-t-0 rounded-b-md">
-                <FormField
-                    control={form.control}
-                    name="presentWaitingConsultation"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Waiting to have any consultation, investigation, test, or follow up on any condition not previously disclosed?</FormLabel>
-                            <FormControl>
-                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
-                                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                </RadioGroup>
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="presentTakingMedication"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Taking any medication or any other form of medical treatment for any condition not previously disclosed?</FormLabel>
-                            <FormControl>
-                                <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
-                                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
-                                    <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
-                                </RadioGroup>
-                            </FormControl>
-                        </FormItem>
-                    )}
-                />
-           </div>
-       )}
+        >
+            {watchPresentSymptoms === 'yes' && (
+                <div className="space-y-6 pt-4">
+                    <FormField
+                        control={form.control}
+                        name="presentWaitingConsultation"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Waiting to have any consultation, investigation, test, or follow up on any condition not previously disclosed?</FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="presentTakingMedication"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Taking any medication or any other form of medical treatment for any condition not previously disclosed?</FormLabel>
+                                <FormControl>
+                                    <RadioGroup onValueChange={field.onChange} value={field.value} className="flex space-x-4">
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="yes" /></FormControl><FormLabel className="font-normal">Yes</FormLabel></FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0"><FormControl><RadioGroupItem value="no" /></FormControl><FormLabel className="font-normal">No</FormLabel></FormItem>
+                                    </RadioGroup>
+                                </FormControl>
+                            </FormItem>
+                        )}
+                    />
+                </div>
+            )}
+       </MedicalQuestion>
 
 
         <div>
@@ -360,7 +360,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     <h4 className="font-semibold mb-4">Current Doctor</h4>
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="currentDoctorName" render={({ field }) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                        <FormField control={form.control} name="currentDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={form.control} name="currentDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><TelephoneInput {...field} /></FormControl></FormItem>)} />
                         <FormField control={form.control} name="currentDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic &amp; Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                     </div>
                 </div>
@@ -369,7 +369,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     <h4 className="font-semibold mb-4">Previous Doctor (if changed in last 6 months)</h4>
                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <FormField control={form.control} name="previousDoctorName" render={({ field }) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
-                        <FormField control={form.control} name="previousDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
+                        <FormField control={form.control} name="previousDoctorPhone" render={({ field }) => (<FormItem><FormLabel>Phone</FormLabel><FormControl><TelephoneInput {...field} /></FormControl></FormItem>)} />
                         <FormField control={form.control} name="previousDoctorHospital" render={({ field }) => (<FormItem><FormLabel>Hospital/Clinic &amp; Address</FormLabel><FormControl><Input {...field} /></FormControl></FormItem>)} />
                     </div>
                 </div>
@@ -379,7 +379,3 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
     </div>
   );
 }
-
-
-
-

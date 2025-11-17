@@ -29,16 +29,20 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
-import { createStaffMember, getStaffById, updateStaff, getStaffByUid } from '@/lib/staff-service';
+import { createStaffMember, getStaffByUid, updateStaff } from '@/lib/staff-service';
 import { useAuth } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { TelephoneInput } from '@/components/ui/telephone-input';
+
+const phoneRegex = /^[0-9]{9}$/;
+const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
 
 export const newStaffFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters.'),
   lastName: z.string().min(2, 'Last name must be at least 2 characters.'),
   email: z.string().email('Invalid email address.'),
-  phone: z.string().min(10, 'Telephone number must be at least 10 digits.'),
+  phone: z.string().regex(phoneRegex, phoneError),
   role: z.string({ required_error: 'Please select a role.' }),
   department: z.string().optional(),
   profileImage: z.any().optional(),
@@ -191,7 +195,7 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
                 <FormItem>
                     <FormLabel>Telephone Number</FormLabel>
                     <FormControl>
-                    <Input placeholder="024 123 4567" {...field} />
+                    <TelephoneInput placeholder="55 123 4567" {...field} />
                     </FormControl>
                     <FormMessage />
                 </FormItem>
