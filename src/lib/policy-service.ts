@@ -212,11 +212,14 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   }
   const originalPolicy = policyFromFirebase(currentDoc);
 
-  const updatedData = { ...originalPolicy, ...updates };
+  // The 'serial' field is read-only on the form and won't be in 'updates'.
+  // We must ensure the original serial number is preserved.
+  const updatedData = { 
+    ...originalPolicy, 
+    ...updates,
+    serial: originalPolicy.serial, // Explicitly preserve the original serial number
+  };
   
-  // Ensure the serial number from the original document is preserved
-  updatedData.serial = originalPolicy.serial;
-
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
       let user = 'System';
       if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
@@ -694,5 +697,7 @@ function newId() {
 
 
 
+
+    
 
     
