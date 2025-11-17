@@ -153,6 +153,11 @@ function policyFromFirebase(docSnap: any): NewBusiness {
          activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date) : new Date().toISOString() })),
          payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate) })),
          bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate) })),
+         vettingNotes: ensureString(data.vettingNotes),
+         mandateReworkNotes: ensureString(data.mandateReworkNotes),
+         lifeInsuredSignature: ensureString(data.lifeInsuredSignature),
+         policyOwnerSignature: ensureString(data.policyOwnerSignature),
+         paymentAuthoritySignature: ensureString(data.paymentAuthoritySignature),
     };
 
     return result;
@@ -298,6 +303,7 @@ export async function createPolicy(values: any): Promise<string> {
         monthlyBasicIncome: values.monthlyBasicIncome || 0,
         otherIncome: values.otherIncome || 0,
         totalMonthlyIncome: values.totalMonthlyIncome || 0,
+        isPolicyHolderPayer: values.isPolicyHolderPayer,
         payerName: values.isPolicyHolderPayer ? lifeAssuredName : [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' '),
         bankName: values.bankName || null,
         bankBranch: values.bankBranch || null,
@@ -308,6 +314,8 @@ export async function createPolicy(values: any): Promise<string> {
         bankAccountName: values.bankAccountName || null,
         amountInWords: values.amountInWords || null,
         paymentAuthoritySignature: values.paymentAuthoritySignature || null,
+        lifeInsuredSignature: values.lifeInsuredSignature || null,
+        policyOwnerSignature: values.policyOwnerSignature || null,
         primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
         contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
         height: values.height || 0,
@@ -679,5 +687,6 @@ function newId() {
 
 
     
+
 
 
