@@ -7,7 +7,7 @@ import { useWatch } from 'react-hook-form';
 import { Separator } from '@/components/ui/separator';
 import { FormField, FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import MedicalConditionDetailsTable from './medical-condition-details-table';
+import MedicalConditionDetailsTable from '../medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Input } from '../ui/input';
 
@@ -71,7 +71,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
-                <MedicalQuestion 
+                 <MedicalQuestion 
                     form={form} 
                     name="highBloodPressure" 
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
@@ -103,7 +103,13 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Diabetes']}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" />
+                <MedicalQuestion 
+                    form={form} 
+                    name="colitisCrohns" 
+                    label="Have you ever had or been told you had Colitis or Crohn's disease?" 
+                    detailsFieldName="colitisCrohnsDetails" 
+                    detailsOptions={['Colitis', "Crohn's disease"]}
+                />
                 <Separator />
                 <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" />
                 <Separator />
