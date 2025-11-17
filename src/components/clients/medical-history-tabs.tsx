@@ -183,12 +183,48 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             'Disorder of Pancreas'
         ]}
       />
-      <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" />
-      <MedicalQuestion form={form} name="thyroidDisorder" label="Thyroid disorder?" detailsFieldName="thyroidDisorderDetails" />
-      <MedicalQuestion form={form} name="kidneyDisorder" label="Kidney disorder, renal failure or bladder disorder?" detailsFieldName="kidneyDisorderDetails" />
-      <MedicalQuestion form={form} name="numbness" label="Numbness, loss of felling or tingling of the limbs or face or temporary loss of muscle power?" detailsFieldName="numbnessDetails" />
-      <MedicalQuestion form={form} name="anxietyStress" label="Anxiety, stress or depression?" detailsFieldName="anxietyStressDetails" />
-      <MedicalQuestion form={form} name="earEyeDisorder" label="Disorder of the ears or eyes including blindness, blurred or double vision?" detailsFieldName="earEyeDisorderDetails" />
+      <MedicalQuestion 
+        form={form} 
+        name="bloodDisorder" 
+        label="Blood disorder or anemia?" 
+        detailsFieldName="bloodDisorderDetails" 
+        detailsOptions={['Blood disorder', 'Anemia']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="thyroidDisorder" 
+        label="Thyroid disorder?" 
+        detailsFieldName="thyroidDisorderDetails"
+        detailsOptions={['Thyroid disorder']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="kidneyDisorder" 
+        label="Kidney disorder, renal failure or bladder disorder?" 
+        detailsFieldName="kidneyDisorderDetails"
+        detailsOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="numbness" 
+        label="Numbness, loss of felling or tingling of the limbs or face or temporary loss of muscle power?" 
+        detailsFieldName="numbnessDetails"
+        detailsOptions={['Numbness', 'Loss of feeling', 'Tingling of limbs or face', 'Temporary loss of muscle power']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="anxietyStress" 
+        label="Anxiety, stress or depression?" 
+        detailsFieldName="anxietyStressDetails"
+        detailsOptions={['Anxiety', 'Stress', 'Depression']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="earEyeDisorder" 
+        label="Disorder of the ears or eyes including blindness, blurred or double vision?" 
+        detailsFieldName="earEyeDisorderDetails"
+        detailsOptions={['Disorder of the ears', 'Disorder of the eyes', 'Blindness', 'Blurred vision', 'Double vision']}
+      />
       <MedicalQuestion form={form} name="lumpGrowth" label="A lump, growth, or change in a mole or freckle?" detailsFieldName="lumpGrowthDetails" />
       <MedicalQuestion form={form} name="hospitalAttendance" label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" detailsFieldName="hospitalAttendanceDetails" />
       <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" />
