@@ -274,7 +274,13 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             <Separator className="my-0" />
         </div>
       
-       <MedicalQuestion form={form} name="presentSymptoms" label="Experiencing any symptom, condition or disability not mentioned above?" detailsFieldName="presentSymptomsDetails" />
+       <MedicalQuestion 
+            form={form} 
+            name="presentSymptoms" 
+            label="Experiencing any symptom, condition or disability not mentioned above?" 
+            detailsFieldName="presentSymptomsDetails"
+            detailsOptions={['Symptoms', 'Conditions or Disability']}
+        />
 
        {watchPresentSymptoms === 'yes' && (
            <div className="space-y-6 -mt-8 pt-4 p-4 border border-t-0 rounded-b-md">
@@ -373,6 +379,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
     </div>
   );
 }
+
 
 
 
