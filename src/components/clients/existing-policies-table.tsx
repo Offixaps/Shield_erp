@@ -121,7 +121,7 @@ function ExistingPolicyRow({ form, field, index, fieldName, remove }: { form: Us
                       variant={'outline'}
                       className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
                   >
-                      {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+                      {field.value && (field.value instanceof Date && !isNaN(field.value.getTime())) ? format(field.value, 'PPP') : <span>Pick a date</span>}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                   </Button>
                   </FormControl>
@@ -129,7 +129,7 @@ function ExistingPolicyRow({ form, field, index, fieldName, remove }: { form: Us
               <PopoverContent className="w-auto p-0" align="start">
                   <Calendar 
                       mode="single" 
-                      selected={field.value ? new Date(field.value) : undefined} 
+                      selected={field.value} 
                       onSelect={(date) => {
                         field.onChange(date);
                         setIsCalendarOpen(false);

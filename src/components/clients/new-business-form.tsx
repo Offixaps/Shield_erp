@@ -226,7 +226,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
             
             const parseDate = (dateString: string | undefined | null): Date | undefined => {
-                return dateString ? new Date(dateString) : undefined;
+                if (!dateString) return undefined;
+                try {
+                    const date = new Date(dateString);
+                    if (isNaN(date.getTime())) return undefined;
+                    return date;
+                } catch {
+                    return undefined;
+                }
             }
 
             const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
@@ -252,7 +259,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 bmi: businessData.bmi || 0,
                 // Ensure all string fields have a default of ''
                 lifeAssuredFirstName: firstName,
-                lifeAssuredMiddleName: middleName,
+                lifeAssuredMiddleName: middleName || '',
                 lifeAssuredSurname: surname,
                 placeOfBirth: businessData.placeOfBirth || '',
                 email: businessData.email || '',
@@ -269,11 +276,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 languages: businessData.languages || '',
                 serial: businessData.serial || '',
                 policy: businessData.policy || '',
-                agentName: businessData.agentName || '',
-                agentCode: businessData.agentCode || '',
-                uplineName: businessData.uplineName || '',
-                uplineCode: businessData.uplineCode || '',
-                introducerCode: businessData.introducerCode || '',
+                agentName: (businessData as any).agentName || '',
+                agentCode: (businessData as any).agentCode || '',
+                uplineName: (businessData as any).uplineName || '',
+                uplineCode: (businessData as any).uplineCode || '',
+                introducerCode: (businessData as any).introducerCode || '',
                 occupation: businessData.occupation || '',
                 natureOfBusiness: businessData.natureOfBusiness || '',
                 employer: businessData.employer || '',
@@ -316,7 +323,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 // Handle arrays
                 primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
                 contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
-                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: new Date(p.issueDate) })),
+                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: parseDate(p.issueDate) })),
             };
 
             form.reset(sanitizedData as any);
