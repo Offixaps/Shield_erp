@@ -225,10 +225,46 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         detailsFieldName="earEyeDisorderDetails"
         detailsOptions={['Disorder of the ears', 'Disorder of the eyes', 'Blindness', 'Blurred vision', 'Double vision']}
       />
-      <MedicalQuestion form={form} name="lumpGrowth" label="A lump, growth, or change in a mole or freckle?" detailsFieldName="lumpGrowthDetails" />
-      <MedicalQuestion form={form} name="hospitalAttendance" label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" detailsFieldName="hospitalAttendanceDetails" />
-      <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" />
-      <MedicalQuestion form={form} name="sti" label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" detailsFieldName="stiDetails" />
+      <MedicalQuestion 
+        form={form} 
+        name="lumpGrowth" 
+        label="A lump, growth, or change in a mole or freckle?" 
+        detailsFieldName="lumpGrowthDetails" 
+        detailsOptions={['Lump', 'Growth', 'Change in a mole or freckle']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="hospitalAttendance" 
+        label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" 
+        detailsFieldName="hospitalAttendanceDetails" 
+        detailsOptions={['Checkup', 'X-ray', 'Scan', 'Other medical investigation']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="criticalIllness" 
+        label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" 
+        detailsFieldName="criticalIllnessDetails"
+        detailsOptions={["Alzheimer's Disease", 'Multiple Sclerosis', 'Other condition']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="sti" 
+        label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" 
+        detailsFieldName="stiDetails"
+        detailsOptions={[
+            'Urethral discharge',
+            'Chancroid',
+            'Gonorrhoea',
+            'Syphilis',
+            'Urethritis',
+            'Genital sores',
+            'HIV infection',
+            'Balanitis',
+            'Genital Warts',
+            'Vaginal discharge',
+            'Vaginal trush'
+        ]}
+      />
       
         <div>
             <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
