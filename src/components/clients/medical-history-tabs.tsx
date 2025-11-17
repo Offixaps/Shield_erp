@@ -67,7 +67,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     form={form} 
                     name="bloodTransfusionOrSurgery" 
                     label="Have you ever had a blood transfusion or surgery?" 
-                    detailsFieldName="bloodTransfusionOrSurgeryDetails" 
+                    detailsFieldName="bloodTransfusionOrSurgeryDetails"
                     detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
@@ -77,7 +77,12 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
                     detailsFieldName="highBloodPressureDetails"
                     detailsOptions={[
-                        'High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease'
+                        'High blood pressure',
+                        'Angina',
+                        'Heart attack',
+                        'Stroke',
+                        'Coma',
+                        'Other heart/artery/circulation disease'
                     ]}
                 />
                 <Separator />
@@ -99,7 +104,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     form={form} 
                     name="diabetes" 
                     label="Have you ever had or been told you had Diabetes?" 
-                    detailsFieldName="diabetesDetails" 
+                    detailsFieldName="diabetesDetails"
                     detailsOptions={['Diabetes']}
                 />
                 <Separator />
@@ -111,9 +116,31 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={["Colitis", "Crohn's disease"]}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" detailsOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
+                <MedicalQuestion 
+                    form={form} 
+                    name="paralysisEpilepsy" 
+                    label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" 
+                    detailsFieldName="paralysisEpilepsyDetails" 
+                    detailsOptions={[
+                        'Paralysis', 
+                        'Multiple sclerosis', 
+                        'Epilepsy', 
+                        'Dementia', 
+                        'Other central nervous system disorder'
+                    ]}
+                />
                 <Separator />
-                <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" />
+                <MedicalQuestion 
+                    form={form} 
+                    name="mentalIllness" 
+                    label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" 
+                    detailsFieldName="mentalIllnessDetails"
+                    detailsOptions={[
+                        'Hospital/psychiatric treatment for mental illness',
+                        'Depression',
+                        'Nervous breakdown'
+                    ]}
+                />
             </div>
         </div>
 
