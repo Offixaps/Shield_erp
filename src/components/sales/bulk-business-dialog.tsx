@@ -18,9 +18,8 @@ import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
 import { createPolicy, getPolicies } from '@/lib/policy-service';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { newStaffFormSchema } from '../staff/new-staff-form';
 import { z } from 'zod';
-import { newBusinessFormSchema } from '../clients/new-business-form';
+import { newBusinessFormSchema } from '../clients/new-business-form-schema';
 
 
 export default function BulkBusinessDialog() {
@@ -86,28 +85,49 @@ export default function BulkBusinessDialog() {
         
         // Use a simplified schema for bulk upload validation
         const bulkBusinessSchema = newBusinessFormSchema.pick({
-            Title: true,
-            LifeAssuredFirstName: true,
-            LifeAssuredSurname: true,
-            LifeAssuredDob: true,
-            PlaceOfBirth: true,
-            Gender: true,
-            Email: true,
-            Phone: true,
-            PostalAddress: true,
-            ContractType: true,
-            SerialNumber: true,
-            PremiumAmount: true,
-            SumAssured: true,
-            PaymentFrequency: true,
-            Occupation: true,
-            Employer: true,
-            BankName: true,
-            BankAccountNumber: true,
+            title: true,
+            lifeAssuredFirstName: true,
+            lifeAssuredSurname: true,
+            lifeAssuredDob: true,
+            placeOfBirth: true,
+            gender: true,
+            email: true,
+            phone: true,
+            postalAddress: true,
+            contractType: true,
+            serialNumber: true,
+            premiumAmount: true,
+            sumAssured: true,
+            paymentFrequency: true,
+            occupation: true,
+            employer: true,
+            bankName: true,
+            bankAccountNumber: true,
         });
 
         json.forEach(row => {
-          const result = bulkBusinessSchema.safeParse(row);
+          // Adjusting keys to match the zod schema (e.g., 'Title' -> 'title')
+          const mappedRow = {
+              title: row.Title,
+              lifeAssuredFirstName: row.LifeAssuredFirstName,
+              lifeAssuredSurname: row.LifeAssuredSurname,
+              lifeAssuredDob: row.LifeAssuredDob,
+              placeOfBirth: row.PlaceOfBirth,
+              gender: row.Gender,
+              email: row.Email,
+              phone: row.Phone,
+              postalAddress: row.PostalAddress,
+              contractType: row.ContractType,
+              serialNumber: row.SerialNumber,
+              premiumAmount: row.PremiumAmount,
+              sumAssured: row.SumAssured,
+              paymentFrequency: row.PaymentFrequency,
+              occupation: row.Occupation,
+              employer: row.Employer,
+              bankName: row.BankName,
+              bankAccountNumber: row.BankAccountNumber
+          }
+          const result = bulkBusinessSchema.safeParse(mappedRow);
           if (result.success) {
             successCount++;
           } else {
