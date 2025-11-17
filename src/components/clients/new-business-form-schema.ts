@@ -194,7 +194,7 @@ export const newBusinessFormSchema = z
       'Buy Term and Invest in Mutual Fund',
       'The Education Policy',
     ]),
-    serialNumber: z.string().regex(/^\d{4}$/, 'Serial number must be a 4-digit number.'),
+    serialNumber: z.string().optional(),
     policyNumber: z.string().optional(),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
     policyTerm: z.coerce.number().positive('Policy term must be a positive number.'),
@@ -380,7 +380,7 @@ export type TabName =
   | 'payment-details';
 
 export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
-  coverage: ['lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'email', 'phone', 'postalAddress', 'idNumber', 'contractType', 'serialNumber', 'sumAssured', 'premiumAmount'],
+  coverage: ['lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'email', 'phone', 'postalAddress', 'idNumber', 'contractType', 'sumAssured', 'premiumAmount'],
   beneficiaries: ['primaryBeneficiaries'],
   'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
   health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection'],
@@ -389,4 +389,3 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
-

@@ -756,7 +756,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
             <FormItem>
               <FormLabel>Serial Number</FormLabel>
               <FormControl>
-                <Input placeholder="e.g., 1234" {...field} />
+                <Input placeholder="Auto-generated" {...field} disabled />
               </FormControl>
               <FormMessage />
             </FormItem>

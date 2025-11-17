@@ -233,6 +233,13 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
 export async function createPolicy(values: any): Promise<string> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
+    const policies = await getPolicies();
+    const maxSerial = policies.reduce((max, p) => {
+        const serialNum = parseInt(p.serial, 10);
+        return !isNaN(serialNum) && serialNum > max ? serialNum : max;
+    }, 1000);
+    const newSerial = (maxSerial + 1).toString();
+
     const newPolicyData = {
         client: lifeAssuredName,
         department: "Business Development",
@@ -267,7 +274,7 @@ export async function createPolicy(values: any): Promise<string> {
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + (values.policyTerm || 0))).toISOString().split('T')[0],
         policyTerm: values.policyTerm || 0,
         premiumTerm: values.premiumTerm || 0,
-        serial: values.serialNumber || null,
+        serial: newSerial,
         paymentFrequency: values.paymentFrequency || null,
         onboardingStatus: 'Incomplete Policy',
         billingStatus: 'Outstanding',
@@ -366,7 +373,7 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
     if (!firstBill || firstBill.status === 'Paid') return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    const newPayment: Payment = { id: newPaymentId, policyId: policy.id, billId: firstBill.id, ...paymentDetails };
+    const newPayment: Payment = { id: newPaymentId, policyId: policy.id as number, billId: firstBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     firstBill.status = 'Paid';
@@ -399,7 +406,7 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
     if (!unpaidBill) return undefined;
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
-    const newPayment: Payment = { id: newPaymentId, policyId: policy.id, billId: unpaidBill.id, ...paymentDetails };
+    const newPayment: Payment = { id: newPaymentId, policyId: policy.id as number, billId: unpaidBill.id, ...paymentDetails };
 
     policy.payments.push(newPayment);
     unpaidBill.status = 'Paid';
@@ -663,3 +670,4 @@ function newId() {
 
 
     
+
