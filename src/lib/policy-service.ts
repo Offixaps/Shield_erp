@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -26,6 +27,12 @@ const POLICIES_COLLECTION = 'policies';
 
 export function policyToFirebase(policy: NewBusiness): any {
   const data = { ...policy };
+
+  // Ensure serial is never undefined
+  if (data.serial === null || data.serial === undefined) {
+      data.serial = 'Error-Fix'; 
+  }
+
   // Convert Date objects to Timestamps for Firestore
   const toTimestamp = (dateStr: string | Date | undefined | null) => {
     if (!dateStr) return null;
@@ -217,7 +224,7 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   const updatedData = { 
     ...originalPolicy, 
     ...updates,
-    serial: originalPolicy.serial, // Explicitly preserve the original serial number
+    serial: originalPolicy.serial || 'Error-Fix', // Explicitly preserve the original serial number
   };
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -697,6 +704,8 @@ function newId() {
 
 
 
+
+    
 
     
 
