@@ -68,6 +68,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     name="bloodTransfusionOrSurgery" 
                     label="Have you ever had a blood transfusion or surgery?" 
                     detailsFieldName="bloodTransfusionOrSurgeryDetails" 
+                    detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
                 <MedicalQuestion 
@@ -75,18 +76,17 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     name="highBloodPressure" 
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
                     detailsFieldName="highBloodPressureDetails"
-                    illnessOptions={['High blood pressure', 'Angina', 'Heart attack', 'Stroke', 'Coma', 'Other heart/artery/circulation disease']}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" illnessOptions={['Cancer', 'Leukemia', "Hodgkin's disease", 'Lymphoma', 'Other tumor']} />
+                <MedicalQuestion form={form} name="cancer" label="Have you ever had or been told you had any of the following: Cancer, Leukemia, Hodgkin's disease, Lymphoma, or any other tumor?" detailsFieldName="cancerDetails" />
                 <Separator />
-                <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" illnessOptions={['Diabetes']} />
+                <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" />
                 <Separator />
-                <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" illnessOptions={["Crohn's disease", 'Colitis']} />
+                <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" />
                 <Separator />
-                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" illnessOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
+                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" />
                 <Separator />
-                <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" illnessOptions={['Hospital/psychiatric treatment for mental illness', 'Depression', 'Nervous breakdown']} />
+                <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" />
             </div>
         </div>
 
@@ -97,20 +97,20 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         <Separator className="my-0" />
       </div>
 
-      <MedicalQuestion form={form} name="arthritis" label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" detailsFieldName="arthritisDetails" illnessOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']} />
-      <MedicalQuestion form={form} name="chestPain" label="Chest pain, irregular heart beat or raised cholesterol?" detailsFieldName="chestPainDetails" illnessOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']} />
-      <MedicalQuestion form={form} name="asthma" label="Asthma, bronchitis, shortness of breath or any other chest complaint?" detailsFieldName="asthmaDetails" illnessOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']} />
-      <MedicalQuestion form={form} name="digestiveDisorder" label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" detailsFieldName="digestiveDisorderDetails" illnessOptions={['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas']} />
-      <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" illnessOptions={['Blood disorder', 'Anemia']} />
-      <MedicalQuestion form={form} name="thyroidDisorder" label="Thyroid disorder?" detailsFieldName="thyroidDisorderDetails" illnessOptions={['Thyroid disorder']} />
-      <MedicalQuestion form={form} name="kidneyDisorder" label="Kidney disorder, renal failure or bladder disorder?" detailsFieldName="kidneyDisorderDetails" illnessOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']} />
-      <MedicalQuestion form={form} name="numbness" label="Numbness, loss of felling or tingling of the limbs or face or temporary loss of muscle power?" detailsFieldName="numbnessDetails" illnessOptions={['Numbness']} />
-      <MedicalQuestion form={form} name="anxietyStress" label="Anxiety, stress or depression?" detailsFieldName="anxietyStressDetails" illnessOptions={['Anxiety', 'Stress', 'Depression']} />
-      <MedicalQuestion form={form} name="earEyeDisorder" label="Disorder of the ears or eyes including blindness, blurred or double vision?" detailsFieldName="earEyeDisorderDetails" illnessOptions={['Ear disorder', 'Eye disorder', 'Blindness', 'Blurred vision', 'Double vision']} />
-      <MedicalQuestion form={form} name="lumpGrowth" label="A lump, growth, or change in a mole or freckle?" detailsFieldName="lumpGrowthDetails" illnessOptions={['Lump', 'Growth', 'Mole', 'Freckle']} />
-      <MedicalQuestion form={form} name="hospitalAttendance" label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" detailsFieldName="hospitalAttendanceDetails" illnessOptions={['X-ray', 'Scan', 'Checkup', 'Operation']} />
-      <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" illnessOptions={["Alzheimer's Disease", 'Multiple Sclerosis']} />
-      <MedicalQuestion form={form} name="sti" label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" detailsFieldName="stiDetails" illnessOptions={['Urethral discharge', 'Chancroid', 'Gonorrhoea', 'Syphilis', 'Urethritis', 'Genital sores', 'HIV infection', 'Balanitis', 'Genital Warts', 'Vaginal discharge', 'Vaginal trush']} />
+      <MedicalQuestion form={form} name="arthritis" label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" detailsFieldName="arthritisDetails" />
+      <MedicalQuestion form={form} name="chestPain" label="Chest pain, irregular heart beat or raised cholesterol?" detailsFieldName="chestPainDetails" />
+      <MedicalQuestion form={form} name="asthma" label="Asthma, bronchitis, shortness of breath or any other chest complaint?" detailsFieldName="asthmaDetails" />
+      <MedicalQuestion form={form} name="digestiveDisorder" label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" detailsFieldName="digestiveDisorderDetails" />
+      <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" />
+      <MedicalQuestion form={form} name="thyroidDisorder" label="Thyroid disorder?" detailsFieldName="thyroidDisorderDetails" />
+      <MedicalQuestion form={form} name="kidneyDisorder" label="Kidney disorder, renal failure or bladder disorder?" detailsFieldName="kidneyDisorderDetails" />
+      <MedicalQuestion form={form} name="numbness" label="Numbness, loss of felling or tingling of the limbs or face or temporary loss of muscle power?" detailsFieldName="numbnessDetails" />
+      <MedicalQuestion form={form} name="anxietyStress" label="Anxiety, stress or depression?" detailsFieldName="anxietyStressDetails" />
+      <MedicalQuestion form={form} name="earEyeDisorder" label="Disorder of the ears or eyes including blindness, blurred or double vision?" detailsFieldName="earEyeDisorderDetails" />
+      <MedicalQuestion form={form} name="lumpGrowth" label="A lump, growth, or change in a mole or freckle?" detailsFieldName="lumpGrowthDetails" />
+      <MedicalQuestion form={form} name="hospitalAttendance" label="Attended a hospital, clinic or had any checkups, X-rays, scans or any other medical investigations?" detailsFieldName="hospitalAttendanceDetails" />
+      <MedicalQuestion form={form} name="criticalIllness" label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" detailsFieldName="criticalIllnessDetails" />
+      <MedicalQuestion form={form} name="sti" label="Urethral discharge, Chancroid, Gonorrhoea, Syphilis, Urethritis, Genital sores, HIV infection, Balanitis, Genital Warts, Vaginal discharge or Vaginal trush?" detailsFieldName="stiDetails" />
       
       <div>
         <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
@@ -119,7 +119,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         <Separator className="my-0" />
       </div>
       
-      <MedicalQuestion form={form} name="presentSymptoms" label="Do you currently have any symptoms for which you have not yet sought medical advice?" detailsFieldName="presentSymptomsDetails" illnessOptions={['Present Symptoms']} />
+      <MedicalQuestion form={form} name="presentSymptoms" label="Do you currently have any symptoms for which you have not yet sought medical advice?" detailsFieldName="presentSymptomsDetails" />
 
        {watchPresentSymptoms === 'yes' && (
            <div className="space-y-6 -mt-8 pt-4 p-4 border border-t-0 rounded-b-md">
