@@ -17,8 +17,8 @@ import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { numberToWords } from '@/lib/utils';
-import { FilePenLine, Send } from 'lucide-react';
-import { newBusinessFormSchema } from './new-business-form-schema';
+import { FilePenLine, Send, Save } from 'lucide-react';
+import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
 import BeneficiariesTab from './form-tabs/beneficiaries-tab';
@@ -28,32 +28,37 @@ import AgentTab from './form-tabs/agent-tab';
 import PaymentDetailsTab from './form-tabs/payment-details-tab';
 import DeclarationTab from './form-tabs/declaration-tab';
 import LifestyleTab from './form-tabs/lifestyle-tab';
+import { Loader2 } from 'lucide-react';
 
 type NewBusinessFormProps = {
     businessId?: string;
 }
 
-type TabName = 
-    | 'coverage'
-    | 'beneficiaries'
-    | 'existing-policies'
-    | 'health'
-    | 'lifestyle'
-    | 'declaration'
-    | 'agent'
-    | 'payment-details';
+const TABS: TabName[] = [
+    'coverage',
+    'beneficiaries',
+    'existing-policies',
+    'health',
+    'lifestyle',
+    'payment-details',
+    'agent',
+    'declaration',
+];
+
 
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<TabName>('coverage');
-  const isEditMode = !!businessId;
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isEditMode, setIsEditMode] = React.useState(!!businessId);
+  const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
+    mode: 'onChange',
     defaultValues: {
+        onboardingStatus: 'Incomplete Policy',
         title: 'Mr',
         lifeAssuredFirstName: '',
         lifeAssuredMiddleName: '',
@@ -208,8 +213,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
 
   React.useEffect(() => {
-    if (isEditMode && businessId) {
-      getPolicyById(parseInt(businessId, 10)).then(businessData => {
+    if (isEditMode && currentBusinessId) {
+      getPolicyById(currentBusinessId).then(businessData => {
           if (businessData) {
             const nameParts = businessData.client.split(' ');
             const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
@@ -248,7 +253,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         }
       });
     }
-  }, [isEditMode, businessId, form]);
+  }, [isEditMode, currentBusinessId, form]);
 
   const commencementDate = form.watch('commencementDate');
   const lifeAssuredDob = form.watch('lifeAssuredDob');
@@ -302,84 +307,139 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   }, [premiumAmount, form]);
   
+  const handleSaveAndNext = async () => {
+    setIsSubmitting(true);
+    const currentTabFields = tabFields[activeTab];
+    const isValid = await form.trigger(currentTabFields as any);
 
-  async function onSubmit(values: z.infer<typeof newBusinessFormSchema>) {
-    try {
-        if (isEditMode) {
-            await updatePolicy(parseInt(businessId!), values as any);
-        } else {
-            await createPolicy(values);
-        }
-        toast({
-            title: isEditMode ? 'Form Updated' : 'Form Submitted',
-            description: isEditMode ? 'Policy details have been successfully updated.' : 'New client and policy details have been captured.',
-        });
-        router.push('/business-development/sales');
-        router.refresh();
-    } catch (error) {
-        console.error("Form submission error:", error);
-        toast({
-            variant: "destructive",
-            title: "Submission Failed",
-            description: "An unexpected error occurred while submitting the form.",
-        });
+    if (!isValid) {
+      toast({
+        variant: 'destructive',
+        title: 'Validation Error',
+        description: 'Please correct the errors on this tab before proceeding.',
+      });
+      setIsSubmitting(false);
+      return;
     }
-  }
 
+    try {
+      const values = form.getValues();
+      if (isEditMode && currentBusinessId) {
+        await updatePolicy(parseInt(currentBusinessId, 10), values as any);
+        toast({
+          title: 'Progress Saved',
+          description: 'Your application has been updated successfully.',
+        });
+      } else {
+        const newPolicyId = await createPolicy(values);
+        setCurrentBusinessId(newPolicyId);
+        setIsEditMode(true); 
+        router.replace(`/business-development/sales/${newPolicyId}/edit`, { scroll: false });
+        toast({
+          title: 'Application Started',
+          description: 'Your new application has been saved as Incomplete.',
+        });
+      }
+
+      const currentIndex = TABS.indexOf(activeTab);
+      if (currentIndex < TABS.length - 1) {
+        setActiveTab(TABS[currentIndex + 1]);
+      }
+    } catch (error) {
+      console.error('Save and Next error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Save Failed',
+        description: 'An unexpected error occurred while saving your progress.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
+    setIsSubmitting(true);
+    try {
+      if (!currentBusinessId) {
+        throw new Error('No business ID found for final submission.');
+      }
+      
+      const finalValues = {
+        ...values,
+        onboardingStatus: 'Pending First Premium' as const,
+      };
+
+      await updatePolicy(parseInt(currentBusinessId, 10), finalValues as any);
+
+      toast({
+        title: 'Application Submitted',
+        description: 'Your new business application has been successfully submitted for review.',
+      });
+      router.push('/business-development/sales');
+      router.refresh();
+    } catch (error) {
+      console.error('Form submission error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Submission Failed',
+        description: 'An unexpected error occurred. Please review all tabs for errors.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+
+  const isLastTab = activeTab === TABS[TABS.length - 1];
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab as (value: string) => void} className="w-full">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
-            <TabsTrigger value="coverage">Coverage</TabsTrigger>
-            <TabsTrigger value="beneficiaries">Beneficiaries</TabsTrigger>
-            <TabsTrigger value="existing-policies">Existing Policies</TabsTrigger>
-            <TabsTrigger value="health">Health</TabsTrigger>
-            <TabsTrigger value="lifestyle">Lifestyle</TabsTrigger>
-            <TabsTrigger value="declaration">Declaration</TabsTrigger>
-            <TabsTrigger value="agent">Agent</TabsTrigger>
-            <TabsTrigger value="payment-details">Payment Details</TabsTrigger>
+            {TABS.map(tab => (
+              <TabsTrigger key={tab} value={tab}>{tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TabsTrigger>
+            ))}
           </TabsList>
           
           <TabsContent value="coverage" className="mt-6 space-y-8">
             <CoverageTab form={form} />
           </TabsContent>
-
           <TabsContent value="beneficiaries" className="mt-6 space-y-8">
             <BeneficiariesTab form={form} />
           </TabsContent>
-          
           <TabsContent value="existing-policies" className="mt-6 space-y-8">
             <ExistingPoliciesTab form={form} />
           </TabsContent>
-          
           <TabsContent value="health" className="mt-6 space-y-8">
             <HealthTab form={form} />
           </TabsContent>
-
           <TabsContent value="lifestyle" className="mt-6 space-y-8">
             <LifestyleTab form={form} />
           </TabsContent>
-          
-          <TabsContent value="declaration" className="mt-6 space-y-8">
-            <DeclarationTab form={form} />
-          </TabsContent>
-
-          <TabsContent value="agent" className="mt-6 space-y-8">
-            <AgentTab form={form} />
-          </TabsContent>
-
           <TabsContent value="payment-details" className="mt-6">
             <PaymentDetailsTab form={form} />
           </TabsContent>
-
+           <TabsContent value="agent" className="mt-6 space-y-8">
+            <AgentTab form={form} />
+          </TabsContent>
+          <TabsContent value="declaration" className="mt-6 space-y-8">
+            <DeclarationTab form={form} />
+          </TabsContent>
         </Tabs>
         
-        <div className="flex justify-end p-4">
-            <Button type="submit">
-                {isEditMode ? <><FilePenLine className="mr-2" />Update Application</> : <><Send className="mr-2" />Submit Application</>}
-            </Button>
+        <div className="flex justify-end p-4 gap-2">
+            {isLastTab ? (
+                 <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
+                    Submit Application
+                </Button>
+            ) : (
+                <Button type="button" onClick={handleSaveAndNext} disabled={isSubmitting}>
+                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2" />}
+                    Save & Next
+                </Button>
+            )}
         </div>
       </form>
     </Form>

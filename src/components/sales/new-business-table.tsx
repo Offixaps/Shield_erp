@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -16,7 +17,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { FilePenLine, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { FilePenLine, Search, ChevronLeft, ChevronRight, Play } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import DeletePolicyDialog from './delete-policy-dialog';
 import { getPolicies, deletePolicy as deletePolicyFromService } from '@/lib/policy-service';
@@ -56,8 +57,9 @@ export default function NewBusinessTable() {
         const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
         policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
     } else {
-       const excludedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Policy Issued', 'Mandate Verified'];
-       policies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
+       // On the main sales page, we show incomplete and pending first premium
+       const includedStatuses: NewBusiness['onboardingStatus'][] = ['Incomplete Policy', 'Pending First Premium'];
+       policies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
     }
     
     setAllData(policies);
@@ -111,6 +113,7 @@ export default function NewBusinessTable() {
         return 'bg-green-500/80 text-white';
       case 'ntu':
       case 'deferred':
+      case 'incomplete policy':
         return 'bg-gray-500/80 text-white';
       case 'declined':
       case 'lapsed':
@@ -157,59 +160,62 @@ export default function NewBusinessTable() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {paginatedData.map((business, index) => (
-                <TableRow key={business.id}>
-                    <TableCell>{pagination.pageIndex * pagination.pageSize + index + 1}</TableCell>
-                    <TableCell>
-                    <Link
-                        href={`/business-development/clients/${business.id}?from=${from}`}
-                        className="font-medium text-primary hover:underline"
-                    >
-                        {business.client}
-                    </Link>
-                    </TableCell>
-                    <TableCell>
-                    {isAllPoliciesPage && business.policy
-                        ? business.policy
-                        : business.serial}
-                    </TableCell>
-                    <TableCell>{business.phone}</TableCell>
-                    <TableCell>{business.product}</TableCell>
-                    <TableCell>GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
-                    <TableCell>
-                    {format(new Date(business.commencementDate), 'PPP')}
-                    </TableCell>
-                    <TableCell>
-                    <Badge
-                        className={cn('w-44 justify-center truncate', getStatusBadgeStyling(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus))}
-                    >
-                        {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
-                    </Badge>
-                    </TableCell>
-                    {!isAllPoliciesPage && (
-                        <TableCell className="text-right">
-                        {isUnderwritingNewBusiness ? (
-                            <Button asChild size="sm" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
-                            <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
-                                Process
-                            </Link>
-                            </Button>
-                        ) : (
-                            <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="icon" asChild>
-                                <Link
-                                href={`/business-development/sales/${business.id}/edit`}
-                                >
-                                <FilePenLine className="h-4 w-4" />
-                                </Link>
-                            </Button>
-                            <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
-                            </div>
-                        )}
+                {paginatedData.map((business, index) => {
+                  const isIncomplete = business.onboardingStatus === 'Incomplete Policy';
+                  return (
+                    <TableRow key={business.id}>
+                        <TableCell>{pagination.pageIndex * pagination.pageSize + index + 1}</TableCell>
+                        <TableCell>
+                        <Link
+                            href={`/business-development/clients/${business.id}?from=${from}`}
+                            className="font-medium text-primary hover:underline"
+                        >
+                            {business.client}
+                        </Link>
                         </TableCell>
-                    )}
-                </TableRow>
-                ))}
+                        <TableCell>
+                        {isAllPoliciesPage && business.policy
+                            ? business.policy
+                            : business.serial}
+                        </TableCell>
+                        <TableCell>{business.phone}</TableCell>
+                        <TableCell>{business.product}</TableCell>
+                        <TableCell>GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                        <TableCell>
+                        {format(new Date(business.commencementDate), 'PPP')}
+                        </TableCell>
+                        <TableCell>
+                        <Badge
+                            className={cn('w-44 justify-center truncate', getStatusBadgeStyling(isAllPoliciesPage ? business.policyStatus : business.onboardingStatus))}
+                        >
+                            {isAllPoliciesPage ? business.policyStatus : business.onboardingStatus}
+                        </Badge>
+                        </TableCell>
+                        {!isAllPoliciesPage && (
+                            <TableCell className="text-right">
+                            {isUnderwritingNewBusiness ? (
+                                <Button asChild size="sm" className="bg-sidebar text-sidebar-foreground hover:bg-sidebar/90">
+                                <Link href={`/business-development/clients/${business.id}?from=underwriting`}>
+                                    Process
+                                </Link>
+                                </Button>
+                            ) : (
+                                <div className="flex items-center justify-end gap-2">
+                                <Button variant={isIncomplete ? 'default' : 'ghost'} size="icon" asChild>
+                                    <Link
+                                      href={`/business-development/sales/${business.id}/edit`}
+                                    >
+                                      {isIncomplete ? <Play className="h-4 w-4" /> : <FilePenLine className="h-4 w-4" />}
+                                    </Link>
+                                </Button>
+                                <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
+                                </div>
+                            )}
+                            </TableCell>
+                        )}
+                    </TableRow>
+                  );
+                })}
             </TableBody>
             </Table>
         </div>

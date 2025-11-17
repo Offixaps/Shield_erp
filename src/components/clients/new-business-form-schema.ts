@@ -1,4 +1,5 @@
 
+
 import { z } from 'zod';
 import { format } from 'date-fns';
 
@@ -158,6 +159,7 @@ const lifestyleDetailSchema = z.object({
 
 export const newBusinessFormSchema = z
   .object({
+    onboardingStatus: z.string().optional(),
     // Client Details
     title: z.enum(['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon']),
     lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.'),
@@ -365,4 +367,26 @@ export const newBusinessFormSchema = z
       }
     }
   });
+
+
+export type TabName =
+  | 'coverage'
+  | 'beneficiaries'
+  | 'existing-policies'
+  | 'health'
+  | 'lifestyle'
+  | 'declaration'
+  | 'agent'
+  | 'payment-details';
+
+export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
+  coverage: ['lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'email', 'phone', 'postalAddress', 'idNumber', 'contractType', 'serialNumber', 'sumAssured', 'premiumAmount'],
+  beneficiaries: ['primaryBeneficiaries'],
+  'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
+  health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection'],
+  lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry'],
+  'payment-details': ['bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber'],
+  agent: ['agentName', 'agentCode'],
+  declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
+};
 
