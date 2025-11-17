@@ -17,7 +17,7 @@ import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { numberToWords } from '@/lib/utils';
-import { FilePenLine, Send, Save } from 'lucide-react';
+import { FilePenLine, Send, Save, XCircle } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
@@ -113,6 +113,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         bankBranch: '',
         amountInWords: '',
         sortCode: '',
+        accountType: undefined,
         bankAccountName: '',
         bankAccountNumber: '',
         paymentAuthoritySignature: '',
@@ -208,12 +209,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   });
 
-  const isPolicyHolderPayer = form.watch('isPolicyHolderPayer');
-    React.useEffect(() => {
-        form.trigger();
-    }, [isPolicyHolderPayer, form]);
-
-
   React.useEffect(() => {
     async function fetchPolicy() {
         if (isEditMode && currentBusinessId) {
@@ -235,16 +230,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
 
-            // Sanitize data before resetting the form
-            const sanitizedData = { ...businessData };
-            for (const key in sanitizedData) {
-                if (sanitizedData[key as keyof typeof sanitizedData] === null) {
-                    (sanitizedData as any)[key] = '';
-                }
-            }
-
             const defaultValues = {
-              ...sanitizedData,
+              ...form.getValues(), // Start with form defaults
+              ...businessData, // Overwrite with fetched data
               lifeAssuredFirstName: firstName,
               lifeAssuredMiddleName: middleName,
               lifeAssuredSurname: surname,
@@ -260,6 +248,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
               existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: new Date(p.issueDate) })),
             };
+
+            // Ensure no null/undefined values are passed for controlled string inputs
+             Object.keys(defaultValues).forEach(key => {
+                if (defaultValues[key as keyof typeof defaultValues] === null || defaultValues[key as keyof typeof defaultValues] === undefined) {
+                    if (typeof form.getValues()[key as keyof typeof defaultValues] === 'string') {
+                        (defaultValues as any)[key] = '';
+                    }
+                }
+            });
+
             form.reset(defaultValues as any);
         }
       }
@@ -336,8 +334,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
     try {
       const values = form.getValues();
-      if (isEditMode && currentBusinessId) {
-        await updatePolicy(currentBusinessId, values as any);
+      let policyId = currentBusinessId;
+
+      if (isEditMode && policyId) {
+        await updatePolicy(policyId, values as any);
         toast({
           title: 'Progress Saved',
           description: 'Your application has been updated successfully.',
@@ -346,11 +346,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const newPolicyId = await createPolicy(values);
         setCurrentBusinessId(newPolicyId);
         setIsEditMode(true); 
-        router.replace(`/business-development/sales/${newPolicyId}/edit`, { scroll: false });
+        // Update URL without a full page reload/navigation
+        window.history.replaceState(null, '', `/business-development/sales/${newPolicyId}/edit`);
         toast({
           title: 'Application Started',
           description: 'Your new application has been saved as Incomplete.',
         });
+        policyId = newPolicyId;
       }
 
       const currentIndex = TABS.indexOf(activeTab);
@@ -368,6 +370,35 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       setIsSubmitting(false);
     }
   };
+
+  const handleSaveAndClose = async () => {
+    setIsSubmitting(true);
+    const values = form.getValues();
+    let policyId = currentBusinessId;
+
+    try {
+      if (isEditMode && policyId) {
+        await updatePolicy(policyId, values as any);
+      } else {
+        policyId = await createPolicy(values);
+      }
+      toast({
+        title: 'Progress Saved',
+        description: 'Your application has been saved.',
+      });
+      router.push('/business-development/sales');
+    } catch (error) {
+      console.error('Save and Close error:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Save Failed',
+        description: 'An unexpected error occurred while saving.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
 
   const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
     setIsSubmitting(true);
@@ -441,6 +472,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </Tabs>
         
         <div className="flex justify-end p-4 gap-2">
+           <Button type="button" variant="outline" onClick={handleSaveAndClose} disabled={isSubmitting}>
+              <XCircle className="mr-2" />
+              Save & Close
+            </Button>
             {isLastTab ? (
                  <Button type="submit" disabled={isSubmitting}>
                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
@@ -457,6 +492,4 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-
 
