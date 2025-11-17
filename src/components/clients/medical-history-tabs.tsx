@@ -242,9 +242,9 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
       <MedicalQuestion 
         form={form} 
         name="criticalIllness" 
-        label="Any other condition for which you have been advised to have, or have had, treatment including Alzheimer's Disease or Multiple Sclerosis?" 
+        label="This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." 
         detailsFieldName="criticalIllnessDetails"
-        detailsOptions={["Alzheimer's Disease", 'Multiple Sclerosis', 'Other condition']}
+        detailsOptions={['Heart attack', 'Coronary artery disease requiring surgery', 'Paraplegia', 'Loss of speech', 'Major organ transplant', 'Coma', 'Major burns', "Alzheimer's disease", 'Multiple sclerosis']}
       />
       <MedicalQuestion 
         form={form} 
