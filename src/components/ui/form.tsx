@@ -149,14 +149,15 @@ const FormMessage = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
   const { formState } = useFormContext()
+  const fieldState = formState.touchedFields[error?.ref?.name as string]
   const body = error ? String(error?.message) : children
 
   if (!body) {
     return null
   }
 
-  // Only show the message if the form has been submitted
-  if (!formState.isSubmitted) {
+  // Show message if form is submitted OR field has been touched
+  if (!formState.isSubmitted && !fieldState) {
       return null;
   }
 
