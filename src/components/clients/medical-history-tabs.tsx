@@ -111,7 +111,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={["Colitis", "Crohn's disease"]}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" />
+                <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" detailsOptions={['Paralysis', 'Multiple sclerosis', 'Epilepsy', 'Dementia', 'Other central nervous system disorder']} />
                 <Separator />
                 <MedicalQuestion form={form} name="mentalIllness" label="Have you ever had or been told you had any of the following: Hospital/psychiatric treatment for mental illness, Depression, or a Nervous breakdown?" detailsFieldName="mentalIllnessDetails" />
             </div>
