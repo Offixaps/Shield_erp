@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -183,7 +184,7 @@ export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness
   }
 
   const firebaseData = policyToFirebase(updatedData);
-  setDoc(policyRef, firebaseData, { merge: true }).catch(async (serverError) => {
+  await setDoc(policyRef, firebaseData, { merge: true }).catch(async (serverError) => {
     const permissionError = new FirestorePermissionError({
         path: policyRef.path,
         operation: 'update',
@@ -195,7 +196,7 @@ export async function updatePolicy(id: number, updates: Partial<Omit<NewBusiness
   return updatedData;
 }
 
-export async function createPolicy(values: any): Promise<void> {
+export async function createPolicy(values: any): Promise<string> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
     const newPolicyData = {
@@ -234,12 +235,12 @@ export async function createPolicy(values: any): Promise<void> {
         premiumTerm: values.premiumTerm,
         serial: values.serialNumber,
         paymentFrequency: values.paymentFrequency,
-        onboardingStatus: 'Pending First Premium',
+        onboardingStatus: 'Incomplete Policy',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
-        vettingNotes: undefined,
-        mandateReworkNotes: undefined,
-        mandateVerificationTimestamp: undefined,
+        vettingNotes: values.vettingNotes || null,
+        mandateReworkNotes: values.mandateReworkNotes || null,
+        mandateVerificationTimestamp: values.mandateVerificationTimestamp || null,
         occupation: values.occupation,
         natureOfBusiness: values.natureOfBusiness,
         employer: values.employer,
@@ -278,14 +279,14 @@ export async function createPolicy(values: any): Promise<void> {
         payments: [],
         activityLog: [
             { date: new Date().toISOString(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
-            { date: new Date().toISOString(), user: 'System', action: 'Status changed to Pending First Premium' }
+            { date: new Date().toISOString(), user: 'System', action: 'Status changed to Incomplete Policy' }
         ],
     };
     
-    const firebaseData = policyToFirebase(newPolicyData as NewBusiness);
+    const firebaseData = policyToFirebase(newPolicyData as unknown as NewBusiness);
     const policiesCollectionRef = collection(db, POLICIES_COLLECTION);
     
-    addDoc(policiesCollectionRef, firebaseData)
+    const docRef = await addDoc(policiesCollectionRef, firebaseData)
         .catch(async (serverError) => {
             const permissionError = new FirestorePermissionError({
                 path: policiesCollectionRef.path,
@@ -295,6 +296,11 @@ export async function createPolicy(values: any): Promise<void> {
             errorEmitter.emit('permission-error', permissionError);
             throw serverError; // Re-throw the original error after emitting our custom one
         });
+    
+    // Update the local object with the real doc ID
+    await setDoc(docRef, { id: docRef.id, uid: docRef.id }, { merge: true });
+
+    return docRef.id;
 }
 
 
@@ -618,3 +624,4 @@ function newId() {
 }
 
     
+
