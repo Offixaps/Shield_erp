@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -64,7 +63,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             </div>
             <Separator className="my-0" />
             <div className="p-4 border border-t-0 rounded-b-md space-y-6">
-                 <MedicalQuestion 
+                <MedicalQuestion 
                     form={form} 
                     name="bloodTransfusionOrSurgery" 
                     label="Have you ever had a blood transfusion or surgery?" 
@@ -72,7 +71,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
-                 <MedicalQuestion 
+                <MedicalQuestion 
                     form={form} 
                     name="highBloodPressure" 
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
@@ -109,7 +108,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Diabetes']}
                 />
                 <Separator />
-                <MedicalQuestion 
+                 <MedicalQuestion 
                     form={form} 
                     name="colitisCrohns" 
                     label="Have you ever had or been told you had Colitis or Crohn's disease?" 
@@ -152,9 +151,27 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         <Separator className="my-0" />
       </div>
 
-      <MedicalQuestion form={form} name="arthritis" label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" detailsFieldName="arthritisDetails" detailsOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']} />
-      <MedicalQuestion form={form} name="chestPain" label="Chest pain, irregular heart beat or raised cholesterol?" detailsFieldName="chestPainDetails" detailsOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']} />
-      <MedicalQuestion form={form} name="asthma" label="Asthma, bronchitis, shortness of breath or any other chest complaint?" detailsFieldName="asthmaDetails" />
+      <MedicalQuestion 
+        form={form} 
+        name="arthritis" 
+        label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" 
+        detailsFieldName="arthritisDetails" 
+        detailsOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']}
+       />
+      <MedicalQuestion 
+        form={form} 
+        name="chestPain" 
+        label="Chest pain, irregular heart beat or raised cholesterol?" 
+        detailsFieldName="chestPainDetails" 
+        detailsOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']}
+      />
+      <MedicalQuestion 
+        form={form} 
+        name="asthma" 
+        label="Asthma, bronchitis, shortness of breath or any other chest complaint?" 
+        detailsFieldName="asthmaDetails" 
+        detailsOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']}
+       />
       <MedicalQuestion form={form} name="digestiveDisorder" label="Duodenal or Gastric Ulcer or any other disorder of the digestive system (including the liver and pancreas)?" detailsFieldName="digestiveDisorderDetails" />
       <MedicalQuestion form={form} name="bloodDisorder" label="Blood disorder or anemia?" detailsFieldName="bloodDisorderDetails" />
       <MedicalQuestion form={form} name="thyroidDisorder" label="Thyroid disorder?" detailsFieldName="thyroidDisorderDetails" />
