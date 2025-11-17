@@ -71,7 +71,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     detailsOptions={['Blood Transfusion', 'Surgery']}
                 />
                 <Separator />
-                 <MedicalQuestion 
+                <MedicalQuestion 
                     form={form} 
                     name="highBloodPressure" 
                     label="Have you ever had or been told you had any of the following: High blood pressure, Angina, Heart attack, Stroke, Coma, any other disease of the heart, arteries, or circulation?" 
@@ -95,7 +95,13 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     ]}
                 />
                 <Separator />
-                <MedicalQuestion form={form} name="diabetes" label="Have you ever had or been told you had Diabetes?" detailsFieldName="diabetesDetails" />
+                <MedicalQuestion 
+                    form={form} 
+                    name="diabetes" 
+                    label="Have you ever had or been told you had Diabetes?" 
+                    detailsFieldName="diabetesDetails" 
+                    detailsOptions={['Diabetes']}
+                />
                 <Separator />
                 <MedicalQuestion form={form} name="colitisCrohns" label="Have you ever had or been told you had Colitis or Crohn's disease?" detailsFieldName="colitisCrohnsDetails" />
                 <Separator />
