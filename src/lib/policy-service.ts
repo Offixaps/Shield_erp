@@ -219,12 +219,10 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   }
   const originalPolicy = policyFromFirebase(currentDoc);
 
-  // The 'serial' field is read-only on the form and won't be in 'updates'.
-  // We must ensure the original serial number is preserved.
   const updatedData = { 
     ...originalPolicy, 
     ...updates,
-    serial: originalPolicy.serial || 'Error-Fix', // Explicitly preserve the original serial number
+    serial: originalPolicy.serial || updates.serial, // Explicitly preserve the original serial number
   };
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -257,15 +255,17 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   return updatedData;
 }
 
-export async function createPolicy(values: any): Promise<string> {
-    const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
-
+export async function generateNewSerialNumber(): Promise<string> {
     const policies = await getPolicies();
     const maxSerial = policies.reduce((max, p) => {
         const serialNum = parseInt(p.serial, 10);
         return !isNaN(serialNum) && serialNum > max ? serialNum : max;
     }, 1000);
-    const newSerial = (maxSerial + 1).toString();
+    return (maxSerial + 1).toString();
+}
+
+export async function createPolicy(values: any): Promise<string> {
+    const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
     const newPolicyData = {
         client: lifeAssuredName,
@@ -301,7 +301,7 @@ export async function createPolicy(values: any): Promise<string> {
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + (values.policyTerm || 0))).toISOString().split('T')[0],
         policyTerm: values.policyTerm || 0,
         premiumTerm: values.premiumTerm || 0,
-        serial: newSerial,
+        serial: values.serial,
         paymentFrequency: values.paymentFrequency || null,
         onboardingStatus: 'Incomplete Policy',
         billingStatus: 'Outstanding',

@@ -751,7 +751,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
         />
         <FormField
           control={form.control}
-          name="serialNumber"
+          name="serial"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Serial Number</FormLabel>
@@ -764,7 +764,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
         />
         <FormField
           control={form.control}
-          name="policyNumber"
+          name="policy"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Policy Number</FormLabel>

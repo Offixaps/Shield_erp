@@ -13,7 +13,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { format, differenceInYears } from 'date-fns';
 import { useRouter } from 'next/navigation';
-import { getPolicyById, createPolicy, updatePolicy } from '@/lib/policy-service';
+import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { numberToWords } from '@/lib/utils';
 import { FilePenLine, Send, Save, XCircle } from 'lucide-react';
@@ -286,21 +286,21 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 paymentAuthoritySignature: businessData.paymentAuthoritySignature || '',
                 lifeInsuredSignature: businessData.lifeInsuredSignature || '',
                 policyOwnerSignature: businessData.policyOwnerSignature || '',
-                premiumPayerSurname: businessData.premiumPayerSurname || '',
-                premiumPayerOtherNames: businessData.premiumPayerOtherNames || '',
-                premiumPayerOccupation: businessData.premiumPayerOccupation || '',
-                premiumPayerRelationship: businessData.premiumPayerRelationship || '',
-                premiumPayerResidentialAddress: businessData.premiumPayerResidentialAddress || '',
-                premiumPayerPostalAddress: businessData.premiumPayerPostalAddress || '',
-                premiumPayerBusinessName: businessData.premiumPayerBusinessName || '',
-                premiumPayerIdNumber: businessData.premiumPayerIdNumber || '',
-                premiumPayerPlaceOfIssue: businessData.premiumPayerPlaceOfIssue || '',
-                currentDoctorName: businessData.currentDoctorName || '',
-                currentDoctorPhone: businessData.currentDoctorPhone || '',
-                currentDoctorHospital: businessData.currentDoctorHospital || '',
-                previousDoctorName: businessData.previousDoctorName || '',
-                previousDoctorPhone: businessData.previousDoctorPhone || '',
-                previousDoctorHospital: businessData.previousDoctorHospital || '',
+                premiumPayerSurname: (businessData as any).premiumPayerSurname || '',
+                premiumPayerOtherNames: (businessData as any).premiumPayerOtherNames || '',
+                premiumPayerOccupation: (businessData as any).premiumPayerOccupation || '',
+                premiumPayerRelationship: (businessData as any).premiumPayerRelationship || '',
+                premiumPayerResidentialAddress: (businessData as any).premiumPayerResidentialAddress || '',
+                premiumPayerPostalAddress: (businessData as any).premiumPayerPostalAddress || '',
+                premiumPayerBusinessName: (businessData as any).premiumPayerBusinessName || '',
+                premiumPayerIdNumber: (businessData as any).premiumPayerIdNumber || '',
+                premiumPayerPlaceOfIssue: (businessData as any).premiumPayerPlaceOfIssue || '',
+                currentDoctorName: (businessData as any).currentDoctorName || '',
+                currentDoctorPhone: (businessData as any).currentDoctorPhone || '',
+                currentDoctorHospital: (businessData as any).currentDoctorHospital || '',
+                previousDoctorName: (businessData as any).previousDoctorName || '',
+                previousDoctorPhone: (businessData as any).previousDoctorPhone || '',
+                previousDoctorHospital: (businessData as any).previousDoctorHospital || '',
                 // Map product to contractType
                 contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
                 // Handle dates
@@ -330,6 +330,17 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const monthlyBasicIncome = form.watch('monthlyBasicIncome');
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
+  const contractType = form.watch('contractType');
+
+  React.useEffect(() => {
+    async function setSerialNumber() {
+        if (contractType && !isEditMode && !form.getValues('serial')) {
+            const newSerial = await generateNewSerialNumber();
+            form.setValue('serial', newSerial);
+        }
+    }
+    setSerialNumber();
+  }, [contractType, isEditMode, form]);
 
   React.useEffect(() => {
     const dob = form.getValues('lifeAssuredDob');
@@ -403,7 +414,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           description: 'Your application has been updated successfully.',
         });
       } else {
-        const newPolicyId = await createPolicy(values);
+        const newPolicyId = await createPolicy(values as any);
         setCurrentBusinessId(newPolicyId);
         setIsEditMode(true); 
         // Update URL without a full page reload/navigation
@@ -440,7 +451,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       if (isEditMode && policyId) {
         await updatePolicy(policyId, values as any);
       } else {
-        policyId = await createPolicy(values);
+        policyId = await createPolicy(values as any);
       }
       toast({
         title: 'Progress Saved',
