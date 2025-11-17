@@ -7,7 +7,7 @@ import { useWatch } from 'react-hook-form';
 import { Separator } from '@/components/ui/separator';
 import { FormField, FormControl, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import MedicalConditionDetailsTable from '../medical-condition-details-table';
+import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Input } from '../ui/input';
 
@@ -108,7 +108,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     name="colitisCrohns" 
                     label="Have you ever had or been told you had Colitis or Crohn's disease?" 
                     detailsFieldName="colitisCrohnsDetails" 
-                    detailsOptions={['Colitis', "Crohn's disease"]}
+                    detailsOptions={["Colitis", "Crohn's disease"]}
                 />
                 <Separator />
                 <MedicalQuestion form={form} name="paralysisEpilepsy" label="Have you ever had or been told you had any of the following: Paralysis, Multiple sclerosis, Epilepsy, Dementia, or any other central nervous system disorder?" detailsFieldName="paralysisEpilepsyDetails" />
