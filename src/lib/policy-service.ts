@@ -24,9 +24,31 @@ import { FirestorePermissionError } from '@/firebase/errors';
 const POLICIES_COLLECTION = 'policies';
 
 // --- Data Conversion Helpers ---
+// Deeply converts undefined values to null for Firestore compatibility.
+function undefinedToNull(obj: any): any {
+  if (obj === undefined) {
+    return null;
+  }
+  if (obj === null || typeof obj !== 'object') {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => undefinedToNull(item));
+  }
+  const newObj: { [key: string]: any } = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      newObj[key] = undefinedToNull(obj[key]);
+    }
+  }
+  return newObj;
+}
 
 export function policyToFirebase(policy: NewBusiness): any {
-  const data = { ...policy };
+  let data = { ...policy };
+
+  // Convert all undefined values to null BEFORE any other processing.
+  data = undefinedToNull(data);
 
   // Convert Date objects to Timestamps for Firestore
   const toTimestamp = (dateStr: string | Date | undefined | null) => {
@@ -221,7 +243,6 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   const updatedData = { 
     ...originalPolicy, 
     ...updates,
-    serial: originalPolicy.serial || updates.serial, // Explicitly preserve the original serial number
   };
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -709,4 +730,5 @@ function newId() {
     
 
     
+
 
