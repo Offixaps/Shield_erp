@@ -389,6 +389,3 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
-
-    
-

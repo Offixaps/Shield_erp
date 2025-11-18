@@ -61,6 +61,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
     defaultValues: newBusinessFormSchema.parse({
+      // Provide explicit defaults for dates to avoid uncontrolled component errors
       lifeAssuredDob: new Date(),
       issueDate: new Date(),
       commencementDate: new Date(),
@@ -403,5 +404,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
