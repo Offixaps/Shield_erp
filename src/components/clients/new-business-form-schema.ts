@@ -352,45 +352,42 @@ export const newBusinessFormSchema = z
     
   })
   .superRefine((data, ctx) => {
+    // Helper function to add issue
+    const addIssue = (path: (string | number)[], message: string) => {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
+    };
+
     // Conditional validation for Premium Payer
     if (!data.isPolicyHolderPayer) {
-        if (!data.premiumPayerOtherNames) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerOtherNames'], message: 'Payer\'s first name is required.' });
-        }
-        if (!data.premiumPayerSurname) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerSurname'], message: 'Payer\'s surname is required.' });
-        }
-        if (!data.premiumPayerIdType) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdType'], message: 'Payer\'s ID type is required.' });
-        }
-         if (!data.premiumPayerIdNumber) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdNumber'], message: 'Payer\'s ID number is required.' });
-        }
+        if (!data.premiumPayerOtherNames) addIssue(['premiumPayerOtherNames'], "Payer's first name is required.");
+        if (!data.premiumPayerSurname) addIssue(['premiumPayerSurname'], "Payer's surname is required.");
+        if (!data.premiumPayerIdType) addIssue(['premiumPayerIdType'], "Payer's ID type is required.");
+        if (!data.premiumPayerIdNumber) addIssue(['premiumPayerIdNumber'], "Payer's ID number is required.");
     }
     
     // Conditional validation for Alcohol Consumption
     if (data.alcoholHabits === 'current_regular_drinker' || data.alcoholHabits === 'occasional_socially') {
         if (!data.alcoholBeer?.consumed && !data.alcoholWine?.consumed && !data.alcoholSpirits?.consumed) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['alcoholHabits'], message: 'Please specify at least one type of alcohol consumed if you are a drinker.' });
+            addIssue(['alcoholHabits'], 'Please specify at least one type of alcohol consumed.');
         }
     }
 
     // Conditional validation for Tobacco/Nicotine Usage
     if (data.usedNicotineLast12Months === 'yes') {
         if (!data.tobaccoCigarettes?.smoked && !data.tobaccoCigars?.smoked && !data.tobaccoPipe?.smoked && !data.tobaccoNicotineReplacement?.smoked && !data.tobaccoEcigarettes?.smoked && !data.tobaccoOther?.smoked) {
-             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['usedNicotineLast12Months'], message: 'Please specify which tobacco/nicotine products have been used.' });
+             addIssue(['usedNicotineLast12Months'], 'Please specify which tobacco/nicotine products have been used.');
         }
     }
 
-     // Conditional validation for Viral Co-infections
-     if (data.testedPositiveViralInfection === 'yes') {
+    // Conditional validation for Viral Co-infections
+    if (data.testedPositiveViralInfection === 'yes') {
         const testedPositive = data.testedPositiveFor;
         const awaitingResults = data.awaitingResultsFor;
         if (
             (!testedPositive || (!testedPositive.hiv && !testedPositive.hepB && !testedPositive.hepC)) &&
             (!awaitingResults || (!awaitingResults.hiv && !awaitingResults.hepB && !awaitingResults.hepC))
         ) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['testedPositiveViralInfection'], message: 'Please specify the infection you tested positive for or are awaiting results for.' });
+            addIssue(['testedPositiveViralInfection'], 'Please specify the infection details.');
         }
     }
 
@@ -419,14 +416,18 @@ export const newBusinessFormSchema = z
         { flag: data.sti, details: data.stiDetails, path: 'sti' },
         { flag: data.presentSymptoms, details: data.presentSymptomsDetails, path: 'presentSymptoms' },
         { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
+        { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: 'hasExistingPolicies' },
+        { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: 'declinedPolicy' },
+        { flag: data.flownAsPilot, details: data.flownAsPilotDetails, path: 'flownAsPilot' },
+        { flag: data.hazardousSports, details: data.hazardousSportsDetails, path: 'hazardousSports' },
+        { flag: data.travelOutsideCountry, details: data.travelOutsideCountryDetails, path: 'travelOutsideCountry' },
     ];
 
     medicalChecks.forEach(check => {
         if (check.flag === 'yes' && (!check.details || check.details.length === 0)) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: [check.path], message: 'Please provide details for the selected condition.' });
+            addIssue([check.path], 'Please provide details for the selected condition.');
         }
     });
-
   });
 
 
