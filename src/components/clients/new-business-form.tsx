@@ -502,9 +502,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <TabsTrigger 
                 key={tab} 
                 value={tab} 
-                className={cn(
-                    errorTabs.has(tab) && 'text-destructive data-[state=active]:text-destructive'
-                )}
+                style={errorTabs.has(tab) ? { color: '#ef4444' } : {}}
               >
                 {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </TabsTrigger>
