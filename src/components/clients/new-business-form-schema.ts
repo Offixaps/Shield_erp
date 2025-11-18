@@ -352,21 +352,6 @@ export const newBusinessFormSchema = z
     
   })
   .superRefine((data, ctx) => {
-    if (data.primaryBeneficiaries && data.primaryBeneficiaries.length > 0) {
-      const totalPrimaryPercentage = data.primaryBeneficiaries.reduce(
-        (acc, b) => acc + (b.percentage || 0),
-        0
-      );
-      if (totalPrimaryPercentage !== 100) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['primaryBeneficiaries'],
-          message: 'Total percentage for primary beneficiaries must be 100.',
-        });
-      }
-    }
-  })
-  .superRefine((data, ctx) => {
     if (!data.isPolicyHolderPayer) {
         if (!data.premiumPayerOtherNames) {
             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerOtherNames'], message: 'Payer\'s first name is required.' });
@@ -406,3 +391,4 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
 };
 
     
+

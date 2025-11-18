@@ -220,8 +220,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
-  const [submissionError, setSubmissionError] = React.useState<string | null>(null);
-
+  
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
@@ -320,7 +319,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   
   const handleSaveAndNext = async () => {
     setIsSubmitting(true);
-    setSubmissionError(null);
     const currentTabFields = tabFields[activeTab];
     const isValid = await form.trigger(currentTabFields as any);
 
@@ -348,7 +346,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         const newPolicyId = await createPolicy(values as any);
         setCurrentBusinessId(newPolicyId);
         setIsEditMode(true); 
-        // Update URL without a full page reload/navigation
         window.history.replaceState(null, '', `/business-development/sales/${newPolicyId}/edit`);
         toast({
           title: 'Application Started',
@@ -363,12 +360,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       }
     } catch (error: any) {
       console.error('Save and Next error:', error);
-      const errorMessage = error.message || 'An unexpected error occurred while saving your progress.';
-      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: errorMessage,
+        description: error.message || 'An unexpected error occurred while saving your progress.',
       });
     } finally {
       setIsSubmitting(false);
@@ -377,7 +372,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const handleSaveAndClose = async () => {
     setIsSubmitting(true);
-    setSubmissionError(null);
     const values = form.getValues();
     let policyId = currentBusinessId;
 
@@ -394,12 +388,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       router.push('/business-development/sales');
     } catch (error: any) {
       console.error('Save and Close error:', error);
-      const errorMessage = error.message || 'An unexpected error occurred while saving.';
-      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Save Failed',
-        description: errorMessage,
+        description: error.message || 'An unexpected error occurred while saving.',
       });
     } finally {
       setIsSubmitting(false);
@@ -407,34 +399,43 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
   const onValidationErrors = (errors: FieldErrors) => {
-    const errorFields = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
+    const errorFields = Object.keys(errors);
 
-    if (errorFields.length > 0) {
-      const errorTabSet = new Set<TabName>();
-      for (const field of errorFields) {
-        for (const tab of TABS) {
-          if ((tabFields[tab] as string[]).includes(field)) {
-            errorTabSet.add(tab);
-            break;
-          }
-        }
+    for (const tab of TABS) {
+      const tabHasError = (tabFields[tab] as string[]).some(field => errorFields.includes(field));
+      if (tabHasError) {
+        setActiveTab(tab);
+        toast({
+          variant: 'destructive',
+          title: 'Validation Error',
+          description: `Please correct the errors on the ${tab.replace(/-/g, ' ')} tab.`,
+        });
+        return;
       }
-      if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
-          errorTabSet.add('beneficiaries');
-      }
-
-      const firstErrorTab = Array.from(errorTabSet)[0];
-      if (firstErrorTab) {
-        setActiveTab(firstErrorTab);
-      }
-      
-      setSubmissionError(`Please correct the errors on the highlighted tabs before submitting.`);
     }
   };
 
   const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
     setIsSubmitting(true);
-    setSubmissionError(null);
+    
+    // Manual cross-field validation for beneficiary percentages
+    if (values.primaryBeneficiaries && values.primaryBeneficiaries.length > 0) {
+      const totalPrimaryPercentage = values.primaryBeneficiaries.reduce(
+        (acc, b) => acc + (b.percentage || 0),
+        0
+      );
+      if (totalPrimaryPercentage !== 100) {
+        setActiveTab('beneficiaries');
+        toast({
+          variant: 'destructive',
+          title: 'Validation Error',
+          description: 'Total percentage for primary beneficiaries must be 100.',
+        });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       if (!currentBusinessId) {
         throw new Error('No business ID found for final submission. Please save the form first.');
@@ -450,52 +451,26 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       router.push('/business-development/sales/thank-you');
     } catch (error: any) {
       console.error('Form submission error:', error);
-      const errorMessage = error.message || 'An unexpected error occurred. Please review all tabs for errors.';
-      setSubmissionError(errorMessage);
       toast({
         variant: 'destructive',
         title: 'Submission Failed',
-        description: errorMessage,
+        description: error.message || 'An unexpected error occurred. Please review all tabs for errors.',
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-
   const isLastTab = activeTab === TABS[TABS.length - 1];
-
-  const hasErrorInTab = (tab: TabName) => {
-    const tabSpecificFields = tabFields[tab];
-    for (const field of tabSpecificFields) {
-        if (errors[field]) return true;
-    }
-    if (tab === 'beneficiaries' && (errors.primaryBeneficiaries || errors.contingentBeneficiaries)) {
-        return true;
-    }
-    return false;
-  };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onValidationErrors)} className="space-y-8">
-        {submissionError && (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Validation Error</AlertTitle>
-                <AlertDescription>{submissionError}</AlertDescription>
-            </Alert>
-        )}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             {TABS.map(tab => (
-              <TabsTrigger 
-                key={tab} 
-                value={tab} 
-              >
-                <span className={cn(hasErrorInTab(tab) && "text-destructive")}>
-                  {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </span>
+              <TabsTrigger key={tab} value={tab}>
+                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </TabsTrigger>
             ))}
           </TabsList>
