@@ -19,7 +19,7 @@ const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
 const beneficiarySchema = z.object({
     name: z.string().min(1, "Name is required.").default(''),
     dob: z.date({ required_error: 'Date of birth is required.' }),
-    gender: z.enum(['Male', 'Female']),
+    gender: z.enum(['Male', 'Female']).default('Male'),
     relationship: z.string().min(1, "Relationship is required.").default(''),
     telephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100.").default(100),
