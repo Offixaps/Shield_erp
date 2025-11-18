@@ -17,7 +17,7 @@ const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
 
 const beneficiarySchema = z.object({
     name: z.string().default(''),
-    dob: z.date().optional(),
+    dob: z.date({ required_error: 'Date of birth is required.' }),
     gender: z.enum(['Male', 'Female']).default('Male'),
     relationship: z.string().default(''),
     telephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
@@ -29,7 +29,7 @@ const existingPolicySchema = z.object({
   companyName: z.string().default(''),
   personCovered: z.string().default(''),
   policyType: z.string().default(''),
-  issueDate: z.date().optional(),
+  issueDate: z.date({ required_error: 'Issue date is required.' }),
   premiumAmount: z.coerce.number().default(0),
   faceAmount: z.coerce.number().default(0),
   changedGrpOrInd: z.enum(['yes', 'no']).default('no'),
@@ -84,7 +84,7 @@ const viralInfectionDetailSchema = z.object({
 
 export const illnessDetailSchema = z.object({
   illness: z.string().min(1, 'Illness/Injury is required.').default(''),
-  date: z.date({ required_error: 'Date is required.' }).optional(),
+  date: z.date({ required_error: 'Date is required.' }),
   hospital: z.string().optional().default(''),
   duration: z.string().optional().default(''),
   status: z.string().optional().default(''),
@@ -161,14 +161,14 @@ export const newBusinessFormSchema = z
     onboardingStatus: z.string().optional().default('Incomplete Policy'),
     // Client Details
     title: z.enum(['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon']),
-    lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.'),
+    lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.').default(''),
     lifeAssuredMiddleName: z.string().optional().default(''),
-    lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.'),
+    lifeAssuredSurname: z.string().min(2, 'Surname must be at least 2 characters.').default(''),
     lifeAssuredDob: z.date({ required_error: 'Date of birth is required.' }),
-    placeOfBirth: z.string().min(2, 'Place of birth is required.'),
-    email: z.string().email('Invalid email address.'),
-    phone: z.string().regex(phoneRegex, phoneError),
-    postalAddress: z.string().min(5, 'Postal address is required.'),
+    placeOfBirth: z.string().min(2, 'Place of birth is required.').default(''),
+    email: z.string().email('Invalid email address.').default(''),
+    phone: z.string().regex(phoneRegex, phoneError).default(''),
+    postalAddress: z.string().min(5, 'Postal address is required.').default(''),
     workTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     homeTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
     residentialAddress: z.string().optional().default(''),
@@ -178,15 +178,15 @@ export const newBusinessFormSchema = z
     dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.').default(0),
     gender: z.enum(['Male', 'Female']),
     nationalIdType: z.enum(idTypes),
-    idNumber: z.string().min(2, 'ID Number is required.'),
+    idNumber: z.string().min(2, 'ID Number is required.').default(''),
     issueDate: z.date({ required_error: 'Issue date is required.' }),
     expiryDate: z.date().optional(),
-    placeOfIssue: z.string().min(2, 'Place of issue is required.'),
+    placeOfIssue: z.string().min(2, 'Place of issue is required.').default(''),
     country: z.string().min(2, 'Country is required.').default('Ghana'),
     region: z.string().optional().default(''),
     religion: z.enum(['Christian', 'Muslim', 'Traditional', 'Other']),
     nationality: z.string().min(2, 'Nationality is required.').default('Ghanaian'),
-    languages: z.string().min(2, 'Languages spoken is required.'),
+    languages: z.string().min(2, 'Languages spoken is required.').default(''),
 
     // Coverage Details
     contractType: z.enum([
@@ -196,16 +196,16 @@ export const newBusinessFormSchema = z
     serial: z.string().optional().default(''),
     policy: z.string().optional().default(''),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
-    policyTerm: z.coerce.number().positive('Policy term must be a positive number.'),
-    premiumTerm: z.coerce.number().positive('Premium term must be a positive number.'),
+    policyTerm: z.coerce.number().positive('Policy term must be a positive number.').default(0),
+    premiumTerm: z.coerce.number().positive('Premium term must be a positive number.').default(0),
     sumAssured: z.coerce
       .number()
-      .positive('Sum assured must be a positive number.'),
+      .positive('Sum assured must be a positive number.').default(0),
     premiumAmount: z.coerce
       .number()
-      .positive('Premium amount must be a positive number.'),
+      .positive('Premium amount must be a positive number.').default(0),
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
-    increaseMonth: z.string().min(1, 'Increase month is required.'),
+    increaseMonth: z.string().min(1, 'Increase month is required.').default(''),
 
     // Agent Details
     agentName: z.string().optional().default(''),
@@ -215,11 +215,11 @@ export const newBusinessFormSchema = z
     introducerCode: z.string().optional().default(''),
 
     // Employment Details
-    occupation: z.string().min(2, 'Occupation is required.'),
-    natureOfBusiness: z.string().min(2, 'Nature of business/work is required.'),
-    employer: z.string().min(2, 'Employer is required.'),
-    employerAddress: z.string().min(5, 'Employer address is required.'),
-    monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.'),
+    occupation: z.string().min(2, 'Occupation is required.').default(''),
+    natureOfBusiness: z.string().min(2, 'Nature of business/work is required.').default(''),
+    employer: z.string().min(2, 'Employer is required.').default(''),
+    employerAddress: z.string().min(5, 'Employer address is required.').default(''),
+    monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.').default(0),
     otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.').default(0),
     totalMonthlyIncome: z.coerce.number().optional().default(0),
 
@@ -238,13 +238,13 @@ export const newBusinessFormSchema = z
     premiumPayerIssueDate: z.date().optional(),
     premiumPayerExpiryDate: z.date().optional(),
     premiumPayerPlaceOfIssue: z.string().optional(),
-    bankName: z.string().min(2, 'Bank name is required.'),
-    bankBranch: z.string().min(2, 'Bank branch is required.'),
-    amountInWords: z.string().min(3, 'Amount in words is required.'),
-    sortCode: z.string().min(6, 'Sort code must be at least 6 characters.'),
+    bankName: z.string().min(2, 'Bank name is required.').default(''),
+    bankBranch: z.string().min(2, 'Bank branch is required.').default(''),
+    amountInWords: z.string().min(3, 'Amount in words is required.').default(''),
+    sortCode: z.string().min(6, 'Sort code must be at least 6 characters.').default(''),
     accountType: z.enum(['Current', 'Savings', 'Other']),
-    bankAccountName: z.string().min(2, 'Bank account name is required.'),
-    bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.'),
+    bankAccountName: z.string().min(2, 'Bank account name is required.').default(''),
+    bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.').default(''),
     paymentAuthoritySignature: z.string().optional().default(''),
     lifeInsuredSignature: z.string().optional().default(''),
     policyOwnerSignature: z.string().optional().default(''),
@@ -388,4 +388,3 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
-
