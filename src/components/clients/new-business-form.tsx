@@ -62,17 +62,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     mode: 'onBlur',
     defaultValues: {
       ...newBusinessFormSchema.parse({
-        // Set explicit defaults for fields that might cause issues if undefined
+        // Provide explicit defaults for dates to avoid uncontrolled component errors
+        lifeAssuredDob: new Date(),
+        issueDate: new Date(),
+        commencementDate: new Date(),
+        // Initialize arrays to prevent uncontrolled errors
         primaryBeneficiaries: [],
         contingentBeneficiaries: [],
         existingPoliciesDetails: [],
         declinedPolicyDetails: [],
-        medicalHistory: [],
-        familyMedicalHistoryDetails: [],
-        lifestyleDetails: [],
-        flownAsPilotDetails: [],
-        hazardousSportsDetails: [],
-        travelOutsideCountryDetails: [],
         bloodTransfusionOrSurgeryDetails: [],
         highBloodPressureDetails: [],
         cancerDetails: [],
@@ -95,11 +93,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         criticalIllnessDetails: [],
         stiDetails: [],
         presentSymptomsDetails: [],
+        familyMedicalHistoryDetails: [],
+        flownAsPilotDetails: [],
+        hazardousSportsDetails: [],
+        travelOutsideCountryDetails: [],
       }),
-      // Explicitly set date defaults to avoid uncontrolled component errors
-      lifeAssuredDob: new Date(),
-      issueDate: new Date(),
-      commencementDate: new Date(),
     },
   });
 
