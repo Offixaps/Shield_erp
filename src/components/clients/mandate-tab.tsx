@@ -90,7 +90,7 @@ export default function MandateTab({ client }: { client: NewBusiness }) {
                         
                         <SectionHeader title="Premium Details" />
                         <div className="space-y-4">
-                             <DetailRow label="Premium GHC" value={client.premium.toFixed(2)} />
+                             <DetailRow label="Premium GHC" value={Number(client.premium).toFixed(2)} />
                              <DetailRow label="Amount in Words" value={clientDetails.amountInWords} />
                              <div>
                                 <span className="text-xs uppercase text-gray-500 tracking-wider">Premium Deduction Frequency</span>
