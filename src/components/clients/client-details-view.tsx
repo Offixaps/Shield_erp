@@ -226,6 +226,12 @@ function MedicalHistorySection({
     return null;
   }
 
+  const isValidDate = (dateString: string | undefined | null): boolean => {
+    if (!dateString) return false;
+    const date = new Date(dateString);
+    return !isNaN(date.getTime());
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -240,7 +246,7 @@ function MedicalHistorySection({
               <AccordionTrigger>{history.illness}</AccordionTrigger>
               <AccordionContent className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <DetailItem label="Date" value={history.date ? format(new Date(history.date), 'PPP') : 'N/A'} />
+                  <DetailItem label="Date" value={isValidDate(history.date) ? format(new Date(history.date), 'PPP') : 'N/A'} />
                   <DetailItem label="Hospital/Doctor" value={history.hospital} />
                   <DetailItem label="Duration" value={history.duration} />
                   <DetailItem label="Status" value={history.status} />
@@ -249,9 +255,9 @@ function MedicalHistorySection({
                     <div className="p-4 mt-2 space-y-4 bg-blue-500/10 rounded-md border border-blue-500/20">
                         <h4 className="font-semibold text-primary">High Blood Pressure Specifics</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <DetailItem label="Diagnosis Date" value={history.diagnosisDate ? format(new Date(history.diagnosisDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Diagnosis Date" value={isValidDate(history.diagnosisDate) ? format(new Date(history.diagnosisDate!), 'PPP') : 'N/A'} />
                             <DetailItem label="Reading at Diagnosis" value={history.bpReadingAtDiagnosis} />
-                            <DetailItem label="Last Monitored Date" value={history.lastMonitoredDate ? format(new Date(history.lastMonitoredDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Last Monitored Date" value={isValidDate(history.lastMonitoredDate) ? format(new Date(history.lastMonitoredDate!), 'PPP') : 'N/A'} />
                             <DetailItem label="Last BP Reading" value={history.lastBpReading} />
                             <DetailItem label="Monitoring Frequency" value={history.monitoringFrequency} />
                         </div>
@@ -277,9 +283,9 @@ function MedicalHistorySection({
                      <div className="p-4 mt-2 space-y-4 bg-red-500/10 rounded-md border border-red-500/20">
                          <h4 className="font-semibold text-destructive">Diabetes Specifics</h4>
                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <DetailItem label="First Signs Date" value={history.diabetesFirstSignsDate ? format(new Date(history.diabetesFirstSignsDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="First Signs Date" value={isValidDate(history.diabetesFirstSignsDate) ? format(new Date(history.diabetesFirstSignsDate!), 'PPP') : 'N/A'} />
                              <DetailItem label="Symptoms" value={history.diabetesSymptoms} />
-                             <DetailItem label="Diagnosis Date" value={history.diabetesDiagnosisDate ? format(new Date(history.diabetesDiagnosisDate), 'PPP') : 'N/A'} />
+                             <DetailItem label="Diagnosis Date" value={isValidDate(history.diabetesDiagnosisDate) ? format(new Date(history.diabetesDiagnosisDate!), 'PPP') : 'N/A'} />
                              <DetailItem label="Consulted Doctor?" value={<YesNoDisplay value={history.diabetesConsulted} />} />
                              <DetailItem label="Latest Blood Sugar Reading" value={history.diabetesLatestBloodSugar} />
                          </div>
@@ -301,7 +307,7 @@ function MedicalHistorySection({
                             <DetailItem label="Age at First Signs" value={history.asthmaFirstSignsAge} />
                             <DetailItem label="Symptom Duration" value={history.asthmaSymptomDuration} />
                             <DetailItem label="Symptom Frequency" value={history.asthmaSymptomFrequency} />
-                            <DetailItem label="Last Attack Date" value={history.asthmaLastAttackDate ? format(new Date(history.asthmaLastAttackDate), 'PPP') : 'N/A'} />
+                            <DetailItem label="Last Attack Date" value={isValidDate(history.asthmaLastAttackDate) ? format(new Date(history.asthmaLastAttackDate!), 'PPP') : 'N/A'} />
                             <DetailItem label="Condition Severity" value={history.asthmaSeverity} />
                           </div>
                            <DetailItem label="Triggers" value={history.asthmaTrigger} />
