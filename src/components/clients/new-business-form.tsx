@@ -221,7 +221,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
   const [submissionError, setSubmissionError] = React.useState<string | null>(null);
-  const [errorTabs, setErrorTabs] = React.useState<Set<TabName>>(new Set());
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
@@ -230,25 +229,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   });
 
   const { formState: { errors } } = form;
-
-  React.useEffect(() => {
-    const newErrorTabs = new Set<TabName>();
-    const errorFields = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
-
-    for (const field of errorFields) {
-        for (const tab of TABS) {
-            if (tabFields[tab].includes(field)) {
-                newErrorTabs.add(tab);
-                break; 
-            }
-        }
-    }
-    // Check for nested errors, like in beneficiaries array
-    if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
-      newErrorTabs.add('beneficiaries');
-    }
-    setErrorTabs(newErrorTabs);
-  }, [errors]);
 
   React.useEffect(() => {
     async function fetchPolicy() {
@@ -430,25 +410,24 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     const errorFields = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
 
     if (errorFields.length > 0) {
-      const newErrorTabs = new Set<TabName>();
+      const errorTabSet = new Set<TabName>();
       for (const field of errorFields) {
         for (const tab of TABS) {
           if ((tabFields[tab] as string[]).includes(field)) {
-            newErrorTabs.add(tab);
+            errorTabSet.add(tab);
             break;
           }
         }
       }
-       if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
-          newErrorTabs.add('beneficiaries');
-       }
+      if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
+          errorTabSet.add('beneficiaries');
+      }
 
-      const firstErrorTab = Array.from(newErrorTabs)[0];
+      const firstErrorTab = Array.from(errorTabSet)[0];
       if (firstErrorTab) {
         setActiveTab(firstErrorTab);
       }
       
-      setErrorTabs(newErrorTabs);
       setSubmissionError(`Please correct the errors on the highlighted tabs before submitting.`);
     }
   };
@@ -486,6 +465,17 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const isLastTab = activeTab === TABS[TABS.length - 1];
 
+  const hasErrorInTab = (tab: TabName) => {
+    const tabSpecificFields = tabFields[tab];
+    for (const field of tabSpecificFields) {
+        if (errors[field]) return true;
+    }
+    if (tab === 'beneficiaries' && (errors.primaryBeneficiaries || errors.contingentBeneficiaries)) {
+        return true;
+    }
+    return false;
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit, onValidationErrors)} className="space-y-8">
@@ -503,7 +493,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 key={tab} 
                 value={tab} 
               >
-                <span style={errorTabs.has(tab) ? { color: '#ef4444' } : {}}>
+                <span className={cn(hasErrorInTab(tab) && "text-destructive")}>
                   {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                 </span>
               </TabsTrigger>
@@ -557,5 +547,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
