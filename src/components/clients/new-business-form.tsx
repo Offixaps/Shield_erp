@@ -15,7 +15,7 @@ import { format, differenceInYears } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { numberToWords } from '@/lib/utils';
+import { cn, numberToWords } from '@/lib/utils';
 import { FilePenLine, Send, Save, XCircle, AlertCircle } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
@@ -499,14 +499,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             {TABS.map(tab => (
-              <TabsTrigger key={tab} value={tab} className="relative">
-                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                {errorTabs.has(tab) && (
-                    <span className="absolute top-1 right-1 flex h-3 w-3">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
-                    </span>
+              <TabsTrigger 
+                key={tab} 
+                value={tab} 
+                className={cn(
+                    errorTabs.has(tab) && 'text-destructive data-[state=active]:text-destructive'
                 )}
+              >
+                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
               </TabsTrigger>
             ))}
           </TabsList>
@@ -558,5 +558,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
