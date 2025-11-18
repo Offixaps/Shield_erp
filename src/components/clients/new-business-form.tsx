@@ -220,6 +220,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
+  const [errorTabs, setErrorTabs] = React.useState<Set<TabName>>(new Set());
   
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
@@ -400,28 +401,38 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const onValidationErrors = (errors: FieldErrors) => {
     const errorFields = Object.keys(errors);
+    const tabsWithErrors = new Set<TabName>();
 
     for (const tab of TABS) {
-      const tabHasError = (tabFields[tab] as string[]).some(field => errorFields.includes(field));
-      if (tabHasError) {
-        setActiveTab(tab);
-        toast({
-          variant: 'destructive',
-          title: 'Validation Error',
-          description: `Please correct the errors on the ${tab.replace(/-/g, ' ')} tab.`,
+        const tabHasError = (tabFields[tab] as string[]).some(field => {
+            // Check for nested fields like 'primaryBeneficiaries.0.name'
+            return errorFields.some(errorField => errorField.startsWith(field));
         });
-        return;
-      }
+
+        if (tabHasError) {
+            tabsWithErrors.add(tab);
+        }
     }
-  };
+
+    if (tabsWithErrors.size > 0) {
+        const firstErrorTab = TABS.find(tab => tabsWithErrors.has(tab));
+        if (firstErrorTab) {
+            setActiveTab(firstErrorTab);
+        }
+        toast({
+            variant: 'destructive',
+            title: 'Validation Error',
+            description: 'Please correct the errors on the highlighted tabs before submitting.',
+        });
+    }
+};
 
   const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
     setIsSubmitting(true);
     
-    // Manual cross-field validation for beneficiary percentages
     if (values.primaryBeneficiaries && values.primaryBeneficiaries.length > 0) {
       const totalPrimaryPercentage = values.primaryBeneficiaries.reduce(
-        (acc, b) => acc + (b.percentage || 0),
+        (acc, b) => acc + (Number(b.percentage) || 0),
         0
       );
       if (totalPrimaryPercentage !== 100) {
@@ -470,7 +481,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             {TABS.map(tab => (
               <TabsTrigger key={tab} value={tab}>
-                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  <span style={{ color: errorTabs.has(tab) ? '#ef4444' : 'inherit' }}>
+                    {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </span>
               </TabsTrigger>
             ))}
           </TabsList>
