@@ -463,7 +463,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       
       const finalValues = {
         ...values,
-        onboardingStatus: 'Pending First Premium' as const,
+        onboardingStatus: 'Pending Vetting' as const,
       };
 
       await updatePolicy(currentBusinessId, finalValues as any);
@@ -558,3 +558,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
