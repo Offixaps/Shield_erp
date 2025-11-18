@@ -205,7 +205,7 @@ export const newBusinessFormSchema = z
       .number()
       .positive('Premium amount must be a positive number.').default(0),
     paymentFrequency: z.enum(['Monthly', 'Annually', 'Quarterly', 'Bi-Annually']),
-    increaseMonth: z.string().min(1, 'Increase month is required.').default(''),
+    increaseMonth: z.string().default(''),
 
     // Agent Details
     agentName: z.string().optional().default(''),
