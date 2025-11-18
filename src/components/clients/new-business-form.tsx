@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -31,6 +30,7 @@ import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
 import type { NewBusiness } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { set } from 'date-fns';
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -62,12 +62,45 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     mode: 'onBlur',
     defaultValues: {
       ...newBusinessFormSchema.parse({
-          // Provide explicit defaults for dates to avoid uncontrolled component errors
-          lifeAssuredDob: new Date(),
-          issueDate: new Date(),
-          commencementDate: new Date(),
+        // Set explicit defaults for fields that might cause issues if undefined
+        primaryBeneficiaries: [],
+        contingentBeneficiaries: [],
+        existingPoliciesDetails: [],
+        declinedPolicyDetails: [],
+        medicalHistory: [],
+        familyMedicalHistoryDetails: [],
+        lifestyleDetails: [],
+        flownAsPilotDetails: [],
+        hazardousSportsDetails: [],
+        travelOutsideCountryDetails: [],
+        bloodTransfusionOrSurgeryDetails: [],
+        highBloodPressureDetails: [],
+        cancerDetails: [],
+        diabetesDetails: [],
+        colitisCrohnsDetails: [],
+        paralysisEpilepsyDetails: [],
+        mentalIllnessDetails: [],
+        arthritisDetails: [],
+        chestPainDetails: [],
+        asthmaDetails: [],
+        digestiveDisorderDetails: [],
+        bloodDisorderDetails: [],
+        thyroidDisorderDetails: [],
+        kidneyDisorderDetails: [],
+        numbnessDetails: [],
+        anxietyStressDetails: [],
+        earEyeDisorderDetails: [],
+        lumpGrowthDetails: [],
+        hospitalAttendanceDetails: [],
+        criticalIllnessDetails: [],
+        stiDetails: [],
+        presentSymptomsDetails: [],
       }),
-    }
+      // Explicitly set date defaults to avoid uncontrolled component errors
+      lifeAssuredDob: new Date(),
+      issueDate: new Date(),
+      commencementDate: new Date(),
+    },
   });
 
   // Watch for any form changes to clear the top-level error
@@ -97,7 +130,20 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 if (!dateString) return undefined;
                 try {
                     const date = new Date(dateString);
-                    if (isNaN(date.getTime())) return undefined;
+                    // Check if the parsed date is valid
+                    if (isNaN(date.getTime())) {
+                        // Try parsing different formats if needed, or return undefined
+                        const parts = dateString.split(/[-/]/);
+                        if (parts.length === 3) {
+                            // Assuming YYYY-MM-DD or MM/DD/YYYY
+                            const year = parseInt(parts[0].length === 4 ? parts[0] : parts[2]);
+                            const month = parseInt(parts[1]) -1;
+                            const day = parseInt(parts[0].length === 4 ? parts[2] : parts[0]);
+                             const robustDate = new Date(year, month, day);
+                             if(!isNaN(robustDate.getTime())) return robustDate;
+                        }
+                        return undefined;
+                    }
                     return date;
                 } catch {
                     return undefined;
@@ -107,34 +153,18 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
                 return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
-
-             const sanitizedData = {
+            
+            const sanitizedData = {
                 ...businessData,
-                // Ensure all numeric fields have a default value of 0 if null/undefined
-                ageNextBirthday: businessData.ageNextBirthday || 0,
-                dependents: businessData.dependents || 0,
-                policyTerm: businessData.policyTerm || 0,
-                premiumTerm: businessData.premiumTerm || 0,
-                sumAssured: businessData.sumAssured || 0,
-                premiumAmount: businessData.premium || 0,
-                monthlyBasicIncome: businessData.monthlyBasicIncome || 0,
-                otherIncome: businessData.otherIncome || 0,
-                totalMonthlyIncome: businessData.totalMonthlyIncome || 0,
-                // Ensure all string fields have a default of ''
                 lifeAssuredFirstName: firstName,
-                lifeAssuredMiddleName: middleName || '',
+                lifeAssuredMiddleName: middleName,
                 lifeAssuredSurname: surname,
-                 // Map product to contractType
                 contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
-                // Handle dates
+                premiumAmount: businessData.premium,
                 lifeAssuredDob: parseDate(businessData.lifeAssuredDob),
                 commencementDate: parseDate(businessData.commencementDate),
-                expiryDate: parseDate(businessData.expiryDate),
                 issueDate: parseDate(businessData.issueDate),
-                premiumPayerDob: parseDate((businessData as any).premiumPayerDob),
-                premiumPayerIssueDate: parseDate((businessData as any).premiumPayerIssueDate),
-                premiumPayerExpiryDate: parseDate((businessData as any).premiumPayerExpiryDate),
-                // Handle arrays
+                expiryDateId: parseDate(businessData.expiryDateId),
                 primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
                 contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
                 existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: parseDate(p.issueDate) })),
