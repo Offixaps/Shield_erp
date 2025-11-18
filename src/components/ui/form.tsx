@@ -94,12 +94,12 @@ const FormLabel = React.forwardRef<
   const { error, formItemId } = useFormField()
   const { formState } = useFormContext()
 
-  const shouldShowError = formState.isSubmitted || formState.touchedFields[error?.ref?.name as string] || error;
+  const shouldShowError = !!formState.errors[name as string] && formState.isSubmitted;
 
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(shouldShowError && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
