@@ -228,35 +228,34 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const { formState: { errors } } = form;
 
-    const convertStringToDate = (dateString: string | undefined | null): Date | undefined => {
-      if (!dateString) return undefined;
-      const date = new Date(dateString);
-      return isNaN(date.getTime()) ? undefined : date;
-    };
-    
-    // Recursive function to convert date strings to Date objects
-    const convertAllDates = (data: any): any => {
-      const dateFields = ['dob', 'date', 'issueDate', 'expiryDate', 'lifeAssuredDob', 'commencementDate', 'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'diagnosisDate', 'lastMonitoredDate', 'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate', 'digestiveConditionStartDate', 'dischargeDate'];
-    
-      if (Array.isArray(data)) {
-        return data.map(item => convertAllDates(item));
-      }
-    
-      if (data && typeof data === 'object' && !(data instanceof Date)) {
-        const newData: { [key: string]: any } = {};
-        for (const key in data) {
-          if (Object.prototype.hasOwnProperty.call(data, key)) {
-            if (dateFields.includes(key) && typeof data[key] === 'string') {
-              newData[key] = convertStringToDate(data[key]);
-            } else {
-              newData[key] = convertAllDates(data[key]);
-            }
-          }
+    // This function recursively traverses the data object and converts date strings to Date objects.
+    const convertStringsToDates = (data: any): any => {
+        const dateFieldKeys = [
+            'dob', 'date', 'issueDate', 'expiryDate', 'lifeAssuredDob', 
+            'commencementDate', 'premiumPayerDob', 'premiumPayerIssueDate', 
+            'premiumPayerExpiryDate', 'diagnosisDate', 'lastMonitoredDate', 
+            'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate', 
+            'digestiveConditionStartDate', 'dischargeDate', 'expiryDateId'
+        ];
+
+        if (Array.isArray(data)) {
+            return data.map(item => convertStringsToDates(item));
         }
-        return newData;
-      }
-    
-      return data;
+
+        if (data && typeof data === 'object' && !(data instanceof Date)) {
+            return Object.keys(data).reduce((acc, key) => {
+                const value = data[key];
+                if (dateFieldKeys.includes(key) && typeof value === 'string') {
+                    const parsedDate = new Date(value);
+                    acc[key] = isNaN(parsedDate.getTime()) ? undefined : parsedDate;
+                } else {
+                    acc[key] = convertStringsToDates(value);
+                }
+                return acc;
+            }, {} as { [key: string]: any });
+        }
+        
+        return data;
     };
 
   React.useEffect(() => {
@@ -264,7 +263,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            const dataWithDates = convertAllDates(businessData);
+            const dataWithDates = convertStringsToDates(businessData);
             form.reset({
                 ...emptyFormValues,
                 ...dataWithDates,
@@ -498,7 +497,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
                 {TABS.map(tab => (
                 <TabsTrigger key={tab} value={tab}>
-                    <span style={{ color: hasErrorInTab(tab) ? '#ef4444' : 'inherit' }}>
+                    <span style={ hasErrorInTab(tab) ? { color: '#ef4444' } : {}}>
                         {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </span>
                 </TabsTrigger>

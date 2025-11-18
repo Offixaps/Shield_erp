@@ -94,7 +94,9 @@ const FormLabel = React.forwardRef<
   const { error, name } = useFormField()
   const { formState } = useFormContext()
   
-  const shouldShowError = formState.isSubmitted;
+  // An error should be shown if the field is invalid and either the form has been submitted,
+  // or the field has been touched.
+  const shouldShowError = formState.isSubmitted || formState.touchedFields[name];
 
   return (
     <Label
