@@ -352,6 +352,7 @@ export const newBusinessFormSchema = z
     
   })
   .superRefine((data, ctx) => {
+    // Conditional validation for Premium Payer
     if (!data.isPolicyHolderPayer) {
         if (!data.premiumPayerOtherNames) {
             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerOtherNames'], message: 'Payer\'s first name is required.' });
@@ -366,16 +367,66 @@ export const newBusinessFormSchema = z
             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdNumber'], message: 'Payer\'s ID number is required.' });
         }
     }
+    
+    // Conditional validation for Alcohol Consumption
     if (data.alcoholHabits === 'current_regular_drinker' || data.alcoholHabits === 'occasional_socially') {
         if (!data.alcoholBeer?.consumed && !data.alcoholWine?.consumed && !data.alcoholSpirits?.consumed) {
-            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['alcoholBeer.consumed'], message: 'Please specify at least one type of alcohol consumed.' });
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['alcoholHabits'], message: 'Please specify at least one type of alcohol consumed if you are a drinker.' });
         }
     }
-     if (data.usedNicotineLast12Months === 'yes') {
+
+    // Conditional validation for Tobacco/Nicotine Usage
+    if (data.usedNicotineLast12Months === 'yes') {
         if (!data.tobaccoCigarettes?.smoked && !data.tobaccoCigars?.smoked && !data.tobaccoPipe?.smoked && !data.tobaccoNicotineReplacement?.smoked && !data.tobaccoEcigarettes?.smoked && !data.tobaccoOther?.smoked) {
              ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['usedNicotineLast12Months'], message: 'Please specify which tobacco/nicotine products have been used.' });
         }
     }
+
+     // Conditional validation for Viral Co-infections
+     if (data.testedPositiveViralInfection === 'yes') {
+        const testedPositive = data.testedPositiveFor;
+        const awaitingResults = data.awaitingResultsFor;
+        if (
+            (!testedPositive || (!testedPositive.hiv && !testedPositive.hepB && !testedPositive.hepC)) &&
+            (!awaitingResults || (!awaitingResults.hiv && !awaitingResults.hepB && !awaitingResults.hepC))
+        ) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['testedPositiveViralInfection'], message: 'Please specify the infection you tested positive for or are awaiting results for.' });
+        }
+    }
+
+    // Conditional validation for medical history questions
+    const medicalChecks = [
+        { flag: data.bloodTransfusionOrSurgery, details: data.bloodTransfusionOrSurgeryDetails, path: 'bloodTransfusionOrSurgery' },
+        { flag: data.highBloodPressure, details: data.highBloodPressureDetails, path: 'highBloodPressure' },
+        { flag: data.cancer, details: data.cancerDetails, path: 'cancer' },
+        { flag: data.diabetes, details: data.diabetesDetails, path: 'diabetes' },
+        { flag: data.colitisCrohns, details: data.colitisCrohnsDetails, path: 'colitisCrohns' },
+        { flag: data.paralysisEpilepsy, details: data.paralysisEpilepsyDetails, path: 'paralysisEpilepsy' },
+        { flag: data.mentalIllness, details: data.mentalIllnessDetails, path: 'mentalIllness' },
+        { flag: data.arthritis, details: data.arthritisDetails, path: 'arthritis' },
+        { flag: data.chestPain, details: data.chestPainDetails, path: 'chestPain' },
+        { flag: data.asthma, details: data.asthmaDetails, path: 'asthma' },
+        { flag: data.digestiveDisorder, details: data.digestiveDisorderDetails, path: 'digestiveDisorder' },
+        { flag: data.bloodDisorder, details: data.bloodDisorderDetails, path: 'bloodDisorder' },
+        { flag: data.thyroidDisorder, details: data.thyroidDisorderDetails, path: 'thyroidDisorder' },
+        { flag: data.kidneyDisorder, details: data.kidneyDisorderDetails, path: 'kidneyDisorder' },
+        { flag: data.numbness, details: data.numbnessDetails, path: 'numbness' },
+        { flag: data.anxietyStress, details: data.anxietyStressDetails, path: 'anxietyStress' },
+        { flag: data.earEyeDisorder, details: data.earEyeDisorderDetails, path: 'earEyeDisorder' },
+        { flag: data.lumpGrowth, details: data.lumpGrowthDetails, path: 'lumpGrowth' },
+        { flag: data.hospitalAttendance, details: data.hospitalAttendanceDetails, path: 'hospitalAttendance' },
+        { flag: data.criticalIllness, details: data.criticalIllnessDetails, path: 'criticalIllness' },
+        { flag: data.sti, details: data.stiDetails, path: 'sti' },
+        { flag: data.presentSymptoms, details: data.presentSymptomsDetails, path: 'presentSymptoms' },
+        { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
+    ];
+
+    medicalChecks.forEach(check => {
+        if (check.flag === 'yes' && (!check.details || check.details.length === 0)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: [check.path], message: 'Please provide details for the selected condition.' });
+        }
+    });
+
   });
 
 
@@ -399,8 +450,3 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
-
-    
-
-
-
