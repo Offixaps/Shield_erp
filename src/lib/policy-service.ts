@@ -415,8 +415,22 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
     if (!policy.payments) policy.payments = [];
     if (!policy.activityLog) policy.activityLog = [];
 
-    const firstBill = policy.bills.find(b => b.description === 'First Premium');
-    if (!firstBill || firstBill.status === 'Paid') return undefined;
+    // Create a first premium bill if it doesn't exist
+    let firstBill = policy.bills.find(b => b.description === 'First Premium');
+    if (!firstBill) {
+        const newBillId = (policy.bills.length > 0 ? Math.max(...policy.bills.map(b => b.id)) : 0) + 1;
+        firstBill = {
+            id: newBillId,
+            policyId: policy.id as number,
+            amount: policy.premium,
+            dueDate: format(new Date(policy.commencementDate), 'yyyy-MM-dd'),
+            status: 'Unpaid',
+            description: 'First Premium',
+        };
+        policy.bills.push(firstBill);
+    }
+    
+    if (firstBill.status === 'Paid') return undefined; // Already paid
 
     const newPaymentId = (policy.payments.length > 0 ? Math.max(...policy.payments.map(p => p.id)) : 0) + 1;
     const newPayment: Payment = { id: newPaymentId, policyId: policy.id as number, billId: firstBill.id, ...paymentDetails };
@@ -726,6 +740,7 @@ function newId() {
     
 
     
+
 
 
 

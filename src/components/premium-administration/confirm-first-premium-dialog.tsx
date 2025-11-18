@@ -55,7 +55,7 @@ export default function ConfirmFirstPremiumDialog({
     new Date()
   );
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!paymentMethod || !transactionId || !amountPaid || !paymentDate) {
       toast({
         variant: 'destructive',
@@ -66,7 +66,7 @@ export default function ConfirmFirstPremiumDialog({
     }
     
     try {
-      const updatedPolicy = recordFirstPayment(client.id, {
+      const updatedPolicy = await recordFirstPayment(client.id, {
         amount: parseFloat(amountPaid),
         paymentDate: format(paymentDate, 'yyyy-MM-dd'),
         method: paymentMethod,

@@ -30,7 +30,6 @@ import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
 import type { NewBusiness } from '@/lib/data';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { set } from 'date-fns';
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -47,7 +46,7 @@ const TABS: TabName[] = [
     'declaration',
 ];
 
-const emptyFormValues = {
+const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
   onboardingStatus: 'Incomplete Policy',
   title: 'Mr',
   lifeAssuredFirstName: '',
@@ -107,7 +106,7 @@ const emptyFormValues = {
   premiumPayerPostalAddress: '',
   premiumPayerDob: undefined,
   premiumPayerBusinessName: '',
-  premiumPayerIdType: undefined,
+  premiumPayerIdType: 'National ID',
   premiumPayerIdNumber: '',
   premiumPayerIssueDate: undefined,
   premiumPayerExpiryDate: undefined,
@@ -277,12 +276,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 });
             };
             
-            const sanitizedData = {
+            const sanitizedData: Partial<z.infer<typeof newBusinessFormSchema>> = {
                 ...businessData,
                 lifeAssuredFirstName: firstName,
                 lifeAssuredMiddleName: middleName,
                 lifeAssuredSurname: surname,
-                contractType: businessData.product,
+                contractType: businessData.product as any,
                 premiumAmount: businessData.premium,
                 lifeAssuredDob: parseDate(businessData.lifeAssuredDob),
                 commencementDate: parseDate(businessData.commencementDate),
@@ -296,13 +295,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: parseDate(p.issueDate) })),
             };
             
-            // Merge with defaults to prevent undefined values
             const finalData = {
                 ...emptyFormValues,
                 ...sanitizedData,
-                lifeAssuredDob: sanitizedData.lifeAssuredDob || new Date(),
-                issueDate: sanitizedData.issueDate || new Date(),
-                commencementDate: sanitizedData.commencementDate || new Date(),
             };
 
             form.reset(finalData as any);
@@ -330,9 +325,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   }, [contractType, isEditMode, form]);
 
   React.useEffect(() => {
-    const dob = form.getValues('lifeAssuredDob');
-    if (dob && dob instanceof Date && !isNaN(dob.getTime())) {
-        form.setValue('increaseMonth', format(dob, 'MMMM'));
+    if (lifeAssuredDob && lifeAssuredDob instanceof Date && !isNaN(lifeAssuredDob.getTime())) {
+        form.setValue('increaseMonth', format(lifeAssuredDob, 'MMMM'));
     }
   }, [lifeAssuredDob, form]);
 
@@ -463,6 +457,27 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
+  const onValidationErrors = (errors: any) => {
+    const errorFields = Object.keys(errors);
+    if (errorFields.length > 0) {
+      const firstErrorField = errorFields[0] as keyof z.infer<typeof newBusinessFormSchema>;
+      
+      // Find which tab the error is on
+      let errorTab: TabName | null = null;
+      for (const tab of TABS) {
+        if (tabFields[tab].includes(firstErrorField)) {
+          errorTab = tab;
+          break;
+        }
+      }
+
+      if (errorTab) {
+        setActiveTab(errorTab);
+      }
+
+      setSubmissionError(`Please correct the errors on the form. The first error is on the ${errorTab ? `"${errorTab.replace(/-/g, ' ')}"` : ''} tab.`);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
     setIsSubmitting(true);
@@ -474,17 +489,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       
       const finalValues = {
         ...values,
-        onboardingStatus: 'Pending First Premium' as const,
+        onboardingStatus: 'Pending Vetting' as const,
       };
 
       await updatePolicy(currentBusinessId, finalValues as any);
-
-      toast({
-        title: 'Application Submitted',
-        description: 'Your new business application has been successfully submitted for review.',
-      });
-      router.push('/business-development/sales');
-      router.refresh();
+      
+      router.push('/business-development/sales/thank-you');
     } catch (error: any) {
       console.error('Form submission error:', error);
       const errorMessage = error.message || 'An unexpected error occurred. Please review all tabs for errors.';
@@ -504,7 +514,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form onSubmit={form.handleSubmit(onSubmit, onValidationErrors)} className="space-y-8">
         {submissionError && (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -566,5 +576,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
-    
