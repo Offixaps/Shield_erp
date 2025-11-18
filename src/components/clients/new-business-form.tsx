@@ -335,6 +335,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
                 contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
                 existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: parseDate(p.issueDate) })),
+                // Ensure nested objects for health details are initialized
+                alcoholBeer: businessData.alcoholBeer || { consumed: false, averagePerWeek: '', notes: '' },
+                alcoholWine: businessData.alcoholWine || { consumed: false, averagePerWeek: '', notes: '' },
+                alcoholSpirits: businessData.alcoholSpirits || { consumed: false, averagePerWeek: '', notes: '' },
+                tobaccoCigarettes: (businessData as any).tobaccoCigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+                tobaccoCigars: (businessData as any).tobaccoCigars || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+                tobaccoPipe: (businessData as any).tobaccoPipe || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+                tobaccoNicotineReplacement: (businessData as any).tobaccoNicotineReplacement || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+                tobaccoEcigarettes: (businessData as any).tobaccoEcigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+                tobaccoOther: (businessData as any).tobaccoOther || { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
             };
 
             form.reset(sanitizedData as any);
