@@ -352,7 +352,7 @@ export const newBusinessFormSchema = z
     
   })
   .superRefine((data, ctx) => {
-    // Helper function to add issue
+    // Helper to add issue
     const addIssue = (path: (string | number)[], message: string) => {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
     };
@@ -365,34 +365,15 @@ export const newBusinessFormSchema = z
         if (!data.premiumPayerIdNumber) addIssue(['premiumPayerIdNumber'], "Payer's ID number is required.");
     }
     
-    // Conditional validation for Alcohol Consumption
-    if (data.alcoholHabits === 'current_regular_drinker' || data.alcoholHabits === 'occasional_socially') {
-        if (!data.alcoholBeer?.consumed && !data.alcoholWine?.consumed && !data.alcoholSpirits?.consumed) {
-            addIssue(['alcoholHabits'], 'Please specify at least one type of alcohol consumed.');
-        }
-    }
-
-    // Conditional validation for Tobacco/Nicotine Usage
-    if (data.usedNicotineLast12Months === 'yes') {
-        if (!data.tobaccoCigarettes?.smoked && !data.tobaccoCigars?.smoked && !data.tobaccoPipe?.smoked && !data.tobaccoNicotineReplacement?.smoked && !data.tobaccoEcigarettes?.smoked && !data.tobaccoOther?.smoked) {
-             addIssue(['usedNicotineLast12Months'], 'Please specify which tobacco/nicotine products have been used.');
-        }
-    }
-
-    // Conditional validation for Viral Co-infections
-    if (data.testedPositiveViralInfection === 'yes') {
-        const testedPositive = data.testedPositiveFor;
-        const awaitingResults = data.awaitingResultsFor;
-        if (
-            (!testedPositive || (!testedPositive.hiv && !testedPositive.hepB && !testedPositive.hepC)) &&
-            (!awaitingResults || (!awaitingResults.hiv && !awaitingResults.hepB && !awaitingResults.hepC))
-        ) {
-            addIssue(['testedPositiveViralInfection'], 'Please specify the infection details.');
-        }
-    }
-
-    // Conditional validation for medical history questions
-    const medicalChecks = [
+    // Comprehensive check for all "yes/no" questions that require details
+    const conditionalChecks = [
+        { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: 'hasExistingPolicies' },
+        { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: 'declinedPolicy' },
+        { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
+        { flag: data.flownAsPilot, details: data.flownAsPilotDetails, path: 'flownAsPilot' },
+        { flag: data.hazardousSports, details: data.hazardousSportsDetails, path: 'hazardousSports' },
+        { flag: data.travelOutsideCountry, details: data.travelOutsideCountryDetails, path: 'travelOutsideCountry' },
+        // All medical history questions from Health Tab
         { flag: data.bloodTransfusionOrSurgery, details: data.bloodTransfusionOrSurgeryDetails, path: 'bloodTransfusionOrSurgery' },
         { flag: data.highBloodPressure, details: data.highBloodPressureDetails, path: 'highBloodPressure' },
         { flag: data.cancer, details: data.cancerDetails, path: 'cancer' },
@@ -415,19 +396,28 @@ export const newBusinessFormSchema = z
         { flag: data.criticalIllness, details: data.criticalIllnessDetails, path: 'criticalIllness' },
         { flag: data.sti, details: data.stiDetails, path: 'sti' },
         { flag: data.presentSymptoms, details: data.presentSymptomsDetails, path: 'presentSymptoms' },
-        { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
-        { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: 'hasExistingPolicies' },
-        { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: 'declinedPolicy' },
-        { flag: data.flownAsPilot, details: data.flownAsPilotDetails, path: 'flownAsPilot' },
-        { flag: data.hazardousSports, details: data.hazardousSportsDetails, path: 'hazardousSports' },
-        { flag: data.travelOutsideCountry, details: data.travelOutsideCountryDetails, path: 'travelOutsideCountry' },
     ];
 
-    medicalChecks.forEach(check => {
+    conditionalChecks.forEach(check => {
         if (check.flag === 'yes' && (!check.details || check.details.length === 0)) {
-            addIssue([check.path], 'Please provide details for the selected condition.');
+            addIssue([check.path], 'Please provide details by clicking the "Add Detail" button.');
         }
     });
+
+    if (data.usedNicotineLast12Months === 'yes') {
+        const hasAnyTobacco = data.tobaccoCigarettes?.smoked || data.tobaccoCigars?.smoked || data.tobaccoPipe?.smoked || data.tobaccoNicotineReplacement?.smoked || data.tobaccoEcigarettes?.smoked || data.tobaccoOther?.smoked;
+        if (!hasAnyTobacco) {
+            addIssue(['usedNicotineLast12Months'], 'Please specify which tobacco/nicotine products have been used.');
+        }
+    }
+
+    if (data.testedPositiveViralInfection === 'yes') {
+        const testedPositive = data.testedPositiveFor;
+        const awaitingResults = data.awaitingResultsFor;
+        if ((!testedPositive || (!testedPositive.hiv && !testedPositive.hepB && !testedPositive.hepC)) && (!awaitingResults || (!awaitingResults.hiv && !awaitingResults.hepB && !awaitingResults.hepC))) {
+            addIssue(['testedPositiveViralInfection'], 'Please specify the infection details.');
+        }
+    }
   });
 
 
@@ -444,10 +434,12 @@ export type TabName =
 export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
   coverage: ['title', 'lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'placeOfBirth', 'email', 'phone', 'postalAddress', 'nationalIdType', 'idNumber', 'issueDate', 'placeOfIssue', 'country', 'nationality', 'languages', 'maritalStatus', 'gender', 'religion', 'contractType', 'policyTerm', 'premiumTerm', 'sumAssured', 'premiumAmount', 'paymentFrequency', 'occupation', 'natureOfBusiness', 'employer', 'employerAddress', 'monthlyBasicIncome'],
   beneficiaries: ['primaryBeneficiaries', 'contingentBeneficiaries'],
-  'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
-  health: ['height', 'weight', 'alcoholHabits', 'usedNicotineLast12Months', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory'],
-  lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry'],
+  'existing-policies': ['hasExistingPolicies', 'declinedPolicy', 'existingPoliciesDetails', 'declinedPolicyDetails'],
+  health: ['height', 'weight', 'alcoholHabits', 'usedNicotineLast12Months', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory', 'bloodTransfusionOrSurgeryDetails', 'highBloodPressureDetails', 'cancerDetails', 'diabetesDetails', 'colitisCrohnsDetails', 'paralysisEpilepsyDetails', 'mentalIllnessDetails', 'arthritisDetails', 'chestPainDetails', 'asthmaDetails', 'digestiveDisorderDetails', 'bloodDisorderDetails', 'thyroidDisorderDetails', 'kidneyDisorderDetails', 'numbnessDetails', 'anxietyStressDetails', 'earEyeDisorderDetails', 'lumpGrowthDetails', 'hospitalAttendanceDetails', 'criticalIllnessDetails', 'stiDetails', 'presentSymptomsDetails', 'familyMedicalHistoryDetails'],
+  lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry', 'flownAsPilotDetails', 'hazardousSportsDetails', 'travelOutsideCountryDetails'],
   'payment-details': ['isPolicyHolderPayer', 'bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'amountInWords', 'premiumPayerOtherNames', 'premiumPayerSurname', 'premiumPayerIdType', 'premiumPayerIdNumber'],
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
+
+    

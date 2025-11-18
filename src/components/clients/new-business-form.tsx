@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type FieldErrors } from 'react-hook-form';
+import { useForm, type FieldErrors, type FieldError } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -220,7 +220,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
-  const [errorTabs, setErrorTabs] = React.useState<Set<TabName>>(new Set());
   
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
@@ -399,94 +398,100 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-  const onValidationErrors = (errors: FieldErrors) => {
-    const errorFields = Object.keys(errors);
-    const tabsWithErrors = new Set<TabName>();
-
-    for (const tab of TABS) {
-        const tabHasError = (tabFields[tab] as string[]).some(field => {
-            // Check for nested fields like 'primaryBeneficiaries.0.name'
-            return errorFields.some(errorField => errorField.startsWith(field));
+    const hasErrorInTab = (tab: TabName) => {
+        const tabErrorFields = tabFields[tab];
+        return tabErrorFields.some(field => {
+            const error = errors[field as keyof typeof errors];
+            if (!error) return false;
+            // Handle array fields
+            if (Array.isArray((error as any))) {
+                return (error as any).some((item: any) => item && Object.keys(item).length > 0);
+            }
+            return true;
         });
+    };
 
-        if (tabHasError) {
-            tabsWithErrors.add(tab);
+    const onValidationErrors = (errors: FieldErrors) => {
+        const errorFields = Object.keys(errors);
+        let firstErrorTab: TabName | null = null;
+        
+        for (const tab of TABS) {
+            if (hasErrorInTab(tab)) {
+                firstErrorTab = tab;
+                break;
+            }
         }
-    }
 
-    if (tabsWithErrors.size > 0) {
-        const firstErrorTab = TABS.find(tab => tabsWithErrors.has(tab));
         if (firstErrorTab) {
             setActiveTab(firstErrorTab);
+            toast({
+                variant: 'destructive',
+                title: 'Validation Error',
+                description: `Please correct the errors on the "${firstErrorTab.replace(/-/g, ' ')}" tab.`,
+            });
         }
-        toast({
-            variant: 'destructive',
-            title: 'Validation Error',
-            description: 'Please correct the errors on the highlighted tabs before submitting.',
-        });
-    }
-};
+    };
 
-  const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
-    setIsSubmitting(true);
+    const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
+        setIsSubmitting(true);
+        
+        if (values.primaryBeneficiaries && values.primaryBeneficiaries.length > 0) {
+            const totalPrimaryPercentage = values.primaryBeneficiaries.reduce(
+                (acc, b) => acc + (Number(b.percentage) || 0),
+                0
+            );
+            if (totalPrimaryPercentage !== 100) {
+                setActiveTab('beneficiaries');
+                toast({
+                    variant: 'destructive',
+                    title: 'Validation Error',
+                    description: 'Total percentage for primary beneficiaries must be 100.',
+                });
+                setIsSubmitting(false);
+                return;
+            }
+        }
+        
+        try {
+            if (!currentBusinessId) {
+                throw new Error('No business ID found for final submission. Please save the form first.');
+            }
+            
+            const finalValues = {
+                ...values,
+                onboardingStatus: 'Pending Vetting' as const,
+            };
+            
+            await updatePolicy(currentBusinessId, finalValues as any);
+            
+            router.push('/business-development/sales/thank-you');
+        } catch (error: any) {
+            console.error('Form submission error:', error);
+            toast({
+                variant: 'destructive',
+                title: 'Submission Failed',
+                description: error.message || 'An unexpected error occurred. Please review all tabs for errors.',
+            });
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const isLastTab = activeTab === TABS[TABS.length - 1];
     
-    if (values.primaryBeneficiaries && values.primaryBeneficiaries.length > 0) {
-      const totalPrimaryPercentage = values.primaryBeneficiaries.reduce(
-        (acc, b) => acc + (Number(b.percentage) || 0),
-        0
-      );
-      if (totalPrimaryPercentage !== 100) {
-        setActiveTab('beneficiaries');
-        toast({
-          variant: 'destructive',
-          title: 'Validation Error',
-          description: 'Total percentage for primary beneficiaries must be 100.',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-    }
-
-    try {
-      if (!currentBusinessId) {
-        throw new Error('No business ID found for final submission. Please save the form first.');
-      }
-      
-      const finalValues = {
-        ...values,
-        onboardingStatus: 'Pending Vetting' as const,
-      };
-
-      await updatePolicy(currentBusinessId, finalValues as any);
-      
-      router.push('/business-development/sales/thank-you');
-    } catch (error: any) {
-      console.error('Form submission error:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Submission Failed',
-        description: error.message || 'An unexpected error occurred. Please review all tabs for errors.',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const isLastTab = activeTab === TABS[TABS.length - 1];
-
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit, onValidationErrors)} className="space-y-8">
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
-            {TABS.map(tab => (
-              <TabsTrigger key={tab} value={tab}>
-                  <span style={{ color: errorTabs.has(tab) ? '#ef4444' : 'inherit' }}>
-                    {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                  </span>
-              </TabsTrigger>
-            ))}
-          </TabsList>
+    return (
+        <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit, onValidationErrors)} className="space-y-8">
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
+                {TABS.map(tab => (
+                <TabsTrigger key={tab} value={tab}>
+                    <span style={{ color: hasErrorInTab(tab) && Object.keys(errors).length > 0 ? '#ef4444' : 'inherit' }}>
+                        {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    </span>
+                </TabsTrigger>
+                ))}
+            </TabsList>
           
           <TabsContent value="coverage" className="mt-6 space-y-8">
             <CoverageTab form={form} />
