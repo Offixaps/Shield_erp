@@ -60,7 +60,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
-    defaultValues: newBusinessFormSchema.parse({}),
+    defaultValues: newBusinessFormSchema.parse({
+      // Provide explicit defaults for dates to avoid uncontrolled component errors
+      lifeAssuredDob: new Date(),
+      issueDate: new Date(),
+      commencementDate: new Date(),
+    }),
   });
 
   // Watch for any form changes to clear the top-level error
@@ -125,7 +130,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 commencementDate: parseDate(businessData.commencementDate),
                 expiryDate: parseDate(businessData.expiryDate),
                 issueDate: parseDate(businessData.issueDate),
-                expiryDateId: parseDate(businessData.expiryDateId),
                 premiumPayerDob: parseDate((businessData as any).premiumPayerDob),
                 premiumPayerIssueDate: parseDate((businessData as any).premiumPayerIssueDate),
                 premiumPayerExpiryDate: parseDate((businessData as any).premiumPayerExpiryDate),
