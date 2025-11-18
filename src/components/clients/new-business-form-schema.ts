@@ -169,8 +169,8 @@ export const newBusinessFormSchema = z
     email: z.string().email('Invalid email address.').default(''),
     phone: z.string().regex(phoneRegex, phoneError).default(''),
     postalAddress: z.string().min(5, 'Postal address is required.').default(''),
-    workTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
-    homeTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
+    workTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
+    homeTelephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     residentialAddress: z.string().optional().default(''),
     gpsAddress: z.string().optional().default(''),
     ageNextBirthday: z.coerce.number().optional().default(0),
@@ -336,10 +336,10 @@ export const newBusinessFormSchema = z
 
     // Doctor's Details
     currentDoctorName: z.string().optional().default(''),
-    currentDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
+    currentDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     currentDoctorHospital: z.string().optional().default(''),
     previousDoctorName: z.string().optional().default(''),
-    previousDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')),
+    previousDoctorPhone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     previousDoctorHospital: z.string().optional().default(''),
 
     // Lifestyle
