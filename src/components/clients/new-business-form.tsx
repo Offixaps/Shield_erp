@@ -502,9 +502,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
               <TabsTrigger 
                 key={tab} 
                 value={tab} 
-                style={errorTabs.has(tab) ? { color: '#ef4444' } : {}}
               >
-                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                <span style={errorTabs.has(tab) ? { color: '#ef4444' } : {}}>
+                  {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -556,3 +557,5 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
+
+    
