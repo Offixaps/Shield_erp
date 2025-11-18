@@ -348,7 +348,12 @@ function ExistingPoliciesDisplay({ policies }: { policies: ExistingPolicyDetail[
               <TableCell>{policy.companyName}</TableCell>
               <TableCell>{policy.personCovered}</TableCell>
               <TableCell>{policy.policyType}</TableCell>
-              <TableCell>{format(new Date(policy.issueDate), 'PPP')}</TableCell>
+              <TableCell>
+                {policy.issueDate && !isNaN(new Date(policy.issueDate).getTime())
+                    ? format(new Date(policy.issueDate), 'PPP')
+                    : 'N/A'
+                }
+              </TableCell>
               <TableCell>{Number(policy.premiumAmount).toFixed(2)}</TableCell>
               <TableCell>{Number(policy.faceAmount).toFixed(2)}</TableCell>
               <TableCell><YesNoDisplay value={policy.changedGrpOrInd} /></TableCell>
@@ -1303,5 +1308,3 @@ export default function ClientDetailsView({
     </div>
   );
 }
-
-    
