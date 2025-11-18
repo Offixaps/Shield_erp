@@ -52,6 +52,9 @@ export function policyToFirebase(policy: NewBusiness): any {
 
   // Convert all date-like fields to Timestamps for Firestore
   const toTimestamp = (value: any): any => {
+    if (value instanceof Date && !isNaN(value.getTime())) {
+        return Timestamp.fromDate(value);
+    }
     if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
         try {
             const date = new Date(value);
@@ -62,9 +65,6 @@ export function policyToFirebase(policy: NewBusiness): any {
             // Not a valid date string, return as is
             return value;
         }
-    }
-    if (value instanceof Date && !isNaN(value.getTime())) {
-        return Timestamp.fromDate(value);
     }
     if (Array.isArray(value)) {
         return value.map(toTimestamp);
@@ -98,7 +98,9 @@ function policyFromFirebase(docSnap: any): NewBusiness {
         if (typeof timestamp === 'string') {
             // Handle cases where date is already a string
              try {
-                return format(new Date(timestamp), 'yyyy-MM-dd');
+                const parsedDate = new Date(timestamp);
+                if (isNaN(parsedDate.getTime())) return '';
+                return format(parsedDate, 'yyyy-MM-dd');
             } catch (e) {
                 return ''; // Return empty string for invalid date strings
             }
@@ -167,6 +169,17 @@ function policyFromFirebase(docSnap: any): NewBusiness {
          lifeInsuredSignature: ensureString(data.lifeInsuredSignature),
          policyOwnerSignature: ensureString(data.policyOwnerSignature),
          paymentAuthoritySignature: ensureString(data.paymentAuthoritySignature),
+         alcoholBeer: data.alcoholBeer || { consumed: false, averagePerWeek: '', notes: '' },
+         alcoholWine: data.alcoholWine || { consumed: false, averagePerWeek: '', notes: '' },
+         alcoholSpirits: data.alcoholSpirits || { consumed: false, averagePerWeek: '', notes: '' },
+         reducedAlcoholMedicalAdvice: data.reducedAlcoholMedicalAdvice || { reduced: 'no', notes: '' },
+         reducedAlcoholHealthProblems: data.reducedAlcoholHealthProblems || { reduced: 'no', notes: '' },
+         tobaccoCigarettes: data.tobaccoCigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+         tobaccoCigars: data.tobaccoCigars || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+         tobaccoPipe: data.tobaccoPipe || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+         tobaccoNicotineReplacement: data.tobaccoNicotineReplacement || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+         tobaccoEcigarettes: data.tobaccoEcigarettes || { smoked: false, avgPerDay: '', avgPerWeek: '' },
+         tobaccoOther: data.tobaccoOther || { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
     };
 
     return result;
@@ -224,6 +237,7 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   const updatedData = { 
     ...originalPolicy, 
     ...updates,
+    serial: originalPolicy.serial || (updates as NewBusiness).serial, // Ensure serial is preserved
   };
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -711,6 +725,7 @@ function newId() {
     
 
     
+
 
 
 
