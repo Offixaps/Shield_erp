@@ -365,6 +365,22 @@ export const newBusinessFormSchema = z
         });
       }
     }
+  })
+  .superRefine((data, ctx) => {
+    if (!data.isPolicyHolderPayer) {
+        if (!data.premiumPayerOtherNames) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerOtherNames'], message: 'Payer\'s first name is required.' });
+        }
+        if (!data.premiumPayerSurname) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerSurname'], message: 'Payer\'s surname is required.' });
+        }
+        if (!data.premiumPayerIdType) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdType'], message: 'Payer\'s ID type is required.' });
+        }
+         if (!data.premiumPayerIdNumber) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdNumber'], message: 'Payer\'s ID number is required.' });
+        }
+    }
   });
 
 
@@ -384,7 +400,7 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
   health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory'],
   lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry'],
-  'payment-details': ['isPolicyHolderPayer', 'bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'amountInWords'],
+  'payment-details': ['isPolicyHolderPayer', 'bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'amountInWords', 'premiumPayerOtherNames', 'premiumPayerSurname', 'premiumPayerIdType', 'premiumPayerIdNumber'],
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
