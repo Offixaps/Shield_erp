@@ -28,7 +28,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { countries } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
 import { TelephoneInput } from '@/components/ui/telephone-input';
@@ -158,8 +158,8 @@ export default function CoverageTab({ form }: CoverageTabProps) {
                         !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, 'PPP')
+                      {field.value && isValid(new Date(field.value)) ? (
+                        format(new Date(field.value), 'PPP')
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -443,8 +443,8 @@ export default function CoverageTab({ form }: CoverageTabProps) {
                         !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, 'PPP')
+                      {field.value && isValid(new Date(field.value)) ? (
+                        format(new Date(field.value), 'PPP')
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -474,7 +474,7 @@ export default function CoverageTab({ form }: CoverageTabProps) {
         />
         <FormField
           control={form.control}
-          name="expiryDate"
+          name="expiryDateId"
           render={({ field }) => (
             <FormItem className="flex flex-col">
               <FormLabel>Expiry Date</FormLabel>
@@ -488,8 +488,8 @@ export default function CoverageTab({ form }: CoverageTabProps) {
                         !field.value && 'text-muted-foreground'
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, 'PPP')
+                      {field.value && isValid(new Date(field.value)) ? (
+                        format(new Date(field.value), 'PPP')
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -792,8 +792,8 @@ export default function CoverageTab({ form }: CoverageTabProps) {
                       )}
                       disabled
                     >
-                      {field.value ? (
-                        format(field.value, 'PPP')
+                      {field.value && isValid(new Date(field.value)) ? (
+                        format(new Date(field.value), 'PPP')
                       ) : (
                         <span>Pick a date</span>
                       )}

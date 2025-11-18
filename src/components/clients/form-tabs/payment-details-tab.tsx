@@ -28,7 +28,7 @@ import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import SignaturePadComponent from '../signature-pad';
@@ -191,10 +191,10 @@ export default function PaymentDetailsTab({
                               !field.value && 'text-muted-foreground'
                               )}
                           >
-                              {field.value ? (
-                              format(field.value, 'PPP')
+                              {field.value && isValid(new Date(field.value)) ? (
+                                format(new Date(field.value), 'PPP')
                               ) : (
-                              <span>Pick a date</span>
+                                <span>Pick a date</span>
                               )}
                               <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                           </Button>
@@ -329,8 +329,8 @@ export default function PaymentDetailsTab({
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, 'PPP')
+                            {field.value && isValid(new Date(field.value)) ? (
+                              format(new Date(field.value), 'PPP')
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -374,8 +374,8 @@ export default function PaymentDetailsTab({
                               !field.value && 'text-muted-foreground'
                             )}
                           >
-                            {field.value ? (
-                              format(field.value, 'PPP')
+                            {field.value && isValid(new Date(field.value)) ? (
+                              format(new Date(field.value), 'PPP')
                             ) : (
                               <span>Pick a date</span>
                             )}

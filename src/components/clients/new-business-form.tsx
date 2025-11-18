@@ -68,7 +68,7 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
   nationalIdType: 'National ID',
   idNumber: '',
   issueDate: new Date(),
-  expiryDate: undefined,
+  expiryDateId: undefined,
   placeOfIssue: '',
   country: 'Ghana',
   region: '',
@@ -215,6 +215,14 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
 
 // Recursive function to convert date strings to Date objects
 function convertStringsToDates(obj: any): any {
+    const dateKeys = [
+        'lifeAssuredDob', 'issueDate', 'expiryDateId', 'commencementDate',
+        'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate',
+        'dob', 'date', 'diagnosisDate', 'lastMonitoredDate', 
+        'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate',
+        'digestiveConditionStartDate', 'dischargeDate'
+    ];
+
     if (obj === null || obj === undefined) {
         return obj;
     }
@@ -228,12 +236,12 @@ function convertStringsToDates(obj: any): any {
         for (const key in obj) {
             if (Object.prototype.hasOwnProperty.call(obj, key)) {
                 const value = obj[key];
-                if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+                if (dateKeys.includes(key) && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
                     const parsedDate = parseISO(value);
                     if (isValid(parsedDate)) {
                         newObj[key] = parsedDate;
                     } else {
-                        newObj[key] = value; // Keep original if invalid
+                        newObj[key] = value; 
                     }
                 } else {
                     newObj[key] = convertStringsToDates(value);
@@ -268,7 +276,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            // Recursively convert date strings to Date objects before resetting the form
             const dataWithDates = convertStringsToDates(businessData);
             form.reset({
                 ...emptyFormValues,
