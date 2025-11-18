@@ -4,7 +4,7 @@
 import * as React from 'react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
-import { format, isValid } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn, numberToWords } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -227,7 +227,7 @@ function MedicalHistorySection({
 
   const isValidDate = (date: Date | string | undefined | null): boolean => {
     if (!date) return false;
-    const d = new Date(date);
+    const d = typeof date === 'string' ? parseISO(date) : date;
     return isValid(d);
   }
   

@@ -24,47 +24,40 @@ const POLICIES_COLLECTION = 'policies';
 
 // --- Data Conversion Helpers ---
 
-// Recursively converts undefined to null and JS Dates to Firestore Timestamps
+// Converts any Date objects in the data to Firestore Timestamps before writing.
 function policyToFirebase(data: any): any {
-    if (data === undefined) {
-        return null;
-    }
-    if (data === null || typeof data !== 'object') {
-        return data;
-    }
     if (data instanceof Date) {
         return Timestamp.fromDate(data);
     }
     if (Array.isArray(data)) {
         return data.map(item => policyToFirebase(item));
     }
-    const newObj: { [key: string]: any } = {};
-    for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
+    if (data && typeof data === 'object' && !data.hasOwnProperty('seconds')) {
+        const newObj: { [key: string]: any } = {};
+        for (const key in data) {
             newObj[key] = policyToFirebase(data[key]);
         }
+        return newObj;
     }
-    return newObj;
+    return data;
 }
 
-// Recursively converts Firestore Timestamps to JS Dates
+// Converts any Firestore Timestamps in the data to ISO date strings for serialization.
 function policyFromFirebase(data: any): any {
-    if (data === null || typeof data !== 'object') {
-        return data;
-    }
     if (data instanceof Timestamp) {
-        return data.toDate();
+        return data.toDate().toISOString();
     }
     if (Array.isArray(data)) {
         return data.map(item => policyFromFirebase(item));
     }
-    const newObj: { [key: string]: any } = {};
-    for (const key in data) {
-        if (Object.prototype.hasOwnProperty.call(data, key)) {
+    if (data && typeof data === 'object') {
+        const newObj: { [key: string]: any } = {};
+        for (const key in data) {
             newObj[key] = policyFromFirebase(data[key]);
         }
+        return newObj;
     }
-    return newObj;
+    return data;
 }
 
 
@@ -206,6 +199,9 @@ export async function createPolicy(values: any): Promise<string> {
             errorEmitter.emit('permission-error', permissionError);
             throw serverError; // Re-throw the original error after emitting our custom one
         });
+    
+    // Update the local object with the real doc ID
+    await setDoc(docRef, { uid: docRef.id }, { merge: true });
     
     return docRef.id;
 }

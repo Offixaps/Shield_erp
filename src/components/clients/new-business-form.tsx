@@ -213,44 +213,29 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
 };
 
 
-// Recursive function to convert date strings to Date objects
-function convertStringsToDates(obj: any): any {
-    const dateKeys = [
-        'lifeAssuredDob', 'issueDate', 'expiryDateId', 'commencementDate',
-        'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate',
-        'dob', 'date', 'diagnosisDate', 'lastMonitoredDate', 
-        'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate',
-        'digestiveConditionStartDate', 'dischargeDate'
-    ];
-
-    if (obj === null || obj === undefined) {
-        return obj;
-    }
+// Recursively converts date strings to Date objects
+function parseDates(obj: any): any {
+    if (!obj) return obj;
 
     if (Array.isArray(obj)) {
-        return obj.map(item => convertStringsToDates(item));
+        return obj.map(item => parseDates(item));
     }
 
     if (typeof obj === 'object') {
-        const newObj: { [key: string]: any } = {};
-        for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                const value = obj[key];
-                if (dateKeys.includes(key) && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-                    const parsedDate = parseISO(value);
-                    if (isValid(parsedDate)) {
-                        newObj[key] = parsedDate;
-                    } else {
-                        newObj[key] = value; 
-                    }
-                } else {
-                    newObj[key] = convertStringsToDates(value);
+        return Object.keys(obj).reduce((acc, key) => {
+            const value = obj[key];
+            if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
+                const date = parseISO(value);
+                if (isValid(date)) {
+                    acc[key] = date;
+                    return acc;
                 }
             }
-        }
-        return newObj;
+            acc[key] = parseDates(value);
+            return acc;
+        }, {} as any);
     }
-
+    
     return obj;
 }
 
@@ -276,7 +261,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            const dataWithDates = convertStringsToDates(businessData);
+            const dataWithDates = parseDates(businessData);
             form.reset({
                 ...emptyFormValues,
                 ...dataWithDates,
@@ -436,7 +421,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
     const onValidationErrors = (errors: FieldErrors) => {
-        const errorFields = Object.keys(errors);
         let firstErrorTab: TabName | null = null;
         
         for (const tab of TABS) {
@@ -446,7 +430,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             }
         }
         
-        let errorMessage = `Please correct the errors on the highlighted tabs before submitting.`;
+        let errorMessage = `Please correct the errors before submitting.`;
         if (firstErrorTab) {
            setActiveTab(firstErrorTab);
            errorMessage = `Validation failed on the "${firstErrorTab.replace(/-/g, ' ')}" tab. Please review the highlighted fields.`
