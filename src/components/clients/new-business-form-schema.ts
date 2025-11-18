@@ -16,28 +16,28 @@ const phoneRegex = /^[0-9]{9}$/;
 const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
 
 const beneficiarySchema = z.object({
-    name: z.string().min(1, "Name is required.").default(''),
-    dob: z.date({ required_error: 'Date of birth is required.' }),
+    name: z.string().default(''),
+    dob: z.date().optional(),
     gender: z.enum(['Male', 'Female']).default('Male'),
-    relationship: z.string().min(1, "Relationship is required.").default(''),
+    relationship: z.string().default(''),
     telephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100.").default(100),
     isIrrevocable: z.boolean().optional().default(false),
 });
 
 const existingPolicySchema = z.object({
-  companyName: z.string().min(1, "Company name is required.").default(''),
-  personCovered: z.string().min(1, "Name of person covered is required.").default(''),
-  policyType: z.string().min(1, "Type of policy is required.").default(''),
-  issueDate: z.date({ required_error: 'Issue date is required.' }),
-  premiumAmount: z.coerce.number().positive().default(0),
-  faceAmount: z.coerce.number().positive().default(0),
-  changedGrpOrInd: z.enum(['yes', 'no'], { required_error: "This field is required."}).default('no'),
+  companyName: z.string().default(''),
+  personCovered: z.string().default(''),
+  policyType: z.string().default(''),
+  issueDate: z.date().optional(),
+  premiumAmount: z.coerce.number().default(0),
+  faceAmount: z.coerce.number().default(0),
+  changedGrpOrInd: z.enum(['yes', 'no']).default('no'),
 });
 
 const declinedPolicySchema = z.object({
-    companyName: z.string().min(1, "Company name is required.").default(''),
-    details: z.string().min(1, "Details are required.").default(''),
+    companyName: z.string().default(''),
+    details: z.string().default(''),
 });
 
 const alcoholHabitsOptions = [
@@ -388,3 +388,4 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
+
