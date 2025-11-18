@@ -40,6 +40,9 @@ type MedicalConditionDetailsTableProps = {
 
 function DatePickerField({ field, fromYear = 1900, toYear = new Date().getFullYear() }: { field: any, fromYear?: number, toYear?: number }) {
   const [isOpen, setIsOpen] = React.useState(false);
+  const date = field.value ? new Date(field.value) : null;
+  const isValidDate = date && !isNaN(date.getTime());
+
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
@@ -48,7 +51,7 @@ function DatePickerField({ field, fromYear = 1900, toYear = new Date().getFullYe
             variant={'outline'}
             className={cn('w-full pl-3 text-left font-normal', !field.value && 'text-muted-foreground')}
           >
-            {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
+            {isValidDate ? format(date, 'PPP') : <span>Pick a date</span>}
             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
           </Button>
         </FormControl>
@@ -56,7 +59,7 @@ function DatePickerField({ field, fromYear = 1900, toYear = new Date().getFullYe
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={field.value ? new Date(field.value) : undefined}
+          selected={isValidDate ? date : undefined}
           onSelect={(date) => {
             field.onChange(date);
             setIsOpen(false);
