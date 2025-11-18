@@ -375,9 +375,9 @@ export type TabName =
   | 'existing-policies'
   | 'health'
   | 'lifestyle'
-  | 'declaration'
+  | 'payment-details'
   | 'agent'
-  | 'payment-details';
+  | 'declaration';
 
 export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
   coverage: ['lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'email', 'phone', 'postalAddress', 'idNumber', 'contractType', 'sumAssured', 'premiumAmount'],
