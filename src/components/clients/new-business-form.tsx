@@ -228,45 +228,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const { formState: { errors } } = form;
 
-    // This function recursively traverses the data object and converts date strings to Date objects.
-    const convertStringsToDates = (data: any): any => {
-        const dateFieldKeys = [
-            'dob', 'date', 'issueDate', 'expiryDate', 'lifeAssuredDob', 
-            'commencementDate', 'premiumPayerDob', 'premiumPayerIssueDate', 
-            'premiumPayerExpiryDate', 'diagnosisDate', 'lastMonitoredDate', 
-            'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate', 
-            'digestiveConditionStartDate', 'dischargeDate', 'expiryDateId'
-        ];
-
-        if (Array.isArray(data)) {
-            return data.map(item => convertStringsToDates(item));
-        }
-
-        if (data && typeof data === 'object' && !(data instanceof Date)) {
-            return Object.keys(data).reduce((acc, key) => {
-                const value = data[key];
-                if (dateFieldKeys.includes(key) && typeof value === 'string') {
-                    const parsedDate = new Date(value);
-                    acc[key] = isNaN(parsedDate.getTime()) ? undefined : parsedDate;
-                } else {
-                    acc[key] = convertStringsToDates(value);
-                }
-                return acc;
-            }, {} as { [key: string]: any });
-        }
-        
-        return data;
-    };
-
   React.useEffect(() => {
     async function fetchPolicy() {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            const dataWithDates = convertStringsToDates(businessData);
             form.reset({
                 ...emptyFormValues,
-                ...dataWithDates,
+                ...businessData,
             });
         }
       }

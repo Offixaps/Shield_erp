@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import * as React from 'react';
 import PageHeader from '@/components/page-header';
 import { Card, CardContent, CardHeader, CardFooter, CardTitle } from '@/components/ui/card';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn, numberToWords } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -142,7 +141,7 @@ function BeneficiaryTable({ title, beneficiaries }: { title: string, beneficiari
                             {beneficiaries.map((beneficiary, index) => (
                                 <TableRow key={index}>
                                     <TableCell>{beneficiary.name}</TableCell>
-                                    <TableCell>{format(new Date(beneficiary.dob), 'PPP')}</TableCell>
+                                    <TableCell>{beneficiary.dob && isValid(new Date(beneficiary.dob)) ? format(new Date(beneficiary.dob), 'PPP') : 'N/A'}</TableCell>
                                     <TableCell>{beneficiary.gender}</TableCell>
                                     <TableCell>{beneficiary.relationship}</TableCell>
                                     <TableCell>{beneficiary.telephone || 'N/A'}</TableCell>
@@ -226,10 +225,14 @@ function MedicalHistorySection({
     return null;
   }
 
-  const isValidDate = (dateString: string | undefined | null): boolean => {
-    if (!dateString) return false;
-    const date = new Date(dateString);
-    return !isNaN(date.getTime());
+  const isValidDate = (date: Date | string | undefined | null): boolean => {
+    if (!date) return false;
+    const d = new Date(date);
+    return isValid(d);
+  }
+  
+  const formatDate = (date: Date | string | undefined | null): string => {
+    return isValidDate(date) ? format(new Date(date!), 'PPP') : 'N/A';
   }
 
   return (
@@ -246,7 +249,7 @@ function MedicalHistorySection({
               <AccordionTrigger>{history.illness}</AccordionTrigger>
               <AccordionContent className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <DetailItem label="Date" value={isValidDate(history.date) ? format(new Date(history.date), 'PPP') : 'N/A'} />
+                  <DetailItem label="Date" value={formatDate(history.date)} />
                   <DetailItem label="Hospital/Doctor" value={history.hospital} />
                   <DetailItem label="Duration" value={history.duration} />
                   <DetailItem label="Status" value={history.status} />
@@ -255,9 +258,9 @@ function MedicalHistorySection({
                     <div className="p-4 mt-2 space-y-4 bg-blue-500/10 rounded-md border border-blue-500/20">
                         <h4 className="font-semibold text-primary">High Blood Pressure Specifics</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                            <DetailItem label="Diagnosis Date" value={isValidDate(history.diagnosisDate) ? format(new Date(history.diagnosisDate!), 'PPP') : 'N/A'} />
+                            <DetailItem label="Diagnosis Date" value={formatDate(history.diagnosisDate)} />
                             <DetailItem label="Reading at Diagnosis" value={history.bpReadingAtDiagnosis} />
-                            <DetailItem label="Last Monitored Date" value={isValidDate(history.lastMonitoredDate) ? format(new Date(history.lastMonitoredDate!), 'PPP') : 'N/A'} />
+                            <DetailItem label="Last Monitored Date" value={formatDate(history.lastMonitoredDate)} />
                             <DetailItem label="Last BP Reading" value={history.lastBpReading} />
                             <DetailItem label="Monitoring Frequency" value={history.monitoringFrequency} />
                         </div>
@@ -283,9 +286,9 @@ function MedicalHistorySection({
                      <div className="p-4 mt-2 space-y-4 bg-red-500/10 rounded-md border border-red-500/20">
                          <h4 className="font-semibold text-destructive">Diabetes Specifics</h4>
                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            <DetailItem label="First Signs Date" value={isValidDate(history.diabetesFirstSignsDate) ? format(new Date(history.diabetesFirstSignsDate!), 'PPP') : 'N/A'} />
+                            <DetailItem label="First Signs Date" value={formatDate(history.diabetesFirstSignsDate)} />
                              <DetailItem label="Symptoms" value={history.diabetesSymptoms} />
-                             <DetailItem label="Diagnosis Date" value={isValidDate(history.diabetesDiagnosisDate) ? format(new Date(history.diabetesDiagnosisDate!), 'PPP') : 'N/A'} />
+                             <DetailItem label="Diagnosis Date" value={formatDate(history.diabetesDiagnosisDate)} />
                              <DetailItem label="Consulted Doctor?" value={<YesNoDisplay value={history.diabetesConsulted} />} />
                              <DetailItem label="Latest Blood Sugar Reading" value={history.diabetesLatestBloodSugar} />
                          </div>
@@ -302,12 +305,12 @@ function MedicalHistorySection({
                  )}
                  {history.illness === 'Asthma' && (
                      <div className="p-4 mt-2 space-y-4 bg-purple-500/10 rounded-md border border-purple-500/20">
-                          <h4 className="font-semibold" style={{ color: 'hsl(var(--chart-3))' }}>Asthma Specifics</h4>
+                          <h4 className="font-semibold" style={{ color: 'hsl(var(--chart-3))' }}>Asthma Specifics-</h4>
                           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <DetailItem label="Age at First Signs" value={history.asthmaFirstSignsAge} />
                             <DetailItem label="Symptom Duration" value={history.asthmaSymptomDuration} />
                             <DetailItem label="Symptom Frequency" value={history.asthmaSymptomFrequency} />
-                            <DetailItem label="Last Attack Date" value={isValidDate(history.asthmaLastAttackDate) ? format(new Date(history.asthmaLastAttackDate!), 'PPP') : 'N/A'} />
+                            <DetailItem label="Last Attack Date" value={formatDate(history.asthmaLastAttackDate)} />
                             <DetailItem label="Condition Severity" value={history.asthmaSeverity} />
                           </div>
                            <DetailItem label="Triggers" value={history.asthmaTrigger} />
@@ -355,7 +358,7 @@ function ExistingPoliciesDisplay({ policies }: { policies: ExistingPolicyDetail[
               <TableCell>{policy.personCovered}</TableCell>
               <TableCell>{policy.policyType}</TableCell>
               <TableCell>
-                {policy.issueDate && !isNaN(new Date(policy.issueDate).getTime())
+                {policy.issueDate && isValid(new Date(policy.issueDate))
                     ? format(new Date(policy.issueDate), 'PPP')
                     : 'N/A'
                 }
@@ -398,7 +401,7 @@ function DeclinedPoliciesDisplay({ policies }: { policies: DeclinedPolicyDetail[
   );
 }
 
-const alcoholHabitsLabels: Record<NewBusiness['alcoholHabits'], string> = {
+const alcoholHabitsLabels: Record<string, string> = {
     never_used: 'Have never used alcohol',
     occasional_socially: 'Drink occasionally or socially only',
     ex_drinker_over_5_years: 'Ex-drinker; last drunk alcohol over 5 years ago',
@@ -438,7 +441,7 @@ function AlcoholConsumptionTable({ client }: { client: NewBusiness }) {
   );
 }
 
-const tobaccoHabitsLabels: Record<NewBusiness['tobaccoHabits'], string> = {
+const tobaccoHabitsLabels: Record<string, string> = {
     never_smoked: 'Have never smoked',
     ex_smoker_over_5_years: 'Ex-smoker: last used over 5 years ago',
     ex_smoker_1_to_5_years: 'Ex-smoker: last used 1 to 5 years ago',
@@ -723,15 +726,11 @@ export default function ClientDetailsView({
     { title: 'Sum Assured', value: `GHS ${client.sumAssured.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
     {
       title: 'Commencement Date',
-      value: client.commencementDate
-        ? format(new Date(client.commencementDate), 'PPP')
-        : 'N/A',
+      value: client.commencementDate && isValid(new Date(client.commencementDate)) ? format(new Date(client.commencementDate), 'PPP') : 'N/A',
     },
     {
       title: 'Expiry Date',
-      value: client.expiryDate
-        ? format(new Date(client.expiryDate), 'PPP')
-        : 'N/A',
+      value: client.expiryDate && isValid(new Date(client.expiryDate)) ? format(new Date(client.expiryDate), 'PPP') : 'N/A',
     },
     { title: 'Policy Term', value: `${client.policyTerm} years` },
     { title: 'Premium Term', value: `${client.premiumTerm} years` },
@@ -900,7 +899,7 @@ export default function ClientDetailsView({
               <Separator />
               <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-6">
                 <DetailItem label="Full Name" value={client.client} />
-                <DetailItem label="Date of Birth" value={client.lifeAssuredDob ? format(new Date(client.lifeAssuredDob), 'PPP') : 'N/A'} />
+                <DetailItem label="Date of Birth" value={client.lifeAssuredDob && isValid(new Date(client.lifeAssuredDob)) ? format(new Date(client.lifeAssuredDob), 'PPP') : 'N/A'} />
                 <DetailItem label="Place of Birth" value={client.placeOfBirth} />
                 <DetailItem label="Age (Next Birthday)" value={client.ageNextBirthday || 'N/A'} />
                 <DetailItem label="Gender" value={client.gender} />
@@ -944,11 +943,11 @@ export default function ClientDetailsView({
                 <DetailItem label="Place of Issue" value={client.placeOfIssue} />
                 <DetailItem
                   label="Issue Date"
-                  value={client.issueDate ? format(new Date(client.issueDate), 'PPP') : 'N/A'}
+                  value={client.issueDate && isValid(new Date(client.issueDate)) ? format(new Date(client.issueDate), 'PPP') : 'N/A'}
                 />
                 <DetailItem
                   label="Expiry Date"
-                  value={client.expiryDateId ? format(new Date(client.expiryDateId), 'PPP') : 'N/A'}
+                  value={client.expiryDateId && isValid(new Date(client.expiryDateId)) ? format(new Date(client.expiryDateId), 'PPP') : 'N/A'}
                 />
               </CardContent>
             </Card>
@@ -965,7 +964,7 @@ export default function ClientDetailsView({
                 <DetailItem label="Payment Frequency" value={client.paymentFrequency} />
                 <DetailItem
                   label="Increase Month"
-                  value={client.commencementDate ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
+                  value={client.commencementDate && isValid(new Date(client.commencementDate)) ? format(new Date(client.commencementDate), 'MMMM') : 'N/A'}
                 />
               </CardContent>
             </Card>

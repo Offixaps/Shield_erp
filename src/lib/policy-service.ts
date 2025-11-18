@@ -23,166 +23,48 @@ import { FirestorePermissionError } from '@/firebase/errors';
 const POLICIES_COLLECTION = 'policies';
 
 // --- Data Conversion Helpers ---
-// Deeply converts undefined values to null for Firestore compatibility.
-function undefinedToNull(obj: any): any {
-  if (obj === undefined) {
-    return null;
-  }
-  if (obj === null || typeof obj !== 'object') {
-    return obj;
-  }
-  if (Array.isArray(obj)) {
-    return obj.map(item => undefinedToNull(item));
-  }
-  const newObj: { [key: string]: any } = {};
-  for (const key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      newObj[key] = undefinedToNull(obj[key]);
-    }
-  }
-  return newObj;
-}
 
-export function policyToFirebase(policy: NewBusiness): any {
-  let data = { ...policy };
-
-  // Convert all undefined values to null BEFORE any other processing.
-  data = undefinedToNull(data);
-
-  // Convert all date-like fields to Timestamps for Firestore
-  const toTimestamp = (value: any): any => {
-    if (value instanceof Date && !isNaN(value.getTime())) {
-        return Timestamp.fromDate(value);
-    }
-    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
-        try {
-            const date = new Date(value);
-            if (!isNaN(date.getTime())) {
-                return Timestamp.fromDate(date);
-            }
-        } catch (e) {
-            // Not a valid date string, return as is
-            return value;
-        }
-    }
-    if (Array.isArray(value)) {
-        return value.map(toTimestamp);
-    }
-    if (value !== null && typeof value === 'object') {
-        const newObj: { [key: string]: any } = {};
-        for (const key in value) {
-            if (Object.prototype.hasOwnProperty.call(value, key)) {
-                newObj[key] = toTimestamp(value[key]);
-            }
-        }
-        return newObj;
-    }
-    return value;
-  };
-  
-  return toTimestamp(data);
-}
-
-function policyFromFirebase(docSnap: any): NewBusiness {
-    const data = docSnap.data();
-    if (!data) {
-        throw new Error("Document data is undefined.");
-    }
-    const fromTimestamp = (timestamp: any): string | null => {
-        if (!timestamp) return null;
-        if (timestamp instanceof Timestamp) {
-            return format(timestamp.toDate(), 'yyyy-MM-dd');
-        }
-        if (typeof timestamp === 'string') {
-            try {
-                const parsedDate = new Date(timestamp);
-                if (isNaN(parsedDate.getTime())) return null;
-                return format(parsedDate, 'yyyy-MM-dd');
-            } catch (e) {
-                return null;
-            }
-        }
+// Recursively converts undefined to null and JS Dates to Firestore Timestamps
+function policyToFirebase(data: any): any {
+    if (data === undefined) {
         return null;
-    };
+    }
+    if (data === null || typeof data !== 'object') {
+        return data;
+    }
+    if (data instanceof Date) {
+        return Timestamp.fromDate(data);
+    }
+    if (Array.isArray(data)) {
+        return data.map(item => policyToFirebase(item));
+    }
+    const newObj: { [key: string]: any } = {};
+    for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+            newObj[key] = policyToFirebase(data[key]);
+        }
+    }
+    return newObj;
+}
 
-
-    const newId = docSnap.id;
-
-    // Ensure string fields are not null/undefined
-    const ensureString = (val: any) => val || '';
-    const ensureNumber = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
-    const ensureBoolean = (val: any) => !!val;
-
-    const result: NewBusiness = {
-        ...data,
-        id: newId,
-        client: ensureString(data.client),
-        placeOfBirth: ensureString(data.placeOfBirth),
-        email: ensureString(data.email),
-        phone: ensureString(data.phone),
-        workTelephone: ensureString(data.workTelephone),
-        homeTelephone: ensureString(data.homeTelephone),
-        postalAddress: ensureString(data.postalAddress),
-        residentialAddress: ensureString(data.residentialAddress),
-        gpsAddress: ensureString(data.gpsAddress),
-        idNumber: ensureString(data.idNumber),
-        placeOfIssue: ensureString(data.placeOfIssue),
-        policy: ensureString(data.policy),
-        serial: ensureString(data.serial),
-        occupation: ensureString(data.occupation),
-        natureOfBusiness: ensureString(data.natureOfBusiness),
-        employer: ensureString(data.employer),
-        employerAddress: ensureString(data.employerAddress),
-        payerName: ensureString(data.payerName),
-        bankName: ensureString(data.bankName),
-        bankBranch: ensureString(data.bankBranch),
-        bankAccountNumber: ensureString(data.bankAccountNumber),
-        sortCode: ensureString(data.sortCode),
-        narration: ensureString(data.narration),
-        bankAccountName: ensureString(data.bankAccountName),
-        amountInWords: ensureString(data.amountInWords),
-        agentName: ensureString(data.agentName),
-        agentCode: ensureString(data.agentCode),
-        uplineName: ensureString(data.uplineName),
-        uplineCode: ensureString(data.uplineCode),
-        introducerCode: ensureString(data.introducerCode),
-        lifeAssuredDob: fromTimestamp(data.lifeAssuredDob)!,
-        commencementDate: fromTimestamp(data.commencementDate)!,
-        expiryDate: fromTimestamp(data.expiryDate)!,
-        issueDate: fromTimestamp(data.issueDate)!,
-        expiryDateId: fromTimestamp(data.expiryDateId)!,
-        primaryBeneficiaries: (data.primaryBeneficiaries || []).map((b: any) => ({
-            ...b,
-            dob: fromTimestamp(b.dob)!,
-            telephone: ensureString(b.telephone)
-        })),
-        contingentBeneficiaries: (data.contingentBeneficiaries || []).map((b: any) => ({
-            ...b,
-            dob: fromTimestamp(b.dob)!,
-            telephone: ensureString(b.telephone)
-        })),
-         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date)! : new Date().toISOString() })),
-         payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate)! })),
-         bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate)! })),
-         vettingNotes: ensureString(data.vettingNotes),
-         mandateReworkNotes: ensureString(data.mandateReworkNotes),
-         lifeInsuredSignature: ensureString(data.lifeInsuredSignature),
-         policyOwnerSignature: ensureString(data.policyOwnerSignature),
-         paymentAuthoritySignature: ensureString(data.paymentAuthoritySignature),
-        alcoholBeer: { consumed: ensureBoolean(data.alcoholBeer?.consumed), averagePerWeek: ensureString(data.alcoholBeer?.averagePerWeek), notes: ensureString(data.alcoholBeer?.notes) },
-        alcoholWine: { consumed: ensureBoolean(data.alcoholWine?.consumed), averagePerWeek: ensureString(data.alcoholWine?.averagePerWeek), notes: ensureString(data.alcoholWine?.notes) },
-        alcoholSpirits: { consumed: ensureBoolean(data.alcoholSpirits?.consumed), averagePerWeek: ensureString(data.alcoholSpirits?.averagePerWeek), notes: ensureString(data.alcoholSpirits?.notes) },
-        reducedAlcoholMedicalAdvice: { reduced: data.reducedAlcoholMedicalAdvice?.reduced || 'no', notes: ensureString(data.reducedAlcoholMedicalAdvice?.notes) },
-        reducedAlcoholHealthProblems: { reduced: data.reducedAlcoholHealthProblems?.reduced || 'no', notes: ensureString(data.reducedAlcoholHealthProblems?.notes) },
-        tobaccoCigarettes: { smoked: ensureBoolean(data.tobaccoCigarettes?.smoked), avgPerDay: ensureString(data.tobaccoCigarettes?.avgPerDay), avgPerWeek: ensureString(data.tobaccoCigarettes?.avgPerWeek) },
-        tobaccoCigars: { smoked: ensureBoolean(data.tobaccoCigars?.smoked), avgPerDay: ensureString(data.tobaccoCigars?.avgPerDay), avgPerWeek: ensureString(data.tobaccoCigars?.avgPerWeek) },
-        tobaccoPipe: { smoked: ensureBoolean(data.tobaccoPipe?.smoked), avgPerDay: ensureString(data.tobaccoPipe?.avgPerDay), avgPerWeek: ensureString(data.tobaccoPipe?.avgPerWeek) },
-        tobaccoNicotineReplacement: { smoked: ensureBoolean(data.tobaccoNicotineReplacement?.smoked), avgPerDay: ensureString(data.tobaccoNicotineReplacement?.avgPerDay), avgPerWeek: ensureString(data.tobaccoNicotineReplacement?.avgPerWeek) },
-        tobaccoEcigarettes: { smoked: ensureBoolean(data.tobaccoEcigarettes?.smoked), avgPerDay: ensureString(data.tobaccoEcigarettes?.avgPerDay), avgPerWeek: ensureString(data.tobaccoEcigarettes?.avgPerWeek) },
-        tobaccoOther: { smoked: ensureBoolean(data.tobaccoOther?.smoked), avgPerDay: ensureString(data.tobaccoOther?.avgPerDay), avgPerWeek: ensureString(data.tobaccoOther?.avgPerWeek), otherType: ensureString(data.tobaccoOther?.otherType) },
-    };
-
-    return result;
+// Recursively converts Firestore Timestamps to JS Dates
+function policyFromFirebase(data: any): any {
+    if (data === null || typeof data !== 'object') {
+        return data;
+    }
+    if (data instanceof Timestamp) {
+        return data.toDate();
+    }
+    if (Array.isArray(data)) {
+        return data.map(item => policyFromFirebase(item));
+    }
+    const newObj: { [key: string]: any } = {};
+    for (const key in data) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) {
+            newObj[key] = policyFromFirebase(data[key]);
+        }
+    }
+    return newObj;
 }
 
 
@@ -200,7 +82,10 @@ export async function getPolicies(): Promise<NewBusiness[]> {
     return { docs: [] };
   });
 
-  const policyList = policySnapshot.docs.map(doc => policyFromFirebase({ id: doc.id, data: () => doc.data() }));
+  const policyList = policySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...policyFromFirebase(doc.data())
+  } as NewBusiness));
   return policyList;
 }
 
@@ -220,7 +105,7 @@ export async function getPolicyById(id: string): Promise<NewBusiness | undefined
   });
 
   if (docSnap && docSnap.exists()) {
-    return policyFromFirebase({id: docSnap.id, data: ()=> docSnap.data()});
+    return { id: docSnap.id, ...policyFromFirebase(docSnap.data()) } as NewBusiness;
   } 
   return undefined;
 }
@@ -232,7 +117,7 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   if (!currentDoc.exists()) {
     throw new Error("Policy not found");
   }
-  const originalPolicy = policyFromFirebase(currentDoc);
+  const originalPolicy = { id: currentDoc.id, ...policyFromFirebase(currentDoc.data()) } as NewBusiness;
 
   const updatedData = { 
     ...originalPolicy, 
@@ -256,7 +141,10 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
       updatedData.activityLog = [...(updatedData.activityLog || []), newLogEntry];
   }
 
-  const firebaseData = policyToFirebase(updatedData);
+  // Remove the 'id' field before sending to Firestore
+  const { id: policyId, ...dataToSave } = updatedData;
+
+  const firebaseData = policyToFirebase(dataToSave);
   await setDoc(policyRef, firebaseData, { merge: true }).catch(async (serverError) => {
     const permissionError = new FirestorePermissionError({
         path: policyRef.path,
@@ -282,35 +170,30 @@ export async function createPolicy(values: any): Promise<string> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
     const newPolicyData = {
-        ...values, // Start with all form values
+        ...values,
         client: lifeAssuredName,
         department: "Business Development",
-        lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : null,
         product: values.contractType,
         premium: values.premiumAmount,
         initialSumAssured: values.sumAssured,
-        commencementDate: format(new Date(), 'yyyy-MM-dd'),
-        expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + (values.policyTerm || 0))).toISOString().split('T')[0],
         onboardingStatus: 'Incomplete Policy',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
         payerName: values.isPolicyHolderPayer ? lifeAssuredName : [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' '),
         narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
-        primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
-        contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
-        existingPoliciesDetails: (values.existingPoliciesDetails || []).map((p: any) => ({...p, issueDate: p.issueDate ? format(p.issueDate, 'yyyy-MM-dd') : null})),
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
         bills: [],
         payments: [],
         activityLog: [
-            { date: new Date().toISOString(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
-            { date: new Date().toISOString(), user: 'System', action: 'Status changed to Incomplete Policy' }
+            { date: new Date(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
+            { date: new Date(), user: 'System', action: 'Status changed to Incomplete Policy' }
         ],
     };
     
-    const firebaseData = policyToFirebase(newPolicyData as unknown as NewBusiness);
+    const { id, ...dataToSave } = newPolicyData;
+    const firebaseData = policyToFirebase(dataToSave);
     const policiesCollectionRef = collection(db, POLICIES_COLLECTION);
     
     const docRef = await addDoc(policiesCollectionRef, firebaseData)
@@ -324,9 +207,6 @@ export async function createPolicy(values: any): Promise<string> {
             throw serverError; // Re-throw the original error after emitting our custom one
         });
     
-    // Update the local object with the real doc ID
-    await setDoc(docRef, { id: docRef.id }, { merge: true });
-
     return docRef.id;
 }
 
@@ -467,12 +347,9 @@ export async function billAllActivePolicies(): Promise<number> {
             }];
             
             const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-            const updateData = { 
-                bills: updatedPolicy.bills.map(b => ({...b, dueDate: Timestamp.fromDate(new Date(b.dueDate))})), 
-                billingStatus: 'Outstanding', 
-                activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
-            };
-
+            const {id, ...dataToSave} = updatedPolicy;
+            const updateData = policyToFirebase(dataToSave);
+            
             batch.update(policyRef, updateData);
             billedCount++;
         }
@@ -534,11 +411,8 @@ export async function applyAnnualIncreases(): Promise<number> {
             }];
             
             const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-            const updateData = {
-                premium: newPremium,
-                sumAssured: newSumAssured,
-                activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
-            };
+            const {id, ...dataToSave} = updatedPolicy;
+            const updateData = policyToFirebase(dataToSave);
 
             batch.update(policyRef, updateData);
             updatedCount++;
@@ -639,23 +513,21 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
         }];
 
         const policyRef = doc(db, POLICIES_COLLECTION, policy.id.toString());
-        const updateData = { 
-            payments: updatedPolicy.payments.map(p => ({...p, paymentDate: Timestamp.fromDate(new Date(p.paymentDate))})), 
-            bills: updatedPolicy.bills.map(b => ({...b, dueDate: Timestamp.fromDate(new Date(b.dueDate))})), 
-            billingStatus: updatedPolicy.billingStatus, 
-            activityLog: updatedPolicy.activityLog.map(a => ({...a, date: Timestamp.fromDate(new Date(a.date))}))
-        };
+        const {id, ...dataToSave} = updatedPolicy;
+        const updateData = policyToFirebase(dataToSave);
         batch.update(policyRef, updateData);
         successCount++;
     }
 
-    await batch.commit().catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-            path: `batch write to ${POLICIES_COLLECTION}`,
-            operation: 'update',
+    if (successCount > 0) {
+        await batch.commit().catch(async (serverError) => {
+            const permissionError = new FirestorePermissionError({
+                path: `batch write to ${POLICIES_COLLECTION}`,
+                operation: 'update',
+            });
+            errorEmitter.emit('permission-error', permissionError);
         });
-        errorEmitter.emit('permission-error', permissionError);
-    });
+    }
     
     return { successCount, failureCount };
 }
@@ -663,28 +535,3 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
 function newId() {
     return Math.random().toString(36).substr(2, 9);
 }
-
-    
-
-
-
-
-    
-
-
-
-
-
-    
-
-    
-
-    
-
-
-
-
-
-
-
-
