@@ -188,7 +188,10 @@ export default function NewBusinessTable() {
                         <TableCell>{business.product}</TableCell>
                         <TableCell>GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                         <TableCell>
-                        {format(new Date(business.commencementDate), 'PPP')}
+                          {business.commencementDate && !isNaN(new Date(business.commencementDate).getTime())
+                              ? format(new Date(business.commencementDate), 'PPP')
+                              : 'N/A'
+                          }
                         </TableCell>
                         <TableCell>
                         <Badge
