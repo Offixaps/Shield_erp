@@ -379,12 +379,12 @@ export type TabName =
   | 'declaration';
 
 export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSchema>)[]> = {
-  coverage: ['lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'email', 'phone', 'postalAddress', 'idNumber', 'contractType', 'sumAssured', 'premiumAmount'],
-  beneficiaries: ['primaryBeneficiaries'],
+  coverage: ['title', 'lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'placeOfBirth', 'email', 'phone', 'postalAddress', 'nationalIdType', 'idNumber', 'issueDate', 'placeOfIssue', 'country', 'nationality', 'languages', 'maritalStatus', 'gender', 'religion', 'contractType', 'policyTerm', 'premiumTerm', 'sumAssured', 'premiumAmount', 'paymentFrequency', 'occupation', 'natureOfBusiness', 'employer', 'employerAddress', 'monthlyBasicIncome'],
+  beneficiaries: ['primaryBeneficiaries', 'contingentBeneficiaries'],
   'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
-  health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection'],
+  health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory'],
   lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry'],
-  'payment-details': ['bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber'],
+  'payment-details': ['isPolicyHolderPayer', 'bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'amountInWords'],
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };

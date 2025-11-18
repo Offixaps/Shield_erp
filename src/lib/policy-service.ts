@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { newBusinessData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
@@ -238,7 +237,6 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
   const updatedData = { 
     ...originalPolicy, 
     ...updates,
-    serial: originalPolicy.serial || (updates as NewBusiness).serial, // Ensure serial is preserved
   };
   
   if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -284,81 +282,23 @@ export async function createPolicy(values: any): Promise<string> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
     const newPolicyData = {
+        ...values, // Start with all form values
         client: lifeAssuredName,
         department: "Business Development",
         lifeAssuredDob: values.lifeAssuredDob ? format(values.lifeAssuredDob, 'yyyy-MM-dd') : null,
-        placeOfBirth: values.placeOfBirth || null,
-        ageNextBirthday: values.ageNextBirthday || 0,
-        gender: values.gender || null,
-        maritalStatus: values.maritalStatus || null,
-        dependents: values.dependents || 0,
-        nationality: values.nationality || null,
-        country: values.country || null,
-        religion: values.religion || null,
-        languages: values.languages || null,
-        email: values.email || null,
-        phone: values.phone || '',
-        workTelephone: values.workTelephone || '',
-        homeTelephone: values.homeTelephone || '',
-        postalAddress: values.postalAddress || null,
-        residentialAddress: values.residentialAddress || null,
-        gpsAddress: values.gpsAddress || null,
-        nationalIdType: values.nationalIdType || null,
-        idNumber: values.idNumber || null,
-        placeOfIssue: values.placeOfIssue || null,
-        issueDate: values.issueDate ? format(values.issueDate, 'yyyy-MM-dd') : null,
-        expiryDateId: values.expiryDate ? format(values.expiryDate, 'yyyy-MM-dd') : null,
-        policy: '', // Blank on creation
-        product: values.contractType || null,
-        premium: values.premiumAmount || 0,
-        initialSumAssured: values.sumAssured || 0,
-        sumAssured: values.sumAssured || 0,
+        product: values.contractType,
+        premium: values.premiumAmount,
+        initialSumAssured: values.sumAssured,
         commencementDate: format(new Date(), 'yyyy-MM-dd'),
         expiryDate: new Date(new Date().setFullYear(new Date().getFullYear() + (values.policyTerm || 0))).toISOString().split('T')[0],
-        policyTerm: values.policyTerm || 0,
-        premiumTerm: values.premiumTerm || 0,
-        serial: values.serial,
-        paymentFrequency: values.paymentFrequency || null,
         onboardingStatus: 'Incomplete Policy',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
-        vettingNotes: values.vettingNotes || null,
-        mandateReworkNotes: values.mandateReworkNotes || null,
-        mandateVerificationTimestamp: values.mandateVerificationTimestamp || null,
-        occupation: values.occupation || null,
-        natureOfBusiness: values.natureOfBusiness || null,
-        employer: values.employer || null,
-        employerAddress: values.employerAddress || null,
-        monthlyBasicIncome: values.monthlyBasicIncome || 0,
-        otherIncome: values.otherIncome || 0,
-        totalMonthlyIncome: values.totalMonthlyIncome || 0,
-        isPolicyHolderPayer: values.isPolicyHolderPayer,
         payerName: values.isPolicyHolderPayer ? lifeAssuredName : [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' '),
-        bankName: values.bankName || null,
-        bankBranch: values.bankBranch || null,
-        bankAccountNumber: values.bankAccountNumber || null,
-        sortCode: values.sortCode || null,
         narration: `${format(new Date(), 'MMMM yyyy').toUpperCase()} PREMIUM`,
-        accountType: values.accountType || null,
-        bankAccountName: values.bankAccountName || null,
-        amountInWords: values.amountInWords || null,
-        paymentAuthoritySignature: values.paymentAuthoritySignature || null,
-        lifeInsuredSignature: values.lifeInsuredSignature || null,
-        policyOwnerSignature: values.policyOwnerSignature || null,
         primaryBeneficiaries: (values.primaryBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
         contingentBeneficiaries: (values.contingentBeneficiaries || []).map((b: any) => ({ ...b, dob: b.dob ? format(b.dob, 'yyyy-MM-dd') : null })),
-        height: values.height || 0,
-        heightUnit: values.heightUnit || 'cm',
-        weight: values.weight || 0,
-        bmi: values.bmi || 0,
-        alcoholHabits: values.alcoholHabits || null,
-        tobaccoHabits: values.tobaccoHabits || null,
-        medicalHistory: values.medicalHistory || [],
-        familyMedicalHistory: values.familyMedicalHistory || null,
-        familyMedicalHistoryDetails: values.familyMedicalHistoryDetails || [],
-        lifestyleDetails: values.lifestyleDetails || [],
         existingPoliciesDetails: (values.existingPoliciesDetails || []).map((p: any) => ({...p, issueDate: p.issueDate ? format(p.issueDate, 'yyyy-MM-dd') : null})),
-        declinedPolicyDetails: values.declinedPolicyDetails || [],
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
@@ -385,7 +325,7 @@ export async function createPolicy(values: any): Promise<string> {
         });
     
     // Update the local object with the real doc ID
-    await setDoc(docRef, { id: docRef.id, uid: docRef.id }, { merge: true });
+    await setDoc(docRef, { id: docRef.id }, { merge: true });
 
     return docRef.id;
 }
@@ -740,6 +680,7 @@ function newId() {
     
 
     
+
 
 
 

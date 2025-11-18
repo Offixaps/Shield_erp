@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -221,6 +221,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
   const [submissionError, setSubmissionError] = React.useState<string | null>(null);
+  const [errorTabs, setErrorTabs] = React.useState<Set<TabName>>(new Set());
 
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
@@ -228,79 +229,47 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     defaultValues: emptyFormValues,
   });
 
-  // Watch for any form changes to clear the top-level error
-  const formValues = form.watch();
+  const { formState: { errors } } = form;
+
   React.useEffect(() => {
-    if (submissionError) {
-      setSubmissionError(null);
+    const newErrorTabs = new Set<TabName>();
+    const errorFields = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
+
+    for (const field of errorFields) {
+        for (const tab of TABS) {
+            if (tabFields[tab].includes(field)) {
+                newErrorTabs.add(tab);
+                break; 
+            }
+        }
     }
-  }, [formValues, submissionError]);
+    // Check for nested errors, like in beneficiaries array
+    if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
+      newErrorTabs.add('beneficiaries');
+    }
+    setErrorTabs(newErrorTabs);
+  }, [errors]);
 
   React.useEffect(() => {
     async function fetchPolicy() {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            
-            const nameParts = (businessData.client || '').split(' ');
-            const title = (['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon'].find(t => t === nameParts[0]) || 'Mr') as 'Mr' | 'Mrs' | 'Miss' | 'Dr' | 'Prof' | 'Hon';
-            const nameWithoutTitle = nameParts[0] === title ? nameParts.slice(1).join(' ') : businessData.client;
-            const nameOnlyParts = nameWithoutTitle.split(' ');
-
-            const firstName = nameOnlyParts[0] || '';
-            const surname = nameOnlyParts.length > 1 ? nameOnlyParts[nameOnlyParts.length - 1] : '';
-            const middleName = nameOnlyParts.length > 2 ? nameOnlyParts.slice(1, -1).join(' ') : '';
-            
-            const parseDate = (dateString: string | undefined | null): Date | undefined => {
-                if (!dateString) return undefined;
-                try {
-                    const date = new Date(dateString);
-                    // Check if the parsed date is valid
-                    if (isNaN(date.getTime())) {
-                        return undefined;
-                    }
-                    return date;
-                } catch {
-                    return undefined;
-                }
-            }
-
-            const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
-                if (!beneficiaries) return [];
-                return beneficiaries.map(b => {
-                    const dob = parseDate(b.dob);
-                    return {
-                        ...b,
-                        dob: dob,
-                    };
-                });
-            };
-            
-            const sanitizedData: Partial<z.infer<typeof newBusinessFormSchema>> = {
-                ...businessData,
-                lifeAssuredFirstName: firstName,
-                lifeAssuredMiddleName: middleName,
-                lifeAssuredSurname: surname,
-                contractType: businessData.product as any,
-                premiumAmount: businessData.premium,
-                lifeAssuredDob: parseDate(businessData.lifeAssuredDob),
-                commencementDate: parseDate(businessData.commencementDate),
-                issueDate: parseDate(businessData.issueDate),
-                expiryDate: parseDate(businessData.expiryDate),
-                premiumPayerDob: parseDate(businessData.premiumPayerDob),
-                premiumPayerIssueDate: parseDate(businessData.premiumPayerIssueDate),
-                premiumPayerExpiryDate: parseDate(businessData.premiumPayerExpiryDate),
-                primaryBeneficiaries: parseBeneficiaries(businessData.primaryBeneficiaries),
-                contingentBeneficiaries: parseBeneficiaries(businessData.contingentBeneficiaries),
-                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: parseDate(p.issueDate) })),
-            };
-            
             const finalData = {
                 ...emptyFormValues,
-                ...sanitizedData,
+                ...businessData,
+                lifeAssuredDob: businessData.lifeAssuredDob ? new Date(businessData.lifeAssuredDob) : new Date(),
+                commencementDate: businessData.commencementDate ? new Date(businessData.commencementDate) : new Date(),
+                issueDate: businessData.issueDate ? new Date(businessData.issueDate) : new Date(),
+                expiryDate: businessData.expiryDate ? new Date(businessData.expiryDate) : undefined,
+                premiumPayerDob: businessData.premiumPayerDob ? new Date(businessData.premiumPayerDob) : undefined,
+                premiumPayerIssueDate: businessData.premiumPayerIssueDate ? new Date(businessData.premiumPayerIssueDate) : undefined,
+                premiumPayerExpiryDate: businessData.premiumPayerExpiryDate ? new Date(businessData.premiumPayerExpiryDate) : undefined,
+                primaryBeneficiaries: (businessData.primaryBeneficiaries || []).map(b => ({ ...b, dob: b.dob ? new Date(b.dob) : new Date() })),
+                contingentBeneficiaries: (businessData.contingentBeneficiaries || []).map(b => ({ ...b, dob: b.dob ? new Date(b.dob) : new Date() })),
+                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: p.issueDate ? new Date(p.issueDate) : new Date() })),
             };
-
-            form.reset(finalData as any);
+            form.reset(finalData);
         }
       }
     }
@@ -457,25 +426,30 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-  const onValidationErrors = (errors: any) => {
-    const errorFields = Object.keys(errors);
+  const onValidationErrors = (errors: FieldErrors) => {
+    const errorFields = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
+
     if (errorFields.length > 0) {
-      const firstErrorField = errorFields[0] as keyof z.infer<typeof newBusinessFormSchema>;
-      
-      // Find which tab the error is on
-      let errorTab: TabName | null = null;
-      for (const tab of TABS) {
-        if (tabFields[tab].includes(firstErrorField)) {
-          errorTab = tab;
-          break;
+      const newErrorTabs = new Set<TabName>();
+      for (const field of errorFields) {
+        for (const tab of TABS) {
+          if ((tabFields[tab] as string[]).includes(field)) {
+            newErrorTabs.add(tab);
+            break;
+          }
         }
       }
+       if (errors.primaryBeneficiaries || errors.contingentBeneficiaries) {
+          newErrorTabs.add('beneficiaries');
+       }
 
-      if (errorTab) {
-        setActiveTab(errorTab);
+      const firstErrorTab = Array.from(newErrorTabs)[0];
+      if (firstErrorTab) {
+        setActiveTab(firstErrorTab);
       }
-
-      setSubmissionError(`Please correct the errors on the form. The first error is on the ${errorTab ? `"${errorTab.replace(/-/g, ' ')}"` : ''} tab.`);
+      
+      setErrorTabs(newErrorTabs);
+      setSubmissionError(`Please correct the errors on the highlighted tabs before submitting.`);
     }
   };
 
@@ -489,7 +463,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       
       const finalValues = {
         ...values,
-        onboardingStatus: 'Pending Vetting' as const,
+        onboardingStatus: 'Pending First Premium' as const,
       };
 
       await updatePolicy(currentBusinessId, finalValues as any);
@@ -518,14 +492,22 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         {submissionError && (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
+                <AlertTitle>Validation Error</AlertTitle>
                 <AlertDescription>{submissionError}</AlertDescription>
             </Alert>
         )}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabName)} className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             {TABS.map(tab => (
-              <TabsTrigger key={tab} value={tab}>{tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</TabsTrigger>
+              <TabsTrigger key={tab} value={tab} className="relative">
+                {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                {errorTabs.has(tab) && (
+                    <span className="absolute top-1 right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-destructive"></span>
+                    </span>
+                )}
+              </TabsTrigger>
             ))}
           </TabsList>
           
