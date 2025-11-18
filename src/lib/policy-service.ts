@@ -89,29 +89,30 @@ function policyFromFirebase(docSnap: any): NewBusiness {
     if (!data) {
         throw new Error("Document data is undefined.");
     }
-    const fromTimestamp = (timestamp: any): string => {
-        if (!timestamp) return '';
+    const fromTimestamp = (timestamp: any): string | null => {
+        if (!timestamp) return null;
         if (timestamp instanceof Timestamp) {
-            const date = timestamp.toDate();
-            return format(date, 'yyyy-MM-dd');
+            return format(timestamp.toDate(), 'yyyy-MM-dd');
         }
         if (typeof timestamp === 'string') {
-            // Handle cases where date is already a string
-             try {
+            try {
                 const parsedDate = new Date(timestamp);
-                if (isNaN(parsedDate.getTime())) return '';
+                if (isNaN(parsedDate.getTime())) return null;
                 return format(parsedDate, 'yyyy-MM-dd');
             } catch (e) {
-                return ''; // Return empty string for invalid date strings
+                return null;
             }
         }
-        return '';
+        return null;
     };
+
 
     const newId = docSnap.id;
 
     // Ensure string fields are not null/undefined
     const ensureString = (val: any) => val || '';
+    const ensureNumber = (val: any) => (typeof val === 'number' && !isNaN(val)) ? val : 0;
+    const ensureBoolean = (val: any) => !!val;
 
     const result: NewBusiness = {
         ...data,
@@ -146,40 +147,40 @@ function policyFromFirebase(docSnap: any): NewBusiness {
         uplineName: ensureString(data.uplineName),
         uplineCode: ensureString(data.uplineCode),
         introducerCode: ensureString(data.introducerCode),
-        lifeAssuredDob: fromTimestamp(data.lifeAssuredDob),
-        commencementDate: fromTimestamp(data.commencementDate),
-        expiryDate: fromTimestamp(data.expiryDate),
-        issueDate: fromTimestamp(data.issueDate),
-        expiryDateId: fromTimestamp(data.expiryDateId),
+        lifeAssuredDob: fromTimestamp(data.lifeAssuredDob)!,
+        commencementDate: fromTimestamp(data.commencementDate)!,
+        expiryDate: fromTimestamp(data.expiryDate)!,
+        issueDate: fromTimestamp(data.issueDate)!,
+        expiryDateId: fromTimestamp(data.expiryDateId)!,
         primaryBeneficiaries: (data.primaryBeneficiaries || []).map((b: any) => ({
             ...b,
-            dob: fromTimestamp(b.dob),
+            dob: fromTimestamp(b.dob)!,
             telephone: ensureString(b.telephone)
         })),
         contingentBeneficiaries: (data.contingentBeneficiaries || []).map((b: any) => ({
             ...b,
-            dob: fromTimestamp(b.dob),
+            dob: fromTimestamp(b.dob)!,
             telephone: ensureString(b.telephone)
         })),
-         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date) : new Date().toISOString() })),
-         payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate) })),
-         bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate) })),
+         activityLog: (data.activityLog || []).map((log: any) => ({ ...log, date: log.date ? fromTimestamp(log.date)! : new Date().toISOString() })),
+         payments: (data.payments || []).map((p: any) => ({ ...p, paymentDate: fromTimestamp(p.paymentDate)! })),
+         bills: (data.bills || []).map((b: any) => ({ ...b, dueDate: fromTimestamp(b.dueDate)! })),
          vettingNotes: ensureString(data.vettingNotes),
          mandateReworkNotes: ensureString(data.mandateReworkNotes),
          lifeInsuredSignature: ensureString(data.lifeInsuredSignature),
          policyOwnerSignature: ensureString(data.policyOwnerSignature),
          paymentAuthoritySignature: ensureString(data.paymentAuthoritySignature),
-        alcoholBeer: data.alcoholBeer ?? { consumed: false, averagePerWeek: '', notes: '' },
-        alcoholWine: data.alcoholWine ?? { consumed: false, averagePerWeek: '', notes: '' },
-        alcoholSpirits: data.alcoholSpirits ?? { consumed: false, averagePerWeek: '', notes: '' },
-        reducedAlcoholMedicalAdvice: data.reducedAlcoholMedicalAdvice ?? { reduced: 'no', notes: '' },
-        reducedAlcoholHealthProblems: data.reducedAlcoholHealthProblems ?? { reduced: 'no', notes: '' },
-        tobaccoCigarettes: data.tobaccoCigarettes ?? { smoked: false, avgPerDay: '', avgPerWeek: '' },
-        tobaccoCigars: data.tobaccoCigars ?? { smoked: false, avgPerDay: '', avgPerWeek: '' },
-        tobaccoPipe: data.tobaccoPipe ?? { smoked: false, avgPerDay: '', avgPerWeek: '' },
-        tobaccoNicotineReplacement: data.tobaccoNicotineReplacement ?? { smoked: false, avgPerDay: '', avgPerWeek: '' },
-        tobaccoEcigarettes: data.tobaccoEcigarettes ?? { smoked: false, avgPerDay: '', avgPerWeek: '' },
-        tobaccoOther: data.tobaccoOther ?? { smoked: false, avgPerDay: '', avgPerWeek: '', otherType: '' },
+        alcoholBeer: { consumed: ensureBoolean(data.alcoholBeer?.consumed), averagePerWeek: ensureString(data.alcoholBeer?.averagePerWeek), notes: ensureString(data.alcoholBeer?.notes) },
+        alcoholWine: { consumed: ensureBoolean(data.alcoholWine?.consumed), averagePerWeek: ensureString(data.alcoholWine?.averagePerWeek), notes: ensureString(data.alcoholWine?.notes) },
+        alcoholSpirits: { consumed: ensureBoolean(data.alcoholSpirits?.consumed), averagePerWeek: ensureString(data.alcoholSpirits?.averagePerWeek), notes: ensureString(data.alcoholSpirits?.notes) },
+        reducedAlcoholMedicalAdvice: { reduced: data.reducedAlcoholMedicalAdvice?.reduced || 'no', notes: ensureString(data.reducedAlcoholMedicalAdvice?.notes) },
+        reducedAlcoholHealthProblems: { reduced: data.reducedAlcoholHealthProblems?.reduced || 'no', notes: ensureString(data.reducedAlcoholHealthProblems?.notes) },
+        tobaccoCigarettes: { smoked: ensureBoolean(data.tobaccoCigarettes?.smoked), avgPerDay: ensureString(data.tobaccoCigarettes?.avgPerDay), avgPerWeek: ensureString(data.tobaccoCigarettes?.avgPerWeek) },
+        tobaccoCigars: { smoked: ensureBoolean(data.tobaccoCigars?.smoked), avgPerDay: ensureString(data.tobaccoCigars?.avgPerDay), avgPerWeek: ensureString(data.tobaccoCigars?.avgPerWeek) },
+        tobaccoPipe: { smoked: ensureBoolean(data.tobaccoPipe?.smoked), avgPerDay: ensureString(data.tobaccoPipe?.avgPerDay), avgPerWeek: ensureString(data.tobaccoPipe?.avgPerWeek) },
+        tobaccoNicotineReplacement: { smoked: ensureBoolean(data.tobaccoNicotineReplacement?.smoked), avgPerDay: ensureString(data.tobaccoNicotineReplacement?.avgPerDay), avgPerWeek: ensureString(data.tobaccoNicotineReplacement?.avgPerWeek) },
+        tobaccoEcigarettes: { smoked: ensureBoolean(data.tobaccoEcigarettes?.smoked), avgPerDay: ensureString(data.tobaccoEcigarettes?.avgPerDay), avgPerWeek: ensureString(data.tobaccoEcigarettes?.avgPerWeek) },
+        tobaccoOther: { smoked: ensureBoolean(data.tobaccoOther?.smoked), avgPerDay: ensureString(data.tobaccoOther?.avgPerDay), avgPerWeek: ensureString(data.tobaccoOther?.avgPerWeek), otherType: ensureString(data.tobaccoOther?.otherType) },
     };
 
     return result;
@@ -725,6 +726,7 @@ function newId() {
     
 
     
+
 
 
 

@@ -176,17 +176,17 @@ export const newBusinessFormSchema = z
     gpsAddress: z.string().optional().default(''),
     ageNextBirthday: z.coerce.number().optional().default(0),
     maritalStatus: z.enum(['Single', 'Married', 'Divorced', 'Widowed']),
-    dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.'),
+    dependents: z.coerce.number().min(0, 'Number of dependents cannot be negative.').default(0),
     gender: z.enum(['Male', 'Female']),
     nationalIdType: z.enum(idTypes),
     idNumber: z.string().min(2, 'ID Number is required.'),
     issueDate: z.date({ required_error: 'Issue date is required.' }),
     expiryDate: z.date().optional(),
     placeOfIssue: z.string().min(2, 'Place of issue is required.'),
-    country: z.string().min(2, 'Country is required.'),
+    country: z.string().min(2, 'Country is required.').default('Ghana'),
     region: z.string().optional().default(''),
     religion: z.enum(['Christian', 'Muslim', 'Traditional', 'Other']),
-    nationality: z.string().min(2, 'Nationality is required.'),
+    nationality: z.string().min(2, 'Nationality is required.').default('Ghanaian'),
     languages: z.string().min(2, 'Languages spoken is required.'),
 
     // Coverage Details
@@ -221,7 +221,7 @@ export const newBusinessFormSchema = z
     employer: z.string().min(2, 'Employer is required.'),
     employerAddress: z.string().min(5, 'Employer address is required.'),
     monthlyBasicIncome: z.coerce.number().positive('Monthly basic income must be a positive number.'),
-    otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.'),
+    otherIncome: z.coerce.number().min(0, 'Other income cannot be negative.').default(0),
     totalMonthlyIncome: z.coerce.number().optional().default(0),
 
     // Payment Details
