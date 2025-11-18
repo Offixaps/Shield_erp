@@ -366,6 +366,16 @@ export const newBusinessFormSchema = z
             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['premiumPayerIdNumber'], message: 'Payer\'s ID number is required.' });
         }
     }
+    if (data.alcoholHabits === 'current_regular_drinker' || data.alcoholHabits === 'occasional_socially') {
+        if (!data.alcoholBeer?.consumed && !data.alcoholWine?.consumed && !data.alcoholSpirits?.consumed) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['alcoholBeer.consumed'], message: 'Please specify at least one type of alcohol consumed.' });
+        }
+    }
+     if (data.usedNicotineLast12Months === 'yes') {
+        if (!data.tobaccoCigarettes?.smoked && !data.tobaccoCigars?.smoked && !data.tobaccoPipe?.smoked && !data.tobaccoNicotineReplacement?.smoked && !data.tobaccoEcigarettes?.smoked && !data.tobaccoOther?.smoked) {
+             ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['usedNicotineLast12Months'], message: 'Please specify which tobacco/nicotine products have been used.' });
+        }
+    }
   });
 
 
@@ -383,7 +393,7 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   coverage: ['title', 'lifeAssuredFirstName', 'lifeAssuredSurname', 'lifeAssuredDob', 'placeOfBirth', 'email', 'phone', 'postalAddress', 'nationalIdType', 'idNumber', 'issueDate', 'placeOfIssue', 'country', 'nationality', 'languages', 'maritalStatus', 'gender', 'religion', 'contractType', 'policyTerm', 'premiumTerm', 'sumAssured', 'premiumAmount', 'paymentFrequency', 'occupation', 'natureOfBusiness', 'employer', 'employerAddress', 'monthlyBasicIncome'],
   beneficiaries: ['primaryBeneficiaries', 'contingentBeneficiaries'],
   'existing-policies': ['hasExistingPolicies', 'declinedPolicy'],
-  health: ['height', 'weight', 'alcoholHabits', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory'],
+  health: ['height', 'weight', 'alcoholHabits', 'usedNicotineLast12Months', 'tobaccoHabits', 'usedRecreationalDrugs', 'injectedNonPrescribedDrugs', 'testedPositiveViralInfection', 'bloodTransfusionOrSurgery', 'highBloodPressure', 'cancer', 'diabetes', 'colitisCrohns', 'paralysisEpilepsy', 'mentalIllness', 'arthritis', 'chestPain', 'asthma', 'digestiveDisorder', 'bloodDisorder', 'thyroidDisorder', 'kidneyDisorder', 'numbness', 'anxietyStress', 'earEyeDisorder', 'lumpGrowth', 'hospitalAttendance', 'criticalIllness', 'sti', 'presentSymptoms', 'familyMedicalHistory'],
   lifestyle: ['flownAsPilot', 'hazardousSports', 'travelOutsideCountry'],
   'payment-details': ['isPolicyHolderPayer', 'bankName', 'bankBranch', 'sortCode', 'accountType', 'bankAccountName', 'bankAccountNumber', 'amountInWords', 'premiumPayerOtherNames', 'premiumPayerSurname', 'premiumPayerIdType', 'premiumPayerIdNumber'],
   agent: ['agentName', 'agentCode'],
@@ -391,5 +401,6 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
 };
 
     
+
 
 
