@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type FieldErrors, type FieldError } from 'react-hook-form';
+import { useForm, type FieldErrors } from 'react-hook-form';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, numberToWords } from '@/lib/utils';
-import { FilePenLine, Send, Save, XCircle, AlertCircle } from 'lucide-react';
+import { FilePenLine, Send, Save, XCircle } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
@@ -29,7 +29,6 @@ import DeclarationTab from './form-tabs/declaration-tab';
 import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
 import type { NewBusiness } from '@/lib/data';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -229,26 +228,47 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const { formState: { errors } } = form;
 
+    const convertStringToDate = (dateString: string | undefined | null): Date | undefined => {
+      if (!dateString) return undefined;
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) ? undefined : date;
+    };
+    
+    // Recursive function to convert date strings to Date objects
+    const convertAllDates = (data: any): any => {
+      const dateFields = ['dob', 'date', 'issueDate', 'expiryDate', 'lifeAssuredDob', 'commencementDate', 'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate', 'diagnosisDate', 'lastMonitoredDate', 'diabetesFirstSignsDate', 'diabetesDiagnosisDate', 'asthmaLastAttackDate', 'digestiveConditionStartDate', 'dischargeDate'];
+    
+      if (Array.isArray(data)) {
+        return data.map(item => convertAllDates(item));
+      }
+    
+      if (data && typeof data === 'object' && !(data instanceof Date)) {
+        const newData: { [key: string]: any } = {};
+        for (const key in data) {
+          if (Object.prototype.hasOwnProperty.call(data, key)) {
+            if (dateFields.includes(key) && typeof data[key] === 'string') {
+              newData[key] = convertStringToDate(data[key]);
+            } else {
+              newData[key] = convertAllDates(data[key]);
+            }
+          }
+        }
+        return newData;
+      }
+    
+      return data;
+    };
+
   React.useEffect(() => {
     async function fetchPolicy() {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
-            const finalData = {
+            const dataWithDates = convertAllDates(businessData);
+            form.reset({
                 ...emptyFormValues,
-                ...businessData,
-                lifeAssuredDob: businessData.lifeAssuredDob ? new Date(businessData.lifeAssuredDob) : new Date(),
-                commencementDate: businessData.commencementDate ? new Date(businessData.commencementDate) : new Date(),
-                issueDate: businessData.issueDate ? new Date(businessData.issueDate) : new Date(),
-                expiryDate: businessData.expiryDate ? new Date(businessData.expiryDate) : undefined,
-                premiumPayerDob: businessData.premiumPayerDob ? new Date(businessData.premiumPayerDob) : undefined,
-                premiumPayerIssueDate: businessData.premiumPayerIssueDate ? new Date(businessData.premiumPayerIssueDate) : undefined,
-                premiumPayerExpiryDate: businessData.premiumPayerExpiryDate ? new Date(businessData.premiumPayerExpiryDate) : undefined,
-                primaryBeneficiaries: (businessData.primaryBeneficiaries || []).map(b => ({ ...b, dob: b.dob ? new Date(b.dob) : new Date() })),
-                contingentBeneficiaries: (businessData.contingentBeneficiaries || []).map(b => ({ ...b, dob: b.dob ? new Date(b.dob) : new Date() })),
-                existingPoliciesDetails: (businessData.existingPoliciesDetails || []).map(p => ({ ...p, issueDate: p.issueDate ? new Date(p.issueDate) : new Date() })),
-            };
-            form.reset(finalData);
+                ...dataWithDates,
+            });
         }
       }
     }
@@ -398,18 +418,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
-    const hasErrorInTab = (tab: TabName) => {
-        const tabErrorFields = tabFields[tab];
-        return tabErrorFields.some(field => {
-            const error = errors[field as keyof typeof errors];
-            if (!error) return false;
-            // Handle array fields
-            if (Array.isArray((error as any))) {
-                return (error as any).some((item: any) => item && Object.keys(item).length > 0);
-            }
-            return true;
-        });
-    };
+  const hasErrorInTab = (tab: TabName) => {
+    const tabErrorFields = tabFields[tab] as (keyof z.infer<typeof newBusinessFormSchema>)[];
+    return tabErrorFields.some(field => errors[field]);
+  };
 
     const onValidationErrors = (errors: FieldErrors) => {
         const errorFields = Object.keys(errors);
@@ -424,12 +436,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
         if (firstErrorTab) {
             setActiveTab(firstErrorTab);
-            toast({
-                variant: 'destructive',
-                title: 'Validation Error',
-                description: `Please correct the errors on the "${firstErrorTab.replace(/-/g, ' ')}" tab.`,
-            });
         }
+        toast({
+            variant: 'destructive',
+            title: 'Validation Error',
+            description: `Please correct the errors on the highlighted tabs before submitting.`,
+        });
     };
 
     const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
@@ -486,7 +498,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
                 {TABS.map(tab => (
                 <TabsTrigger key={tab} value={tab}>
-                    <span style={{ color: hasErrorInTab(tab) && Object.keys(errors).length > 0 ? '#ef4444' : 'inherit' }}>
+                    <span style={{ color: hasErrorInTab(tab) ? '#ef4444' : 'inherit' }}>
                         {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </span>
                 </TabsTrigger>
