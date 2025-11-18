@@ -92,11 +92,14 @@ const FormLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField()
+  const { formState } = useFormContext()
+  
+  const shouldShowError = formState.isSubmitted || formState.dirtyFields[formItemId];
 
   return (
     <Label
       ref={ref}
-      className={cn(error && "text-destructive", className)}
+      className={cn(error && shouldShowError && "text-destructive", className)}
       htmlFor={formItemId}
       {...props}
     />
