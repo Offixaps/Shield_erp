@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/form';
 
 import { useToast } from '@/hooks/use-toast';
-import { format, differenceInYears } from 'date-fns';
+import { format, differenceInYears, isValid, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -44,6 +44,7 @@ const TABS: TabName[] = [
     'agent',
     'declaration',
 ];
+
 
 const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
   onboardingStatus: 'Incomplete Policy',
@@ -212,6 +213,40 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
 };
 
 
+// Recursive function to convert date strings to Date objects
+function convertStringsToDates(obj: any): any {
+    if (obj === null || obj === undefined) {
+        return obj;
+    }
+
+    if (Array.isArray(obj)) {
+        return obj.map(item => convertStringsToDates(item));
+    }
+
+    if (typeof obj === 'object') {
+        const newObj: { [key: string]: any } = {};
+        for (const key in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+                const value = obj[key];
+                if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) {
+                    const parsedDate = parseISO(value);
+                    if (isValid(parsedDate)) {
+                        newObj[key] = parsedDate;
+                    } else {
+                        newObj[key] = value; // Keep original if invalid
+                    }
+                } else {
+                    newObj[key] = convertStringsToDates(value);
+                }
+            }
+        }
+        return newObj;
+    }
+
+    return obj;
+}
+
+
 export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -233,9 +268,11 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         if (isEditMode && currentBusinessId) {
           const businessData = await getPolicyById(currentBusinessId);
           if (businessData) {
+            // Recursively convert date strings to Date objects before resetting the form
+            const dataWithDates = convertStringsToDates(businessData);
             form.reset({
                 ...emptyFormValues,
-                ...businessData,
+                ...dataWithDates,
             });
         }
       }
@@ -401,36 +438,22 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 break;
             }
         }
-
+        
+        let errorMessage = `Please correct the errors on the highlighted tabs before submitting.`;
         if (firstErrorTab) {
-            setActiveTab(firstErrorTab);
+           setActiveTab(firstErrorTab);
+           errorMessage = `Validation failed on the "${firstErrorTab.replace(/-/g, ' ')}" tab. Please review the highlighted fields.`
         }
+
         toast({
             variant: 'destructive',
             title: 'Validation Error',
-            description: `Please correct the errors on the highlighted tabs before submitting.`,
+            description: errorMessage,
         });
     };
 
     const onSubmit = async (values: z.infer<typeof newBusinessFormSchema>) => {
         setIsSubmitting(true);
-        
-        if (values.primaryBeneficiaries && values.primaryBeneficiaries.length > 0) {
-            const totalPrimaryPercentage = values.primaryBeneficiaries.reduce(
-                (acc, b) => acc + (Number(b.percentage) || 0),
-                0
-            );
-            if (totalPrimaryPercentage !== 100) {
-                setActiveTab('beneficiaries');
-                toast({
-                    variant: 'destructive',
-                    title: 'Validation Error',
-                    description: 'Total percentage for primary beneficiaries must be 100.',
-                });
-                setIsSubmitting(false);
-                return;
-            }
-        }
         
         try {
             if (!currentBusinessId) {

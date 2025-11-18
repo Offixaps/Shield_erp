@@ -16,28 +16,28 @@ const phoneRegex = /^[0-9]{9}$/;
 const phoneError = "Phone number must be a 9-digit number (e.g., 558009876)";
 
 const beneficiarySchema = z.object({
-    name: z.string().default(''),
+    name: z.string().min(1, "Beneficiary name is required.").default(''),
     dob: z.date({ required_error: 'Date of birth is required.' }),
     gender: z.enum(['Male', 'Female']).default('Male'),
-    relationship: z.string().default(''),
+    relationship: z.string().min(1, "Relationship is required.").default(''),
     telephone: z.string().regex(phoneRegex, phoneError).optional().or(z.literal('')).default(''),
     percentage: z.coerce.number().min(0).max(100, "Percentage must be between 0 and 100.").default(100),
     isIrrevocable: z.boolean().optional().default(false),
 });
 
 const existingPolicySchema = z.object({
-  companyName: z.string().default(''),
-  personCovered: z.string().default(''),
-  policyType: z.string().default(''),
+  companyName: z.string().min(1, "Company name is required").default(''),
+  personCovered: z.string().min(1, "Person covered is required").default(''),
+  policyType: z.string().min(1, "Policy type is required").default(''),
   issueDate: z.date({ required_error: 'Issue date is required.' }),
-  premiumAmount: z.coerce.number().default(0),
-  faceAmount: z.coerce.number().default(0),
+  premiumAmount: z.coerce.number().positive("Premium must be positive").default(0),
+  faceAmount: z.coerce.number().positive("Face amount must be positive").default(0),
   changedGrpOrInd: z.enum(['yes', 'no']).default('no'),
 });
 
 const declinedPolicySchema = z.object({
-    companyName: z.string().default(''),
-    details: z.string().default(''),
+    companyName: z.string().min(1, "Company name is required").default(''),
+    details: z.string().min(1, "Details are required").default(''),
 });
 
 const alcoholHabitsOptions = [
@@ -365,48 +365,49 @@ export const newBusinessFormSchema = z
         if (!data.premiumPayerIdNumber) addIssue(['premiumPayerIdNumber'], "Payer's ID number is required.");
     }
     
+    // Check if primary beneficiary percentages sum to 100 if any exist
+    if (data.primaryBeneficiaries && data.primaryBeneficiaries.length > 0) {
+      const totalPercentage = data.primaryBeneficiaries.reduce((acc, b) => acc + (Number(b.percentage) || 0), 0);
+      if (totalPercentage !== 100) {
+        addIssue(['primaryBeneficiaries'], 'Total percentage for primary beneficiaries must sum to 100.');
+      }
+    }
+
+    // Comprehensive check for all conditional "Yes/No" fields
     const conditionalChecks = [
-        { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: 'hasExistingPolicies' },
-        { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: 'declinedPolicy' },
-        { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
-        { flag: data.flownAsPilot, details: data.flownAsPilotDetails, path: 'flownAsPilot' },
-        { flag: data.hazardousSports, details: data.hazardousSportsDetails, path: 'hazardousSports' },
-        { flag: data.travelOutsideCountry, details: data.travelOutsideCountryDetails, path: 'travelOutsideCountry' },
-        { flag: data.bloodTransfusionOrSurgery, details: data.bloodTransfusionOrSurgeryDetails, path: 'bloodTransfusionOrSurgery', detailsPath: 'bloodTransfusionOrSurgeryDetails' },
-        { flag: data.highBloodPressure, details: data.highBloodPressureDetails, path: 'highBloodPressure', detailsPath: 'highBloodPressureDetails' },
-        { flag: data.cancer, details: data.cancerDetails, path: 'cancer', detailsPath: 'cancerDetails' },
-        { flag: data.diabetes, details: data.diabetesDetails, path: 'diabetes', detailsPath: 'diabetesDetails' },
-        { flag: data.colitisCrohns, details: data.colitisCrohnsDetails, path: 'colitisCrohns', detailsPath: 'colitisCrohnsDetails' },
-        { flag: data.paralysisEpilepsy, details: data.paralysisEpilepsyDetails, path: 'paralysisEpilepsy', detailsPath: 'paralysisEpilepsyDetails' },
-        { flag: data.mentalIllness, details: data.mentalIllnessDetails, path: 'mentalIllness', detailsPath: 'mentalIllnessDetails' },
-        { flag: data.arthritis, details: data.arthritisDetails, path: 'arthritis', detailsPath: 'arthritisDetails' },
-        { flag: data.chestPain, details: data.chestPainDetails, path: 'chestPain', detailsPath: 'chestPainDetails' },
-        { flag: data.asthma, details: data.asthmaDetails, path: 'asthma', detailsPath: 'asthmaDetails' },
-        { flag: data.digestiveDisorder, details: data.digestiveDisorderDetails, path: 'digestiveDisorder', detailsPath: 'digestiveDisorderDetails' },
-        { flag: data.bloodDisorder, details: data.bloodDisorderDetails, path: 'bloodDisorder', detailsPath: 'bloodDisorderDetails' },
-        { flag: data.thyroidDisorder, details: data.thyroidDisorderDetails, path: 'thyroidDisorder', detailsPath: 'thyroidDisorderDetails' },
-        { flag: data.kidneyDisorder, details: data.kidneyDisorderDetails, path: 'kidneyDisorder', detailsPath: 'kidneyDisorderDetails' },
-        { flag: data.numbness, details: data.numbnessDetails, path: 'numbness', detailsPath: 'numbnessDetails' },
-        { flag: data.anxietyStress, details: data.anxietyStressDetails, path: 'anxietyStress', detailsPath: 'anxietyStressDetails' },
-        { flag: data.earEyeDisorder, details: data.earEyeDisorderDetails, path: 'earEyeDisorder', detailsPath: 'earEyeDisorderDetails' },
-        { flag: data.lumpGrowth, details: data.lumpGrowthDetails, path: 'lumpGrowth', detailsPath: 'lumpGrowthDetails' },
-        { flag: data.hospitalAttendance, details: data.hospitalAttendanceDetails, path: 'hospitalAttendance', detailsPath: 'hospitalAttendanceDetails' },
-        { flag: data.criticalIllness, details: data.criticalIllnessDetails, path: 'criticalIllness', detailsPath: 'criticalIllnessDetails' },
-        { flag: data.sti, details: data.stiDetails, path: 'sti', detailsPath: 'stiDetails' },
-        { flag: data.presentSymptoms, details: data.presentSymptomsDetails, path: 'presentSymptoms', detailsPath: 'presentSymptomsDetails' },
+      { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: 'hasExistingPolicies' },
+      { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: 'declinedPolicy' },
+      { flag: data.familyMedicalHistory, details: data.familyMedicalHistoryDetails, path: 'familyMedicalHistory' },
+      { flag: data.flownAsPilot, details: data.flownAsPilotDetails, path: 'flownAsPilot' },
+      { flag: data.hazardousSports, details: data.hazardousSportsDetails, path: 'hazardousSports' },
+      { flag: data.travelOutsideCountry, details: data.travelOutsideCountryDetails, path: 'travelOutsideCountry' },
+      { flag: data.bloodTransfusionOrSurgery, details: data.bloodTransfusionOrSurgeryDetails, path: 'bloodTransfusionOrSurgery' },
+      { flag: data.highBloodPressure, details: data.highBloodPressureDetails, path: 'highBloodPressure' },
+      { flag: data.cancer, details: data.cancerDetails, path: 'cancer' },
+      { flag: data.diabetes, details: data.diabetesDetails, path: 'diabetes' },
+      { flag: data.colitisCrohns, details: data.colitisCrohnsDetails, path: 'colitisCrohns' },
+      { flag: data.paralysisEpilepsy, details: data.paralysisEpilepsyDetails, path: 'paralysisEpilepsy' },
+      { flag: data.mentalIllness, details: data.mentalIllnessDetails, path: 'mentalIllness' },
+      { flag: data.arthritis, details: data.arthritisDetails, path: 'arthritis' },
+      { flag: data.chestPain, details: data.chestPainDetails, path: 'chestPain' },
+      { flag: data.asthma, details: data.asthmaDetails, path: 'asthma' },
+      { flag: data.digestiveDisorder, details: data.digestiveDisorderDetails, path: 'digestiveDisorder' },
+      { flag: data.bloodDisorder, details: data.bloodDisorderDetails, path: 'bloodDisorder' },
+      { flag: data.thyroidDisorder, details: data.thyroidDisorderDetails, path: 'thyroidDisorder' },
+      { flag: data.kidneyDisorder, details: data.kidneyDisorderDetails, path: 'kidneyDisorder' },
+      { flag: data.numbness, details: data.numbnessDetails, path: 'numbness' },
+      { flag: data.anxietyStress, details: data.anxietyStressDetails, path: 'anxietyStress' },
+      { flag: data.earEyeDisorder, details: data.earEyeDisorderDetails, path: 'earEyeDisorder' },
+      { flag: data.lumpGrowth, details: data.lumpGrowthDetails, path: 'lumpGrowth' },
+      { flag: data.hospitalAttendance, details: data.hospitalAttendanceDetails, path: 'hospitalAttendance' },
+      { flag: data.criticalIllness, details: data.criticalIllnessDetails, path: 'criticalIllness' },
+      { flag: data.sti, details: data.stiDetails, path: 'sti' },
+      { flag: data.presentSymptoms, details: data.presentSymptomsDetails, path: 'presentSymptoms' },
     ];
 
     conditionalChecks.forEach(check => {
-        if (check.flag === 'yes') {
-            if (!check.details || check.details.length === 0) {
-                addIssue([check.path], 'Please provide details by clicking the "Add Detail" button.');
-            } else if (check.detailsPath) { // Check for date on medical history items
-                check.details.forEach((detail: any, index: number) => {
-                    if (!detail.date) {
-                         addIssue([check.detailsPath as string, index, 'date'], 'Date is required.');
-                    }
-                });
-            }
+        if (check.flag === 'yes' && (!check.details || check.details.length === 0)) {
+            addIssue([check.path], 'Please provide details by clicking the "Add Detail" button.');
         }
     });
 
