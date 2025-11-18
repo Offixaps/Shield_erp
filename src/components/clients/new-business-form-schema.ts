@@ -132,7 +132,7 @@ export const illnessDetailSchema = z.object({
   digestiveSymptomFrequency: z.string().optional().default(''),
   digestiveConditionStartDate: z.date().optional(),
   digestivePreciseDiagnosis: z.string().optional().default(''),
-  digestiveMedication: zstring().optional().default(''),
+  digestiveMedication: z.string().optional().default(''),
   hadEndoscopy: z.enum(['yes', 'no']).optional(),
   endoscopyDetails: z.string().optional().default(''),
   hadDigestiveSurgery: z.enum(['yes', 'no']).optional(),
