@@ -61,7 +61,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
     defaultValues: {
-      // Provide explicit defaults for fields that might cause issues if undefined
+      ...newBusinessFormSchema.parse({}),
+      // Provide explicit defaults for dates to avoid uncontrolled component errors
       lifeAssuredDob: new Date(),
       issueDate: new Date(),
       commencementDate: new Date(),
@@ -140,7 +141,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             }
 
             const parseBeneficiaries = (beneficiaries: any[] | undefined) => {
-                return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
+                if (!beneficiaries) return [];
+                return beneficiaries.map(b => {
+                    const dob = parseDate(b.dob);
+                    return {
+                        ...b,
+                        dob: dob,
+                    };
+                });
             };
             
             const sanitizedData = {
@@ -148,7 +156,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 lifeAssuredFirstName: firstName,
                 lifeAssuredMiddleName: middleName,
                 lifeAssuredSurname: surname,
-                contractType: businessData.product as "Buy Term and Invest in Mutual Fund" | "The Education Policy",
+                contractType: businessData.product,
                 premiumAmount: businessData.premium,
                 lifeAssuredDob: parseDate(businessData.lifeAssuredDob),
                 commencementDate: parseDate(businessData.commencementDate),
@@ -188,8 +196,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   React.useEffect(() => {
     const dob = form.getValues('lifeAssuredDob');
-    if (dob) {
-        form.setValue('increaseMonth', format(new Date(dob), 'MMMM'));
+    if (dob && dob instanceof Date && !isNaN(dob.getTime())) {
+        form.setValue('increaseMonth', format(dob, 'MMMM'));
     }
   }, [lifeAssuredDob, form]);
 
@@ -423,4 +431,3 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     </Form>
   );
 }
-
