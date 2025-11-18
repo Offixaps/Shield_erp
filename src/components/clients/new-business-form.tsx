@@ -60,7 +60,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
-    defaultValues: newBusinessFormSchema.parse({}),
+    defaultValues: {
+      ...newBusinessFormSchema.parse({
+          // Provide explicit defaults for dates to avoid uncontrolled component errors
+          lifeAssuredDob: new Date(),
+          issueDate: new Date(),
+          commencementDate: new Date(),
+      }),
+    }
   });
 
   // Watch for any form changes to clear the top-level error
@@ -101,7 +108,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 return (beneficiaries || []).map(b => ({...b, dob: b.dob ? new Date(b.dob) : undefined }));
             };
 
-             const sanitizedData: Partial<z.infer<typeof newBusinessFormSchema>> = {
+             const sanitizedData = {
                 ...businessData,
                 // Ensure all numeric fields have a default value of 0 if null/undefined
                 ageNextBirthday: businessData.ageNextBirthday || 0,
