@@ -60,12 +60,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
-    defaultValues: newBusinessFormSchema.parse({
-      // Provide explicit defaults for dates to avoid uncontrolled component errors
-      lifeAssuredDob: new Date(),
-      issueDate: new Date(),
-      commencementDate: new Date(),
-    }),
+    defaultValues: newBusinessFormSchema.parse({}),
   });
 
   // Watch for any form changes to clear the top-level error
@@ -107,12 +102,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             };
 
              const sanitizedData: Partial<z.infer<typeof newBusinessFormSchema>> = {
-                ...newBusinessFormSchema.parse({
-                    lifeAssuredDob: new Date(),
-                    issueDate: new Date(),
-                    commencementDate: new Date(),
-                }), // Start with a fully-formed default object
-                ...businessData, // Overwrite with fetched data
+                ...businessData,
                 // Ensure all numeric fields have a default value of 0 if null/undefined
                 ageNextBirthday: businessData.ageNextBirthday || 0,
                 dependents: businessData.dependents || 0,
