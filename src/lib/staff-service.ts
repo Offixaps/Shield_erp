@@ -16,12 +16,10 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './firebase';
+import { db, auth as firebaseAuth } from '@/lib/firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
-import { getAuth } from 'firebase/auth';
-import { app } from './firebase-config';
 
 
 const USERS_COLLECTION = 'users';
@@ -78,7 +76,7 @@ export async function setSuperAdminUser(user: User): Promise<void> {
 // --- Firestore Service Functions ---
 
 export async function getStaff(): Promise<StaffMember[]> {
-  const auth = getAuth(app);
+  const auth = firebaseAuth;
   const currentUser = auth.currentUser;
 
   if (!currentUser) return [];

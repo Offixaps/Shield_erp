@@ -1,10 +1,7 @@
 
-'use client';
-
-import { initializeApp, type FirebaseOptions, type FirebaseApp } from 'firebase/app';
+import { initializeApp, type FirebaseOptions, type FirebaseApp, getApps, getApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
-import { FirebaseProvider, useFirebase, useAuth, FirebaseClientProvider } from './index.tsx';
 
 const firebaseConfig: FirebaseOptions = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,17 +12,9 @@ const firebaseConfig: FirebaseOptions = {
     appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-let app: FirebaseApp;
-let auth: Auth;
-let firestore: Firestore;
+// Initialize Firebase
+const app: FirebaseApp = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+const auth: Auth = getAuth(app);
+const firestore: Firestore = getFirestore(app);
 
-try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    firestore = getFirestore(app);
-} catch (e) {
-    console.error("Firebase initialization error", e);
-    // You might want to handle this error more gracefully
-}
-
-export { app, auth, firestore, FirebaseProvider, useFirebase, useAuth, FirebaseClientProvider };
+export { app, auth, firestore };

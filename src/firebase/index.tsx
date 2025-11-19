@@ -1,25 +1,21 @@
 
 'use client';
 
+import { type FirebaseApp } from 'firebase/app';
 import {
-  initializeApp,
-  type FirebaseOptions,
-  type FirebaseApp,
-} from 'firebase/app';
-import {
-  getAuth,
   type Auth,
   onAuthStateChanged,
   type User,
   signInWithEmailAndPassword,
   signOut,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  type UserCredential
 } from 'firebase/auth';
-import { getFirestore, type Firestore } from 'firebase/firestore';
+import { type Firestore } from 'firebase/firestore';
 import * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { app, auth as initialAuth, firestore as initialFirestore } from './index.ts';
+import { app as initialApp, auth as initialAuth, db as initialFirestore } from '@/lib/firebase';
 
 interface FirebaseContextType {
   app: FirebaseApp;
@@ -33,7 +29,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
-    <FirebaseContext.Provider value={{ app, auth: initialAuth, firestore: initialFirestore }}>
+    <FirebaseContext.Provider value={{ app: initialApp, auth: initialAuth, firestore: initialFirestore }}>
       {children}
     </FirebaseContext.Provider>
   );
@@ -50,16 +46,16 @@ export const useFirebase = () => {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  signInWithEmail: typeof signInWithEmailAndPassword;
-  signInWithGoogle: () => Promise<any>;
+  signInWithEmail: (email: string, password: string) => Promise<UserCredential>;
+  signInWithGoogle: () => Promise<UserCredential>;
   signOutUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signInWithEmail: (auth, email, password) => Promise.resolve({} as any),
-  signInWithGoogle: () => Promise.resolve({} as any),
+  signInWithEmail: (email, password) => Promise.resolve({} as UserCredential),
+  signInWithGoogle: () => Promise.resolve({} as UserCredential),
   signOutUser: () => Promise.resolve(),
 });
 
@@ -91,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithEmail: signInWithEmail as any, signInWithGoogle, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, signInWithEmail, signInWithGoogle, signOutUser }}>
       {children}
     </AuthContext.Provider>
   );
