@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Upload, FileDown, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import * as XLSX from 'xlsx';
-import { createPolicy, getPolicies } from '@/lib/policy-service';
+import { createPolicy, getPolicies, generateNewSerialNumber } from '@/lib/policy-service';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { z } from 'zod';
 import { newBusinessFormSchema } from '../clients/new-business-form-schema';
@@ -32,24 +32,41 @@ export default function BulkBusinessDialog() {
   const handleDownloadSample = () => {
     // Defines the columns for the sample sheet based on a subset of the form schema
     const sampleData = [{
-      'Title': 'Mr',
-      'LifeAssuredFirstName': 'John',
-      'LifeAssuredSurname': 'Doe',
-      'LifeAssuredDob': '1990-01-15',
-      'PlaceOfBirth': 'Accra',
-      'Gender': 'Male',
-      'Email': 'john.doe@example.com',
-      'Phone': '0244123456',
-      'PostalAddress': 'P.O. Box 123, Accra',
-      'ContractType': 'The Education Policy',
-      'Serial': '9876',
-      'PremiumAmount': 250,
-      'SumAssured': 120000,
-      'PaymentFrequency': 'Monthly',
-      'Occupation': 'Software Engineer',
-      'Employer': 'Tech Corp',
-      'BankName': 'GCB Bank PLC',
-      'BankAccountNumber': '1234567890123',
+      Title: 'Mr',
+      LifeAssuredFirstName: 'John',
+      LifeAssuredMiddleName: 'Kofi',
+      LifeAssuredSurname: 'Doe',
+      LifeAssuredDob: '1990-01-15',
+      PlaceOfBirth: 'Accra',
+      Gender: 'Male',
+      MaritalStatus: 'Single',
+      Dependents: 0,
+      Nationality: 'Ghanaian',
+      Country: 'Ghana',
+      Religion: 'Christian',
+      Languages: 'English, Twi',
+      Email: 'john.doe@example.com',
+      Phone: '0244123456',
+      PostalAddress: 'P.O. Box 123, Accra',
+      NationalIdType: 'Ghana Card',
+      IdNumber: 'GHA-123456789-0',
+      PlaceOfIssue: 'NIA, Accra',
+      IssueDate: '2020-01-15',
+      ContractType: 'The Education Policy',
+      PremiumAmount: 250,
+      SumAssured: 120000,
+      PaymentFrequency: 'Monthly',
+      Occupation: 'Software Engineer',
+      NatureOfBusiness: 'Technology',
+      Employer: 'Tech Corp',
+      EmployerAddress: '123 Tech Lane, Accra',
+      MonthlyBasicIncome: 5000,
+      BankName: 'GCB Bank PLC',
+      BankBranch: 'Accra Main',
+      SortCode: '040101',
+      BankAccountName: 'John Kofi Doe',
+      BankAccountNumber: '1234567890123',
+      AccountType: 'Savings'
     }];
     
     const worksheet = XLSX.utils.json_to_sheet(sampleData);
@@ -79,55 +96,11 @@ export default function BulkBusinessDialog() {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet) as any[];
 
-        // Simulate the validation process
         let successCount = 0;
         let failureCount = 0;
         
-        // Use a simplified schema for bulk upload validation
-        const bulkBusinessSchema = newBusinessFormSchema.pick({
-            title: true,
-            lifeAssuredFirstName: true,
-            lifeAssuredSurname: true,
-            lifeAssuredDob: true,
-            placeOfBirth: true,
-            gender: true,
-            email: true,
-            phone: true,
-            postalAddress: true,
-            contractType: true,
-            serial: true,
-            premiumAmount: true,
-            sumAssured: true,
-            paymentFrequency: true,
-            occupation: true,
-            employer: true,
-            bankName: true,
-            bankAccountNumber: true,
-        });
-
         json.forEach(row => {
-          // Adjusting keys to match the zod schema (e.g., 'Title' -> 'title')
-          const mappedRow = {
-              title: row.Title,
-              lifeAssuredFirstName: row.LifeAssuredFirstName,
-              lifeAssuredSurname: row.LifeAssuredSurname,
-              lifeAssuredDob: row.LifeAssuredDob,
-              placeOfBirth: row.PlaceOfBirth,
-              gender: row.Gender,
-              email: row.Email,
-              phone: row.Phone?.toString().replace(/[^0-9]/g, '').slice(-9),
-              postalAddress: row.PostalAddress,
-              contractType: row.ContractType,
-              serial: row.Serial,
-              premiumAmount: row.PremiumAmount,
-              sumAssured: row.SumAssured,
-              paymentFrequency: row.PaymentFrequency,
-              occupation: row.Occupation,
-              employer: row.Employer,
-              bankName: row.BankName,
-              bankAccountNumber: row.BankAccountNumber
-          }
-          const result = bulkBusinessSchema.safeParse(mappedRow);
+          const result = newBusinessFormSchema.partial().safeParse(row);
           if (result.success) {
             successCount++;
           } else {
@@ -149,7 +122,6 @@ export default function BulkBusinessDialog() {
     };
     reader.readAsBinaryString(file);
 
-    // Reset file input to allow re-uploading the same file
     if(fileInputRef.current) {
         fileInputRef.current.value = '';
     }
@@ -170,51 +142,43 @@ export default function BulkBusinessDialog() {
     try {
       const policies = await getPolicies();
       const existingSerials = new Set(policies.map((p) => p.serial));
+      let importedCount = 0;
 
       for (const row of simulationResult.data) {
-        const mappedRow = {
-          title: row.Title,
-          lifeAssuredFirstName: row.LifeAssuredFirstName,
-          lifeAssuredSurname: row.LifeAssuredSurname,
-          lifeAssuredDob: row.LifeAssuredDob,
-          placeOfBirth: row.PlaceOfBirth,
-          gender: row.Gender,
-          email: row.Email,
-          phone: row.Phone?.toString().replace(/[^0-9]/g, '').slice(-9),
-          postalAddress: row.PostalAddress,
-          contractType: row.ContractType,
-          serial: row.Serial,
-          premiumAmount: row.PremiumAmount,
-          sumAssured: row.SumAssured,
-          paymentFrequency: row.PaymentFrequency,
-          occupation: row.Occupation,
-          employer: row.Employer,
-          bankName: row.BankName,
-          bankAccountNumber: row.BankAccountNumber,
-        };
-
-        const result = newBusinessFormSchema.partial().safeParse(mappedRow);
-
-        if (result.success && result.data.serial && !existingSerials.has(result.data.serial)) {
-          await createPolicy(result.data);
+        const result = newBusinessFormSchema.partial().safeParse(row);
+        
+        // We only process rows that passed the initial simulation.
+        if (result.success) {
+          const serial = await generateNewSerialNumber();
+          
+          if (!existingSerials.has(serial)) {
+            // Augment with defaults and create
+            const policyDataWithDefaults = {
+              ...result.data,
+              serial: serial, 
+            };
+            await createPolicy(policyDataWithDefaults);
+            importedCount++;
+            existingSerials.add(serial); // Add to set to prevent duplicate serials within the same batch
+          }
         }
       }
 
       toast({
         title: 'Import Successful',
-        description: `${simulationResult.successCount} new business policies have been successfully imported.`,
+        description: `${importedCount} new business policies have been successfully imported.`,
       });
 
-      // Refresh the sales page table
       window.dispatchEvent(new Event('storage'));
       setOpen(false);
       setSimulationResult(null);
 
     } catch (error) {
+      console.error("Bulk import failed", error);
       toast({
         variant: 'destructive',
         title: 'Import Failed',
-        description: 'An unexpected error occurred during the final import.',
+        description: error instanceof Error ? error.message : 'An unexpected error occurred during the final import.',
       });
     } finally {
       setIsSimulating(false);
