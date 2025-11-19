@@ -42,7 +42,7 @@ export default function BulkBusinessDialog() {
       'Phone': '0244123456',
       'PostalAddress': 'P.O. Box 123, Accra',
       'ContractType': 'The Education Policy',
-      'SerialNumber': '9876',
+      'Serial': '9876',
       'PremiumAmount': 250,
       'SumAssured': 120000,
       'PaymentFrequency': 'Monthly',
@@ -95,7 +95,7 @@ export default function BulkBusinessDialog() {
             phone: true,
             postalAddress: true,
             contractType: true,
-            serialNumber: true,
+            serial: true,
             premiumAmount: true,
             sumAssured: true,
             paymentFrequency: true,
@@ -115,10 +115,10 @@ export default function BulkBusinessDialog() {
               placeOfBirth: row.PlaceOfBirth,
               gender: row.Gender,
               email: row.Email,
-              phone: row.Phone,
+              phone: row.Phone?.toString().replace(/[^0-9]/g, '').slice(-9),
               postalAddress: row.PostalAddress,
               contractType: row.ContractType,
-              serialNumber: row.SerialNumber,
+              serial: row.Serial,
               premiumAmount: row.PremiumAmount,
               sumAssured: row.SumAssured,
               paymentFrequency: row.PaymentFrequency,
@@ -155,53 +155,70 @@ export default function BulkBusinessDialog() {
     }
   };
 
-  const handleConfirmImport = () => {
-      if (!simulationResult || simulationResult.successCount === 0) {
-          toast({
-              variant: 'destructive',
-              title: 'Import Error',
-              description: 'No valid data to import.'
-          });
-          return;
+  const handleConfirmImport = async () => {
+    if (!simulationResult || simulationResult.successCount === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'Import Error',
+        description: 'No valid data to import.',
+      });
+      return;
+    }
+
+    setIsSimulating(true);
+
+    try {
+      const policies = await getPolicies();
+      const existingSerials = new Set(policies.map((p) => p.serial));
+
+      for (const row of simulationResult.data) {
+        const mappedRow = {
+          title: row.Title,
+          lifeAssuredFirstName: row.LifeAssuredFirstName,
+          lifeAssuredSurname: row.LifeAssuredSurname,
+          lifeAssuredDob: row.LifeAssuredDob,
+          placeOfBirth: row.PlaceOfBirth,
+          gender: row.Gender,
+          email: row.Email,
+          phone: row.Phone?.toString().replace(/[^0-9]/g, '').slice(-9),
+          postalAddress: row.PostalAddress,
+          contractType: row.ContractType,
+          serial: row.Serial,
+          premiumAmount: row.PremiumAmount,
+          sumAssured: row.SumAssured,
+          paymentFrequency: row.PaymentFrequency,
+          occupation: row.Occupation,
+          employer: row.Employer,
+          bankName: row.BankName,
+          bankAccountNumber: row.BankAccountNumber,
+        };
+
+        const result = newBusinessFormSchema.partial().safeParse(mappedRow);
+
+        if (result.success && result.data.serial && !existingSerials.has(result.data.serial)) {
+          await createPolicy(result.data);
+        }
       }
 
-      try {
-        const policies = getPolicies();
-        const existingSerials = new Set(policies.map(p => p.serial));
+      toast({
+        title: 'Import Successful',
+        description: `${simulationResult.successCount} new business policies have been successfully imported.`,
+      });
 
-        simulationResult.data.forEach(row => {
-            const result = newBusinessFormSchema.safeParse(row);
-            if(result.success && !existingSerials.has(result.data.serialNumber)) {
-                // We pass a very minimal payload to createPolicy, it will fill defaults
-                const submissionData = {
-                    ...result.data,
-                    // Map form names to createPolicy expected names
-                    serialNumber: result.data.serialNumber,
-                    contractType: result.data.contractType,
-                    premiumAmount: result.data.premiumAmount,
-                    sumAssured: result.data.sumAssured,
-                }
-                createPolicy(submissionData);
-            }
-        });
+      // Refresh the sales page table
+      window.dispatchEvent(new Event('storage'));
+      setOpen(false);
+      setSimulationResult(null);
 
-        toast({
-            title: 'Import Successful',
-            description: `${simulationResult.successCount} new business policies have been successfully imported.`,
-        });
-
-      } catch (error) {
-         toast({
-              variant: 'destructive',
-              title: 'Import Failed',
-              description: 'An unexpected error occurred during the final import.',
-          });
-      } finally {
-        setOpen(false);
-        setSimulationResult(null);
-        // We might need to trigger a refresh on the sales page table here
-        window.dispatchEvent(new Event('storage'));
-      }
+    } catch (error) {
+      toast({
+        variant: 'destructive',
+        title: 'Import Failed',
+        description: 'An unexpected error occurred during the final import.',
+      });
+    } finally {
+      setIsSimulating(false);
+    }
   };
 
 
@@ -266,7 +283,8 @@ export default function BulkBusinessDialog() {
            <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
            </DialogClose>
-           <Button onClick={handleConfirmImport} disabled={!simulationResult || simulationResult.successCount === 0}>
+           <Button onClick={handleConfirmImport} disabled={isSimulating || !simulationResult || simulationResult.successCount === 0}>
+                {isSimulating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Confirm and Import
            </Button>
         </DialogFooter>
