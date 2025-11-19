@@ -39,6 +39,7 @@ export default function NewBusinessTable() {
     
   const isAllPoliciesPage = pathname.includes('/all-policies');
   const isUnderwritingNewBusiness = pathname.includes('/underwriting/new-business');
+  const isBDSalesPage = pathname.includes('/business-development/sales');
   
   const [allData, setAllData] = React.useState<NewBusiness[]>([]);
   const [filteredData, setFilteredData] = React.useState<NewBusiness[]>([]);
@@ -50,14 +51,26 @@ export default function NewBusinessTable() {
 
   const loadPolicies = React.useCallback(async () => {
     let policies = await getPolicies();
-    if (isAllPoliciesPage) {
+    
+    if (isBDSalesPage) {
+        // Business Development Sales page shows all policies still in the onboarding pipeline.
+        const excludedStatuses: NewBusiness['onboardingStatus'][] = [
+            'Accepted', 
+            'Mandate Verified', 
+            'Policy Issued',
+            'Declined',
+            'NTU',
+            'Deferred'
+        ];
+        policies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
+    } else if (isAllPoliciesPage) {
        const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
        policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
     } else if (isUnderwritingNewBusiness) {
         const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
         policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
     } else {
-       // On the main sales page, we show incomplete and pending first premium
+       // Default behavior for other contexts if any (e.g., initial sales page showing only incomplete)
        const includedStatuses: NewBusiness['onboardingStatus'][] = ['Incomplete Policy', 'Pending First Premium'];
        policies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
     }
@@ -65,7 +78,7 @@ export default function NewBusinessTable() {
     setAllData(policies);
     setFilteredData(policies);
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [pathname, isAllPoliciesPage, isUnderwritingNewBusiness]);
+  }, [pathname, isAllPoliciesPage, isUnderwritingNewBusiness, isBDSalesPage]);
 
   React.useEffect(() => {
     loadPolicies();
@@ -93,7 +106,7 @@ export default function NewBusinessTable() {
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
   }, [searchTerm, allData]);
 
-  const handleDelete = async (id: number | string) => {
+  const handleDelete = async (id: string) => {
     await deletePolicyFromService(id);
     loadPolicies(); // Reload data after deletion
   };
@@ -217,7 +230,7 @@ export default function NewBusinessTable() {
                                       {isIncomplete ? <Play className="h-4 w-4" /> : <FilePenLine className="h-4 w-4" />}
                                     </Link>
                                 </Button>
-                                <DeletePolicyDialog onConfirm={() => handleDelete(business.id)} />
+                                <DeletePolicyDialog onConfirm={() => handleDelete(business.id as string)} />
                                 </div>
                             )}
                             </TableCell>
