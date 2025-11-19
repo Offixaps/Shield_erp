@@ -41,21 +41,27 @@ export default function BankPoliciesPage() {
   const [filteredPolicies, setFilteredPolicies] = React.useState<PolicyWithArrears[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
 
-  const refreshPolicies = React.useCallback(() => {
-      if (bankName) {
-        const allPoliciesFromService = getPolicies();
-        const filteredFromService = allPoliciesFromService.filter(
-            (p) => p.policyStatus === 'Active' && p.billingStatus === 'Outstanding' && p.bankName === bankName
-        );
-        const policiesWithArrears: PolicyWithArrears[] = filteredFromService.map(policy => {
-            const arrears = (policy.bills || [])
-                .filter(bill => bill.status === 'Unpaid')
-                .reduce((sum, bill) => sum + bill.amount, 0);
-            return { ...policy, arrears };
+  const refreshPolicies = React.useCallback(async () => {
+    if (bankName) {
+      const allPoliciesFromService = await getPolicies();
+      if (!allPoliciesFromService) return;
+
+      const filteredFromService = allPoliciesFromService.filter(
+        (p) =>
+          p.policyStatus === 'Active' &&
+          p.billingStatus === 'Outstanding' &&
+          p.bankName === bankName
+      );
+      const policiesWithArrears: PolicyWithArrears[] =
+        filteredFromService.map((policy) => {
+          const arrears = (policy.bills || [])
+            .filter((bill) => bill.status === 'Unpaid')
+            .reduce((sum, bill) => sum + bill.amount, 0);
+          return { ...policy, arrears };
         });
-        setAllPolicies(policiesWithArrears);
-        setFilteredPolicies(policiesWithArrears);
-      }
+      setAllPolicies(policiesWithArrears);
+      setFilteredPolicies(policiesWithArrears);
+    }
   }, [bankName]);
 
   React.useEffect(() => {
@@ -106,7 +112,7 @@ export default function BankPoliciesPage() {
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       try {
         const data = e.target?.result;
         const workbook = XLSX.read(data, { type: 'binary' });
@@ -114,7 +120,7 @@ export default function BankPoliciesPage() {
         const worksheet = workbook.Sheets[sheetName];
         const json = XLSX.utils.sheet_to_json(worksheet);
         
-        const result = recordBulkPayments(json as any);
+        const result = await recordBulkPayments(json as any);
 
         toast({
           title: 'Upload Processed',
