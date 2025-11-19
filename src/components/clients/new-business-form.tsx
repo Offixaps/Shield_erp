@@ -275,7 +275,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           });
         }
       } else {
-        // This is a new form
         form.setValue('commencementDate', new Date());
       }
     }
@@ -443,7 +442,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 toast({
                     variant: 'destructive',
                     title: 'Validation Error',
-                    description: `Please correct the errors on the "${tab.replace(/-/g, ' ')}" tab.`,
+                    description: `Please correct the errors on the "${tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}" tab.`,
                 });
                 return;
             }

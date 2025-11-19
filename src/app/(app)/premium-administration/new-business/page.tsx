@@ -32,6 +32,7 @@ export default function NewBusinessPage() {
     const loadPolicies = React.useCallback(async () => {
         const policies = await getPolicies();
         const includedStatuses: NewBusiness['onboardingStatus'][] = [
+            'Pending Vetting',
             'Pending First Premium', 
             'Pending Mandate',
             'Mandate Rework Required',

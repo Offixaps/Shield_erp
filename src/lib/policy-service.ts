@@ -26,9 +26,7 @@ const POLICIES_COLLECTION = 'policies';
 
 function policyToFirebase(data: any): any {
     if (data === undefined) {
-        // Firestore doesn't support undefined. We can return null or simply not include the field.
-        // The loop below will handle not including the field.
-        return undefined; 
+        return null;
     }
     if (data === null) {
         return null;

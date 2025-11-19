@@ -31,8 +31,16 @@ export default function NewBusinessPage() {
 
     const loadPolicies = React.useCallback(async () => {
         const policies = await getPolicies();
-        const excludedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Policy Issued', 'Mandate Verified'];
-        const filteredPolicies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
+        const includedStatuses: NewBusiness['onboardingStatus'][] = [
+            'Pending First Premium', 
+            'Pending Mandate',
+            'Mandate Rework Required',
+        ];
+        const filteredPolicies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
+        
+        // Sort by ID descending to show latest first
+        filteredPolicies.sort((a, b) => b.id - a.id);
+
         setAllBusinessList(filteredPolicies);
         setFilteredBusinessList(filteredPolicies);
     }, []);

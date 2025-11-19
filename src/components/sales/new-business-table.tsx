@@ -56,7 +56,6 @@ export default function NewBusinessTable() {
         // Business Development Sales page shows all policies still in the onboarding pipeline.
         const excludedStatuses: NewBusiness['onboardingStatus'][] = [
             'Accepted', 
-            'Mandate Verified', 
             'Policy Issued',
             'Declined',
             'NTU',
