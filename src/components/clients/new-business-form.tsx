@@ -478,7 +478,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
                 {TABS.map(tab => (
                 <TabsTrigger key={tab} value={tab}>
-                    <span style={ hasErrorInTab(tab) ? { color: '#ef4444' } : {}}>
+                    <span className={cn(hasErrorInTab(tab) && 'text-destructive')}>
                         {tab.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                     </span>
                 </TabsTrigger>
