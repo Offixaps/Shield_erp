@@ -263,16 +263,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
   const { formState: { errors } } = form;
 
-  React.useEffect(() => {
+   React.useEffect(() => {
     async function fetchPolicy() {
-        if (isEditMode && currentBusinessId) {
-          const businessData = await getPolicyById(currentBusinessId);
-          if (businessData) {
-            const dataWithDates = parseDates(businessData);
-            form.reset({
-                ...emptyFormValues,
-                ...dataWithDates,
-            });
+      if (isEditMode && currentBusinessId) {
+        const businessData = await getPolicyById(currentBusinessId);
+        if (businessData) {
+          const dataWithDates = parseDates(businessData);
+          form.reset({
+            ...emptyFormValues,
+            ...dataWithDates,
+          });
         }
       } else {
         // This is a new form
@@ -466,7 +466,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             
             const finalValues = {
                 ...values,
-                onboardingStatus: 'Pending Vetting' as const,
+                onboardingStatus: 'Pending First Premium' as const,
             };
             
             await updatePolicy(currentBusinessId, finalValues as any);
