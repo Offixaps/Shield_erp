@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import { type NewBusiness } from '@/lib/data';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import ConfirmFirstPremiumDialog from '@/components/premium-administration/confirm-first-premium-dialog';
@@ -31,8 +31,13 @@ export default function NewBusinessPage() {
 
     const loadPolicies = React.useCallback(async () => {
         const policies = await getPolicies();
-        const excludedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Policy Issued', 'Mandate Verified'];
-        const filteredPolicies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
+        const includedStatuses: NewBusiness['onboardingStatus'][] = [
+            'Pending Vetting', 
+            'Pending First Premium', 
+            'Pending Mandate',
+            'Mandate Rework Required',
+        ];
+        const filteredPolicies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
         setAllBusinessList(filteredPolicies);
         setFilteredBusinessList(filteredPolicies);
     }, []);
@@ -120,50 +125,53 @@ export default function NewBusinessPage() {
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {filteredBusinessList.map((business, index) => (
-                    <TableRow key={business.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>
-                        <Link href={`/business-development/clients/${business.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
-                        {business.client}
-                        </Link>
-                    </TableCell>
-                    <TableCell>
-                        {business.serial}
-                    </TableCell>
-                    <TableCell>
-                        {business.product}
-                    </TableCell>
-                    <TableCell>
-                        GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </TableCell>
-                    <TableCell>
-                        {format(new Date(business.commencementDate), 'PPP')}
-                    </TableCell>
-                    <TableCell>
-                        <Badge
-                        className={cn(
-                            'w-44 justify-center truncate',
-                            getStatusBadgeStyling(business.onboardingStatus)
-                        )}
-                        >
-                        {business.onboardingStatus}
-                        </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                        {business.onboardingStatus === 'Pending Mandate' && (
-                        <div className="flex gap-2 justify-end">
-                            <VerifyMandateDialog client={business} onUpdate={handlePolicyUpdate} />
-                        </div>
-                        )}
-                        {business.onboardingStatus === 'Pending First Premium' && (
+                {filteredBusinessList.map((business, index) => {
+                    const commencementDate = business.commencementDate ? parseISO(business.commencementDate) : null;
+                    return (
+                        <TableRow key={business.id}>
+                        <TableCell>{index + 1}</TableCell>
+                        <TableCell>
+                            <Link href={`/business-development/clients/${business.id}?from=premium-admin`} className="font-medium text-primary hover:underline">
+                            {business.client}
+                            </Link>
+                        </TableCell>
+                        <TableCell>
+                            {business.serial}
+                        </TableCell>
+                        <TableCell>
+                            {business.product}
+                        </TableCell>
+                        <TableCell>
+                            GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </TableCell>
+                        <TableCell>
+                            {commencementDate && isValid(commencementDate) ? format(commencementDate, 'PPP') : 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                            <Badge
+                            className={cn(
+                                'w-44 justify-center truncate',
+                                getStatusBadgeStyling(business.onboardingStatus)
+                            )}
+                            >
+                            {business.onboardingStatus}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                            {business.onboardingStatus === 'Pending Mandate' && (
                             <div className="flex gap-2 justify-end">
-                                <ConfirmFirstPremiumDialog client={business} onUpdate={handlePolicyUpdate} />
+                                <VerifyMandateDialog client={business} onUpdate={handlePolicyUpdate} />
                             </div>
-                        )}
-                    </TableCell>
-                    </TableRow>
-                ))}
+                            )}
+                            {business.onboardingStatus === 'Pending First Premium' && (
+                                <div className="flex gap-2 justify-end">
+                                    <ConfirmFirstPremiumDialog client={business} onUpdate={handlePolicyUpdate} />
+                                </div>
+                            )}
+                        </TableCell>
+                        </TableRow>
+                    )
+                })}
                 </TableBody>
             </Table>
            </div>
