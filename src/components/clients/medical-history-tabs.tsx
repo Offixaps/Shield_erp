@@ -11,6 +11,7 @@ import MedicalConditionDetailsTable from './medical-condition-details-table';
 import FamilyMedicalHistoryTable from './family-medical-history-table';
 import { Input } from '../ui/input';
 import { TelephoneInput } from '@/components/ui/telephone-input';
+import { illnessDetailGeneralSchema, illnessDetailSchema } from './new-business-form-schema';
 
 type FormValues = any; // Replace with z.infer<typeof yourSchema>
 
@@ -18,7 +19,7 @@ type MedicalHistoryTabsProps = {
   form: UseFormReturn<FormValues>;
 };
 
-function MedicalQuestion({ form, name, label, detailsFieldName, detailsOptions, children }: { form: UseFormReturn<FormValues>, name: string, label: string, detailsFieldName: string, detailsOptions?: string[], children?: React.ReactNode }) {
+function MedicalQuestion({ form, name, label, detailsFieldName, detailsOptions, children, schema }: { form: UseFormReturn<FormValues>, name: string, label: string, detailsFieldName: string, detailsOptions?: string[], children?: React.ReactNode, schema: typeof illnessDetailSchema | typeof illnessDetailGeneralSchema }) {
     const watchValue = useWatch({ control: form.control, name });
 
     return (
@@ -46,7 +47,7 @@ function MedicalQuestion({ form, name, label, detailsFieldName, detailsOptions, 
                 )}
             />
             {watchValue === 'yes' && (
-                children || <MedicalConditionDetailsTable form={form} fieldName={detailsFieldName} illnessOptions={detailsOptions} />
+                children || <MedicalConditionDetailsTable form={form} fieldName={detailsFieldName} illnessOptions={detailsOptions} schema={schema} />
             )}
         </div>
     );
@@ -60,7 +61,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
     <div className="space-y-8">
         <div>
             <div className='flex items-center justify-between text-lg font-medium text-white p-2 rounded-t-md uppercase' style={{ backgroundColor: '#023ea3' }}>
-                <h3>Past & Present Medical Diagnosis</h3>
+                <h3>Past &amp; Present Medical Diagnosis</h3>
             </div>
             <Separator className="my-0" />
              <MedicalQuestion 
@@ -69,6 +70,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 label="Have you ever had a blood transfusion or surgery?" 
                 detailsFieldName="bloodTransfusionOrSurgeryDetails"
                 detailsOptions={['Blood Transfusion', 'Surgery']}
+                schema={illnessDetailSchema}
             />
             <Separator />
             <MedicalQuestion 
@@ -84,6 +86,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     'Coma',
                     'Other heart/artery/circulation disease'
                 ]}
+                schema={illnessDetailSchema}
             />
             <Separator />
              <MedicalQuestion 
@@ -98,6 +101,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     'Lymphoma',
                     'Other tumor'
                 ]}
+                schema={illnessDetailSchema}
             />
             <Separator />
              <MedicalQuestion 
@@ -106,6 +110,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 label="Have you ever had or been told you had Diabetes?" 
                 detailsFieldName="diabetesDetails"
                 detailsOptions={['Diabetes']}
+                schema={illnessDetailSchema}
             />
             <Separator />
              <MedicalQuestion 
@@ -114,6 +119,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                 label="Have you ever had or been told you had Colitis or Crohn's disease?" 
                 detailsFieldName="colitisCrohnsDetails" 
                 detailsOptions={["Colitis", "Crohn's disease"]}
+                schema={illnessDetailSchema}
             />
             <Separator />
              <MedicalQuestion 
@@ -128,6 +134,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     'Dementia', 
                     'Other central nervous system disorder'
                 ]}
+                schema={illnessDetailSchema}
             />
             <Separator />
             <MedicalQuestion 
@@ -140,6 +147,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
                     'Depression',
                     'Nervous breakdown'
                 ]}
+                schema={illnessDetailSchema}
             />
         </div>
 
@@ -156,6 +164,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Arthritis, neck or back pain, gout or any other muscle, joint or bone disorder?" 
         detailsFieldName="arthritisDetails" 
         detailsOptions={['Arthritis', 'Neck or back pain', 'Gout', 'Other muscle/joint/bone disorder']}
+        schema={illnessDetailSchema}
        />
       <MedicalQuestion 
         form={form} 
@@ -163,6 +172,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Chest pain, irregular heart beat or raised cholesterol?" 
         detailsFieldName="chestPainDetails" 
         detailsOptions={['Chest pain', 'Irregular heart beat', 'Raised cholesterol']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -170,6 +180,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Asthma, bronchitis, shortness of breath or any other chest complaint?" 
         detailsFieldName="asthmaDetails" 
         detailsOptions={['Asthma', 'Bronchitis', 'Shortness of breath', 'Other chest complaint']}
+        schema={illnessDetailSchema}
        />
       <MedicalQuestion 
         form={form} 
@@ -183,6 +194,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             'Liver Disorder',
             'Disorder of Pancreas'
         ]}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -190,6 +202,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Blood disorder or anemia?" 
         detailsFieldName="bloodDisorderDetails" 
         detailsOptions={['Blood disorder', 'Anemia']}
+        schema={illnessDetailGeneralSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -197,6 +210,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Thyroid disorder?" 
         detailsFieldName="thyroidDisorderDetails"
         detailsOptions={['Thyroid disorder']}
+        schema={illnessDetailGeneralSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -204,6 +218,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Kidney disorder, renal failure or bladder disorder?" 
         detailsFieldName="kidneyDisorderDetails"
         detailsOptions={['Kidney disorder', 'Renal failure', 'Bladder disorder']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -211,6 +226,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Numbness, loss of felling or tingling of the limbs or face or temporary loss of muscle power?" 
         detailsFieldName="numbnessDetails"
         detailsOptions={['Numbness', 'Loss of feeling', 'Tingling of limbs or face', 'Temporary loss of muscle power']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -218,6 +234,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Anxiety, stress or depression?" 
         detailsFieldName="anxietyStressDetails"
         detailsOptions={['Anxiety', 'Stress', 'Depression']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -225,6 +242,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Disorder of the ears or eyes including blindness, blurred or double vision?" 
         detailsFieldName="earEyeDisorderDetails"
         detailsOptions={['Disorder of the ears', 'Disorder of the eyes', 'Blindness', 'Blurred vision', 'Double vision']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -232,6 +250,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="A lump or growth of any kind, or any mole or freckle that has bled, become painful, changed color or increased in size?" 
         detailsFieldName="lumpGrowthDetails" 
         detailsOptions={['Lump or growth', 'Mole or freckle change']}
+        schema={illnessDetailSchema}
       />
        <MedicalQuestion 
         form={form} 
@@ -239,6 +258,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="Attended, or been asked to attend, any hospital or clinic for investigation, x-ray, scan, checkup, or operation for any medical condition not already disclosed?" 
         detailsFieldName="hospitalAttendanceDetails" 
         detailsOptions={['Investigation', 'X-ray', 'Scan', 'Checkup', 'Operation']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -246,6 +266,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
         label="This policy also provides cover for critical illness, have you ever had heart attack, coronary artery disease requiring surgery, paraplegia, loss of speech, major organ transplant, coma, major burns, Alzheimer's disease and multiple sclerosis." 
         detailsFieldName="criticalIllnessDetails"
         detailsOptions={['Heart attack', 'Coronary artery disease requiring surgery', 'Paraplegia', 'Loss of speech', 'Major organ transplant', 'Coma', 'Major burns', "Alzheimer's disease", 'Multiple sclerosis']}
+        schema={illnessDetailSchema}
       />
       <MedicalQuestion 
         form={form} 
@@ -265,6 +286,7 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             'Vaginal discharge',
             'Vaginal trush'
         ]}
+        schema={illnessDetailSchema}
       />
       
         <div>
@@ -279,10 +301,11 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
             name="presentSymptoms" 
             label="Experiencing any symptom, condition or disability not mentioned above?" 
             detailsFieldName="presentSymptomsDetails"
-            detailsOptions={['Symptoms', 'Conditions or Disability']}
+            schema={illnessDetailGeneralSchema}
         >
             {watchPresentSymptoms === 'yes' && (
                 <div className="space-y-6 pt-4">
+                    <MedicalConditionDetailsTable form={form} fieldName="presentSymptomsDetails" schema={illnessDetailGeneralSchema} />
                     <FormField
                         control={form.control}
                         name="presentWaitingConsultation"
@@ -379,3 +402,5 @@ export default function MedicalHistoryTabs({ form }: MedicalHistoryTabsProps) {
     </div>
   );
 }
+
+    

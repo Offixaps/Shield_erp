@@ -29,6 +29,8 @@ import HighBloodPressureDetails from './form-tabs/health/high-blood-pressure-det
 import DiabetesDetails from './form-tabs/health/diabetes-details';
 import AsthmaDetails from './form-tabs/health/asthma-details';
 import DigestiveDisorderDetails from './form-tabs/health/digestive-disorder-details';
+import { illnessDetailGeneralSchema, illnessDetailSchema } from './new-business-form-schema';
+import { z } from 'zod';
 
 type FormValues = any;
 
@@ -36,6 +38,7 @@ type MedicalConditionDetailsTableProps = {
   form: UseFormReturn<FormValues>;
   fieldName: any;
   illnessOptions?: string[];
+  schema: typeof illnessDetailSchema | typeof illnessDetailGeneralSchema;
 };
 
 function DatePickerField({ field, fromYear = 1900, toYear = new Date().getFullYear() }: { field: any, fromYear?: number, toYear?: number }) {
@@ -75,11 +78,13 @@ function DatePickerField({ field, fromYear = 1900, toYear = new Date().getFullYe
   );
 }
 
-function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOptions }: { form: UseFormReturn<FormValues>, field: any, index: number, fieldName: string, remove: (index: number) => void, illnessOptions?: string[] }) {
+function MedicalConditionRow({ form, field, index, fieldName, remove, illnessOptions, schema }: { form: UseFormReturn<FormValues>, field: any, index: number, fieldName: string, remove: (index: number) => void, illnessOptions?: string[], schema: z.ZodObject<any> }) {
     const watchIllness = useWatch({
         control: form.control,
         name: `${fieldName}.${index}.illness`
     });
+
+    const isGeneralSchema = 'illness' in schema.shape && schema.shape.illness instanceof z.ZodString;
 
     const digestiveDisorders = ['Duodenal Ulcer', 'Gastric Ulcer', 'Digestive System Disorder', 'Liver Disorder', 'Disorder of Pancreas'];
 
@@ -193,6 +198,7 @@ export default function MedicalConditionDetailsTable({
   form,
   fieldName,
   illnessOptions,
+  schema,
 }: MedicalConditionDetailsTableProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -223,6 +229,7 @@ export default function MedicalConditionDetailsTable({
                 fieldName={fieldName} 
                 remove={remove} 
                 illnessOptions={illnessOptions}
+                schema={schema}
               />
             ))}
           </TableBody>
@@ -247,3 +254,5 @@ export default function MedicalConditionDetailsTable({
     </div>
   );
 }
+
+    

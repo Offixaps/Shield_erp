@@ -82,9 +82,10 @@ const viralInfectionDetailSchema = z.object({
     hepC: z.boolean().default(false),
 });
 
+// Schema for tables with a predefined dropdown of illnesses
 export const illnessDetailSchema = z.object({
-  illness: z.string().min(1, 'Illness/Injury is required.').default(''),
-  date: z.date().optional(),
+  illness: z.string().min(1, 'You must select an illness from the dropdown.'),
+  date: z.date({ required_error: "Date is required for this condition." }),
   hospital: z.string().optional().default(''),
   duration: z.string().optional().default(''),
   status: z.string().optional().default(''),
@@ -142,6 +143,12 @@ export const illnessDetailSchema = z.object({
   treatmentDetails: z.string().optional().default(''),
   dischargeDate: z.date().optional(),
 });
+
+// Schema for tables where illness is a user-entered string
+export const illnessDetailGeneralSchema = illnessDetailSchema.extend({
+  illness: z.string().min(1, 'Illness/Injury is required.'),
+});
+
 
 const familyMedicalHistoryDetailSchema = z.object({
   condition: z.string().min(1, 'Condition is required.').default(''),
@@ -308,9 +315,9 @@ export const newBusinessFormSchema = z
     digestiveDisorder: z.enum(['yes', 'no']).optional().default('no'),
     digestiveDisorderDetails: z.array(illnessDetailSchema).optional().default([]),
     bloodDisorder: z.enum(['yes', 'no']).optional().default('no'),
-    bloodDisorderDetails: z.array(illnessDetailSchema).optional().default([]),
+    bloodDisorderDetails: z.array(illnessDetailGeneralSchema).optional().default([]),
     thyroidDisorder: z.enum(['yes', 'no']).optional().default('no'),
-    thyroidDisorderDetails: z.array(illnessDetailSchema).optional().default([]),
+    thyroidDisorderDetails: z.array(illnessDetailGeneralSchema).optional().default([]),
     kidneyDisorder: z.enum(['yes', 'no']).optional().default('no'),
     kidneyDisorderDetails: z.array(illnessDetailSchema).optional().default([]),
     numbness: z.enum(['yes', 'no']).optional().default('no'),
@@ -328,7 +335,7 @@ export const newBusinessFormSchema = z
     sti: z.enum(['yes', 'no']).optional().default('no'),
     stiDetails: z.array(illnessDetailSchema).optional().default([]),
     presentSymptoms: z.enum(['yes', 'no']).optional().default('no'),
-    presentSymptomsDetails: z.array(illnessDetailSchema).optional().default([]),
+    presentSymptomsDetails: z.array(illnessDetailGeneralSchema).optional().default([]),
     presentWaitingConsultation: z.enum(['yes', 'no']).optional(),
     presentTakingMedication: z.enum(['yes', 'no']).optional(),
     familyMedicalHistory: z.enum(['yes', 'no']).optional().default('no'),
@@ -352,12 +359,10 @@ export const newBusinessFormSchema = z
     
   })
   .superRefine((data, ctx) => {
-    // Helper to add issue
     const addIssue = (path: (string | number)[], message: string) => {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
     };
 
-    // Conditional validation for Premium Payer
     if (!data.isPolicyHolderPayer) {
         if (!data.premiumPayerOtherNames) addIssue(['premiumPayerOtherNames'], "Payer's first name is required.");
         if (!data.premiumPayerSurname) addIssue(['premiumPayerSurname'], "Payer's surname is required.");
@@ -365,7 +370,6 @@ export const newBusinessFormSchema = z
         if (!data.premiumPayerIdNumber) addIssue(['premiumPayerIdNumber'], "Payer's ID number is required.");
     }
     
-    // Check if primary beneficiary percentages sum to 100 if any exist
     if (data.primaryBeneficiaries && data.primaryBeneficiaries.length > 0) {
       const totalPercentage = data.primaryBeneficiaries.reduce((acc, b) => acc + (Number(b.percentage) || 0), 0);
       if (totalPercentage !== 100) {
@@ -373,7 +377,6 @@ export const newBusinessFormSchema = z
       }
     }
 
-    // Comprehensive check for all conditional "Yes/No" fields
     const conditionalChecks = [
       { flag: data.hasExistingPolicies, details: data.existingPoliciesDetails, path: ['hasExistingPolicies'] },
       { flag: data.declinedPolicy, details: data.declinedPolicyDetails, path: ['declinedPolicy'] },
@@ -448,3 +451,5 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
   agent: ['agentName', 'agentCode'],
   declaration: ['lifeInsuredSignature', 'policyOwnerSignature'],
 };
+
+    
