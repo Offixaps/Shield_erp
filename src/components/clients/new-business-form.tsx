@@ -217,6 +217,11 @@ function parseDates(data: any): any {
     if (!data) return data;
     const newData = { ...data };
 
+    const dateKeys = [
+        'lifeAssuredDob', 'issueDate', 'expiryDateId', 'commencementDate',
+        'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate',
+    ];
+
     for (const key in newData) {
         if (Object.prototype.hasOwnProperty.call(newData, key)) {
             const value = newData[key];
@@ -225,9 +230,15 @@ function parseDates(data: any): any {
                 if (isValid(date)) {
                     newData[key] = date;
                 }
-            } else if (Array.isArray(value)) {
+            } else if (dateKeys.includes(key) && typeof value === 'string') {
+                const date = parseISO(value);
+                 if (isValid(date)) {
+                    newData[key] = date;
+                }
+            }
+            else if (Array.isArray(value)) {
                 newData[key] = value.map(item => parseDates(item));
-            } else if (typeof value === 'object' && value !== null) {
+            } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
                 newData[key] = parseDates(value);
             }
         }
@@ -263,6 +274,9 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
                 ...dataWithDates,
             });
         }
+      } else {
+        // This is a new form
+        form.setValue('commencementDate', new Date());
       }
     }
     fetchPolicy();
@@ -292,11 +306,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   }, [lifeAssuredDob, form]);
 
   React.useEffect(() => {
-    if (lifeAssuredDob) {
+    if (lifeAssuredDob && lifeAssuredDob instanceof Date && isValid(lifeAssuredDob)) {
       const today = new Date();
       let age = today.getFullYear() - lifeAssuredDob.getFullYear();
       const monthDiff = today.getMonth() - lifeAssuredDob.getMonth();
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < lifeAssuredDob.getDate())) {
+        // age remains the same
       } else {
         age += 1;
       }
