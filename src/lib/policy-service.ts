@@ -24,18 +24,30 @@ const POLICIES_COLLECTION = 'policies';
 
 // --- Data Conversion Helpers ---
 
-// Converts any Date objects in the data to Firestore Timestamps before writing.
 function policyToFirebase(data: any): any {
+    if (data === undefined) {
+        // Firestore doesn't support undefined. We can return null or simply not include the field.
+        // The loop below will handle not including the field.
+        return undefined; 
+    }
+    if (data === null) {
+        return null;
+    }
     if (data instanceof Date) {
         return Timestamp.fromDate(data);
     }
     if (Array.isArray(data)) {
         return data.map(item => policyToFirebase(item));
     }
-    if (data && typeof data === 'object' && !data.hasOwnProperty('seconds')) {
+    if (typeof data === 'object' && !data.hasOwnProperty('seconds')) {
         const newObj: { [key: string]: any } = {};
         for (const key in data) {
-            newObj[key] = policyToFirebase(data[key]);
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                const value = data[key];
+                if (value !== undefined) {
+                    newObj[key] = policyToFirebase(value);
+                }
+            }
         }
         return newObj;
     }
