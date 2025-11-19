@@ -92,16 +92,11 @@ const FormLabel = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
 >(({ className, ...props }, ref) => {
   const { error, name } = useFormField()
-  const { formState } = useFormContext()
-
-  // An error should be shown if the field is invalid and the form has been submitted.
-  // `formState.isSubmitted` is the key to showing errors on all invalid fields after a submit attempt.
-  const shouldShowError = formState.isSubmitted && !!error;
 
   return (
     <Label
       ref={ref}
-      className={cn(shouldShowError && "text-destructive", className)}
+      className={cn(error && "text-destructive", className)}
       htmlFor={name}
       {...props}
     />
@@ -163,7 +158,7 @@ const FormMessage = React.forwardRef<
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-[0-8rem] font-medium text-destructive", className)}
+      className={cn("text-[0.8rem] font-medium text-destructive", className)}
       {...props}
     >
       {body}
