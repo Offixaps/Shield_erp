@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -33,6 +34,8 @@ export default function StaffPage() {
   const fetchStaff = async () => {
     const staff = await getStaff();
     if (staff) {
+      // Sort by ID descending to show the latest staff first
+      staff.sort((a, b) => (b.id as number) - (a.id as number));
       setStaffList(staff);
     }
   }

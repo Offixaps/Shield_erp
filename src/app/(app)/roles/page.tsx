@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -29,8 +30,11 @@ export default function RolesPage() {
   React.useEffect(() => {
     async function fetchData() {
         // Filter out the 'Super Admin' role from local data
-        const rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
+        let rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
         
+        // Sort by ID descending to show the latest roles first
+        rolesFromService.sort((a, b) => b.id - a.id);
+
         // Fetch staff members asynchronously
         const staffMembers = await getStaff();
 

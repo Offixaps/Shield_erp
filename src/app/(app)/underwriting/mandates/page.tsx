@@ -30,7 +30,9 @@ export default function MandatesPage() {
 
     React.useEffect(() => {
         const policies = getPolicies();
-        const pendingMandates = policies.filter(p => p.onboardingStatus === 'Pending Mandate');
+        let pendingMandates = policies.filter(p => p.onboardingStatus === 'Pending Mandate');
+        // Sort by ID descending to show latest first
+        pendingMandates.sort((a, b) => b.id - a.id);
         setAllMandates(pendingMandates);
         setFilteredMandates(pendingMandates);
     }, []);

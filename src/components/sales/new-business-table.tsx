@@ -74,11 +74,14 @@ export default function NewBusinessTable() {
        const includedStatuses: NewBusiness['onboardingStatus'][] = ['Incomplete Policy', 'Pending First Premium'];
        policies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
     }
+
+    // Sort by ID descending to show the latest policies first
+    policies.sort((a, b) => b.id - a.id);
     
     setAllData(policies);
     setFilteredData(policies);
     setPagination(prev => ({ ...prev, pageIndex: 0 }));
-  }, [pathname, isAllPoliciesPage, isUnderwritingNewBusiness, isBDSalesPage]);
+  }, [isAllPoliciesPage, isUnderwritingNewBusiness, isBDSalesPage]);
 
   React.useEffect(() => {
     loadPolicies();

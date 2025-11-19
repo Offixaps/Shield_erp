@@ -37,6 +37,10 @@ export default function NewBusinessPage() {
             'Mandate Rework Required',
         ];
         const filteredPolicies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
+        
+        // Sort by ID descending to show latest first
+        filteredPolicies.sort((a, b) => b.id - a.id);
+
         setAllBusinessList(filteredPolicies);
         setFilteredBusinessList(filteredPolicies);
     }, []);
