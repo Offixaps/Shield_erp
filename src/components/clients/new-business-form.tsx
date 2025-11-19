@@ -274,8 +274,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             ...dataWithDates,
           });
         }
-      } else {
-        form.setValue('commencementDate', new Date());
       }
     }
     fetchPolicy();
@@ -287,6 +285,12 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
   const contractType = form.watch('contractType');
+
+  React.useEffect(() => {
+    if (!isEditMode) {
+        form.setValue('commencementDate', new Date());
+    }
+  }, [isEditMode, form]);
 
   React.useEffect(() => {
     async function setSerialNumber() {
@@ -435,7 +439,10 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         
         for (const tab of TABS) {
             const fieldsInTab = tabFields[tab];
-            const firstErrorFieldInTab = errorKeys.find(key => fieldsInTab.includes(key));
+            const firstErrorFieldInTab = errorKeys.find(key => {
+                const fieldName = key as keyof z.infer<typeof newBusinessFormSchema>;
+                return fieldsInTab.includes(fieldName);
+            });
             
             if (firstErrorFieldInTab) {
                 setActiveTab(tab);
