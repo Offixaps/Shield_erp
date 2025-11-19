@@ -82,10 +82,9 @@ const viralInfectionDetailSchema = z.object({
     hepC: z.boolean().default(false),
 });
 
-// Schema for tables with a predefined dropdown of illnesses
-export const illnessDetailSchema = z.object({
-  illness: z.string().min(1, 'You must select an illness from the dropdown.'),
-  date: z.date({ required_error: "Date is required for this condition." }),
+// Base schema with optional date
+const baseIllnessDetailSchema = z.object({
+  date: z.date().optional(),
   hospital: z.string().optional().default(''),
   duration: z.string().optional().default(''),
   status: z.string().optional().default(''),
@@ -144,8 +143,13 @@ export const illnessDetailSchema = z.object({
   dischargeDate: z.date().optional(),
 });
 
+// Schema for tables with a predefined dropdown of illnesses
+export const illnessDetailSchema = baseIllnessDetailSchema.extend({
+  illness: z.string().min(1, 'You must select an illness from the dropdown.'),
+});
+
 // Schema for tables where illness is a user-entered string
-export const illnessDetailGeneralSchema = illnessDetailSchema.extend({
+export const illnessDetailGeneralSchema = baseIllnessDetailSchema.extend({
   illness: z.string().min(1, 'Illness/Injury is required.'),
 });
 
