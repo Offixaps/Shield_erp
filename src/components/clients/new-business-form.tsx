@@ -213,30 +213,26 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
 };
 
 
-// Recursively converts date strings to Date objects
-function parseDates(obj: any): any {
-    if (!obj) return obj;
+function parseDates(data: any): any {
+    if (!data) return data;
+    const newData = { ...data };
 
-    if (Array.isArray(obj)) {
-        return obj.map(item => parseDates(item));
-    }
-
-    if (typeof obj === 'object') {
-        return Object.keys(obj).reduce((acc, key) => {
-            const value = obj[key];
+    for (const key in newData) {
+        if (Object.prototype.hasOwnProperty.call(newData, key)) {
+            const value = newData[key];
             if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(value)) {
-                const date = parseISO(value);
+                const date = new Date(value);
                 if (isValid(date)) {
-                    acc[key] = date;
-                    return acc;
+                    newData[key] = date;
                 }
+            } else if (Array.isArray(value)) {
+                newData[key] = value.map(item => parseDates(item));
+            } else if (typeof value === 'object' && value !== null) {
+                newData[key] = parseDates(value);
             }
-            acc[key] = parseDates(value);
-            return acc;
-        }, {} as any);
+        }
     }
-    
-    return obj;
+    return newData;
 }
 
 
@@ -421,25 +417,27 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   };
 
     const onValidationErrors = (errors: FieldErrors) => {
-        let firstErrorTab: TabName | null = null;
+        const errorKeys = Object.keys(errors) as (keyof z.infer<typeof newBusinessFormSchema>)[];
         
         for (const tab of TABS) {
-            if (hasErrorInTab(tab)) {
-                firstErrorTab = tab;
-                break;
+            const fieldsInTab = tabFields[tab];
+            const firstErrorFieldInTab = errorKeys.find(key => fieldsInTab.includes(key));
+            
+            if (firstErrorFieldInTab) {
+                setActiveTab(tab);
+                toast({
+                    variant: 'destructive',
+                    title: 'Validation Error',
+                    description: `Please correct the errors on the "${tab.replace(/-/g, ' ')}" tab.`,
+                });
+                return;
             }
-        }
-        
-        let errorMessage = `Please correct the errors before submitting.`;
-        if (firstErrorTab) {
-           setActiveTab(firstErrorTab);
-           errorMessage = `Validation failed on the "${firstErrorTab.replace(/-/g, ' ')}" tab. Please review the highlighted fields.`
         }
 
         toast({
             variant: 'destructive',
             title: 'Validation Error',
-            description: errorMessage,
+            description: 'Please review all tabs and correct the highlighted errors.',
         });
     };
 
