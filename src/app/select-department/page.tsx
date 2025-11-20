@@ -12,9 +12,8 @@ import {
 } from '@/components/ui/card';
 import { ArrowRight } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-import { useAuth } from '@/firebase';
+import { useAuth, db } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 
 

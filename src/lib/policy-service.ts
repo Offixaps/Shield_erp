@@ -16,9 +16,8 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
-import { db } from './firebase';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { db, errorEmitter, FirestorePermissionError } from '@/firebase';
+
 
 const POLICIES_COLLECTION = 'policies';
 
@@ -179,7 +178,7 @@ export async function createPolicy(values: any): Promise<string> {
         product: values.contractType,
         premium: values.premiumAmount,
         initialSumAssured: values.sumAssured,
-        onboardingStatus: 'Incomplete Policy',
+        onboardingStatus: 'Pending First Premium',
         billingStatus: 'Outstanding',
         policyStatus: 'Inactive',
         payerName: values.isPolicyHolderPayer ? lifeAssuredName : [values.premiumPayerOtherNames, values.premiumPayerSurname].filter(Boolean).join(' '),
@@ -191,7 +190,7 @@ export async function createPolicy(values: any): Promise<string> {
         payments: [],
         activityLog: [
             { date: new Date(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
-            { date: new Date(), user: 'System', action: 'Status changed to Incomplete Policy' }
+            { date: new Date(), user: 'System', action: 'Status changed to Pending First Premium' }
         ],
     };
     
@@ -219,18 +218,17 @@ export async function createPolicy(values: any): Promise<string> {
 
 export async function deletePolicy(id: string): Promise<boolean> {
   const policyRef = doc(db, POLICIES_COLLECTION, id.toString());
-  deleteDoc(policyRef)
-    .then(() => {
-        return true;
-    })
-    .catch(async (serverError) => {
-        const permissionError = new FirestorePermissionError({
-            path: policyRef.path,
-            operation: 'delete',
-        });
-        errorEmitter.emit('permission-error', permissionError);
+  try {
+    await deleteDoc(policyRef);
+    return true;
+  } catch (serverError) {
+    const permissionError = new FirestorePermissionError({
+        path: policyRef.path,
+        operation: 'delete',
     });
-  return false; // The operation is async, the immediate return should be false.
+    errorEmitter.emit('permission-error', permissionError);
+    return false;
+  }
 }
 
 export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {

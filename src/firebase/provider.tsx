@@ -10,17 +10,18 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  type UserCredential
+  type UserCredential,
+  createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { type Firestore } from 'firebase/firestore';
 import * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { app as initialApp, auth as initialAuth, db as initialFirestore } from '@/lib/firebase';
+import { app as initialApp, auth as initialAuth, db as initialFirestore } from './config';
 
 interface FirebaseContextType {
   app: FirebaseApp;
   auth: Auth;
-  firestore: Firestore;
+  db: Firestore;
 }
 
 const FirebaseContext = createContext<FirebaseContextType | null>(null);
@@ -29,7 +30,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
-    <FirebaseContext.Provider value={{ app: initialApp, auth: initialAuth, firestore: initialFirestore }}>
+    <FirebaseContext.Provider value={{ app: initialApp, auth: initialAuth, db: initialFirestore }}>
       {children}
     </FirebaseContext.Provider>
   );
@@ -49,14 +50,16 @@ interface AuthContextType {
   signInWithEmail: (email: string, password: string) => Promise<UserCredential>;
   signInWithGoogle: () => Promise<UserCredential>;
   signOutUser: () => Promise<void>;
+  createUser: (email: string, password: string) => Promise<UserCredential>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
-  signInWithEmail: (email, password) => Promise.resolve({} as UserCredential),
-  signInWithGoogle: () => Promise.resolve({} as UserCredential),
-  signOutUser: () => Promise.resolve(),
+  signInWithEmail: () => Promise.reject(new Error('Auth provider not initialized')),
+  signInWithGoogle: () => Promise.reject(new Error('Auth provider not initialized')),
+  signOutUser: () => Promise.reject(new Error('Auth provider not initialized')),
+  createUser: () => Promise.reject(new Error('Auth provider not initialized')),
 });
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -86,8 +89,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return signOut(auth);
   }
 
+  const createUser = (email: string, password: string) => {
+    return createUserWithEmailAndPassword(auth, email, password);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signInWithEmail, signInWithGoogle, signOutUser }}>
+    <AuthContext.Provider value={{ user, loading, signInWithEmail, signInWithGoogle, signOutUser, createUser }}>
       {children}
     </AuthContext.Provider>
   );

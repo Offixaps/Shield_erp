@@ -5,10 +5,10 @@ import * as React from 'react';
 import { SidebarProvider, SidebarInset, SidebarRail } from '@/components/ui/sidebar';
 import AppSidebar from '@/components/app-sidebar';
 import AppHeader from '@/components/app-header';
-import { useAuth } from '@/firebase';
+import { useAuth, db } from '@/firebase';
 import { useRouter, usePathname } from 'next/navigation';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+
 
 const departmentAccess: Record<string, string[]> = {
     '/business-development': ['Business Development', 'Administrator'],

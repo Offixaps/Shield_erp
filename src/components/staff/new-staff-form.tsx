@@ -30,9 +30,8 @@ import { Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { getRoles } from '@/lib/role-service';
 import type { Role } from '@/lib/data';
 import { createStaffMember, getStaffByUid, updateStaff } from '@/lib/staff-service';
-import { useAuth } from '@/firebase';
+import { useAuth, db } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { TelephoneInput } from '@/components/ui/telephone-input';
 
 const phoneRegex = /^[0-9]{9}$/;
@@ -62,6 +61,8 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   const [roles, setRoles] = React.useState<Role[]>([]);
   const [currentUserDepartment, setCurrentUserDepartment] = React.useState('');
   const isEditMode = !!staffId;
+
+  const authHook = useAuth(); // Call the hook at the top level
 
   React.useEffect(() => {
     async function fetchInitialData() {
@@ -135,7 +136,8 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
             form.setError('password', { message: 'Password is required for new staff members.' });
             return;
         }
-      await createStaffMember(values);
+      // Pass the createUser function from the hook to the service
+      await createStaffMember({ ...values, authHook });
       toast({
         title: 'Staff Member Added',
         description: `${values.firstName} ${values.lastName} has been added to the system.`,

@@ -28,7 +28,9 @@ import PaymentDetailsTab from './form-tabs/payment-details-tab';
 import DeclarationTab from './form-tabs/declaration-tab';
 import LifestyleTab from './form-tabs/lifestyle-tab';
 import { Loader2 } from 'lucide-react';
-import type { NewBusiness } from '@/lib/data';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { AlertTriangle } from 'lucide-react';
+
 
 type NewBusinessFormProps = {
     businessId?: string;
@@ -254,7 +256,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [isEditMode, setIsEditMode] = React.useState(!!businessId);
   const [currentBusinessId, setCurrentBusinessId] = React.useState<string | undefined>(businessId);
-  
+  const [error, setError] = React.useState<string | null>(null);
+
   const form = useForm<z.infer<typeof newBusinessFormSchema>>({
     resolver: zodResolver(newBusinessFormSchema),
     mode: 'onBlur',
@@ -266,13 +269,19 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
    React.useEffect(() => {
     async function fetchPolicy() {
       if (isEditMode && currentBusinessId) {
-        const businessData = await getPolicyById(currentBusinessId);
-        if (businessData) {
-          const dataWithDates = parseDates(businessData);
-          form.reset({
-            ...emptyFormValues,
-            ...dataWithDates,
-          });
+        try {
+            const businessData = await getPolicyById(currentBusinessId);
+            if (businessData) {
+            const dataWithDates = parseDates(businessData);
+            form.reset({
+                ...emptyFormValues,
+                ...dataWithDates,
+            });
+            } else {
+                setError(`The policy with ID "${currentBusinessId}" could not be found.`);
+            }
+        } catch (err: any) {
+            setError(`Failed to load policy data: ${err.message}`);
         }
       }
     }
@@ -491,6 +500,16 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     };
 
     const isLastTab = activeTab === TABS[TABS.length - 1];
+    
+    if (error) {
+        return (
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Error</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        );
+    }
     
     return (
         <Form {...form}>

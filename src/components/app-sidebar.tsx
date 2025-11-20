@@ -41,9 +41,8 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { useAuth } from '@/firebase';
+import { useAuth, db } from '@/firebase';
 import { getDoc, doc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
 import { Skeleton } from './ui/skeleton';
 
 

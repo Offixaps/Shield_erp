@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -17,7 +16,7 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { FilePenLine, Search, ChevronLeft, ChevronRight, Play } from 'lucide-react';
+import { FilePenLine, Search, ChevronLeft, ChevronRight, Play, AlertTriangle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import DeletePolicyDialog from './delete-policy-dialog';
 import { getPolicies, deletePolicy as deletePolicyFromService } from '@/lib/policy-service';
@@ -29,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Alert, AlertTitle, AlertDescription } from '../ui/alert';
 
 export default function NewBusinessTable() {
   const pathname = usePathname();
@@ -44,50 +44,48 @@ export default function NewBusinessTable() {
   const [allData, setAllData] = React.useState<NewBusiness[]>([]);
   const [filteredData, setFilteredData] = React.useState<NewBusiness[]>([]);
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [error, setError] = React.useState<string | null>(null);
   const [pagination, setPagination] = React.useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
   const loadPolicies = React.useCallback(async () => {
-    let policies = await getPolicies();
-    
-    if (isBDSalesPage) {
-        const onboardingStatuses: NewBusiness['onboardingStatus'][] = [
-            'Incomplete Policy',
-            'Pending First Premium',
-            'First Premium Confirmed',
-            'Pending Vetting',
-            'Vetting Completed',
-            'Rework Required',
-            'Pending Medicals',
-            'Medicals Completed',
-            'Pending Decision',
-            'Pending Mandate',
-            'Mandate Verified',
-            'Mandate Rework Required',
-        ];
-        policies = policies.filter(p => onboardingStatuses.includes(p.onboardingStatus));
-    } else if (isAllPoliciesPage) {
-       const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
-       policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
-    } else if (isUnderwritingNewBusiness) {
-        const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
-        policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
-    }
+    try {
+      setError(null);
+      let policies = await getPolicies();
+      
+      if (isBDSalesPage) {
+          const onboardingStatuses: NewBusiness['onboardingStatus'][] = [
+              'Incomplete Policy', 'Pending First Premium', 'First Premium Confirmed',
+              'Pending Vetting', 'Vetting Completed', 'Rework Required',
+              'Pending Medicals', 'Medicals Completed', 'Pending Decision',
+              'Pending Mandate', 'Mandate Rework Required'
+          ];
+          policies = policies.filter(p => onboardingStatuses.includes(p.onboardingStatus));
+      } else if (isAllPoliciesPage) {
+        const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
+        policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
+      } else if (isUnderwritingNewBusiness) {
+          const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
+          policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
+      }
+      
+      policies.sort((a, b) => (b.id as number) - (a.id as number));
+      
+      setAllData(policies);
+      setFilteredData(policies);
+      setPagination(prev => ({ ...prev, pageIndex: 0 }));
 
-    // Sort by ID descending to show the latest policies first
-    policies.sort((a, b) => (b.id as number) - (a.id as number));
-    
-    setAllData(policies);
-    setFilteredData(policies);
-    setPagination(prev => ({ ...prev, pageIndex: 0 }));
+    } catch (err: any) {
+        console.error("Failed to load policies:", err);
+        setError(err.message || 'An unexpected error occurred while fetching policies.');
+    }
   }, [isAllPoliciesPage, isUnderwritingNewBusiness, isBDSalesPage]);
 
   React.useEffect(() => {
     loadPolicies();
     
-    // Add event listener for storage changes to refresh data
     const handleStorageChange = () => loadPolicies();
     window.addEventListener('storage', handleStorageChange);
     return () => {
@@ -112,7 +110,7 @@ export default function NewBusinessTable() {
 
   const handleDelete = async (id: string) => {
     await deletePolicyFromService(id);
-    loadPolicies(); // Reload data after deletion
+    loadPolicies();
   };
   
   const getStatusBadgeStyling = (status: string) => {
@@ -167,6 +165,15 @@ export default function NewBusinessTable() {
                 onChange={(e) => setSearchTerm(e.target.value)}
             />
         </div>
+
+        {error && (
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Error Loading Policies</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
+        )}
+        
         <div className="rounded-md border">
             <Table>
             <TableHeader>
@@ -183,7 +190,7 @@ export default function NewBusinessTable() {
                 </TableRow>
             </TableHeader>
             <TableBody>
-                {paginatedData.map((business, index) => {
+                {paginatedData.length > 0 ? paginatedData.map((business, index) => {
                   const isIncomplete = business.onboardingStatus === 'Incomplete Policy';
                   return (
                     <TableRow key={business.id}>
@@ -241,67 +248,72 @@ export default function NewBusinessTable() {
                         )}
                     </TableRow>
                   );
-                })}
+                }) : (
+                    <TableRow>
+                        <TableCell colSpan={isAllPoliciesPage ? 8 : 9} className="text-center h-24">
+                            {searchTerm ? 'No policies found matching your search.' : 'No policies to display for this view.'}
+                        </TableCell>
+                    </TableRow>
+                )}
             </TableBody>
             </Table>
         </div>
-        {filteredData.length === 0 && (
-            <p className="text-center text-muted-foreground py-4">No policies found matching your search.</p>
+        
+        {paginatedData.length > 0 && (
+            <div className="flex items-center justify-end space-x-2 py-4">
+                <div className="flex-1 text-sm text-muted-foreground">
+                Showing {Math.min(pagination.pageIndex * pagination.pageSize + 1, filteredData.length)} to {Math.min((pagination.pageIndex + 1) * pagination.pageSize, filteredData.length)} of{' '}
+                {filteredData.length} entries
+                </div>
+                <div className="flex items-center space-x-2">
+                    <p className="text-sm font-medium">Rows per page</p>
+                    <Select
+                        value={`${pagination.pageSize}`}
+                        onValueChange={(value) => {
+                        setPagination({
+                            pageIndex: 0,
+                            pageSize: Number(value),
+                        });
+                        }}
+                    >
+                        <SelectTrigger className="h-8 w-[70px]">
+                        <SelectValue placeholder={pagination.pageSize} />
+                        </SelectTrigger>
+                        <SelectContent side="top">
+                        {[10, 20, 30, 40, 50, 100].map((pageSize) => (
+                            <SelectItem key={pageSize} value={`${pageSize}`}>
+                            {pageSize}
+                            </SelectItem>
+                        ))}
+                        <SelectItem value={`${filteredData.length}`}>All</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex w-[100px] items-center justify-center text-sm font-medium">
+                Page {pagination.pageIndex + 1} of {pageCount}
+                </div>
+                <div className="flex items-center space-x-2">
+                    <Button
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
+                        disabled={pagination.pageIndex === 0}
+                    >
+                        <span className="sr-only">Go to previous page</span>
+                        <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                        onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
+                        disabled={pagination.pageIndex >= pageCount - 1}
+                    >
+                        <span className="sr-only">Go to next page</span>
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
         )}
-
-        <div className="flex items-center justify-end space-x-2 py-4">
-            <div className="flex-1 text-sm text-muted-foreground">
-              Showing {Math.min(pagination.pageIndex * pagination.pageSize + 1, filteredData.length)} to {Math.min((pagination.pageIndex + 1) * pagination.pageSize, filteredData.length)} of{' '}
-              {filteredData.length} entries
-            </div>
-            <div className="flex items-center space-x-2">
-                <p className="text-sm font-medium">Rows per page</p>
-                <Select
-                    value={`${pagination.pageSize}`}
-                    onValueChange={(value) => {
-                    setPagination({
-                        pageIndex: 0,
-                        pageSize: Number(value),
-                    });
-                    }}
-                >
-                    <SelectTrigger className="h-8 w-[70px]">
-                    <SelectValue placeholder={pagination.pageSize} />
-                    </SelectTrigger>
-                    <SelectContent side="top">
-                    {[10, 20, 30, 40, 50, 100].map((pageSize) => (
-                        <SelectItem key={pageSize} value={`${pageSize}`}>
-                        {pageSize}
-                        </SelectItem>
-                    ))}
-                     <SelectItem value={`${filteredData.length}`}>All</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
-            <div className="flex w-[100px] items-center justify-center text-sm font-medium">
-              Page {pagination.pageIndex + 1} of {pageCount}
-            </div>
-            <div className="flex items-center space-x-2">
-                <Button
-                    variant="outline"
-                    className="h-8 w-8 p-0"
-                    onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
-                    disabled={pagination.pageIndex === 0}
-                >
-                    <span className="sr-only">Go to previous page</span>
-                    <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant="outline"
-                    className="h-8 w-8 p-0"
-                    onClick={() => setPagination(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
-                    disabled={pagination.pageIndex >= pageCount - 1}
-                >
-                    <span className="sr-only">Go to next page</span>
-                    <ChevronRight className="h-4 w-4" />
-                </Button>
-            </div>
-        </div>
     </div>
   );
 }

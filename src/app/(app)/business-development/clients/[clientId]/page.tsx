@@ -3,30 +3,37 @@
 
 import * as React from 'react';
 import { getPolicyById } from '@/lib/policy-service';
-import { notFound, useSearchParams, useParams } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import ClientDetailsView from '@/components/clients/client-details-view';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 import type { NewBusiness } from '@/lib/data';
 
 export default function ClientDetailsPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
-
+  
   const [client, setClient] = React.useState<NewBusiness | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const fetchClient = async () => {
+      try {
         const clientId = params.clientId;
         if (typeof clientId === 'string') {
-            const fetchedClient = await getPolicyById(clientId);
-            if (fetchedClient) {
-                setClient(fetchedClient);
-            }
-            setLoading(false);
-        } else {
-            setLoading(false);
+          const fetchedClient = await getPolicyById(clientId);
+          if (fetchedClient) {
+            setClient(fetchedClient);
+          }
+          // If not fetched, it will be handled by the notFound() call after loading
         }
+      } catch (err: any) {
+        console.error("Failed to fetch client:", err);
+        setError(err.message || 'An unexpected error occurred while fetching the policy data.');
+      } finally {
+        setLoading(false);
+      }
     };
     fetchClient();
   }, [params.clientId]);
@@ -45,13 +52,23 @@ export default function ClientDetailsPage() {
         </div>
     )
   }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>Error Loading Policy</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
+    );
+  }
   
   if (!client) {
     notFound();
   }
 
-  const from = searchParams.get('from') || '';
-  const tab = searchParams.get('tab') || 'overview';
+  const from = new URLSearchParams(window.location.search).get('from') || '';
+  const tab = new URLSearchParams(window.location.search).get('tab') || 'overview';
 
   return <ClientDetailsView client={client} from={from} defaultTab={tab} />;
 }

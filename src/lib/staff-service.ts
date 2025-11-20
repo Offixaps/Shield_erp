@@ -16,9 +16,7 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
-import { db, auth as firebaseAuth } from '@/lib/firebase';
-import { errorEmitter } from '@/firebase/error-emitter';
-import { FirestorePermissionError } from '@/firebase/errors';
+import { db, auth as firebaseAuth, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
 import type { User } from 'firebase/auth';
 
 
@@ -132,43 +130,43 @@ export async function getStaffByUid(uid: string): Promise<StaffMember | undefine
 }
 
 export async function createStaffMember(values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember> {
-    // This function should be called from a server-side context (e.g., a Firebase Function)
-    // to securely create a Firebase Auth user and then a Firestore user document.
-    // For client-side simulation, we'll just add to Firestore.
-    
-    // In a real app, you would:
-    // 1. Call a Firebase Function `createUser` with the values.
-    // 2. The function would use `admin.auth().createUser(...)`.
-    // 3. The function would then create the Firestore document.
-
+    // NOTE: This client-side user creation is a security risk.
+    // In a production app, this logic MUST be moved to a secure backend (e.g., Firebase Functions)
+    // where you can use the Admin SDK to create users. The Admin SDK bypasses security rules.
     console.warn("Client-side user creation is not secure. This is for simulation only.");
     
-    const newStaffMemberData = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        phone: values.phone,
-        role: values.role,
-        department: values.department || getDepartmentForRole(values.role),
-    };
-
-    const docRef = await addDoc(collection(db, USERS_COLLECTION), newStaffMemberData)
-        .catch(async (serverError) => {
-            const permissionError = new FirestorePermissionError({
-                path: USERS_COLLECTION,
-                operation: 'create',
-                requestResourceData: newStaffMemberData,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            throw serverError; // Re-throw the original error after emitting our custom one
-        });
+    // This is a placeholder for the `createUser` hook that should be coming from useAuth
+    // In a real scenario, this service wouldn't call the hook directly.
+    const { createUser } = useAuth();
+    if (!values.password) throw new Error("Password is required to create a new staff member.");
     
-    // Update the local object with the real doc ID
-    await setDoc(docRef, { uid: docRef.id }, { merge: true });
-    const finalData = { ...newStaffMemberData, id: docRef.id };
+    try {
+        // Step 1: Create user in Firebase Authentication (Simulated)
+        // This is where you would call a backend function in a real app.
+        // For now, we simulate this, but it will fail due to security rules unless you are an admin.
+        const userCredential = await createUser(values.email, values.password);
+        const newUser = userCredential.user;
 
+        // Step 2: Create user document in Firestore
+        const newStaffMemberData = {
+            uid: newUser.uid,
+            firstName: values.firstName,
+            lastName: values.lastName,
+            email: values.email,
+            phone: values.phone,
+            role: values.role,
+            department: values.department || getDepartmentForRole(values.role),
+        };
 
-    return finalData as StaffMember;
+        await setDoc(doc(db, USERS_COLLECTION, newUser.uid), newStaffMemberData);
+
+        return { id: newUser.uid, ...newStaffMemberData } as StaffMember;
+    } catch (error: any) {
+        console.error("Error creating staff member:", error);
+        // More specific error handling can be done here.
+        // For example, if error.code === 'auth/email-already-in-use'
+        throw new Error(error.message || "Failed to create staff member.");
+    }
 }
 
 export async function updateStaff(id: number, values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember | undefined> {
