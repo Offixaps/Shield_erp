@@ -1,6 +1,6 @@
 
 import { z } from 'zod';
-import { format } from 'date-fns';
+import { format, differenceInYears } from 'date-fns';
 
 const idTypes = [
   "Driver's License",
@@ -365,6 +365,25 @@ export const newBusinessFormSchema = z
     const addIssue = (path: (string | number)[], message: string) => {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path, message });
     };
+
+    if (data.lifeAssuredDob) {
+        const today = new Date();
+        let age = today.getFullYear() - data.lifeAssuredDob.getFullYear();
+        const monthDiff = today.getMonth() - data.lifeAssuredDob.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < data.lifeAssuredDob.getDate())) {
+            // age remains the same
+        } else {
+            age += 1;
+        }
+
+        if (age < 25) {
+            addIssue(['lifeAssuredDob'], 'Age next birthday cannot be less than 25.');
+        }
+        if (age > 49) {
+            addIssue(['lifeAssuredDob'], 'Age next birthday cannot be more than 49.');
+        }
+    }
+
 
     if (!data.isPolicyHolderPayer) {
         if (!data.premiumPayerOtherNames) addIssue(['premiumPayerOtherNames'], "Payer's first name is required.");
