@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { format, isValid } from 'date-fns';
-import { countries } from '@/lib/countries';
+import { nationalities } from '@/lib/countries';
 import { Separator } from '@/components/ui/separator';
 import { TelephoneInput } from '@/components/ui/telephone-input';
 
@@ -288,9 +288,9 @@ export default function CoverageTab({ form }: CoverageTabProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.name}>
-                      {country.name}
+                  {nationalities.map((nationality) => (
+                    <SelectItem key={nationality.code} value={nationality.name}>
+                      {nationality.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
