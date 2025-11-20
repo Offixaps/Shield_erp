@@ -62,8 +62,6 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   const [currentUserDepartment, setCurrentUserDepartment] = React.useState('');
   const isEditMode = !!staffId;
 
-  const authHook = useAuth(); // Call the hook at the top level
-
   React.useEffect(() => {
     async function fetchInitialData() {
         setRoles(getRoles());
@@ -136,8 +134,7 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
             form.setError('password', { message: 'Password is required for new staff members.' });
             return;
         }
-      // Pass the createUser function from the hook to the service
-      await createStaffMember({ ...values, authHook });
+      await createStaffMember(values);
       toast({
         title: 'Staff Member Added',
         description: `${values.firstName} ${values.lastName} has been added to the system.`,

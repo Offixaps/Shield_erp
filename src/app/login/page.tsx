@@ -32,22 +32,7 @@ export default function LoginPage() {
     try {
       const userCredential = await signInWithEmail(email, password);
       if (userCredential?.user) {
-        const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
-        if (userDoc.exists()) {
-            const userData = userDoc.data();
-            const department = userData.department;
-
-            if (department === 'Administrator') {
-                 router.push('/business-development');
-            } else if (department) {
-                const departmentPath = `/${department.toLowerCase().replace(/\s+/g, '-')}`;
-                router.push(departmentPath);
-            } else {
-                 toast({ variant: 'destructive', title: 'Login Failed', description: 'No department assigned to this user.' });
-            }
-        } else {
-             toast({ variant: 'destructive', title: 'Login Failed', description: 'User profile not found.' });
-        }
+         router.push('/select-department');
       }
     } catch (error: any) {
       toast({

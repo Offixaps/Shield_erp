@@ -12,6 +12,7 @@ export default function RootPage() {
   useEffect(() => {
     if (!loading) {
       if (user) {
+        // Redirect to a neutral selection page instead of a specific department
         router.replace('/select-department');
       } else {
         router.replace('/login');
@@ -19,6 +20,7 @@ export default function RootPage() {
     }
   }, [user, loading, router]);
 
+  // Render a loading state while checking auth
   return (
     <div className="flex h-screen items-center justify-center">
       <div>Loading...</div>

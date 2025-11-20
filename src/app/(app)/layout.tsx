@@ -11,9 +11,11 @@ import { doc, getDoc } from 'firebase/firestore';
 
 
 const departmentAccess: Record<string, string[]> = {
-    '/business-development': ['Business Development', 'Administrator'],
-    '/premium-administration': ['Premium Administration', 'Administrator'],
-    '/underwriting': ['Underwriting', 'Administrator'],
+    '/business-development': ['Business Development', 'Administrator', 'Super Admin'],
+    '/premium-administration': ['Premium Administration', 'Administrator', 'Super Admin'],
+    '/underwriting': ['Underwriting', 'Administrator', 'Super Admin'],
+    '/staff': ['Administrator', 'Super Admin'],
+    '/roles': ['Administrator', 'Super Admin'],
 };
 
 export default function AppLayout({
@@ -30,27 +32,34 @@ export default function AppLayout({
       router.replace('/login');
     } else if (user) {
         const checkPermissions = async () => {
-            const userDoc = await getDoc(doc(db, 'users', user.uid));
-            if (userDoc.exists()) {
-                const userData = userDoc.data();
-                const userDepartment = userData.department;
-                const userRole = userData.role;
+            const userDocRef = doc(db, 'users', user.uid);
+            try {
+                const userDoc = await getDoc(userDocRef);
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    const userDepartment = userData.department;
+                    const userRole = userData.role;
 
-                // Super Admins should bypass department checks
-                if (userRole === 'Super Admin') {
-                    return; 
+                    // Super Admins should bypass department checks
+                    if (userRole === 'Super Admin') {
+                        return; 
+                    }
+
+                    const requiredDepartments = Object.entries(departmentAccess).find(
+                        ([path]) => pathname.startsWith(path)
+                    )?.[1];
+                    
+                    if (requiredDepartments && !requiredDepartments.includes(userDepartment) && !requiredDepartments.includes(userRole)) {
+                         router.replace('/select-department'); 
+                    }
+
+                } else {
+                     router.replace('/login');
                 }
-
-                const requiredDepartments = Object.entries(departmentAccess).find(
-                    ([path]) => pathname.startsWith(path)
-                )?.[1];
-                
-                if (requiredDepartments && !requiredDepartments.includes(userDepartment)) {
-                     router.replace('/select-department'); 
-                }
-
-            } else {
-                 router.replace('/login');
+            } catch (error) {
+                console.error("Error fetching user document:", error);
+                // Optionally handle error, e.g., redirect to login
+                router.replace('/login');
             }
         };
         checkPermissions();

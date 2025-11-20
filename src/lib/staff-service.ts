@@ -16,7 +16,10 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
-import { db, auth as firebaseAuth, useAuth, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { db, auth as firebaseAuth } from '@/lib/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
 
 
@@ -130,24 +133,15 @@ export async function getStaffByUid(uid: string): Promise<StaffMember | undefine
 }
 
 export async function createStaffMember(values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember> {
-    // NOTE: This client-side user creation is a security risk.
-    // In a production app, this logic MUST be moved to a secure backend (e.g., Firebase Functions)
-    // where you can use the Admin SDK to create users. The Admin SDK bypasses security rules.
-    console.warn("Client-side user creation is not secure. This is for simulation only.");
+    console.warn("Client-side user creation is a security risk. This is for simulation only and should be moved to a secure backend for production.");
     
-    // This is a placeholder for the `createUser` hook that should be coming from useAuth
-    // In a real scenario, this service wouldn't call the hook directly.
-    const { createUser } = useAuth();
     if (!values.password) throw new Error("Password is required to create a new staff member.");
     
     try {
-        // Step 1: Create user in Firebase Authentication (Simulated)
-        // This is where you would call a backend function in a real app.
-        // For now, we simulate this, but it will fail due to security rules unless you are an admin.
-        const userCredential = await createUser(values.email, values.password);
+        // This is a direct call to the Firebase SDK. In a real app, this MUST be behind a secure backend endpoint.
+        const userCredential = await createUserWithEmailAndPassword(firebaseAuth, values.email, values.password);
         const newUser = userCredential.user;
 
-        // Step 2: Create user document in Firestore
         const newStaffMemberData = {
             uid: newUser.uid,
             firstName: values.firstName,
@@ -163,8 +157,6 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
         return { id: newUser.uid, ...newStaffMemberData } as StaffMember;
     } catch (error: any) {
         console.error("Error creating staff member:", error);
-        // More specific error handling can be done here.
-        // For example, if error.code === 'auth/email-already-in-use'
         throw new Error(error.message || "Failed to create staff member.");
     }
 }

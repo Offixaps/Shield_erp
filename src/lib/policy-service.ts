@@ -16,7 +16,9 @@ import {
   where,
   Timestamp,
 } from 'firebase/firestore';
-import { db, errorEmitter, FirestorePermissionError } from '@/firebase';
+import { db } from '@/lib/firebase';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 
 const POLICIES_COLLECTION = 'policies';

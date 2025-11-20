@@ -41,49 +41,51 @@ function DepartmentCard({ href, title, description }: DepartmentCardProps) {
 
 export default function DepartmentSelectionPage() {
     const { user } = useAuth();
+    const [userRole, setUserRole] = React.useState<string | null>(null);
     const [userDepartment, setUserDepartment] = React.useState<string | null>(null);
     const router = useRouter();
 
     React.useEffect(() => {
         if (user) {
-            const fetchUserDept = async () => {
+            const fetchUserData = async () => {
                 const userDoc = await getDoc(doc(db, 'users', user.uid));
                 if (userDoc.exists()) {
-                    setUserDepartment(userDoc.data().department);
+                    const data = userDoc.data();
+                    setUserRole(data.role);
+                    setUserDepartment(data.department);
                 } else {
+                    // This could happen if a user is authenticated but has no profile document
                     router.push('/login');
                 }
             };
-            fetchUserDept();
+            fetchUserData();
         }
     }, [user, router]);
     
     const renderDepartmentCards = () => {
-        if (!userDepartment) {
+        if (!userRole) {
             return (
                 <div className="text-center text-muted-foreground">Loading departments...</div>
             );
         }
+        
+        const allDepartments = [
+            { href: "/business-development", title: "Business Development", description: "Access the main dashboard for analytics and client management." },
+            { href: "/premium-administration", title: "Premium Administration", description: "Manage premium collections, reconciliations, and reporting." },
+            { href: "/underwriting", title: "Underwriting", description: "Manage underwriting processes and risk assessment." }
+        ];
 
-        if (userDepartment === 'Administrator' || userDepartment === 'Super Admin') {
+        if (userRole === 'Super Admin' || userRole === 'Administrator') {
             return (
                 <>
-                    <DepartmentCard href="/business-development" title="Business Development" description="Access the main dashboard for analytics and client management." />
-                    <DepartmentCard href="/premium-administration" title="Premium Administration" description="Manage premium collections, reconciliations, and reporting." />
-                    <DepartmentCard href="/underwriting" title="Underwriting" description="Manage underwriting processes and risk assessment." />
+                    {allDepartments.map(dept => <DepartmentCard key={dept.href} {...dept} />)}
                 </>
             );
         }
         
-        const departmentMap: Record<string, DepartmentCardProps> = {
-            'Business Development': { href: "/business-development", title: "Business Development", description: "Access the main dashboard for analytics and client management." },
-            'Premium Administration': { href: "/premium-administration", title: "Premium Administration", description: "Manage premium collections, reconciliations, and reporting." },
-            'Underwriting': { href: "/underwriting", title: "Underwriting", description: "Manage underwriting processes and risk assessment." }
-        };
-        
-        const userDeptCardInfo = departmentMap[userDepartment];
+        const userDeptCardInfo = allDepartments.find(d => d.title === userDepartment);
 
-        return userDeptCardInfo ? <DepartmentCard {...userDeptCardInfo} /> : <p className="text-center text-muted-foreground">No department assigned.</p>;
+        return userDeptCardInfo ? <DepartmentCard {...userDeptCardInfo} /> : <p className="text-center text-muted-foreground">No department assigned or access denied.</p>;
     }
 
 

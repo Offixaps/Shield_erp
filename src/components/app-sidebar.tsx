@@ -45,50 +45,92 @@ import { useAuth, db } from '@/firebase';
 import { getDoc, doc } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 
-
-const allNavItems = {
-  'Business Development': [
-    { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-    { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
-    { href: '/business-development/clients', label: 'Clients', icon: Users },
-    { href: '/business-development/advisors', label: 'Advisors', icon: Contact },
-    { href: '/business-development/policies', label: 'Policies', icon: FileText },
-    { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
-    { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
-    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
-    { href: '/staff', label: 'Staff Members', icon: Users },
-    { href: '/roles', label: 'Roles', icon: ShieldCheck },
-  ],
-  'Premium Administration': [
-    { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
-    { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
-    { href: '/business-development/clients', label: 'Clients', icon: Users },
-    { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
-    { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
-    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
-    { href: '/staff', label: 'Staff Members', icon: Users },
-    { href: '/roles', label: 'Roles', icon: ShieldCheck },
-  ],
-  'Underwriting': [
-    { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-    { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
-    { href: '/business-development/clients', label: 'Clients', icon: Users },
-    { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
-    { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
-    { href: '/underwriting/occupational', label: 'Occupational', icon: Briefcase },
-    { href: '/underwriting/lifestyle', label: 'Lifestyle', icon: HeartPulse },
-    { href: '/underwriting/medicals', label: 'Medicals', icon: Stethoscope },
-    { href: '/underwriting/financial', label: 'Financial', icon: Landmark },
-    { href: '/underwriting/claims', label: 'Claims', icon: ShieldAlert },
-    { href: '/staff', label: 'Staff Members', icon: Users },
-    { href: '/roles', label: 'Roles', icon: ShieldCheck },
-  ]
+const navItemsConfig = {
+  'Super Admin': {
+    'Business Development': [
+      { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
+      { href: '/business-development/clients', label: 'Clients', icon: Users },
+      { href: '/business-development/advisors', label: 'Advisors', icon: Contact },
+      { href: '/business-development/policies', label: 'Policies', icon: FileText },
+      { href: '/business-development/claims', label: 'Claims', icon: ShieldAlert },
+      { href: '/business-development/reports', label: 'Reports', icon: BarChart3 },
+    ],
+    'Premium Administration': [
+      { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
+      { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
+      { href: '/premium-administration/reconciliation', label: 'Reconciliation', icon: CheckCircle2 },
+    ],
+    'Underwriting': [
+      { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
+      { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
+      { href: '/underwriting/occupational', label: 'Occupational', icon: Briefcase },
+      { href: '/underwriting/lifestyle', label: 'Lifestyle', icon: HeartPulse },
+      { href: '/underwriting/medicals', label: 'Medicals', icon: Stethoscope },
+      { href: '/underwriting/financial', label: 'Financial', icon: Landmark },
+      { href: '/underwriting/claims', label: 'Claims', icon: ShieldAlert },
+    ],
+    'General': [
+      { href: '/staff', label: 'Staff Members', icon: Users },
+      { href: '/roles', label: 'Roles & Permissions', icon: ShieldCheck },
+    ]
+  },
+  'Administrator': {
+    'Business Development': [
+      { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
+      { href: '/business-development/clients', label: 'Clients', icon: Users },
+      { href: '/business-development/policies', label: 'Policies', icon: FileText },
+    ],
+    'Premium Administration': [
+      { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
+      { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
+    ],
+     'Underwriting': [
+      { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
+      { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
+    ],
+     'General': [
+      { href: '/staff', label: 'Staff Members', icon: Users },
+      { href: '/roles', label: 'Roles & Permissions', icon: ShieldCheck },
+    ]
+  },
+  'Business Development': {
+    'Business Development': [
+      { href: '/business-development', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/business-development/sales', label: 'Sales', icon: Briefcase },
+      { href: '/business-development/clients', label: 'Clients', icon: Users },
+      { href: '/business-development/policies', label: 'Policies', icon: FileText },
+    ]
+  },
+  'Premium Administration': {
+    'Premium Administration': [
+      { href: '/premium-administration', label: 'Dashboard', icon: Wallet, exact: true },
+      { href: '/premium-administration/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/premium-administration/collections', label: 'Premium Collection', icon: HandCoins },
+    ]
+  },
+  'Underwriting': {
+    'Underwriting': [
+      { href: '/underwriting', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/underwriting/new-business', label: 'New Business', icon: Briefcase },
+      { href: '/underwriting/all-policies', label: 'All Policies', icon: FileText },
+      { href: '/underwriting/mandates', label: 'Mandates', icon: FileText },
+    ]
+  }
 };
 
 const departmentIcons = {
     'Business Development': Briefcase,
     'Premium Administration': Building,
     'Underwriting': PenSquare,
+    'General': Settings
 }
 
 function AppSidebarHeader() {
@@ -129,27 +171,31 @@ export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, signOutUser } = useAuth();
-  const [navItems, setNavItems] = React.useState<typeof allNavItems | null>(null);
+  const [navItems, setNavItems] = React.useState<any>(null);
   const [isSuperAdmin, setIsSuperAdmin] = React.useState(false);
   
   React.useEffect(() => {
-      const fetchUserDepartment = async () => {
+      const fetchUserData = async () => {
           if (user) {
               const userDoc = await getDoc(doc(db, 'users', user.uid));
               if (userDoc.exists()) {
                   const userData = userDoc.data();
-                  if (userData.role === 'Super Admin') {
-                      setIsSuperAdmin(true);
-                      setNavItems(allNavItems);
-                  } else if (userData.department === 'Administrator') {
-                      setNavItems(allNavItems);
-                  } else if (userData.department) {
-                      setNavItems({ [userData.department]: allNavItems[userData.department as keyof typeof allNavItems] } as typeof allNavItems);
+                  const role = userData.role;
+                  const department = userData.department;
+
+                  setIsSuperAdmin(role === 'Super Admin');
+                  
+                  if (role === 'Super Admin') {
+                      setNavItems(navItemsConfig['Super Admin']);
+                  } else if (role === 'Administrator') {
+                      setNavItems(navItemsConfig['Administrator']);
+                  } else if (department && navItemsConfig[department as keyof typeof navItemsConfig]) {
+                      setNavItems(navItemsConfig[department as keyof typeof navItemsConfig]);
                   }
               }
           }
       };
-      fetchUserDepartment();
+      fetchUserData();
   }, [user]);
 
   const handleLogout = async () => {
@@ -161,9 +207,7 @@ export default function AppSidebar() {
     if (pathname.startsWith('/business-development')) return 'Business Development';
     if (pathname.startsWith('/premium-administration')) return 'Premium Administration';
     if (pathname.startsWith('/underwriting')) return 'Underwriting';
-    // For general routes like /staff or /roles, we need to decide on a default or check user role
-    // For a Super Admin, it doesn't matter, but for others, it might.
-    // Let's default to the first department they have access to if not in a specific one.
+    if (pathname.startsWith('/staff') || pathname.startsWith('/roles')) return 'General';
     if (navItems && Object.keys(navItems).length > 0) {
       return Object.keys(navItems)[0];
     }
@@ -198,7 +242,7 @@ export default function AppSidebar() {
                         </AccordionTrigger>
                         <AccordionContent className="p-0 pl-4 pt-1">
                              <SidebarMenu>
-                                {items.map((item) => (
+                                {(items as any[]).map((item) => (
                                     <SidebarMenuItem key={item.href}>
                                     <SidebarMenuButton
                                         asChild

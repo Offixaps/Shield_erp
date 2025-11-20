@@ -16,7 +16,7 @@ import {
 import { type Firestore } from 'firebase/firestore';
 import * as React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import { app as initialApp, auth as initialAuth, db as initialFirestore } from './config';
+import { app, auth as initialAuth, db as initialFirestore } from '@/lib/firebase';
 
 interface FirebaseContextType {
   app: FirebaseApp;
@@ -30,7 +30,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   return (
-    <FirebaseContext.Provider value={{ app: initialApp, auth: initialAuth, db: initialFirestore }}>
+    <FirebaseContext.Provider value={{ app: app, auth: initialAuth, db: initialFirestore }}>
       {children}
     </FirebaseContext.Provider>
   );
