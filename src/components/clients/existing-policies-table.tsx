@@ -237,8 +237,8 @@ export default function ExistingPoliciesTable({
             personCovered: '',
             policyType: '',
             issueDate: new Date(),
-            premiumAmount: 0,
-            faceAmount: 0,
+            premiumAmount: 0.00,
+            faceAmount: 0.00,
             changedGrpOrInd: 'no',
           })
         }

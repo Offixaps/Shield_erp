@@ -29,12 +29,15 @@ export default function MandatesPage() {
     const [searchTerm, setSearchTerm] = React.useState('');
 
     React.useEffect(() => {
-        const policies = getPolicies();
-        let pendingMandates = policies.filter(p => p.onboardingStatus === 'Pending Mandate');
-        // Sort by ID descending to show latest first
-        pendingMandates.sort((a, b) => b.id - a.id);
-        setAllMandates(pendingMandates);
-        setFilteredMandates(pendingMandates);
+        async function fetchMandates() {
+            const policies = await getPolicies();
+            let pendingMandates = policies.filter(p => p.onboardingStatus === 'Pending Mandate');
+            // Sort by ID descending to show latest first
+            pendingMandates.sort((a, b) => (b.id as number) - (a.id as number));
+            setAllMandates(pendingMandates);
+            setFilteredMandates(pendingMandates);
+        }
+        fetchMandates();
     }, []);
 
     React.useEffect(() => {
@@ -97,7 +100,7 @@ export default function MandatesPage() {
                             {business.product}
                         </TableCell>
                         <TableCell>
-                            GHS{business.premium.toFixed(2)}
+                            GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </TableCell>
                         <TableCell>
                             {format(new Date(business.commencementDate), 'PPP')}

@@ -53,29 +53,31 @@ export default function NewBusinessTable() {
     let policies = await getPolicies();
     
     if (isBDSalesPage) {
-        // Business Development Sales page shows all policies still in the onboarding pipeline.
-        const excludedStatuses: NewBusiness['onboardingStatus'][] = [
-            'Accepted', 
-            'Policy Issued',
-            'Declined',
-            'NTU',
-            'Deferred'
+        const onboardingStatuses: NewBusiness['onboardingStatus'][] = [
+            'Incomplete Policy',
+            'Pending First Premium',
+            'First Premium Confirmed',
+            'Pending Vetting',
+            'Vetting Completed',
+            'Rework Required',
+            'Pending Medicals',
+            'Medicals Completed',
+            'Pending Decision',
+            'Pending Mandate',
+            'Mandate Verified',
+            'Mandate Rework Required',
         ];
-        policies = policies.filter(p => !excludedStatuses.includes(p.onboardingStatus));
+        policies = policies.filter(p => onboardingStatuses.includes(p.onboardingStatus));
     } else if (isAllPoliciesPage) {
        const acceptedStatuses: NewBusiness['onboardingStatus'][] = ['Accepted', 'Mandate Verified', 'Policy Issued'];
        policies = policies.filter(p => acceptedStatuses.includes(p.onboardingStatus));
     } else if (isUnderwritingNewBusiness) {
         const pendingStatuses: NewBusiness['onboardingStatus'][] = ['Pending Vetting', 'Pending Medicals', 'Pending Decision', 'Vetting Completed', 'Medicals Completed', 'Rework Required'];
         policies = policies.filter(p => pendingStatuses.includes(p.onboardingStatus));
-    } else {
-       // Default behavior for other contexts if any (e.g., initial sales page showing only incomplete)
-       const includedStatuses: NewBusiness['onboardingStatus'][] = ['Incomplete Policy', 'Pending First Premium'];
-       policies = policies.filter(p => includedStatuses.includes(p.onboardingStatus));
     }
 
     // Sort by ID descending to show the latest policies first
-    policies.sort((a, b) => b.id - a.id);
+    policies.sort((a, b) => (b.id as number) - (a.id as number));
     
     setAllData(policies);
     setFilteredData(policies);

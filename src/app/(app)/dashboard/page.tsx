@@ -39,19 +39,19 @@ export default function DashboardPage() {
     {
       key: 'premiumsCollected',
       title: 'Premiums Collected',
-      value: `GHS${dashboardStats.premiumsCollected.toLocaleString()}`,
+      value: `GHS ${dashboardStats.premiumsCollected.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: '+10.2%',
     },
     {
       key: 'newBusiness',
       title: 'New Business',
-      value: `GHS${dashboardStats.newBusiness.toLocaleString()}`,
+      value: `GHS ${dashboardStats.newBusiness.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: '+5% this month',
     },
     {
       key: 'outstandingPremiums',
       title: 'Outstanding Premiums',
-      value: `GHS${dashboardStats.outstandingPremiums.toLocaleString()}`,
+      value: `GHS ${dashboardStats.outstandingPremiums.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: '-3.1%',
     },
   ];
