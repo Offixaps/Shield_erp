@@ -58,7 +58,7 @@ export default function NewBusinessTable() {
       
       if (isBDSalesPage) {
           const onboardingStatuses: NewBusiness['onboardingStatus'][] = [
-              'Incomplete Policy', 'Pending First Premium', 'First Premium Confirmed',
+              'Pending First Premium', 'First Premium Confirmed',
               'Pending Vetting', 'Vetting Completed', 'Rework Required',
               'Pending Medicals', 'Medicals Completed', 'Pending Decision',
               'Pending Mandate', 'Mandate Rework Required'
@@ -318,4 +318,3 @@ export default function NewBusinessTable() {
     </div>
   );
 }
-

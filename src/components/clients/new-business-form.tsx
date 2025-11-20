@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -49,7 +50,7 @@ const TABS: TabName[] = [
 
 
 const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
-  onboardingStatus: 'Incomplete Policy',
+  onboardingStatus: 'Pending First Premium',
   title: 'Mr',
   lifeAssuredFirstName: '',
   lifeAssuredMiddleName: '',
