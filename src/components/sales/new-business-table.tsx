@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -100,8 +101,8 @@ export default function NewBusinessTable() {
       return (
         item.client.toLowerCase().includes(lowercasedFilter) ||
         (item.policy && item.policy.toLowerCase().includes(lowercasedFilter)) ||
-        item.serial.toLowerCase().includes(lowercasedFilter) ||
-        item.phone.toLowerCase().includes(lowercasedFilter)
+        (item.serial && item.serial.toLowerCase().includes(lowercasedFilter)) ||
+        (item.phone && item.phone.toLowerCase().includes(lowercasedFilter))
       );
     });
     setFilteredData(filtered);
@@ -114,7 +115,7 @@ export default function NewBusinessTable() {
   };
   
   const getStatusBadgeStyling = (status: string) => {
-    const lowerCaseStatus = status.toLowerCase();
+    const lowerCaseStatus = status ? status.toLowerCase() : '';
     switch (lowerCaseStatus) {
       case 'pending vetting':
       case 'pending mandate':
@@ -210,7 +211,7 @@ export default function NewBusinessTable() {
                         </TableCell>
                         <TableCell>{business.phone}</TableCell>
                         <TableCell>{business.product}</TableCell>
-                        <TableCell>GHS{business.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
+                        <TableCell>GHS{(business.premium || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</TableCell>
                         <TableCell>
                           {business.commencementDate && !isNaN(new Date(business.commencementDate).getTime())
                               ? format(new Date(business.commencementDate), 'PPP')
@@ -317,3 +318,4 @@ export default function NewBusinessTable() {
     </div>
   );
 }
+

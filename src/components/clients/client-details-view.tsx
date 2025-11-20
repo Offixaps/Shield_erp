@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -522,7 +523,7 @@ export default function ClientDetailsView({
 
   React.useEffect(() => {
     async function fetchData() {
-        const freshClientData = await getPolicyById(initialClient.id);
+        const freshClientData = await getPolicyById(initialClient.id as unknown as string);
         if (freshClientData) {
             const combinedHistory = [
                 ...(freshClientData.bloodTransfusionOrSurgeryDetails || []),
@@ -633,7 +634,7 @@ export default function ClientDetailsView({
     updates?: Partial<NewBusiness>
   ) => {
     try {
-      const updatedPolicy = await updatePolicy(client.id, {
+      const updatedPolicy = await updatePolicy(client.id as unknown as string, {
         onboardingStatus: newStatus,
         ...updates
       });
@@ -722,8 +723,8 @@ export default function ClientDetailsView({
   const summaryDetails = [
     { title: 'Policy Number', value: client.policy || 'Pending Acceptance' },
     { title: 'Contract Type', value: client.product },
-    { title: 'Premium', value: `GHS ${client.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
-    { title: 'Sum Assured', value: `GHS ${client.sumAssured.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+    { title: 'Premium', value: `GHS ${(client.premium || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
+    { title: 'Sum Assured', value: `GHS ${(client.sumAssured || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` },
     {
       title: 'Commencement Date',
       value: client.commencementDate && isValid(new Date(client.commencementDate)) ? format(new Date(client.commencementDate), 'PPP') : 'N/A',
@@ -984,9 +985,9 @@ export default function ClientDetailsView({
                   label="Employer Address"
                   value={client.employerAddress}
                 />
-                <DetailItem label="Monthly Basic Income (GHS)" value={client.monthlyBasicIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
-                <DetailItem label="Other Income (GHS)" value={client.otherIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
-                <DetailItem label="Total Monthly Income (GHS)" value={client.totalMonthlyIncome?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                <DetailItem label="Monthly Basic Income (GHS)" value={(client.monthlyBasicIncome || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                <DetailItem label="Other Income (GHS)" value={(client.otherIncome || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
+                <DetailItem label="Total Monthly Income (GHS)" value={(client.totalMonthlyIncome || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} />
               </CardContent>
             </Card>
 
@@ -1005,7 +1006,7 @@ export default function ClientDetailsView({
                     <DetailItem label="Account Type" value={client.accountType} />
                     <DetailItem label="Bank Account Name" value={client.bankAccountName} />
                     <DetailItem label="Bank Account Number" value={client.bankAccountNumber} />
-                    <DetailItem label="Premium Amount (GHS)" value={`GHS ${client.premium.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+                    <DetailItem label="Premium Amount (GHS)" value={`GHS ${(client.premium || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
                     <DetailItem label="Amount in Words" value={client.amountInWords} />
                     <DetailItem label="Premium Deduction Frequency" value={client.paymentFrequency} />
                 </CardContent>
@@ -1313,3 +1314,4 @@ export default function ClientDetailsView({
     </div>
   );
 }
+
