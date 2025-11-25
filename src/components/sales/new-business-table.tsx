@@ -135,7 +135,6 @@ export default function NewBusinessTable() {
         return 'bg-green-500/80 text-white';
       case 'ntu':
       case 'deferred':
-      case 'incomplete policy':
         return 'bg-gray-500/80 text-white';
       case 'declined':
       case 'lapsed':
@@ -192,7 +191,6 @@ export default function NewBusinessTable() {
             </TableHeader>
             <TableBody>
                 {paginatedData.length > 0 ? paginatedData.map((business, index) => {
-                  const isIncomplete = business.onboardingStatus === 'Incomplete Policy';
                   return (
                     <TableRow key={business.id}>
                         <TableCell>{pagination.pageIndex * pagination.pageSize + index + 1}</TableCell>
@@ -235,11 +233,11 @@ export default function NewBusinessTable() {
                                 </Button>
                             ) : (
                                 <div className="flex items-center justify-end gap-2">
-                                <Button variant={isIncomplete ? 'default' : 'ghost'} size="icon" asChild>
+                                <Button variant={'ghost'} size="icon" asChild>
                                     <Link
                                       href={`/business-development/sales/${business.id}/edit`}
                                     >
-                                      {isIncomplete ? <Play className="h-4 w-4" /> : <FilePenLine className="h-4 w-4" />}
+                                      <FilePenLine className="h-4 w-4" />
                                     </Link>
                                 </Button>
                                 <DeletePolicyDialog onConfirm={() => handleDelete(business.id as string)} />

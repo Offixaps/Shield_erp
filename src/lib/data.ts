@@ -10,6 +10,7 @@
 
 
 
+
 export type Beneficiary = {
   name: string;
   dob: string; // Storing as string in data, will be Date object in form
@@ -86,7 +87,6 @@ export const staffData: StaffMember[] = [
 ];
 
 export type OnboardingStatus =
-  | 'Incomplete Policy'
   | 'Pending First Premium'
   | 'First Premium Confirmed'
   | 'Pending Vetting'
@@ -1543,5 +1543,6 @@ export const newBusinessData: NewBusiness[] = [
 
 
     
+
 
 

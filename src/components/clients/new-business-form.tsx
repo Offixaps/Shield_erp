@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -17,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, numberToWords } from '@/lib/utils';
-import { FilePenLine, Send, Save, XCircle } from 'lucide-react';
+import { FilePenLine, Send, Save, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
@@ -375,24 +374,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
 
     try {
       const values = form.getValues();
-      let policyId = currentBusinessId;
-
-      if (isEditMode && policyId) {
-        await updatePolicy(policyId, values as any);
+      if (isEditMode && currentBusinessId) {
+        await updatePolicy(currentBusinessId, values as any);
         toast({
           title: 'Progress Saved',
           description: 'Your application has been updated successfully.',
         });
       } else {
-        const newPolicyId = await createPolicy(values as any);
-        setCurrentBusinessId(newPolicyId);
-        setIsEditMode(true); 
-        window.history.replaceState(null, '', `/business-development/sales/${newPolicyId}/edit`);
-        toast({
-          title: 'Application Started',
-          description: 'Your new application has been saved as Incomplete.',
-        });
-        policyId = newPolicyId;
+        // In edit mode, we save. In create mode, we just navigate.
       }
 
       const currentIndex = TABS.indexOf(activeTab);
@@ -411,23 +400,39 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     }
   };
 
+  const handleNext = () => {
+    const currentIndex = TABS.indexOf(activeTab);
+    if (currentIndex < TABS.length - 1) {
+      setActiveTab(TABS[currentIndex + 1]);
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentIndex = TABS.indexOf(activeTab);
+    if (currentIndex > 0) {
+      setActiveTab(TABS[currentIndex - 1]);
+    }
+  };
+
   const handleSaveAndClose = async () => {
     setIsSubmitting(true);
     const values = form.getValues();
-    let policyId = currentBusinessId;
+    
+    if (!isEditMode) {
+        router.push('/business-development/sales');
+        return;
+    }
 
     try {
-      if (isEditMode && policyId) {
-        await updatePolicy(policyId, values as any);
-      } else {
-        policyId = await createPolicy(values as any);
+      if (currentBusinessId) {
+        await updatePolicy(currentBusinessId, values as any);
       }
       toast({
         title: 'Progress Saved',
         description: 'Your application has been saved.',
       });
       router.push('/business-development/sales');
-    } catch (error: any) {
+    } catch (error: any)      {
       console.error('Save and Close error:', error);
       toast({
         variant: 'destructive',
@@ -476,16 +481,15 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         setIsSubmitting(true);
         
         try {
-            if (!currentBusinessId) {
-                throw new Error('No business ID found for final submission. Please save the form first.');
+            if (isEditMode && currentBusinessId) {
+                 await updatePolicy(currentBusinessId, values as any);
+            } else {
+                 const finalValues = {
+                    ...values,
+                    onboardingStatus: 'Pending First Premium' as const,
+                };
+                await createPolicy(finalValues as any);
             }
-            
-            const finalValues = {
-                ...values,
-                onboardingStatus: 'Pending First Premium' as const,
-            };
-            
-            await updatePolicy(currentBusinessId, finalValues as any);
             
             router.push('/business-development/sales/thank-you');
         } catch (error: any) {
@@ -500,6 +504,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         }
     };
 
+    const isFirstTab = activeTab === TABS[0];
     const isLastTab = activeTab === TABS[TABS.length - 1];
     
     if (error) {
@@ -552,22 +557,41 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           </TabsContent>
         </Tabs>
         
-        <div className="flex justify-end p-4 gap-2">
-           <Button type="button" variant="outline" onClick={handleSaveAndClose} disabled={isSubmitting}>
-              <XCircle className="mr-2" />
-              Save & Close
-            </Button>
-            {isLastTab ? (
-                 <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
-                    Submit Application
+        <div className="flex justify-between p-4 gap-2">
+            <div>
+              {isEditMode ? (
+                <Button type="button" variant="outline" onClick={handleSaveAndClose} disabled={isSubmitting}>
+                  <XCircle className="mr-2" />
+                  Save & Close
                 </Button>
-            ) : (
-                <Button type="button" onClick={handleSaveAndNext} disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2" />}
-                    Save & Next
+              ) : (
+                <Button type="button" variant="outline" onClick={handlePrevious} disabled={isFirstTab || isSubmitting}>
+                  <ChevronLeft className="mr-2" />
+                  Previous
                 </Button>
-            )}
+              )}
+            </div>
+
+            <div>
+              {isLastTab ? (
+                  <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2" />}
+                      Submit Application
+                  </Button>
+              ) : (
+                isEditMode ? (
+                  <Button type="button" onClick={handleSaveAndNext} disabled={isSubmitting}>
+                      {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2" />}
+                      Save & Next
+                  </Button>
+                ) : (
+                  <Button type="button" onClick={handleNext} disabled={isSubmitting}>
+                      Next
+                      <ChevronRight className="ml-2" />
+                  </Button>
+                )
+              )}
+            </div>
         </div>
       </form>
     </Form>

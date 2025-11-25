@@ -168,7 +168,7 @@ const lifestyleDetailSchema = z.object({
 
 export const newBusinessFormSchema = z
   .object({
-    onboardingStatus: z.string().optional().default('Incomplete Policy'),
+    onboardingStatus: z.string().optional().default('Pending First Premium'),
     // Client Details
     title: z.enum(['Mr', 'Mrs', 'Miss', 'Dr', 'Prof', 'Hon']),
     lifeAssuredFirstName: z.string().min(2, 'First name must be at least 2 characters.').default(''),
