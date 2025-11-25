@@ -57,6 +57,7 @@ export default function BusinessDevelopmentPage() {
           'Pending Medicals',
           'Medicals Completed',
           'Pending Decision',
+          'Accepted',
           'Pending Mandate',
           'Mandate Rework Required',
         ];
