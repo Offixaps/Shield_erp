@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -11,7 +12,10 @@ import {
   ChartLegendContent,
   type ChartConfig,
 } from '@/components/ui/chart';
-import { policyDistributionData } from '@/lib/data';
+
+// The data for this chart will need to be fetched and calculated from Firestore.
+// For now, we use an empty array to prevent build errors.
+const policyDistributionData: any[] = [];
 
 const chartConfig = {
   policies: {
@@ -36,6 +40,14 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export default function PolicyDistributionChart() {
+  if (policyDistributionData.length === 0) {
+    return (
+      <div className="flex h-[300px] w-full items-center justify-center rounded-lg border border-dashed">
+        <p className="text-sm text-muted-foreground">No data to display</p>
+      </div>
+    );
+  }
+
   return (
     <ChartContainer
       config={chartConfig}
