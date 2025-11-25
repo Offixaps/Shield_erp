@@ -47,7 +47,7 @@ const policyFromFirebase = (data: any): any => {
 
 // Recursive helper function to convert dates back to Timestamps for Firestore
 const policyToFirebase = (data: any): any => {
-    if (data === null || data === undefined) {
+    if (data === null) {
         return data;
     }
 
@@ -63,7 +63,7 @@ const policyToFirebase = (data: any): any => {
         return data.map(item => policyToFirebase(item));
     }
 
-    if (typeof data === 'object') {
+    if (typeof data === 'object' && data !== null) {
         const firestoreData: { [key: string]: any } = {};
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
@@ -162,7 +162,25 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
     const originalPolicy = policyFromFirebase({ ...existingDoc.data(), id: existingDoc.id });
 
     // Create the final updated object
-    const updatedPolicyData = { ...originalPolicy, ...updates };
+    let updatedPolicyData: Partial<NewBusiness> = { ...originalPolicy, ...updates };
+
+    // Re-construct derived fields if their components have changed
+    const nameFields: (keyof NewBusiness)[] = ['title', 'lifeAssuredFirstName', 'lifeAssuredMiddleName', 'lifeAssuredSurname'];
+    const payerNameFields: (keyof NewBusiness)[] = ['premiumPayerOtherNames', 'premiumPayerSurname'];
+
+    const hasNameChanged = nameFields.some(field => field in updates);
+    const hasPayerNameChanged = payerNameFields.some(field => field in updates);
+    
+    if (hasNameChanged) {
+        updatedPolicyData.client = [updatedPolicyData.title, updatedPolicyData.lifeAssuredFirstName, updatedPolicyData.lifeAssuredMiddleName, updatedPolicyData.lifeAssuredSurname].filter(Boolean).join(' ');
+    }
+    
+    if (hasNameChanged && updatedPolicyData.isPolicyHolderPayer) {
+        updatedPolicyData.payerName = updatedPolicyData.client;
+    } else if (hasPayerNameChanged) {
+         updatedPolicyData.payerName = [updatedPolicyData.premiumPayerOtherNames, updatedPolicyData.premiumPayerSurname].filter(Boolean).join(' ');
+    }
+
 
     // Add activity log entry if status changes
     if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
@@ -182,7 +200,8 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
         updatedPolicyData.activityLog = [...(updatedPolicyData.activityLog || []), newLogEntry];
     }
     
-    const firestoreData = policyToFirebase(updates);
+    // Pass the entire reconstructed object to be converted and saved
+    const firestoreData = policyToFirebase(updatedPolicyData);
 
     await setDoc(policyDocRef, firestoreData, { merge: true }).catch(async (serverError) => {
         const permissionError = new FirestorePermissionError({
@@ -194,7 +213,7 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
         throw permissionError;
     });
 
-    return updatedPolicyData;
+    return updatedPolicyData as NewBusiness;
 }
 
 export async function deletePolicy(id: string): Promise<boolean> {
