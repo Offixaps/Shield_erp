@@ -33,7 +33,7 @@ service cloud.firestore {
 
     match /policies/{policyId} {
       allow read: if request.auth != null;
-      allow write: if isSuperAdmin() || isAdministrator(resource.data.department);
+      allow write: if isSuperAdmin() || isAdministrator(request.resource.data.department);
     }
 
     match /roles/{roleId} {
