@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { db } from '@/lib/firebase';
@@ -24,9 +25,7 @@ const policyFromFirebase = (data: any): NewBusiness => {
   for (const key in policy) {
     if (policy[key] instanceof Timestamp) {
       policy[key] = policy[key].toDate().toISOString();
-    } else if (typeof policy[key] === 'object' && policy[key] !== null) {
-      // Recursively check for nested Timestamps (though our current schema is flat)
-      // This is good practice for more complex objects.
+    } else if (typeof policy[key] === 'object' && policy[key] !== null && !Array.isArray(policy[key])) {
        const nested = policy[key];
        for(const nestedKey in nested) {
            if(nested[nestedKey] instanceof Timestamp) {
@@ -43,8 +42,10 @@ const policyFromFirebase = (data: any): NewBusiness => {
 const policyToFirebase = (data: Partial<NewBusiness>): any => {
     const firestoreData: { [key: string]: any } = { ...data };
     for (const key in firestoreData) {
-        // Check for string that looks like an ISO date and convert it
-        if (typeof firestoreData[key] === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(firestoreData[key])) {
+        if (firestoreData[key] === undefined) {
+            delete firestoreData[key]; // Remove undefined fields
+        }
+        else if (typeof firestoreData[key] === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(firestoreData[key])) {
             firestoreData[key] = Timestamp.fromDate(new Date(firestoreData[key]));
         } else if (firestoreData[key] instanceof Date) {
             firestoreData[key] = Timestamp.fromDate(firestoreData[key]);
@@ -58,11 +59,14 @@ export async function getPolicies(): Promise<NewBusiness[]> {
     try {
         const policiesCollection = collection(db, 'policies');
         const policySnapshot = await getDocs(policiesCollection);
+        if (policySnapshot.empty) {
+            console.log("No policies found in Firestore. You may need to seed the database.");
+            return [];
+        }
         const policiesList = policySnapshot.docs.map(doc => policyFromFirebase({ ...doc.data(), id: doc.id }));
         return policiesList;
     } catch (error) {
         console.error("Error fetching policies from Firestore: ", error);
-        // We no longer fall back to local data. We throw the error so the UI can handle it.
         throw new Error("Failed to fetch policies from the database. Please check your connection and permissions.");
     }
 }
@@ -263,4 +267,5 @@ export function recordBulkPayments(payments: BankReportPayment[]): { successCoun
      // This function needs to be rewritten to use async/await and update Firestore
     return { successCount: 0, failureCount: payments.length };
 }
+
 
