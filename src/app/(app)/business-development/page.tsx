@@ -61,7 +61,7 @@ export default function BusinessDevelopmentPage() {
 
         const newBusiness = policies
           .filter(p => onboardingStatuses.includes(p.onboardingStatus))
-          .reduce((acc, policy) => acc + policy.premium, 0);
+          .reduce((acc, policy) => acc + (policy.premium || 0), 0);
         
         const outstandingPremiums = policies.reduce((acc, policy) => {
             return acc + (policy.bills || [])
