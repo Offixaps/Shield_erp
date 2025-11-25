@@ -19,7 +19,7 @@ import PremiumsChart from '@/components/dashboard/premiums-chart';
 import PolicyDistributionChart from '@/components/dashboard/policy-distribution-chart';
 import RecentActivity from '@/components/dashboard/recent-activity';
 import { getPolicies } from '@/lib/policy-service';
-import type { NewBusiness } from '@/lib/data';
+import type { NewBusiness, OnboardingStatus } from '@/lib/data';
 
 const iconMap = {
   totalClients: Users,
@@ -48,9 +48,20 @@ export default function BusinessDevelopmentPage() {
         return acc + (policy.payments || []).reduce((sum, payment) => sum + payment.amount, 0);
         }, 0);
 
+        const onboardingStatuses: OnboardingStatus[] = [
+          'Pending First Premium',
+          'First Premium Confirmed',
+          'Pending Vetting',
+          'Vetting Completed',
+          'Rework Required',
+          'Pending Medicals',
+          'Medicals Completed',
+          'Pending Decision',
+        ];
+
         const newBusiness = policies
-        .filter(p => p.onboardingStatus !== 'Policy Issued')
-        .reduce((acc, policy) => acc + policy.premium, 0);
+          .filter(p => onboardingStatuses.includes(p.onboardingStatus))
+          .reduce((acc, policy) => acc + policy.premium, 0);
         
         const outstandingPremiums = policies.reduce((acc, policy) => {
             return acc + (policy.bills || [])
