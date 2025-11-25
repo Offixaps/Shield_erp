@@ -11,12 +11,12 @@ import {
 } from '@/components/ui/form';
 
 import { useToast } from '@/hooks/use-toast';
-import { format, differenceInYears, isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn, numberToWords } from '@/lib/utils';
-import { FilePenLine, Send, Save, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Send, Save, XCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { newBusinessFormSchema, type TabName, tabFields } from './new-business-form-schema';
 
 import CoverageTab from './form-tabs/coverage-tab';
@@ -380,8 +380,6 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
           title: 'Progress Saved',
           description: 'Your application has been updated successfully.',
         });
-      } else {
-        // In edit mode, we save. In create mode, we just navigate.
       }
 
       const currentIndex = TABS.indexOf(activeTab);
@@ -399,6 +397,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       setIsSubmitting(false);
     }
   };
+
 
   const handleNext = () => {
     const currentIndex = TABS.indexOf(activeTab);
@@ -418,19 +417,14 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
     setIsSubmitting(true);
     const values = form.getValues();
     
-    if (!isEditMode) {
-        router.push('/business-development/sales');
-        return;
-    }
-
     try {
-      if (currentBusinessId) {
+      if (isEditMode && currentBusinessId) {
         await updatePolicy(currentBusinessId, values as any);
+         toast({
+            title: 'Progress Saved',
+            description: 'Your application has been saved.',
+        });
       }
-      toast({
-        title: 'Progress Saved',
-        description: 'Your application has been saved.',
-      });
       router.push('/business-development/sales');
     } catch (error: any)      {
       console.error('Save and Close error:', error);
@@ -484,11 +478,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             if (isEditMode && currentBusinessId) {
                  await updatePolicy(currentBusinessId, values as any);
             } else {
-                 const finalValues = {
-                    ...values,
-                    onboardingStatus: 'Pending First Premium' as const,
-                };
-                await createPolicy(finalValues as any);
+                 await createPolicy(values as any);
             }
             
             router.push('/business-development/sales/thank-you');
@@ -561,7 +551,7 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
             <div>
               {isEditMode ? (
                 <Button type="button" variant="outline" onClick={handleSaveAndClose} disabled={isSubmitting}>
-                  <XCircle className="mr-2" />
+                  <Save className="mr-2" />
                   Save & Close
                 </Button>
               ) : (
