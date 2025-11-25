@@ -206,6 +206,7 @@ export const newBusinessFormSchema = z
     serial: z.string().optional().default(''),
     policy: z.string().optional().default(''),
     commencementDate: z.date({ required_error: 'A start date is required.' }),
+    expiryDate: z.date({ required_error: 'A policy expiry date is required.' }),
     policyTerm: z.coerce.number().positive('Policy term must be a positive number.').default(0),
     premiumTerm: z.coerce.number().positive('Premium term must be a positive number.').default(0),
     sumAssured: z.coerce
@@ -475,6 +476,7 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
 };
 
     
+
 
 
 

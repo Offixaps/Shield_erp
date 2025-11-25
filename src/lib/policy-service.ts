@@ -38,20 +38,37 @@ const policyFromFirebase = (data: any): NewBusiness => {
   return policy as NewBusiness;
 };
 
-// Helper function to convert dates back to Timestamps for Firestore
-const policyToFirebase = (data: Partial<NewBusiness>): any => {
-    const firestoreData: { [key: string]: any } = { ...data };
-    for (const key in firestoreData) {
-        if (firestoreData[key] === undefined) {
-            delete firestoreData[key]; // Remove undefined fields
-        }
-        else if (typeof firestoreData[key] === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(firestoreData[key])) {
-            firestoreData[key] = Timestamp.fromDate(new Date(firestoreData[key]));
-        } else if (firestoreData[key] instanceof Date) {
-            firestoreData[key] = Timestamp.fromDate(firestoreData[key]);
-        }
+// Recursive helper function to convert dates back to Timestamps for Firestore
+const policyToFirebase = (data: any): any => {
+    if (data === null || data === undefined) {
+        return data;
     }
-    return firestoreData;
+
+    if (data instanceof Date) {
+        return Timestamp.fromDate(data);
+    }
+    
+    if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(data)) {
+        return Timestamp.fromDate(new Date(data));
+    }
+    
+    if (Array.isArray(data)) {
+        return data.map(item => policyToFirebase(item));
+    }
+
+    if (typeof data === 'object') {
+        const firestoreData: { [key: string]: any } = {};
+        for (const key in data) {
+            if (Object.prototype.hasOwnProperty.call(data, key)) {
+                if (data[key] !== undefined) { // Explicitly remove undefined fields
+                    firestoreData[key] = policyToFirebase(data[key]);
+                }
+            }
+        }
+        return firestoreData;
+    }
+
+    return data;
 }
 
 
@@ -234,14 +251,69 @@ function newId() {
     return nextId++;
 }
 
-export function recordFirstPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
-    // This function needs to be rewritten to use async/await and update Firestore
-    return undefined;
+export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+    const policyRef = doc(db, 'policies', policyId);
+    const policySnap = await getDoc(policyRef);
+    if (!policySnap.exists() || policySnap.data().firstPremiumPaid) {
+        return undefined;
+    }
+    const policyData = policySnap.data() as NewBusiness;
+
+    const newPayment: Omit<Payment, 'id'> = {
+        ...paymentDetails,
+        policyId: Number(policyId), // Assuming policyId can be cast to number, might need rethink
+        billId: policyData.bills.find(b => b.description === 'First Premium')?.id || -1
+    };
+
+    const updatedPayments = [...(policyData.payments || []), { ...newPayment, id: Date.now() }];
+    
+    await updateDoc(policyRef, {
+        payments: updatedPayments,
+        onboardingStatus: 'First Premium Confirmed',
+        billingStatus: 'First Premium Paid',
+        firstPremiumPaid: true,
+        activityLog: arrayUnion({
+            date: new Date().toISOString(),
+            user: 'Premium Admin',
+            action: 'First Premium Confirmed',
+            details: `GHS ${paymentDetails.amount.toFixed(2)} via ${paymentDetails.method}`
+        })
+    });
+
+    const updatedPolicySnap = await getDoc(policyRef);
+    return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
 }
 
-export function recordPayment(policyId: number, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): NewBusiness | undefined {
-     // This function needs to be rewritten to use async/await and update Firestore
-    return undefined;
+export async function recordPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
+    const policyRef = doc(db, 'policies', policyId);
+    const policySnap = await getDoc(policyRef);
+
+    if (!policySnap.exists()) return undefined;
+
+    const policyData = policySnap.data() as NewBusiness;
+    const unpaidBill = (policyData.bills || []).find(b => b.status === 'Unpaid');
+
+    if (!unpaidBill) {
+        throw new Error("No unpaid bill available for this policy.");
+    }
+    
+    unpaidBill.status = 'Paid';
+    const newPayment = { ...paymentDetails, id: Date.now(), policyId: Number(policyId), billId: unpaidBill.id };
+    
+    await updateDoc(policyRef, {
+        payments: arrayUnion(newPayment),
+        bills: policyData.bills, // Update the bills array with the modified status
+        billingStatus: (policyData.bills || []).every(b => b.status === 'Paid') ? 'Up to Date' : 'Outstanding',
+        activityLog: arrayUnion({
+            date: new Date().toISOString(),
+            user: 'Premium Admin',
+            action: 'Premium Payment Recorded',
+            details: `GHS ${paymentDetails.amount.toFixed(2)} for bill #${unpaidBill.id}`
+        })
+    });
+    
+    const updatedPolicySnap = await getDoc(policyRef);
+    return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
 }
 
 
@@ -263,9 +335,34 @@ type BankReportPayment = {
     'Transaction ID': string;
 };
 
-export function recordBulkPayments(payments: BankReportPayment[]): { successCount: number; failureCount: number; } {
-     // This function needs to be rewritten to use async/await and update Firestore
-    return { successCount: 0, failureCount: payments.length };
+export async function recordBulkPayments(payments: BankReportPayment[]): Promise<{ successCount: number; failureCount: number; }> {
+    let successCount = 0;
+    let failureCount = 0;
+
+    for (const payment of payments) {
+        try {
+            const policiesRef = collection(db, "policies");
+            const q = query(policiesRef, where("policy", "==", payment['Policy Number']));
+            const querySnapshot = await getDocs(q);
+
+            if (!querySnapshot.empty) {
+                const policyDoc = querySnapshot.docs[0];
+                await recordPayment(policyDoc.id, {
+                    amount: payment.Amount,
+                    paymentDate: typeof payment['Payment Date'] === 'number' 
+                        ? new Date(1900, 0, payment['Payment Date'] - 1).toISOString().split('T')[0] // Excel date number
+                        : new Date(payment['Payment Date']).toISOString().split('T')[0],
+                    method: 'Bank Report',
+                    transactionId: payment['Transaction ID']
+                });
+                successCount++;
+            } else {
+                failureCount++;
+            }
+        } catch (error) {
+            console.error(`Failed to process payment for policy ${payment['Policy Number']}:`, error);
+            failureCount++;
+        }
+    }
+    return { successCount, failureCount };
 }
-
-

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/form';
 
 import { useToast } from '@/hooks/use-toast';
-import { format, isValid, parseISO } from 'date-fns';
+import { format, isValid, parseISO, addYears } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import { getPolicyById, createPolicy, updatePolicy, generateNewSerialNumber } from '@/lib/policy-service';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -81,6 +81,7 @@ const emptyFormValues: z.infer<typeof newBusinessFormSchema> = {
   serial: '',
   policy: '',
   commencementDate: new Date(),
+  expiryDate: new Date(),
   policyTerm: 0,
   premiumTerm: 0,
   sumAssured: 0,
@@ -220,7 +221,7 @@ function parseDates(data: any): any {
     const newData = { ...data };
 
     const dateKeys = [
-        'lifeAssuredDob', 'issueDate', 'expiryDateId', 'commencementDate',
+        'lifeAssuredDob', 'issueDate', 'expiryDateId', 'commencementDate', 'expiryDate',
         'premiumPayerDob', 'premiumPayerIssueDate', 'premiumPayerExpiryDate',
     ];
 
@@ -294,6 +295,8 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   const otherIncome = form.watch('otherIncome');
   const ageNextBirthday = form.watch('ageNextBirthday');
   const contractType = form.watch('contractType');
+  const commencementDate = form.watch('commencementDate');
+  const policyTerm = form.watch('policyTerm');
 
   React.useEffect(() => {
     if (!isEditMode) {
@@ -340,6 +343,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
       form.setValue('premiumTerm', Math.max(0, premiumTerm));
     }
   }, [ageNextBirthday, form]);
+
+  React.useEffect(() => {
+    if (commencementDate && policyTerm > 0) {
+        const expiry = addYears(commencementDate, policyTerm);
+        form.setValue('expiryDate', expiry);
+    }
+  }, [commencementDate, policyTerm, form]);
 
   React.useEffect(() => {
     const basic = Number(monthlyBasicIncome) || 0;
