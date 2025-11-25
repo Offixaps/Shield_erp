@@ -12,30 +12,37 @@ import {
   setDoc,
   deleteDoc,
   Timestamp,
+  query,
+  where,
+  arrayUnion,
+  updateDoc
 } from 'firebase/firestore';
-import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter } from 'date-fns';
+import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter, addYears } from 'date-fns';
 import { newBusinessData as policiesData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { seedPoliciesData } from './seed-data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 // Helper function to convert Firestore Timestamps to serializable format
-const policyFromFirebase = (data: any): NewBusiness => {
-  const policy: { [key: string]: any } = { ...data };
-  for (const key in policy) {
-    if (policy[key] instanceof Timestamp) {
-      policy[key] = policy[key].toDate().toISOString();
-    } else if (typeof policy[key] === 'object' && policy[key] !== null && !Array.isArray(policy[key])) {
-       const nested = policy[key];
-       for(const nestedKey in nested) {
-           if(nested[nestedKey] instanceof Timestamp) {
-                nested[nestedKey] = nested[nestedKey].toDate().toISOString();
-           }
-       }
-       policy[key] = nested;
+const policyFromFirebase = (data: any): any => {
+  if (!data) return data;
+  const newData: { [key: string]: any } = { ...data };
+
+  for (const key in newData) {
+    if (Object.prototype.hasOwnProperty.call(newData, key)) {
+      const value = newData[key];
+      if (value instanceof Timestamp) {
+        newData[key] = value.toDate().toISOString();
+      } else if (Array.isArray(value)) {
+        // Recursively process arrays
+        newData[key] = value.map(item => policyFromFirebase(item));
+      } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
+        // Recursively process nested objects
+        newData[key] = policyFromFirebase(value);
+      }
     }
   }
-  return policy as NewBusiness;
+  return newData as NewBusiness;
 };
 
 // Recursive helper function to convert dates back to Timestamps for Firestore
@@ -60,7 +67,7 @@ const policyToFirebase = (data: any): any => {
         const firestoreData: { [key: string]: any } = {};
         for (const key in data) {
             if (Object.prototype.hasOwnProperty.call(data, key)) {
-                if (data[key] !== undefined) { // Explicitly remove undefined fields
+                if (data[key] !== undefined) { 
                     firestoreData[key] = policyToFirebase(data[key]);
                 }
             }
@@ -254,7 +261,7 @@ function newId() {
 export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policyRef = doc(db, 'policies', policyId);
     const policySnap = await getDoc(policyRef);
-    if (!policySnap.exists() || policySnap.data().firstPremiumPaid) {
+    if (!policySnap.exists() || (policySnap.data() as NewBusiness).firstPremiumPaid) {
         return undefined;
     }
     const policyData = policySnap.data() as NewBusiness;
@@ -262,7 +269,7 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
     const newPayment: Omit<Payment, 'id'> = {
         ...paymentDetails,
         policyId: Number(policyId), // Assuming policyId can be cast to number, might need rethink
-        billId: policyData.bills.find(b => b.description === 'First Premium')?.id || -1
+        billId: (policyData.bills || []).find(b => b.description === 'First Premium')?.id || -1
     };
 
     const updatedPayments = [...(policyData.payments || []), { ...newPayment, id: Date.now() }];
