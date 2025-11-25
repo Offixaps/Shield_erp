@@ -256,8 +256,8 @@ export const newBusinessFormSchema = z
     bankAccountName: z.string().min(2, 'Bank account name is required.').default(''),
     bankAccountNumber: z.string().min(10, 'Bank account number must be at least 10 digits.').default(''),
     paymentAuthoritySignature: z.string().optional().default(''),
-    lifeInsuredSignature: z.string().optional().default(''),
-    policyOwnerSignature: z.string().optional().default(''),
+    lifeInsuredSignature: z.string().min(1, 'Life insured signature is required.'),
+    policyOwnerSignature: z.string().min(1, 'Policy owner signature is required.'),
 
     // Beneficiaries
     primaryBeneficiaries: z.array(beneficiarySchema).optional().default([]),
@@ -475,4 +475,5 @@ export const tabFields: Record<TabName, (keyof z.infer<typeof newBusinessFormSch
 };
 
     
+
 

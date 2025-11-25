@@ -359,14 +359,13 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
   
   const handleSaveAndNext = async () => {
     setIsSubmitting(true);
-    const currentTabFields = tabFields[activeTab];
-    const isValid = await form.trigger(currentTabFields as any);
+    const isValid = await form.trigger();
 
     if (!isValid) {
       toast({
         variant: 'destructive',
         title: 'Validation Error',
-        description: 'Please correct the errors on this tab before proceeding.',
+        description: 'Please correct the errors on this form before proceeding.',
       });
       setIsSubmitting(false);
       return;
@@ -548,18 +547,18 @@ export default function NewBusinessForm({ businessId }: NewBusinessFormProps) {
         </Tabs>
         
         <div className="flex justify-between p-4 gap-2">
-            <div>
-              {isEditMode ? (
+           <div>
+            {isEditMode ? (
                 <Button type="button" variant="outline" onClick={handleSaveAndClose} disabled={isSubmitting}>
-                  <Save className="mr-2" />
-                  Save & Close
+                    <Save className="mr-2" />
+                    Save & Close
                 </Button>
-              ) : (
+            ) : (
                 <Button type="button" variant="outline" onClick={handlePrevious} disabled={isFirstTab || isSubmitting}>
-                  <ChevronLeft className="mr-2" />
-                  Previous
+                    <ChevronLeft className="mr-2" />
+                    Previous
                 </Button>
-              )}
+            )}
             </div>
 
             <div>
