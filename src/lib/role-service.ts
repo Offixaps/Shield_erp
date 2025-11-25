@@ -1,69 +1,88 @@
 
 'use client';
 
-import { rolesData, type Role } from './data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, getDoc, addDoc, setDoc } from 'firebase/firestore';
+import type { Role } from './data';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
-const LOCAL_STORAGE_KEY = 'shield-erp-roles';
 
-function getRolesFromStorage(): Role[] {
-  if (typeof window === 'undefined') {
-    return rolesData;
-  }
-
-  const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-  if (storedData) {
+export async function getRoles(): Promise<Role[]> {
+    const rolesCollection = collection(db, 'roles');
     try {
-      const parsedData = JSON.parse(storedData);
-      return Array.isArray(parsedData) ? parsedData : rolesData;
-    } catch (e) {
-      console.error("Failed to parse roles from localStorage", e);
+        const roleSnapshot = await getDocs(rolesCollection);
+        if (roleSnapshot.empty) {
+            return [];
+        }
+        return roleSnapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }) as unknown as Role);
+    } catch (serverError) {
+        const permissionError = new FirestorePermissionError({
+            path: rolesCollection.path,
+            operation: 'list',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw permissionError;
     }
-  }
-  
-  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(rolesData));
-  return rolesData;
 }
 
-function saveRolesToStorage(roles: Role[]) {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(roles));
+export async function getRoleById(id: string): Promise<Role | undefined> {
+    const roleDocRef = doc(db, 'roles', id);
+    try {
+        const docSnap = await getDoc(roleDocRef);
+        if (docSnap.exists()) {
+            return { ...docSnap.data(), id: docSnap.id } as Role;
+        }
+        return undefined;
+    } catch (serverError) {
+        const permissionError = new FirestorePermissionError({
+            path: roleDocRef.path,
+            operation: 'get',
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw permissionError;
+    }
 }
 
-export function getRoles(): Role[] {
-  return getRolesFromStorage();
-}
-
-export function getRoleById(id: number): Role | undefined {
-  const roles = getRolesFromStorage();
-  return roles.find((role) => role.id === id);
-}
-
-export function createRole(values: { roleName: string; permissions: string[] }): Role {
-    const roles = getRolesFromStorage();
-    const newId = roles.length > 0 ? Math.max(...roles.map(r => r.id)) + 1 : 1;
-    
-    const newRole: Role = {
-        id: newId,
+export async function createRole(values: { roleName: string; permissions: string[] }): Promise<Role> {
+    const rolesCollection = collection(db, 'roles');
+    const newRoleData = {
         name: values.roleName,
         permissions: values.permissions,
     };
 
-    const updatedRoles = [...roles, newRole];
-    saveRolesToStorage(updatedRoles);
-    return newRole;
+    try {
+        const docRef = await addDoc(rolesCollection, newRoleData);
+        return { id: docRef.id, ...newRoleData } as unknown as Role;
+    } catch (serverError) {
+        const permissionError = new FirestorePermissionError({
+            path: rolesCollection.path,
+            operation: 'create',
+            requestResourceData: newRoleData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw permissionError;
+    }
 }
 
-export function updateRole(id: number, values: { roleName: string; permissions: string[] }): Role | undefined {
-    const roles = getRolesFromStorage();
-    const roleIndex = roles.findIndex(r => r.id === id);
-    if (roleIndex !== -1) {
-        roles[roleIndex] = {
-            ...roles[roleIndex],
-            name: values.roleName,
-            permissions: values.permissions,
-        };
-        saveRolesToStorage(roles);
-        return roles[roleIndex];
+export async function updateRole(id: string, values: { roleName: string; permissions: string[] }): Promise<Role> {
+    const roleDocRef = doc(db, 'roles', id);
+    const updatedData = {
+        name: values.roleName,
+        permissions: values.permissions,
+    };
+
+    try {
+        await setDoc(roleDocRef, updatedData, { merge: true });
+        const docSnap = await getDoc(roleDocRef);
+        return { ...docSnap.data(), id: docSnap.id } as Role;
+    } catch (serverError) {
+        const permissionError = new FirestorePermissionError({
+            path: roleDocRef.path,
+            operation: 'update',
+            requestResourceData: updatedData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+        throw permissionError;
     }
-    return undefined;
 }

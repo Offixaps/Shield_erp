@@ -1,7 +1,6 @@
 
 'use client';
 
-import { staffData, type StaffMember } from './data';
 import type { z } from 'zod';
 import type { newStaffFormSchema } from '@/components/staff/new-staff-form';
 import {
@@ -21,6 +20,7 @@ import { db, auth as firebaseAuth } from '@/lib/firebase';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { User } from 'firebase/auth';
+import type { StaffMember } from './data';
 
 
 const USERS_COLLECTION = 'users';
@@ -154,25 +154,20 @@ export async function createStaffMember(values: z.infer<typeof newStaffFormSchem
 
         await setDoc(doc(db, USERS_COLLECTION, newUser.uid), newStaffMemberData);
 
-        return { id: newUser.uid, ...newStaffMemberData } as StaffMember;
+        return { id: newUser.uid, ...newStaffMemberData } as unknown as StaffMember;
     } catch (error: any) {
         console.error("Error creating staff member:", error);
         throw new Error(error.message || "Failed to create staff member.");
     }
 }
 
-export async function updateStaff(id: number, values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember | undefined> {
-    // In Firestore, the document ID (uid) is the true unique identifier
-    // 'id' is a legacy field from the local data model.
-    // The correct way is to use the uid which we assume is passed as `staffId` in the component.
-    
-    const staffId = id.toString(); // Assuming the numeric id is not the firestore id. A proper app would pass the uid.
-    const staffRef = doc(db, USERS_COLLECTION, staffId);
+export async function updateStaff(id: string, values: z.infer<typeof newStaffFormSchema>): Promise<StaffMember | undefined> {
+    const staffRef = doc(db, USERS_COLLECTION, id);
 
     const docSnap = await getDoc(staffRef);
 
     if (!docSnap.exists()) {
-        console.error("Staff member not found with ID:", staffId);
+        console.error("Staff member not found with ID:", id);
         return undefined;
     }
 
@@ -194,11 +189,10 @@ export async function updateStaff(id: number, values: z.infer<typeof newStaffFor
         errorEmitter.emit('permission-error', permissionError);
     });
 
-    return { id, ...docSnap.data(), ...updatedData } as StaffMember;
+    return { id, ...docSnap.data(), ...updatedData } as unknown as StaffMember;
 }
 
-export async function deleteStaffMember(id: number | string): Promise<boolean> {
-    // The ID passed here should be the Firestore document UID.
+export async function deleteStaffMember(id: string): Promise<boolean> {
     const staffRef = doc(db, USERS_COLLECTION, id.toString());
     
     try {
@@ -212,12 +206,4 @@ export async function deleteStaffMember(id: number | string): Promise<boolean> {
         errorEmitter.emit('permission-error', permissionError);
         return false;
     }
-}
-
-
-// Legacy functions using local storage (to be deprecated)
-export function getStaffById(id: number): StaffMember | undefined {
-    // This is now a mock. In a real scenario, this would be an async DB call.
-    const allStaff = staffData;
-    return allStaff.find(s => s.id === id);
 }

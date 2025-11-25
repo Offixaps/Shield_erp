@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -29,17 +28,15 @@ export default function RolesPage() {
 
   React.useEffect(() => {
     async function fetchData() {
-        // Filter out the 'Super Admin' role from local data
-        let rolesFromService = getRoles().filter(role => role.name !== 'Super Admin');
-        
-        // Sort by ID descending to show the latest roles first
-        rolesFromService.sort((a, b) => b.id - a.id);
-
-        // Fetch staff members asynchronously
+        const rolesFromService = await getRoles();
         const staffMembers = await getStaff();
 
-        setAllRoles(rolesFromService);
-        setFilteredRoles(rolesFromService);
+        const filteredRoles = rolesFromService.filter(role => role.name !== 'Super Admin');
+        
+        filteredRoles.sort((a, b) => (b.id as number) - (a.id as number));
+
+        setAllRoles(filteredRoles);
+        setFilteredRoles(filteredRoles);
         setStaff(staffMembers);
     }
     fetchData();
@@ -77,7 +74,7 @@ export default function RolesPage() {
             <Input
               type="search"
               placeholder="Search by role name..."
-              className="w-full pl-8 sm:w-[300px]"
+              className="w-full sm:w-[300px]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

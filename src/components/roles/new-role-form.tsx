@@ -56,32 +56,35 @@ export default function NewRoleForm({ roleId }: NewRoleFormProps) {
 
   React.useEffect(() => {
     if (isEditMode && roleId) {
-      const roleData = getRoleById(parseInt(roleId, 10));
-      if (roleData) {
-        form.reset({
-            roleName: roleData.name,
-            permissions: roleData.permissions,
-        })
+      const fetchRole = async () => {
+          const roleData = await getRoleById(roleId);
+          if (roleData) {
+            form.reset({
+                roleName: roleData.name,
+                permissions: roleData.permissions,
+            })
+          }
       }
+      fetchRole();
     }
   }, [isEditMode, roleId, form]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (isEditMode && roleId) {
-      updateRole(parseInt(roleId, 10), values);
+      await updateRole(roleId, values);
        toast({
         title: 'Role Updated',
         description: `The role "${values.roleName}" has been updated.`,
       });
     } else {
-      createRole(values);
+      await createRole(values);
       toast({
         title: 'Role Created',
         description: `The role "${values.roleName}" has been created with ${values.permissions.length} permissions.`,
       });
     }
     router.push('/roles');
-    router.refresh(); // To see the changes in the table
+    router.refresh();
   }
 
   return (

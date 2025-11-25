@@ -34,8 +34,7 @@ export default function StaffPage() {
   const fetchStaff = async () => {
     const staff = await getStaff();
     if (staff) {
-      // Sort by ID descending to show the latest staff first
-      staff.sort((a, b) => (b.id as number) - (a.id as number));
+      staff.sort((a, b) => (b.id as unknown as number) - (a.id as unknown as number));
       setStaffList(staff);
     }
   }
@@ -44,8 +43,8 @@ export default function StaffPage() {
     fetchStaff();
   }, []);
 
-  const handleDelete = (id: number) => {
-    deleteStaffMember(id).then(() => {
+  const handleDelete = (uid: string) => {
+    deleteStaffMember(uid).then(() => {
         fetchStaff();
     });
   };
@@ -111,11 +110,11 @@ export default function StaffPage() {
               </CardContent>
               <div className="flex justify-center p-4 border-t">
                   <Button variant="ghost" size="sm" className="w-full justify-center" asChild>
-                    <Link href={`/staff/${staff.id}/edit`}>
+                    <Link href={`/staff/${staff.uid}/edit`}>
                         <Edit className="mr-2 h-4 w-4" /> Edit
                     </Link>
                   </Button>
-                  <DeleteStaffDialog onConfirm={() => handleDelete(staff.id)}>
+                  <DeleteStaffDialog onConfirm={() => handleDelete(staff.uid)}>
                    <Button variant="ghost" size="sm" className="w-full justify-center text-destructive hover:text-destructive">
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
@@ -149,11 +148,11 @@ export default function StaffPage() {
                             </TableCell>
                             <TableCell className="text-right">
                                 <Button variant="ghost" size="icon" asChild>
-                                    <Link href={`/staff/${staff.id}/edit`}>
+                                    <Link href={`/staff/${staff.uid}/edit`}>
                                         <Edit className="h-4 w-4" />
                                     </Link>
                                 </Button>
-                                <DeleteStaffDialog onConfirm={() => handleDelete(staff.id)}>
+                                <DeleteStaffDialog onConfirm={() => handleDelete(staff.uid)}>
                                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">
                                         <Trash2 className="h-4 w-4" />
                                     </Button>

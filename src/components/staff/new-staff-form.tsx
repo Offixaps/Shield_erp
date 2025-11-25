@@ -64,7 +64,8 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
 
   React.useEffect(() => {
     async function fetchInitialData() {
-        setRoles(getRoles());
+        const fetchedRoles = await getRoles();
+        setRoles(fetchedRoles);
         if (user) {
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
@@ -124,7 +125,7 @@ export default function NewStaffForm({ staffId }: NewStaffFormProps) {
   
   async function onSubmit(values: z.infer<typeof newStaffFormSchema>) {
     if (isEditMode && staffId) {
-      await updateStaff(parseInt(staffId, 10), values);
+      await updateStaff(staffId, values);
       toast({
         title: 'Staff Member Updated',
         description: `${values.firstName} ${values.lastName}'s details have been updated.`,

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { db } from '@/lib/firebase';
@@ -18,7 +17,7 @@ import {
   updateDoc
 } from 'firebase/firestore';
 import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter, addYears } from 'date-fns';
-import { newBusinessData as policiesData, type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
+import { type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { seedPoliciesData } from './seed-data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -234,8 +233,9 @@ export async function deletePolicy(id: string): Promise<boolean> {
 
 // --- Functions below are local mocks or specific actions ---
 
-export function generateNewSerialNumber(): string {
-    const maxSerial = policiesData.reduce((max, p) => {
+export async function generateNewSerialNumber(): Promise<string> {
+    const policies = await getPolicies();
+    const maxSerial = policies.reduce((max, p) => {
         const serialNum = parseInt(p.serial, 10);
         return !isNaN(serialNum) && serialNum > max ? serialNum : max;
     }, 1000);
@@ -263,19 +263,6 @@ export async function seedDatabase(): Promise<number> {
     return seededCount;
 }
 
-
-// The rest of the functions seem to be local data manipulations.
-// They need to be refactored to work with Firestore if they are to be used.
-// For now, I am assuming they are either deprecated or need async implementation.
-// To avoid breaking the app, I will leave them but they might not work as expected
-// as they manipulate an in-memory array, not Firestore.
-
-let policies: NewBusiness[] = [...policiesData];
-let nextId = policies.length > 0 ? Math.max(...policies.map(p => p.id)) + 1 : 1;
-
-function newId() {
-    return nextId++;
-}
 
 export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policyRef = doc(db, 'policies', policyId);
