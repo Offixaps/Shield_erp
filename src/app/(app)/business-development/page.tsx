@@ -57,6 +57,8 @@ export default function BusinessDevelopmentPage() {
           'Pending Medicals',
           'Medicals Completed',
           'Pending Decision',
+          'Pending Mandate',
+          'Mandate Rework Required',
         ];
 
         const newBusiness = policies
