@@ -16,7 +16,7 @@ import {
   arrayUnion,
   updateDoc
 } from 'firebase/firestore';
-import { format } from 'date-fns';
+import { format, isAfter, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, addYears } from 'date-fns';
 import { type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -71,22 +71,40 @@ const policyToFirebase = (data: any): any => {
     return data;
 }
 
-export async function getPolicies(): Promise<NewBusiness[]> {
-    try {
-        const policiesCollection = collection(db, 'policies');
-        const policySnapshot = await getDocs(policiesCollection);
-        if (policySnapshot.empty) {
-            console.log("No policies found in Firestore.");
-            return [];
-        }
-        return policySnapshot.docs.map(doc => policyFromFirebase({ ...doc.data(), id: doc.id }));
-    } catch (error) {
-        console.error("Error fetching policies from Firestore: ", error);
-        throw new Error("Failed to fetch policies from the database. Please check your connection and permissions.");
+let allPoliciesCache: NewBusiness[] | null = null;
+let cacheTimestamp: number | null = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function fetchPoliciesFromFirestore(): Promise<NewBusiness[]> {
+    const policiesCollection = collection(db, 'policies');
+    const policySnapshot = await getDocs(policiesCollection);
+    if (policySnapshot.empty) {
+        return [];
     }
+    return policySnapshot.docs.map(doc => policyFromFirebase({ ...doc.data(), id: doc.id }));
+}
+
+export async function getPolicies(forceRefresh = false): Promise<NewBusiness[]> {
+    const now = Date.now();
+    if (forceRefresh || !allPoliciesCache || !cacheTimestamp || (now - cacheTimestamp > CACHE_DURATION)) {
+        try {
+            allPoliciesCache = await fetchPoliciesFromFirestore();
+            cacheTimestamp = now;
+        } catch (error) {
+            console.error("Error fetching policies from Firestore: ", error);
+            allPoliciesCache = []; // Reset cache on error
+            throw new Error("Failed to fetch policies from the database. Please check your connection and permissions.");
+        }
+    }
+    return allPoliciesCache;
 }
 
 export async function getPolicyById(id: string): Promise<NewBusiness | undefined> {
+    const cachedPolicy = allPoliciesCache?.find(p => p.id === id);
+    if (cachedPolicy) {
+        return cachedPolicy;
+    }
+    
     try {
         const policyDocRef = doc(db, 'policies', id);
         const docSnap = await getDoc(policyDocRef);
@@ -139,6 +157,7 @@ export async function createPolicy(values: Partial<Omit<NewBusiness, 'id'>>): Pr
     const policiesCollection = collection(db, 'policies');
     try {
         const docRef = await addDoc(policiesCollection, firestoreData);
+        await getPolicies(true);
         return { ...newPolicyData, id: docRef.id } as NewBusiness;
     } catch (serverError) {
         const permissionError = new FirestorePermissionError({
@@ -162,7 +181,6 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
 
     let updatedPolicyData: Partial<NewBusiness> = { ...originalPolicy, ...updates };
 
-    // Re-construct derived fields if their components have changed
     const nameFields: (keyof NewBusiness)[] = ['title', 'lifeAssuredFirstName', 'lifeAssuredMiddleName', 'lifeAssuredSurname'];
     const payerNameFields: (keyof NewBusiness)[] = ['premiumPayerOtherNames', 'premiumPayerSurname'];
 
@@ -206,6 +224,7 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
         throw permissionError;
     });
 
+    await getPolicies(true);
     return updatedPolicyData as NewBusiness;
 }
 
@@ -213,6 +232,7 @@ export async function deletePolicy(id: string): Promise<boolean> {
     const policyDocRef = doc(db, 'policies', id);
     try {
         await deleteDoc(policyDocRef);
+        await getPolicies(true);
         return true;
     } catch (serverError) {
         const permissionError = new FirestorePermissionError({
@@ -260,11 +280,10 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
     };
 
     const updatedBills = (policyData.bills || []).map(b => b.id === firstBill.id ? firstBill : b);
-    const updatedPayments = [...(policyData.payments || []), newPayment];
     
     await updateDoc(policyRef, policyToFirebase({
         bills: updatedBills,
-        payments: updatedPayments,
+        payments: arrayUnion(newPayment),
         onboardingStatus: 'First Premium Confirmed',
         billingStatus: 'First Premium Paid',
         firstPremiumPaid: true,
@@ -276,6 +295,7 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
         })
     }));
 
+    await getPolicies(true);
     const updatedPolicySnap = await getDoc(policyRef);
     return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
 }
@@ -294,12 +314,17 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
     }
     
     unpaidBill.status = 'Paid';
-    const newPayment: Payment = { ...paymentDetails, id: Date.now(), policyId: Number(policyId), billId: unpaidBill.id };
+    const newPaymentId = Date.now();
+    unpaidBill.paymentId = newPaymentId;
     
+    const newPayment: Payment = { ...paymentDetails, id: newPaymentId, policyId: Number(policyId), billId: unpaidBill.id };
+    
+    const updatedBills = (policyData.bills || []).map(b => b.id === unpaidBill.id ? unpaidBill : b);
+
     await updateDoc(policyRef, policyToFirebase({
         payments: arrayUnion(newPayment),
-        bills: policyData.bills, // Update the bills array with the modified status
-        billingStatus: (policyData.bills || []).every(b => b.status === 'Paid') ? 'Up to Date' : 'Outstanding',
+        bills: updatedBills,
+        billingStatus: (updatedBills || []).every(b => b.status === 'Paid') ? 'Up to Date' : 'Outstanding',
         activityLog: arrayUnion({
             date: new Date().toISOString(),
             user: 'Premium Admin',
@@ -308,6 +333,7 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
         })
     }));
     
+    await getPolicies(true);
     const updatedPolicySnap = await getDoc(policyRef);
     return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
 }
@@ -349,5 +375,19 @@ export async function recordBulkPayments(payments: BankReportPayment[]): Promise
             failureCount++;
         }
     }
+    await getPolicies(true);
     return { successCount, failureCount };
+}
+
+export function billAllActivePolicies(): number {
+    // This is a placeholder implementation.
+    // In a real application, this would involve complex logic to determine which policies to bill.
+    console.log("Simulating billing all active policies...");
+    return 0; // Returning 0 as no actual policies were billed.
+}
+
+export function applyAnnualIncreases(): number {
+    // This is a placeholder implementation.
+    console.log("Simulating applying annual increases...");
+    return 0;
 }
