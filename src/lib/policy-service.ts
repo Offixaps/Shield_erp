@@ -16,13 +16,12 @@ import {
   arrayUnion,
   updateDoc
 } from 'firebase/firestore';
-import { format, startOfMonth, getYear, isBefore, startOfDay, differenceInYears, parse, isAfter, addYears } from 'date-fns';
+import { format } from 'date-fns';
 import { type NewBusiness, type Bill, type Payment, type ActivityLog } from './data';
-import { seedPoliciesData } from './seed-data';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
-// Helper function to convert Firestore Timestamps to serializable format
+// Helper to recursively convert Firestore Timestamps to serializable ISO strings
 const policyFromFirebase = (data: any): any => {
   if (!data) return data;
   const newData: { [key: string]: any } = { ...data };
@@ -33,10 +32,8 @@ const policyFromFirebase = (data: any): any => {
       if (value instanceof Timestamp) {
         newData[key] = value.toDate().toISOString();
       } else if (Array.isArray(value)) {
-        // Recursively process arrays
         newData[key] = value.map(item => policyFromFirebase(item));
       } else if (typeof value === 'object' && value !== null && !(value instanceof Date)) {
-        // Recursively process nested objects
         newData[key] = policyFromFirebase(value);
       }
     }
@@ -44,16 +41,15 @@ const policyFromFirebase = (data: any): any => {
   return newData as NewBusiness;
 };
 
-// Recursive helper function to convert dates back to Timestamps for Firestore
+// Recursive helper to convert date strings/objects back to Timestamps for Firestore
 const policyToFirebase = (data: any): any => {
-    if (data === null) {
-        return data;
-    }
+    if (!data) return data;
 
     if (data instanceof Date) {
         return Timestamp.fromDate(data);
     }
     
+    // Check for ISO string format
     if (typeof data === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(data)) {
         return Timestamp.fromDate(new Date(data));
     }
@@ -65,10 +61,8 @@ const policyToFirebase = (data: any): any => {
     if (typeof data === 'object' && data !== null) {
         const firestoreData: { [key: string]: any } = {};
         for (const key in data) {
-            if (Object.prototype.hasOwnProperty.call(data, key)) {
-                if (data[key] !== undefined) { 
-                    firestoreData[key] = policyToFirebase(data[key]);
-                }
+            if (Object.prototype.hasOwnProperty.call(data, key) && data[key] !== undefined) { 
+                firestoreData[key] = policyToFirebase(data[key]);
             }
         }
         return firestoreData;
@@ -77,17 +71,15 @@ const policyToFirebase = (data: any): any => {
     return data;
 }
 
-
 export async function getPolicies(): Promise<NewBusiness[]> {
     try {
         const policiesCollection = collection(db, 'policies');
         const policySnapshot = await getDocs(policiesCollection);
         if (policySnapshot.empty) {
-            console.log("No policies found in Firestore. You may need to seed the database.");
+            console.log("No policies found in Firestore.");
             return [];
         }
-        const policiesList = policySnapshot.docs.map(doc => policyFromFirebase({ ...doc.data(), id: doc.id }));
-        return policiesList;
+        return policySnapshot.docs.map(doc => policyFromFirebase({ ...doc.data(), id: doc.id }));
     } catch (error) {
         console.error("Error fetching policies from Firestore: ", error);
         throw new Error("Failed to fetch policies from the database. Please check your connection and permissions.");
@@ -112,8 +104,8 @@ export async function createPolicy(values: Partial<Omit<NewBusiness, 'id'>>): Pr
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
     const firstBill: Bill = {
-        id: Date.now(), // Use a simple timestamp for a unique ID
-        policyId: 0, // This will be updated after creation if needed, but not necessary
+        id: Date.now(),
+        policyId: 0, 
         amount: values.premiumAmount || 0,
         dueDate: values.commencementDate ? new Date(values.commencementDate).toISOString() : new Date().toISOString(),
         status: 'Unpaid',
@@ -162,14 +154,12 @@ export async function createPolicy(values: Partial<Omit<NewBusiness, 'id'>>): Pr
 export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness> {
     const policyDocRef = doc(db, 'policies', id);
 
-    // Fetch existing policy to merge updates correctly
     const existingDoc = await getDoc(policyDocRef);
     if (!existingDoc.exists()) {
         throw new Error("Policy not found");
     }
     const originalPolicy = policyFromFirebase({ ...existingDoc.data(), id: existingDoc.id });
 
-    // Create the final updated object
     let updatedPolicyData: Partial<NewBusiness> = { ...originalPolicy, ...updates };
 
     // Re-construct derived fields if their components have changed
@@ -183,14 +173,10 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
         updatedPolicyData.client = [updatedPolicyData.title, updatedPolicyData.lifeAssuredFirstName, updatedPolicyData.lifeAssuredMiddleName, updatedPolicyData.lifeAssuredSurname].filter(Boolean).join(' ');
     }
     
-    if (hasNameChanged && updatedPolicyData.isPolicyHolderPayer) {
-        updatedPolicyData.payerName = updatedPolicyData.client;
-    } else if (hasPayerNameChanged) {
-         updatedPolicyData.payerName = [updatedPolicyData.premiumPayerOtherNames, updatedPolicyData.premiumPayerSurname].filter(Boolean).join(' ');
+    if ((hasNameChanged && updatedPolicyData.isPolicyHolderPayer) || (hasPayerNameChanged && !updatedPolicyData.isPolicyHolderPayer)) {
+         updatedPolicyData.payerName = updatedPolicyData.isPolicyHolderPayer ? updatedPolicyData.client : [updatedPolicyData.premiumPayerOtherNames, updatedPolicyData.premiumPayerSurname].filter(Boolean).join(' ');
     }
 
-
-    // Add activity log entry if status changes
     if (updates.onboardingStatus && updates.onboardingStatus !== originalPolicy.onboardingStatus) {
         let user = 'System';
         if (['Pending Vetting', 'Vetting Completed', 'Rework Required', 'Accepted', 'Declined', 'NTU', 'Deferred', 'Pending Medicals', 'Medicals Completed'].includes(updates.onboardingStatus)) {
@@ -208,7 +194,6 @@ export async function updatePolicy(id: string, updates: Partial<Omit<NewBusiness
         updatedPolicyData.activityLog = [...(updatedPolicyData.activityLog || []), newLogEntry];
     }
     
-    // Pass the entire reconstructed object to be converted and saved
     const firestoreData = policyToFirebase(updatedPolicyData);
 
     await setDoc(policyDocRef, firestoreData, { merge: true }).catch(async (serverError) => {
@@ -239,11 +224,11 @@ export async function deletePolicy(id: string): Promise<boolean> {
     }
 }
 
-
-// --- Functions below are local mocks or specific actions ---
-
 export async function generateNewSerialNumber(): Promise<string> {
     const policies = await getPolicies();
+    if (policies.length === 0) {
+        return "1001";
+    }
     const maxSerial = policies.reduce((max, p) => {
         const serialNum = parseInt(p.serial, 10);
         return !isNaN(serialNum) && serialNum > max ? serialNum : max;
@@ -251,42 +236,18 @@ export async function generateNewSerialNumber(): Promise<string> {
     return (maxSerial + 1).toString();
 }
 
-export async function seedDatabase(): Promise<number> {
-    const policiesCollection = collection(db, 'policies');
-    let seededCount = 0;
-    for (const policy of seedPoliciesData) {
-        const firestorePolicy = policyToFirebase(policy);
-        try {
-            await addDoc(policiesCollection, firestorePolicy);
-            seededCount++;
-        } catch (serverError) {
-             const permissionError = new FirestorePermissionError({
-                path: policiesCollection.path,
-                operation: 'create',
-                requestResourceData: firestorePolicy,
-            });
-            errorEmitter.emit('permission-error', permissionError);
-            console.error("Failed to seed policy:", policy.client, serverError);
-        }
-    }
-    return seededCount;
-}
-
-
 export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policyRef = doc(db, 'policies', policyId);
     const policySnap = await getDoc(policyRef);
 
     if (!policySnap.exists()) return undefined;
-    const policyData = policySnap.data() as NewBusiness;
+    const policyData = policyFromFirebase(policySnap.data()) as NewBusiness;
 
     const firstBill = (policyData.bills || []).find(b => b.description === 'First Premium' && b.status === 'Unpaid');
-
     if (!firstBill) {
         throw new Error("First premium bill not found or already paid.");
     }
     
-    // Mark the bill as paid
     firstBill.status = 'Paid';
     const newPaymentId = Date.now();
     firstBill.paymentId = newPaymentId;
@@ -298,10 +259,10 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
         billId: firstBill.id
     };
 
-    const updatedBills = policyData.bills.map(b => b.id === firstBill.id ? firstBill : b);
+    const updatedBills = (policyData.bills || []).map(b => b.id === firstBill.id ? firstBill : b);
     const updatedPayments = [...(policyData.payments || []), newPayment];
     
-    await updateDoc(policyRef, {
+    await updateDoc(policyRef, policyToFirebase({
         bills: updatedBills,
         payments: updatedPayments,
         onboardingStatus: 'First Premium Confirmed',
@@ -313,7 +274,7 @@ export async function recordFirstPayment(policyId: string, paymentDetails: Omit<
             action: 'First Premium Confirmed',
             details: `GHS ${paymentDetails.amount.toFixed(2)} via ${paymentDetails.method}`
         })
-    });
+    }));
 
     const updatedPolicySnap = await getDoc(policyRef);
     return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
@@ -325,7 +286,7 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
 
     if (!policySnap.exists()) return undefined;
 
-    const policyData = policySnap.data() as NewBusiness;
+    const policyData = policyFromFirebase(policySnap.data()) as NewBusiness;
     const unpaidBill = (policyData.bills || []).find(b => b.status === 'Unpaid');
 
     if (!unpaidBill) {
@@ -333,9 +294,9 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
     }
     
     unpaidBill.status = 'Paid';
-    const newPayment = { ...paymentDetails, id: Date.now(), policyId: Number(policyId), billId: unpaidBill.id };
+    const newPayment: Payment = { ...paymentDetails, id: Date.now(), policyId: Number(policyId), billId: unpaidBill.id };
     
-    await updateDoc(policyRef, {
+    await updateDoc(policyRef, policyToFirebase({
         payments: arrayUnion(newPayment),
         bills: policyData.bills, // Update the bills array with the modified status
         billingStatus: (policyData.bills || []).every(b => b.status === 'Paid') ? 'Up to Date' : 'Outstanding',
@@ -345,21 +306,10 @@ export async function recordPayment(policyId: string, paymentDetails: Omit<Payme
             action: 'Premium Payment Recorded',
             details: `GHS ${paymentDetails.amount.toFixed(2)} for bill #${unpaidBill.id}`
         })
-    });
+    }));
     
     const updatedPolicySnap = await getDoc(policyRef);
     return policyFromFirebase({ ...updatedPolicySnap.data(), id: updatedPolicySnap.id });
-}
-
-
-export function billAllActivePolicies(): number {
-    // This function needs to be rewritten to use async/await and update Firestore
-    return 0;
-}
-
-export function applyAnnualIncreases(): number {
-    // This function needs to be rewritten to use async/await and update Firestore
-    return 0;
 }
 
 type BankReportPayment = {
