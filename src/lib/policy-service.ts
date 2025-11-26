@@ -111,6 +111,15 @@ export async function getPolicyById(id: string): Promise<NewBusiness | undefined
 export async function createPolicy(values: Partial<Omit<NewBusiness, 'id'>>): Promise<NewBusiness> {
     const lifeAssuredName = [values.title, values.lifeAssuredFirstName, values.lifeAssuredMiddleName, values.lifeAssuredSurname].filter(Boolean).join(' ');
 
+    const firstBill: Bill = {
+        id: Date.now(), // Use a simple timestamp for a unique ID
+        policyId: 0, // This will be updated after creation if needed, but not necessary
+        amount: values.premiumAmount || 0,
+        dueDate: values.commencementDate ? new Date(values.commencementDate).toISOString() : new Date().toISOString(),
+        status: 'Unpaid',
+        description: 'First Premium'
+    };
+
     const newPolicyData = {
         ...values,
         client: lifeAssuredName,
@@ -125,7 +134,7 @@ export async function createPolicy(values: Partial<Omit<NewBusiness, 'id'>>): Pr
         mandateVerified: false,
         firstPremiumPaid: false,
         medicalUnderwritingState: { started: false, completed: false },
-        bills: [],
+        bills: [firstBill],
         payments: [],
         activityLog: [
             { date: new Date().toISOString(), user: 'Sales Agent', action: 'Policy Created', details: 'Initial policy creation.' },
@@ -267,20 +276,33 @@ export async function seedDatabase(): Promise<number> {
 export async function recordFirstPayment(policyId: string, paymentDetails: Omit<Payment, 'id' | 'policyId' | 'billId'>): Promise<NewBusiness | undefined> {
     const policyRef = doc(db, 'policies', policyId);
     const policySnap = await getDoc(policyRef);
-    if (!policySnap.exists() || (policySnap.data() as NewBusiness).firstPremiumPaid) {
-        return undefined;
-    }
+
+    if (!policySnap.exists()) return undefined;
     const policyData = policySnap.data() as NewBusiness;
 
-    const newPayment: Omit<Payment, 'id'> = {
+    const firstBill = (policyData.bills || []).find(b => b.description === 'First Premium' && b.status === 'Unpaid');
+
+    if (!firstBill) {
+        throw new Error("First premium bill not found or already paid.");
+    }
+    
+    // Mark the bill as paid
+    firstBill.status = 'Paid';
+    const newPaymentId = Date.now();
+    firstBill.paymentId = newPaymentId;
+
+    const newPayment: Payment = {
         ...paymentDetails,
-        policyId: Number(policyId), // Assuming policyId can be cast to number, might need rethink
-        billId: (policyData.bills || []).find(b => b.description === 'First Premium')?.id || -1
+        id: newPaymentId,
+        policyId: Number(policyId),
+        billId: firstBill.id
     };
 
-    const updatedPayments = [...(policyData.payments || []), { ...newPayment, id: Date.now() }];
+    const updatedBills = policyData.bills.map(b => b.id === firstBill.id ? firstBill : b);
+    const updatedPayments = [...(policyData.payments || []), newPayment];
     
     await updateDoc(policyRef, {
+        bills: updatedBills,
         payments: updatedPayments,
         onboardingStatus: 'First Premium Confirmed',
         billingStatus: 'First Premium Paid',
