@@ -70,8 +70,8 @@ export default function CollectionsPage() {
     const [eligibleForBillingCount, setEligibleForBillingCount] = React.useState(0);
     const [eligibleForIncreaseCount, setEligibleForIncreaseCount] = React.useState(0);
 
-     const calculateEligibleForBilling = () => {
-        const policies = getPolicies();
+     const calculateEligibleForBilling = async () => {
+        const policies = await getPolicies();
         const today = new Date();
         const currentMonth = today.getMonth();
         const currentYear = today.getFullYear();
@@ -95,8 +95,8 @@ export default function CollectionsPage() {
         setEligibleForBillingCount(count);
     };
 
-    const calculateEligibleForIncrease = () => {
-        const policies = getPolicies();
+    const calculateEligibleForIncrease = async () => {
+        const policies = await getPolicies();
         const today = startOfDay(new Date());
         const currentYear = getYear(today);
         let count = 0;
